@@ -73,7 +73,6 @@ function PageHeader({ title, companyName, entityName, theme }: { title: string; 
         </View>
         <Text style={{ fontSize: 7, color: theme.secondary, fontWeight: "bold", fontFamily: "Helvetica-Bold" }}>{companyName}</Text>
       </View>
-      <View style={{ height: 5, backgroundColor: theme.accent, borderBottomLeftRadius: 3, borderBottomRightRadius: 3 }} />
     </View>
   );
 }
@@ -173,7 +172,7 @@ function FinancialTable({ title, years, rows, companyName, entityName, theme, is
     <Page size={pageSize} style={{ paddingTop: 10, paddingHorizontal: isLandscape ? 60 : 50, paddingBottom: 30, backgroundColor: theme.white }}>
       <PageHeader title={title} companyName={companyName} entityName={entityName} theme={theme} />
       <View style={{ borderWidth: 0.5, borderColor: theme.secondary, borderRadius: 5, overflow: "hidden" }}>
-        <View style={{ flexDirection: "row", backgroundColor: theme.surface, borderBottomWidth: 2, borderBottomColor: theme.accent }}>
+        <View style={{ flexDirection: "row", backgroundColor: theme.surface, borderBottomWidth: 1.5, borderBottomColor: theme.secondary }}>
           <View style={{ width: labelWidth, padding: "6 8" }}>
             <Text style={{ fontSize: headerFontSize, fontWeight: "bold", fontFamily: "Helvetica-Bold", color: theme.primary }}> </Text>
           </View>

@@ -67,7 +67,7 @@ export const CHART_COLORS = {
   subtotal: "hsl(var(--primary))",
   connector: "hsl(var(--muted-foreground))",
   tooltipBg: "rgba(0,0,0,0.85)",
-  tooltipText: "#fff",
+  tooltipText: "hsl(var(--card-foreground))",
   gridStroke: "hsl(var(--border))",
   axisStroke: "hsl(var(--muted-foreground))",
 } as const;

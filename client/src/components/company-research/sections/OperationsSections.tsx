@@ -43,8 +43,8 @@ export function RevenueFees({ content, hasData, onGenerate }: { content: any; ha
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={feeOverTime}>
               <defs>
-                <linearGradient id="gradBase" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6366f1" stopOpacity={0.9} /><stop offset="100%" stopColor="#6366f1" stopOpacity={0.5} /></linearGradient>
-                <linearGradient id="gradIncentive" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10b981" stopOpacity={0.9} /><stop offset="100%" stopColor="#10b981" stopOpacity={0.5} /></linearGradient>
+                <linearGradient id="gradBase" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(var(--chart-1))" stopOpacity={0.5} /></linearGradient>
+                <linearGradient id="gradIncentive" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--chart-2))" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity={0.5} /></linearGradient>
               </defs>
               <XAxis dataKey="year" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
               <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={v => `${v}%`} />
@@ -62,8 +62,8 @@ export function RevenueFees({ content, hasData, onGenerate }: { content: any; ha
               <XAxis type="number" tick={{ fontSize: 11 }} tickFormatter={v => `${v}%`} />
               <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={80} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="company" name="Company" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={14} />
-              <Bar dataKey="industry" name="Industry Avg" fill="#94a3b8" radius={[0, 4, 4, 0]} barSize={14} />
+              <Bar dataKey="company" name="Company" fill="hsl(var(--chart-1))" radius={[0, 4, 4, 0]} barSize={14} />
+              <Bar dataKey="industry" name="Industry Avg" fill="hsl(var(--muted-foreground))" radius={[0, 4, 4, 0]} barSize={14} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -99,10 +99,10 @@ export function CostStructure({ content, hasData, onGenerate }: { content: any; 
   if (!hasData) return <EmptyState title="Cost Structure Analysis" description="Generate research to see overhead allocation and staffing benchmarks." onGenerate={onGenerate} />;
 
   const treemapData = [
-    { name: "Salaries", size: 42, fill: "#6366f1" }, { name: "Benefits", size: 12, fill: "#8b5cf6" },
-    { name: "Technology", size: 14, fill: "#10b981" }, { name: "Office/Admin", size: 10, fill: "#f59e0b" },
-    { name: "Travel", size: 6, fill: "#06b6d4" },
-    { name: "Professional Svcs", size: 5, fill: "#ec4899" }, { name: "Other", size: 3, fill: "#94a3b8" },
+    { name: "Salaries", size: 42, fill: "hsl(var(--chart-1))" }, { name: "Benefits", size: 12, fill: "hsl(var(--chart-5))" },
+    { name: "Technology", size: 14, fill: "hsl(var(--chart-2))" }, { name: "Office/Admin", size: 10, fill: "hsl(var(--chart-3))" },
+    { name: "Travel", size: 6, fill: "hsl(var(--accent-pop))" },
+    { name: "Professional Svcs", size: 5, fill: "hsl(var(--chart-4))" }, { name: "Other", size: 3, fill: "hsl(var(--muted-foreground))" },
   ];
 
   const staffingData = Array.from({ length: 5 }, (_, i) => ({
@@ -135,14 +135,14 @@ export function CostStructure({ content, hasData, onGenerate }: { content: any; 
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={staffingData}>
               <defs>
-                <linearGradient id="gradStaff" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} /><stop offset="100%" stopColor="#6366f1" stopOpacity={0.02} /></linearGradient>
-                <linearGradient id="gradOH" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10b981" stopOpacity={0.3} /><stop offset="100%" stopColor="#10b981" stopOpacity={0.02} /></linearGradient>
+                <linearGradient id="gradStaff" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} /><stop offset="100%" stopColor="hsl(var(--chart-1))" stopOpacity={0.02} /></linearGradient>
+                <linearGradient id="gradOH" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3} /><stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity={0.02} /></linearGradient>
               </defs>
               <XAxis dataKey="year" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
               <Tooltip content={<CustomTooltip />} />
-              <Area type="stepAfter" dataKey="staffing" name="Staffing" stroke="#6366f1" fill="url(#gradStaff)" strokeWidth={2} />
-              <Area type="stepAfter" dataKey="overhead" name="Overhead" stroke="#10b981" fill="url(#gradOH)" strokeWidth={2} />
+              <Area type="stepAfter" dataKey="staffing" name="Staffing" stroke="hsl(var(--chart-1))" fill="url(#gradStaff)" strokeWidth={2} />
+              <Area type="stepAfter" dataKey="overhead" name="Overhead" stroke="hsl(var(--chart-2))" fill="url(#gradOH)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -219,8 +219,8 @@ export function VendorIntelligence({ content, hasData, onGenerate }: { content: 
             <XAxis type="number" tick={{ fontSize: 11 }} tickFormatter={v => `$${v}`} />
             <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={90} />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="cost" name="Your Cost" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={12} />
-            <Bar dataKey="industry" name="Industry Avg" fill="#94a3b8" radius={[0, 4, 4, 0]} barSize={12} />
+            <Bar dataKey="cost" name="Your Cost" fill="hsl(var(--chart-1))" radius={[0, 4, 4, 0]} barSize={12} />
+            <Bar dataKey="industry" name="Industry Avg" fill="hsl(var(--muted-foreground))" radius={[0, 4, 4, 0]} barSize={12} />
           </BarChart>
         </ResponsiveContainer>
       </motion.div>
@@ -258,8 +258,8 @@ export function CompetitivePosition({ content, hasData, onGenerate }: { content:
                 const d = payload[0].payload;
                 return <div className="bg-card/95 backdrop-blur-xl border border-border rounded-lg px-3 py-2 shadow-xl text-xs"><p className="font-semibold">{d.name}</p><p className="text-muted-foreground">{d.x} properties, {d.y}% fee</p></div>;
               }} />
-              <Scatter data={scatterData} fill="#6366f1" fillOpacity={0.7} strokeWidth={0}>
-                {scatterData.map((d, i) => <Cell key={i} fill={i === 0 ? "#10b981" : "#6366f1"} r={d.z + 4} />)}
+              <Scatter data={scatterData} fill="hsl(var(--chart-1))" fillOpacity={0.7} strokeWidth={0}>
+                {scatterData.map((d, i) => <Cell key={i} fill={i === 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-1))"} r={d.z + 4} />)}
               </Scatter>
             </ScatterChart>
           </ResponsiveContainer>
@@ -271,8 +271,8 @@ export function CompetitivePosition({ content, hasData, onGenerate }: { content:
             <RadarChart data={radarData}>
               <PolarGrid stroke="hsl(var(--border))" />
               <PolarAngleAxis dataKey="subject" tick={{ fontSize: 9 }} />
-              <Radar name="Your Company" dataKey="you" stroke="#10b981" fill="#10b981" fillOpacity={0.2} strokeWidth={2} />
-              <Radar name="Industry Avg" dataKey="industry" stroke="#94a3b8" fill="#94a3b8" fillOpacity={0.1} strokeWidth={1.5} />
+              <Radar name="Your Company" dataKey="you" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.2} strokeWidth={2} />
+              <Radar name="Industry Avg" dataKey="industry" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground))" fillOpacity={0.1} strokeWidth={1.5} />
               <Tooltip content={<CustomTooltip />} />
             </RadarChart>
           </ResponsiveContainer>

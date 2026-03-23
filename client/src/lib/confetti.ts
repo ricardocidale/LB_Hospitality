@@ -1,13 +1,23 @@
 // @ts-ignore - canvas-confetti has no type declarations
 import confetti from "canvas-confetti";
 
-const CONFETTI_COLORS = ["#8A9A7B", "#38BDF8", "#F4795B", "#FFD700", "#A78BFA"];
+function getConfettiColors() {
+  const s = getComputedStyle(document.documentElement);
+  const get = (v: string) => {
+    const raw = s.getPropertyValue(v).trim();
+    if (!raw) return "hsl(0, 0%, 53%)";
+    const parts = raw.split(/\s+/);
+    if (parts.length >= 3) return `hsl(${parts[0]}, ${parts[1]}%, ${parts[2]}%)`;
+    return raw;
+  };
+  return [get("--chart-1"), get("--chart-3"), get("--accent-pop"), get("--chart-3"), get("--chart-5")];
+}
 
 export function fireResearchConfetti() {
   const duration = 2500;
   const end = Date.now() + duration;
 
-  const colors = CONFETTI_COLORS;
+  const colors = getConfettiColors();
 
   (function frame() {
     confetti({

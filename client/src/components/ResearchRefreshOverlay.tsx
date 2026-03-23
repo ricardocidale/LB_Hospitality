@@ -8,8 +8,8 @@ function CSSBackground() {
       <div className="absolute inset-0 overflow-hidden">
         {[
           { color: "hsl(var(--primary))", size: 220, x: "50%", y: "50%", delay: 0, dur: 8 },
-          { color: "#38bdf8", size: 160, x: "30%", y: "40%", delay: 1, dur: 10 },
-          { color: "#f97066", size: 130, x: "70%", y: "60%", delay: 2, dur: 12 },
+          { color: "hsl(var(--chart-3))", size: 160, x: "30%", y: "40%", delay: 1, dur: 10 },
+          { color: "hsl(var(--accent-pop))", size: 130, x: "70%", y: "60%", delay: 2, dur: 12 },
         ].map((sphere, i) => (
           <div
             key={i}
@@ -36,7 +36,7 @@ function CSSBackground() {
               left: "50%",
               top: "50%",
               transform: "translate(-50%, -50%)",
-              borderColor: i === 0 ? "hsl(var(--primary) / 0.3)" : i === 1 ? "rgba(56,189,248,0.25)" : "rgba(249,112,102,0.2)",
+              borderColor: i === 0 ? "hsl(var(--primary) / 0.3)" : i === 1 ? "hsl(var(--chart-3) / 0.25)" : "hsl(var(--accent-pop) / 0.2)",
               animation: `researchRingSpin ${8 + i * 4}s linear infinite${i % 2 ? " reverse" : ""}`,
             }}
           />
@@ -45,7 +45,7 @@ function CSSBackground() {
         {Array.from({ length: 12 }).map((_, i) => {
           const angle = (i / 12) * Math.PI * 2;
           const r = 35 + Math.sin(i * 1.5) * 8;
-          const colors = ["hsl(var(--primary))", "#38bdf8", "#f97066", "#ffd700"];
+          const colors = ["hsl(var(--primary))", "hsl(var(--chart-3))", "hsl(var(--accent-pop))", "hsl(var(--chart-3))"];
           return (
             <div
               key={`particle-${i}`}
@@ -244,7 +244,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5 }}
         className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
-        style={{ background: "#0a0f1e" }}
+        style={{ background: "hsl(var(--background))" }}
       >
         <div ref={bgRef} className="absolute inset-0">
           <CSSBackground />

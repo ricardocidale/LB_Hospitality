@@ -37,8 +37,8 @@ export function HospitalityOverview({ content, hasData, onGenerate }: { content:
               <XAxis dataKey="metric" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="prior" name="Prior Year" fill="#94a3b8" radius={[4, 4, 0, 0]} barSize={20} />
-              <Bar dataKey="current" name="Current Year" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={20} />
+              <Bar dataKey="prior" name="Prior Year" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} barSize={20} />
+              <Bar dataKey="current" name="Current Year" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} barSize={20} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
@@ -48,7 +48,7 @@ export function HospitalityOverview({ content, hasData, onGenerate }: { content:
           <svg viewBox="0 0 200 120" className="w-48 h-28 mt-2">
             <defs>
               <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#ef4444" /><stop offset="50%" stopColor="#f59e0b" /><stop offset="100%" stopColor="#10b981" />
+                <stop offset="0%" stopColor="hsl(var(--destructive))" /><stop offset="50%" stopColor="hsl(var(--warning))" /><stop offset="100%" stopColor="hsl(var(--success))" />
               </linearGradient>
             </defs>
             <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="hsl(var(--border))" strokeWidth="14" strokeLinecap="round" />
@@ -99,10 +99,10 @@ export function SupplyDemand({ content, hasData, onGenerate }: { content: any; h
               <XAxis dataKey="year" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="economy" name="Economy" stackId="a" fill="#94a3b8" />
-              <Bar dataKey="midscale" name="Midscale" stackId="a" fill="#f59e0b" />
-              <Bar dataKey="upscale" name="Upscale" stackId="a" fill="#6366f1" />
-              <Bar dataKey="luxury" name="Luxury" stackId="a" fill="#10b981" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="economy" name="Economy" stackId="a" fill="hsl(var(--muted-foreground))" />
+              <Bar dataKey="midscale" name="Midscale" stackId="a" fill="hsl(var(--chart-3))" />
+              <Bar dataKey="upscale" name="Upscale" stackId="a" fill="hsl(var(--chart-1))" />
+              <Bar dataKey="luxury" name="Luxury" stackId="a" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
@@ -112,12 +112,12 @@ export function SupplyDemand({ content, hasData, onGenerate }: { content: any; h
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={absorptionData}>
               <defs>
-                <linearGradient id="gradAbsorb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10b981" stopOpacity={0.3} /><stop offset="100%" stopColor="#10b981" stopOpacity={0} /></linearGradient>
+                <linearGradient id="gradAbsorb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3} /><stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity={0} /></linearGradient>
               </defs>
               <XAxis dataKey="month" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `${v}%`} />
               <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="rate" name="Absorption %" stroke="#10b981" strokeWidth={2.5} dot={{ r: 4, fill: "#10b981" }} />
+              <Line type="monotone" dataKey="rate" name="Absorption %" stroke="hsl(var(--chart-2))" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(var(--chart-2))" }} />
             </LineChart>
           </ResponsiveContainer>
         </motion.div>
@@ -154,9 +154,9 @@ export function EconomicClimate({ hasData, onGenerate }: { hasData: boolean; onG
             <YAxis yAxisId="left" tick={{ fontSize: 11 }} tickFormatter={v => `${v}%`} />
             <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
             <Tooltip content={<CustomTooltip />} />
-            <Line yAxisId="left" type="monotone" dataKey="interestRate" name="Interest Rate" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
-            <Line yAxisId="left" type="monotone" dataKey="cpi" name="CPI" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
-            <Line yAxisId="right" type="monotone" dataKey="travelIndex" name="Travel Index" stroke="#6366f1" strokeWidth={2} dot={{ r: 3 }} />
+            <Line yAxisId="left" type="monotone" dataKey="interestRate" name="Interest Rate" stroke="hsl(var(--destructive))" strokeWidth={2} dot={{ r: 3 }} />
+            <Line yAxisId="left" type="monotone" dataKey="cpi" name="CPI" stroke="hsl(var(--warning))" strokeWidth={2} dot={{ r: 3 }} />
+            <Line yAxisId="right" type="monotone" dataKey="travelIndex" name="Travel Index" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} />
           </LineChart>
         </ResponsiveContainer>
         <div className="flex items-center justify-center gap-6 mt-3 text-xs text-muted-foreground">

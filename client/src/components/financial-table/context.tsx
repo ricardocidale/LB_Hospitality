@@ -16,9 +16,8 @@ export function useCalcDetails() {
    ───────────────────────────────────────────── */
 
 /** Section header background (light ice-blue) */
-export const SECTION_BG = "#E8F4FD";
-/** Subtotal row background (slightly darker ice-blue) */
-export const SUBTOTAL_BG = "#D0EAFB";
+export const SECTION_BG = "hsl(var(--primary) / 0.08)";
+export const SUBTOTAL_BG = "hsl(var(--primary) / 0.15)";
 /** Grand total row — uses the design-system's primary gradient */
 export const GRAND_TOTAL_CLASS =
   "bg-primary font-medium text-primary-foreground shadow-sm";

@@ -72,7 +72,7 @@ function FinancialChart({
 }: FinancialChartProps) {
   const resolvedSeries = series.map((s) => {
     if (typeof s === "string") {
-      return PRESET_SERIES[s] || { dataKey: s, color: "#6B7280" };
+      return PRESET_SERIES[s] || { dataKey: s, color: "hsl(var(--muted-foreground))" };
     }
     return s;
   });
@@ -134,8 +134,8 @@ function FinancialChart({
                 stroke={s.color}
                 strokeWidth={2}
                 name={s.name || s.dataKey}
-                dot={{ fill: s.color, stroke: "#fff", strokeWidth: 2, r: 3.5 }}
-                activeDot={{ r: 5.5, fill: s.color, stroke: "#fff", strokeWidth: 2 }}
+                dot={{ fill: s.color, stroke: "hsl(var(--card))", strokeWidth: 2, r: 3.5 }}
+                activeDot={{ r: 5.5, fill: s.color, stroke: "hsl(var(--card))", strokeWidth: 2 }}
               />
             ))}
           </LineChart>

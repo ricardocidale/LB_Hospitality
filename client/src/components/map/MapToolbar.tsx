@@ -125,15 +125,15 @@ export function MapLegend({ perfCounts }: MapLegendProps) {
       <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">Performance Tier</div>
       <div className="space-y-1">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full" style={{ background: "#22C55E" }} />
+          <div className="w-3 h-3 rounded-full" style={{ background: "hsl(var(--success))" }} />
           <span className="text-[11px] text-foreground">Strong DSCR &gt; 1.5 ({perfCounts.strong})</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full" style={{ background: "#EAB308" }} />
+          <div className="w-3 h-3 rounded-full" style={{ background: "hsl(var(--warning))" }} />
           <span className="text-[11px] text-foreground">Moderate 1.2–1.5 ({perfCounts.moderate})</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full" style={{ background: "#EF4444" }} />
+          <div className="w-3 h-3 rounded-full" style={{ background: "hsl(var(--destructive))" }} />
           <span className="text-[11px] text-foreground">Watch &lt; 1.2 ({perfCounts.watch})</span>
         </div>
       </div>

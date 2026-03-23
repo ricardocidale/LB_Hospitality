@@ -205,11 +205,11 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.companyIncomeTax && (
-        <SectionCard icon={IconReceipt} title="Company Income Tax" color={{ accent: "#F43F5E", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" }}>
+        <SectionCard icon={IconReceipt} title="Company Income Tax" color={{ accent: "hsl(var(--destructive))", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-            <MetricCard label="Recommended Tax Rate" value={content.companyIncomeTax.recommendedRate || "N/A"} color={{ accent: "#F43F5E", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" }} confidence={content.companyIncomeTax.confidence} />
+            <MetricCard label="Recommended Tax Rate" value={content.companyIncomeTax.recommendedRate || "N/A"} color={{ accent: "hsl(var(--destructive))", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" }} confidence={content.companyIncomeTax.confidence} />
             {content.companyIncomeTax.effectiveRange && (
-              <MetricCard label="Effective Range" value={content.companyIncomeTax.effectiveRange} color={{ accent: "#F43F5E", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" }} />
+              <MetricCard label="Effective Range" value={content.companyIncomeTax.effectiveRange} color={{ accent: "hsl(var(--destructive))", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" }} />
             )}
           </div>
           {content.companyIncomeTax.calculationMethodology && (

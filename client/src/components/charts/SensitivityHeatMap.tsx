@@ -6,6 +6,7 @@ import { hsl } from "d3-color";
 import { interpolateRgbBasis } from "d3-interpolate";
 import D3ChartContainer, { type D3ChartContainerRef } from "./D3ChartContainer";
 import { CHART_COLORS } from "../graphics/formatters";
+import { getComputedThemeColor } from "@/lib/theme-utils";
 
 export interface HeatMapCell {
   row: number;
@@ -79,7 +80,11 @@ const SensitivityHeatMap = forwardRef<SensitivityHeatMapRef, SensitivityHeatMapP
 
         const colorScale = scaleDiverging<string>()
           .domain([minVal, breakeven, maxVal])
-          .interpolator(interpolateRgbBasis(["#ef4444", "#fbbf24", "#22c55e"]));
+          .interpolator(interpolateRgbBasis([
+            getComputedThemeColor("--destructive"),
+            getComputedThemeColor("--warning"),
+            getComputedThemeColor("--success"),
+          ]));
 
         const tooltip = select(svg.parentElement!)
           .selectAll(".heatmap-tooltip")
@@ -140,7 +145,7 @@ const SensitivityHeatMap = forwardRef<SensitivityHeatMapRef, SensitivityHeatMapP
           .style("font-weight", "600")
           .style("fill", (d) => {
             const lum = hsl(colorScale(d.value)).l;
-            return lum > 0.5 ? "#1a1a1a" : "#ffffff";
+            return lum > 0.5 ? getComputedThemeColor("--foreground") : getComputedThemeColor("--background");
           })
           .style("pointer-events", "none")
           .text((d) => valueFormat(d.value));

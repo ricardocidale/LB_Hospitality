@@ -10,7 +10,7 @@ export const THEME = {
   fifth: "hsl(var(--chart-5))",
 };
 
-export const PIE_COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
+export const PIE_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))", "hsl(var(--accent-pop))"];
 
 export const stagger = {
   container: { hidden: {}, visible: { transition: { staggerChildren: 0.07 } } },

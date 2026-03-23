@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -314,7 +314,7 @@ export function MarcelaConfig({
           <div className="flex flex-col items-center gap-3 py-2">
             <div className="w-28 h-28">
               <Orb
-                colors={["#9fbca4", "#4a7c5c"]}
+                colors={useMemo(() => { const s = getComputedStyle(document.documentElement); const p = s.getPropertyValue("--primary").trim(); const sc = s.getPropertyValue("--secondary").trim(); return [p ? `hsl(${p})` : "hsl(155, 18%, 68%)", sc ? `hsl(${sc})` : "hsl(147, 26%, 39%)"]; }, [])}
                 agentState={orbAgentState}
                 seed={42}
               />

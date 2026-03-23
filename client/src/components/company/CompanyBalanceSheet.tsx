@@ -52,8 +52,8 @@ export default function CompanyBalanceSheet({
         data={yearlyChartData}
         series={[
           { dataKey: "Assets", name: "Total Assets", color: "hsl(var(--chart-2))", gradientTo: "hsl(var(--chart-2) / 0.5)" },
-          { dataKey: "Liabilities", name: "Total Liabilities", color: "#F4795B", gradientTo: "#FB923C" },
-          { dataKey: "Equity", name: "Total Equity", color: "#3B82F6", gradientTo: "#60A5FA" },
+          { dataKey: "Liabilities", name: "Total Liabilities", color: "hsl(var(--chart-4))", gradientTo: "hsl(var(--chart-4) / 0.5)" },
+          { dataKey: "Equity", name: "Total Equity", color: "hsl(var(--chart-3))", gradientTo: "hsl(var(--chart-3) / 0.5)" },
         ]}
         title={`${companyName} Balance Sheet Trends (${projectionYears}-Year Projection)`}
         id="company-balance-chart"

@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { IconBuilding2, IconDollarSign, IconNavigation } from "@/components/icons";
 import {
   formatMoney, formatLocation, getPerformanceTier, statusColor,
-  MARKET_COLOR_INTERNATIONAL, type GeoProperty, type ColorMode,
+  getMarketColorInternational, type GeoProperty, type ColorMode,
 } from "@/lib/map-utils";
 
 interface MapPropertySidebarProps {
@@ -31,7 +31,7 @@ export function MapPropertySidebar({
         const perf = getPerformanceTier(property);
         const pinColor = colorMode === "performance"
           ? perf.color
-          : property.market === "North America" ? "var(--primary)" : MARKET_COLOR_INTERNATIONAL;
+          : property.market === "North America" ? "var(--primary)" : getMarketColorInternational();
         const sc = statusColor(property.status);
         return (
           <div

@@ -12,7 +12,7 @@ import {
   formatLocation,
   getPerformanceTier,
   statusColor,
-  MARKET_COLOR_INTERNATIONAL,
+  getMarketColorInternational,
   MAP_STYLES,
   type GeoProperty,
   type ColorMode,
@@ -113,7 +113,7 @@ export default function MapView() {
         const flyToBtn = document.createElement("button");
         flyToBtn.setAttribute("data-testid", `popup-flyto-${property.id}`);
         flyToBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg> Fly To`;
-        flyToBtn.style.cssText = "display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 10px;border:1px solid hsl(var(--border));border-radius:6px;background:hsl(var(--muted));color:hsl(var(--primary));font-size:11px;font-weight:600;cursor:pointer;font-family:system-ui;";
+        flyToBtn.style.cssText = "display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 10px;border:1px solid hsl(var(--border));border-radius:6px;background:hsl(var(--card));color:hsl(var(--primary));font-size:11px;font-weight:600;cursor:pointer;font-family:system-ui;";
         flyToBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           flyToHandlerRef.current?.(property.id);
@@ -182,11 +182,11 @@ export default function MapView() {
       if (globeMode) {
         map.setProjection({ type: "globe" });
         map.setSky({
-          "sky-color": "#76b7f5",
+          "sky-color": "hsl(214, 87%, 71%)",
           "sky-horizon-blend": 0.5,
-          "horizon-color": "#c8e6ff",
+          "horizon-color": "hsl(207, 100%, 89%)",
           "horizon-fog-blend": 0.2,
-          "fog-color": "#aaccee",
+          "fog-color": "hsl(210, 47%, 80%)",
           "fog-ground-blend": 0.1,
         });
       }
@@ -252,11 +252,11 @@ export default function MapView() {
       if (globeMode) {
         map.setProjection({ type: "globe" });
         map.setSky({
-          "sky-color": "#76b7f5",
+          "sky-color": "hsl(214, 87%, 71%)",
           "sky-horizon-blend": 0.5,
-          "horizon-color": "#c8e6ff",
+          "horizon-color": "hsl(207, 100%, 89%)",
           "horizon-fog-blend": 0.2,
-          "fog-color": "#aaccee",
+          "fog-color": "hsl(210, 47%, 80%)",
           "fog-ground-blend": 0.1,
         });
       } else {

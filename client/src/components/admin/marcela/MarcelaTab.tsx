@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -256,7 +256,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
-                      <Orb colors={["#9fbca4", "#4a7c5c"]} agentState={agentConfig ? "thinking" : null} seed={42} />
+                      <Orb colors={useMemo(() => { const s = getComputedStyle(document.documentElement); const p = s.getPropertyValue("--primary").trim(); const sc = s.getPropertyValue("--secondary").trim(); return [p ? `hsl(${p})` : "hsl(155, 18%, 68%)", sc ? `hsl(${sc})` : "hsl(147, 26%, 39%)"]; }, [])} agentState={agentConfig ? "thinking" : null} seed={42} />
                     </div>
                     <div>
                       <CardTitle className="text-sm font-semibold text-foreground">Agent Identity</CardTitle>
@@ -458,7 +458,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
           </DialogHeader>
           <div className="flex flex-col items-center gap-3 py-2">
             <div className="w-28 h-28">
-              <Orb colors={["#9fbca4", "#4a7c5c"]} agentState={orbAgentState} seed={42} />
+              <Orb colors={useMemo(() => { const s = getComputedStyle(document.documentElement); const p = s.getPropertyValue("--primary").trim(); const sc = s.getPropertyValue("--secondary").trim(); return [p ? `hsl(${p})` : "hsl(155, 18%, 68%)", sc ? `hsl(${sc})` : "hsl(147, 26%, 39%)"]; }, [])} agentState={orbAgentState} seed={42} />
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold font-display">{agentName}</p>

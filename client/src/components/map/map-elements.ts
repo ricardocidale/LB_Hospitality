@@ -4,7 +4,7 @@ import {
   formatLocation,
   getPerformanceTier,
   statusColor,
-  MARKET_COLOR_INTERNATIONAL,
+  getMarketColorInternational,
   type ColorMode,
 } from "@/lib/map-utils";
 
@@ -12,7 +12,7 @@ export function createMarkerElement(property: any, isSelected: boolean, colorMod
   const perf = getPerformanceTier(property);
   const color = colorMode === "performance"
     ? perf.color
-    : property.market === "North America" ? "var(--primary)" : MARKET_COLOR_INTERNATIONAL;
+    : property.market === "North America" ? "var(--primary)" : getMarketColorInternational();
   const size = isSelected ? 42 : 32;
   const el = document.createElement("div");
   el.className = "map-marker-container";
@@ -71,14 +71,14 @@ export function createPopupHTML(property: any) {
   const safeStatus = escapeHtml(property.status || "");
   return `
     <div style="font-family:system-ui,-apple-system,sans-serif;min-width:240px;padding:4px;">
-      <h3 style="font-weight:700;font-size:15px;margin:0 0 4px;color:#1a1a2e;">${safeName}</h3>
-      <p style="color:#64748b;font-size:12px;margin:0 0 10px;">${safeLocation}</p>
+      <h3 style="font-weight:700;font-size:15px;margin:0 0 4px;color:hsl(var(--foreground));">${safeName}</h3>
+      <p style="color:hsl(var(--muted-foreground));font-size:12px;margin:0 0 10px;">${safeLocation}</p>
       <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
-        <span style="background:${property.market === 'North America' ? '#E8F0E9' : '#DBEAFE'};color:${property.market === 'North America' ? '#5A7D60' : '#1D4ED8'};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${safeMarket}</span>
+        <span style="background:hsl(var(--primary) / 0.12);color:hsl(var(--primary));font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${safeMarket}</span>
         <span style="background:${sc.bg};color:${sc.text};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${safeStatus}</span>
         <span style="background:${perf.color}22;color:${perf.color};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${escapeHtml(perf.label)}</span>
       </div>
-      <div style="display:flex;gap:16px;font-size:12px;color:#475569;padding-top:8px;border-top:1px solid #f1f5f9;">
+      <div style="display:flex;gap:16px;font-size:12px;color:hsl(var(--muted-foreground));padding-top:8px;border-top:1px solid hsl(var(--border));">
         <div style="display:flex;align-items:center;gap:4px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <strong>${property.roomCount}</strong> rooms
@@ -88,8 +88,8 @@ export function createPopupHTML(property: any) {
           <strong>${formatMoney(property.startAdr)}</strong> ADR
         </div>
       </div>
-      <div data-popup-actions style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:8px;">
-        <a href="/property/${property.id}" style="color:#3B82F6;font-size:12px;font-weight:600;text-decoration:none;">View Details →</a>
+      <div data-popup-actions style="margin-top:10px;padding-top:8px;border-top:1px solid hsl(var(--border));display:flex;align-items:center;gap:8px;">
+        <a href="/property/${property.id}" style="color:hsl(var(--primary));font-size:12px;font-weight:600;text-decoration:none;">View Details →</a>
       </div>
     </div>
   `;

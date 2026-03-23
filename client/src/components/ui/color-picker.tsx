@@ -12,17 +12,12 @@ import { Input } from "@/components/ui/input";
 import { ChevronDown } from "@/components/icons/themed-icons";
 
 const PRESET_COLORS = [
-  // Row 1: Theme colors
-  ["#257D41", "#3B82F6", "#F4795B", "var(--primary)", "#FFF9F5"],
-  // Row 2: Standard colors
-  ["#C00000", "#FF0000", "#FFC000", "#FFFF00", "#92D050"],
-  ["#00B050", "#00B0F0", "#0070C0", "#002060", "#7030A0"],
-  // Row 3: Grays
-  ["#000000", "#404040", "#808080", "#BFBFBF", "#FFFFFF"],
-  // Row 4: Pastels
-  ["#F8CECC", "#FFE6CC", "#FFF2CC", "#D5E8D4", "#DAE8FC"],
-  // Row 5: More colors
-  ["#E1D5E7", "#60A5FA", "#34D399", "#FB923C", "#F472B6"],
+  ["hsl(148, 52%, 31%)", "hsl(217, 91%, 60%)", "hsl(14, 88%, 65%)", "var(--primary)", "hsl(24, 100%, 98%)"],
+  ["hsl(0, 100%, 38%)", "hsl(0, 100%, 50%)", "hsl(45, 100%, 50%)", "hsl(60, 100%, 50%)", "hsl(100, 53%, 57%)"],
+  ["hsl(153, 100%, 35%)", "hsl(195, 100%, 47%)", "hsl(210, 100%, 38%)", "hsl(220, 100%, 19%)", "hsl(270, 50%, 41%)"],
+  ["hsl(0, 0%, 0%)", "hsl(0, 0%, 25%)", "hsl(0, 0%, 50%)", "hsl(0, 0%, 75%)", "hsl(0, 0%, 100%)"],
+  ["hsl(0, 73%, 89%)", "hsl(30, 100%, 90%)", "hsl(50, 100%, 91%)", "hsl(120, 39%, 87%)", "hsl(214, 89%, 92%)"],
+  ["hsl(275, 39%, 87%)", "hsl(217, 92%, 76%)", "hsl(160, 60%, 71%)", "hsl(27, 96%, 61%)", "hsl(330, 81%, 71%)"],
 ];
 
 interface ColorPickerProps {
@@ -98,7 +93,7 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
               <Input
                 value={customColor}
                 onChange={(e) => handleCustomColorChange(e.target.value)}
-                placeholder="#000000"
+                placeholder="e.g. red, blue"
                 className="flex-1 font-mono text-xs uppercase"
               />
             </div>

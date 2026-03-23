@@ -1,5 +1,6 @@
 import maplibregl from "maplibre-gl";
 import { PropertyStatus } from "@shared/constants";
+import { getComputedThemeColor } from "./theme-utils";
 
 const KNOWN_COORDS: Record<string, [number, number]> = {
   "medellín, antioquia, colombia": [-75.6266, 6.2553],
@@ -76,12 +77,12 @@ export const formatMoney = (value: number) =>
   }).format(value);
 
 const DSCR_TIER_COLORS = {
-  strong: "hsl(var(--primary))",
-  moderate: "hsl(var(--accent-pop))",
-  watch: "hsl(var(--destructive))",
+  get strong() { return getComputedThemeColor("--success") || "hsl(142, 71%, 45%)"; },
+  get moderate() { return getComputedThemeColor("--warning") || "hsl(48, 96%, 53%)"; },
+  get watch() { return getComputedThemeColor("--destructive") || "hsl(0, 84%, 60%)"; },
 } as const;
 
-export const MARKET_COLOR_INTERNATIONAL = "hsl(var(--chart-2))";
+export function getMarketColorInternational() { return getComputedThemeColor("--chart-3") || "hsl(217, 91%, 60%)"; }
 
 export function getPerformanceTier(property: any): { color: string; label: string; tier: string } {
   const noi = property.startAdr * property.roomCount * (property.startOccupancy || 0.6) * 365;
@@ -94,19 +95,21 @@ export function getPerformanceTier(property: any): { color: string; label: strin
   return { color: DSCR_TIER_COLORS.watch, label: "Watch (DSCR < 1.2)", tier: "watch" };
 }
 
-const STATUS_COLOR_MAP: Record<string, { bg: string; text: string }> = {
-  [PropertyStatus.OPERATING]: { bg: "hsl(var(--primary) / 0.15)", text: "hsl(var(--primary))" },
-  [PropertyStatus.IMPROVEMENTS]: { bg: "hsl(var(--accent-pop) / 0.15)", text: "hsl(var(--accent-pop))" },
-  [PropertyStatus.ACQUIRED]: { bg: "hsl(var(--chart-2) / 0.15)", text: "hsl(var(--chart-2))" },
-  [PropertyStatus.IN_NEGOTIATION]: { bg: "hsl(var(--chart-4) / 0.15)", text: "hsl(var(--chart-4))" },
-  [PropertyStatus.PIPELINE]: { bg: "hsl(var(--muted))", text: "hsl(var(--foreground))" },
-  [PropertyStatus.PLANNED]: { bg: "hsl(var(--chart-3) / 0.15)", text: "hsl(var(--chart-3))" },
-};
+function getStatusColorMap(): Record<string, { bg: string; text: string }> {
+  return {
+    [PropertyStatus.OPERATING]: { bg: "hsl(var(--success) / 0.15)", text: getComputedThemeColor("--success") },
+    [PropertyStatus.IMPROVEMENTS]: { bg: "hsl(var(--warning) / 0.15)", text: getComputedThemeColor("--warning") },
+    [PropertyStatus.ACQUIRED]: { bg: "hsl(var(--chart-3) / 0.15)", text: getComputedThemeColor("--chart-3") },
+    [PropertyStatus.IN_NEGOTIATION]: { bg: "hsl(var(--chart-5) / 0.15)", text: getComputedThemeColor("--chart-5") },
+    [PropertyStatus.PIPELINE]: { bg: "hsl(var(--muted) / 0.3)", text: getComputedThemeColor("--muted-foreground") },
+    [PropertyStatus.PLANNED]: { bg: "hsl(var(--accent-pop) / 0.15)", text: getComputedThemeColor("--accent-pop") },
+  };
+}
 
-const STATUS_COLOR_DEFAULT = { bg: "hsl(var(--muted))", text: "hsl(var(--foreground))" };
+function getStatusColorDefault() { return { bg: "hsl(var(--muted) / 0.3)", text: getComputedThemeColor("--muted-foreground") }; }
 
 export const statusColor = (status: string) =>
-  STATUS_COLOR_MAP[status] ?? STATUS_COLOR_DEFAULT;
+  getStatusColorMap()[status] ?? getStatusColorDefault();
 
 export function formatLocation(property: any): string {
   const parts = [property.city];

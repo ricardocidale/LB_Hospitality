@@ -29,7 +29,7 @@ export const sectionColors: Record<string, SectionColorScheme> = {
   capRate: { accent: "hsl(var(--accent-pop-2))", bg: "bg-accent-pop-2/10", border: "border-accent-pop-2/20", iconBg: "bg-accent-pop-2/15", iconText: "text-accent-pop-2", badge: "bg-accent-pop-2/15 text-accent-pop-2" },
   competitive: { accent: "var(--primary)", bg: "bg-primary/5", border: "border-primary/30", iconBg: "bg-primary/20", iconText: "text-secondary", badge: "bg-primary/20 text-secondary" },
   risks: { accent: "hsl(var(--destructive))", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" },
-  sources: { accent: "#6B7280", bg: "bg-muted", border: "border-border", iconBg: "bg-muted", iconText: "text-muted-foreground", badge: "bg-muted text-foreground" },
+  sources: { accent: "hsl(var(--muted-foreground))", bg: "bg-muted", border: "border-border", iconBg: "bg-muted", iconText: "text-muted-foreground", badge: "bg-muted text-foreground" },
   stabilization: { accent: "hsl(var(--accent-pop))", bg: "bg-accent-pop/10", border: "border-accent-pop/20", iconBg: "bg-accent-pop/15", iconText: "text-accent-pop", badge: "bg-accent-pop/15 text-accent-pop" },
   landValue: { accent: "hsl(var(--muted-foreground))", bg: "bg-muted", border: "border-border", iconBg: "bg-muted", iconText: "text-muted-foreground", badge: "bg-muted text-foreground" },
   catering: { accent: "hsl(var(--chart-3))", bg: "bg-chart-3/10", border: "border-chart-3/20", iconBg: "bg-chart-3/15", iconText: "text-chart-3", badge: "bg-chart-3/15 text-chart-3" },

@@ -320,16 +320,16 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                     { metric: "Growth", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.adrGrowthRate * 100 * 10])) },
                     { metric: "Max Occ", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.maxOccupancy * 100])) },
                   ]}>
-                    <PolarGrid stroke="#e5e7eb" />
-                    <PolarAngleAxis dataKey="metric" tick={{ fill: "#6b7280", fontSize: 13, fontWeight: 500 }} />
+                    <PolarGrid stroke="hsl(var(--border))" />
+                    <PolarAngleAxis dataKey="metric" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 13, fontWeight: 500 }} />
                     <PolarRadiusAxis tick={false} axisLine={false} />
                     {selectedProperties.map((p, i) => (
                       <Radar 
                         key={p.id} 
                         name={p.name} 
                         dataKey={p.name} 
-                        stroke={["hsl(var(--chart-1))", "hsl(var(--chart-2))", "#3B82F6", "#F4795B"][i]} 
-                        fill={["hsl(var(--chart-1))", "hsl(var(--chart-2))", "#3B82F6", "#F4795B"][i]} 
+                        stroke={["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))"][i]} 
+                        fill={["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))"][i]} 
                         fillOpacity={0.25} 
                         strokeWidth={3} 
                         animationDuration={1500}
@@ -337,7 +337,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                     ))}
                     <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: '30px', fontSize: 13, fontWeight: 500 }} />
                     <Tooltip 
-                      contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                       itemStyle={{ padding: '2px 0' }}
                     />
                   </RadarChart>

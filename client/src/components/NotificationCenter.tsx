@@ -71,8 +71,8 @@ const TYPE_CONFIG: Record<
 > = {
   info: { icon: IconInfo, color: "var(--primary)" },
   success: { icon: IconCheckCircle, color: "hsl(var(--accent-pop, 155 41% 30%))" },
-  warning: { icon: IconAlertTriangle, color: "#F59E0B" },
-  error: { icon: IconXCircle, color: "#EF4444" },
+  warning: { icon: IconAlertTriangle, color: "hsl(var(--warning))" },
+  error: { icon: IconXCircle, color: "hsl(var(--destructive))" },
 };
 
 function relativeTime(timestamp: number): string {

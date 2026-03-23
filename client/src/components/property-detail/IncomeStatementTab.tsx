@@ -122,19 +122,19 @@ export default function IncomeStatementTab({
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={yearlyChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis 
                     dataKey="year" 
-                    stroke="#6B7280" 
+                    stroke="hsl(var(--muted-foreground))" 
                     fontSize={12}
                     tickLine={false}
-                    axisLine={{ stroke: '#E5E7EB' }}
+                    axisLine={{ stroke: 'hsl(var(--border))' }}
                   />
                   <YAxis 
-                    stroke="#6B7280" 
+                    stroke="hsl(var(--muted-foreground))" 
                     fontSize={12}
                     tickLine={false}
-                    axisLine={{ stroke: '#E5E7EB' }}
+                    axisLine={{ stroke: 'hsl(var(--border))' }}
                     tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                   />
                   <Tooltip 
@@ -164,40 +164,40 @@ export default function IncomeStatementTab({
                     dataKey="Revenue" 
                     stroke="hsl(var(--line-1))" 
                     strokeWidth={3}
-                    dot={{ fill: 'hsl(var(--line-1))', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, fill: 'hsl(var(--line-1))', stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ fill: 'hsl(var(--line-1))', stroke: 'hsl(var(--card))', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, fill: 'hsl(var(--line-1))', stroke: 'hsl(var(--card))', strokeWidth: 2 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="GOP" 
                     stroke="hsl(var(--line-2))" 
                     strokeWidth={3}
-                    dot={{ fill: 'hsl(var(--line-2))', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, fill: 'hsl(var(--line-2))', stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ fill: 'hsl(var(--line-2))', stroke: 'hsl(var(--card))', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, fill: 'hsl(var(--line-2))', stroke: 'hsl(var(--card))', strokeWidth: 2 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="AGOP" 
-                    stroke="#10B981"
+                    stroke="hsl(var(--chart-1))"
                     strokeWidth={3}
-                    dot={{ fill: '#10B981', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, fill: '#10B981', stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ fill: 'hsl(var(--chart-1))', stroke: 'hsl(var(--card))', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, fill: 'hsl(var(--chart-1))', stroke: 'hsl(var(--card))', strokeWidth: 2 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="NOI" 
                     stroke="hsl(var(--line-3))" 
                     strokeWidth={3}
-                    dot={{ fill: 'hsl(var(--line-3))', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, fill: 'hsl(var(--line-3))', stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ fill: 'hsl(var(--line-3))', stroke: 'hsl(var(--card))', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, fill: 'hsl(var(--line-3))', stroke: 'hsl(var(--card))', strokeWidth: 2 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="ANOI" 
                     stroke="hsl(var(--line-4))" 
                     strokeWidth={3}
-                    dot={{ fill: 'hsl(var(--line-4))', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, fill: 'hsl(var(--line-4))', stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ fill: 'hsl(var(--line-4))', stroke: 'hsl(var(--card))', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, fill: 'hsl(var(--line-4))', stroke: 'hsl(var(--card))', strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>

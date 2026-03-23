@@ -20,9 +20,9 @@ function escapeHtml(str: string): string {
 
 const POI_COLORS: Record<string, { color: string; label: string; emoji: string }> = {
   hotel: { color: "hsl(var(--destructive))", label: "Competing Hotels", emoji: "🏨" },
-  airport: { color: "hsl(var(--chart-2))", label: "Airports", emoji: "✈️" },
-  convention_center: { color: "hsl(var(--chart-4))", label: "Convention Centers", emoji: "🏛️" },
-  tourist_attraction: { color: "hsl(var(--primary))", label: "Attractions", emoji: "🎯" },
+  airport: { color: "hsl(var(--chart-3))", label: "Airports", emoji: "✈️" },
+  convention_center: { color: "hsl(var(--chart-5))", label: "Convention Centers", emoji: "🏛️" },
+  tourist_attraction: { color: "hsl(var(--success))", label: "Attractions", emoji: "🎯" },
 };
 
 function makeRasterStyle(): maplibregl.StyleSpecification {
@@ -163,7 +163,7 @@ export default function PropertyMap({ latitude, longitude, propertyName, propert
                   <div style="font-family:system-ui;padding:4px;">
                     <strong style="font-size:13px;">${escapeHtml(poi.name)}</strong>
                     <br/><span style="color:hsl(var(--muted-foreground));font-size:11px;">${escapeHtml(poi.vicinity)}</span>
-                    <br/><span style="color:hsl(var(--muted-foreground));font-size:11px;opacity:0.7;">${poi.distance.toFixed(1)} mi away${poi.rating ? ` · ⭐ ${poi.rating}` : ""}</span>
+                    <br/><span style="color:hsl(var(--muted-foreground) / 0.7);font-size:11px;">${poi.distance.toFixed(1)} mi away${poi.rating ? ` · ⭐ ${poi.rating}` : ""}</span>
                   </div>
                 `)
             )

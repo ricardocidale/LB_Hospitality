@@ -567,6 +567,7 @@ describe("Hardcoded Value Detection", () => {
         "company-data.ts",
         "themeUtils.ts",
         "confetti.ts",
+        "theme-utils.ts",
         "analytics.ts",
         "sentry.ts",
         "image-variants.ts",

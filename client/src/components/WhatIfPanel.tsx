@@ -75,7 +75,7 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
     (current: number, original: number, higherIsBetter: boolean) => {
       if (current === original) return undefined;
       const favorable = higherIsBetter ? current > original : current < original;
-      return favorable ? "#16a34a" : "#d97706";
+      return favorable ? "hsl(var(--success))" : "hsl(var(--warning))";
     },
     [],
   );

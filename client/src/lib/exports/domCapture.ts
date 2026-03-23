@@ -45,7 +45,7 @@ function serializeElement(
   const clone = element.cloneNode(true) as HTMLElement;
   inlineComputedStyles(clone, element);
 
-  const bg = options.bgcolor || "#ffffff";
+  const bg = options.bgcolor || "hsl(0, 0%, 100%)";
   const width = options.width
     ? options.width / (options.scale || 2)
     : element.scrollWidth;

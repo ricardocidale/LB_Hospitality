@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -47,7 +48,7 @@ export function GeneralTab({
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
                 <Orb
-                  colors={["#9fbca4", "#4a7c5c"]}
+                  colors={useMemo(() => { const s = getComputedStyle(document.documentElement); const p = s.getPropertyValue("--primary").trim(); const sc = s.getPropertyValue("--secondary").trim(); return [p ? `hsl(${p})` : "hsl(155, 18%, 68%)", sc ? `hsl(${sc})` : "hsl(147, 26%, 39%)"]; }, [])}
                   agentState={agentConfig ? "thinking" : null}
                   seed={42}
                 />

@@ -14,11 +14,11 @@ export function GuestPersonas({ hasData, onGenerate }: { hasData: boolean; onGen
   if (!hasData) return <EmptyState title="Guest Personas" description="Generate research to see guest persona segmentation and seasonal patterns." onGenerate={onGenerate} />;
 
   const personas = [
-    { icon: IconBriefcase, name: "Corporate Retreats", desc: "Mid-size companies booking team offsites and strategy sessions", spend: "$320/night", booking: "3-5 months ahead", share: 30, color: "#6366f1" },
-    { icon: IconHeart, name: "Wellness Seekers", desc: "Individuals and couples focused on yoga, spa, and mindfulness retreats", spend: "$275/night", booking: "1-3 months ahead", share: 25, color: "#10b981" },
-    { icon: IconStar, name: "Luxury Leisure", desc: "High-net-worth travelers seeking boutique, curated experiences", spend: "$450/night", booking: "2-6 months ahead", share: 20, color: "#f59e0b" },
-    { icon: IconUsers, name: "Family Groups", desc: "Multi-generational families booking extended stays and group activities", spend: "$260/night", booking: "4-8 months ahead", share: 15, color: "#ef4444" },
-    { icon: IconMountain, name: "Adventure Travelers", desc: "Active guests seeking outdoor activities integrated with lodging", spend: "$210/night", booking: "2-4 weeks ahead", share: 10, color: "#8b5cf6" },
+    { icon: IconBriefcase, name: "Corporate Retreats", desc: "Mid-size companies booking team offsites and strategy sessions", spend: "$320/night", booking: "3-5 months ahead", share: 30, color: "hsl(var(--chart-1))" },
+    { icon: IconHeart, name: "Wellness Seekers", desc: "Individuals and couples focused on yoga, spa, and mindfulness retreats", spend: "$275/night", booking: "1-3 months ahead", share: 25, color: "hsl(var(--chart-2))" },
+    { icon: IconStar, name: "Luxury Leisure", desc: "High-net-worth travelers seeking boutique, curated experiences", spend: "$450/night", booking: "2-6 months ahead", share: 20, color: "hsl(var(--chart-3))" },
+    { icon: IconUsers, name: "Family Groups", desc: "Multi-generational families booking extended stays and group activities", spend: "$260/night", booking: "4-8 months ahead", share: 15, color: "hsl(var(--chart-4))" },
+    { icon: IconMountain, name: "Adventure Travelers", desc: "Active guests seeking outdoor activities integrated with lodging", spend: "$210/night", booking: "2-4 weeks ahead", share: 10, color: "hsl(var(--chart-5))" },
   ];
 
   const pieData = personas.map(p => ({ name: p.name, value: p.share }));
@@ -78,13 +78,13 @@ export function GuestPersonas({ hasData, onGenerate }: { hasData: boolean; onGen
               <div key={ri} className="flex items-center gap-1">
                 <span className="w-20 text-[10px] text-muted-foreground text-right pr-2">{heatmapLabels[ri]}</span>
                 {row.map((val, ci) => (
-                  <div key={ci} className="w-8 h-6 rounded" style={{ background: `rgba(99, 102, 241, ${val / 100 * 0.8 + 0.1})` }} title={`${heatmapLabels[ri]} - ${heatmapMonths[ci]}: ${val}%`} />
+                  <div key={ci} className="w-8 h-6 rounded" style={{ background: `hsl(var(--chart-1) / ${val / 100 * 0.8 + 0.1})` }} title={`${heatmapLabels[ri]} - ${heatmapMonths[ci]}: ${val}%`} />
                 ))}
               </div>
             ))}
             <div className="flex items-center gap-2 mt-2 ml-20">
               <span className="text-[9px] text-muted-foreground">Low</span>
-              <div className="flex gap-0.5">{[0.15, 0.3, 0.5, 0.7, 0.9].map(o => <div key={o} className="w-4 h-2 rounded-sm" style={{ background: `rgba(99, 102, 241, ${o})` }} />)}</div>
+              <div className="flex gap-0.5">{[0.15, 0.3, 0.5, 0.7, 0.9].map(o => <div key={o} className="w-4 h-2 rounded-sm" style={{ background: `hsl(var(--chart-1) / ${o})` }} />)}</div>
               <span className="text-[9px] text-muted-foreground">High</span>
             </div>
           </div>
@@ -98,11 +98,11 @@ export function CapitalInvestor({ hasData, onGenerate }: { hasData: boolean; onG
   if (!hasData) return <EmptyState title="Capital & Investor Profiles" description="Generate research to see investor archetypes and deal structure analysis." onGenerate={onGenerate} />;
 
   const archetypes = [
-    { icon: IconBriefcase, name: "Private Equity", check: "$10-50M", hold: "3-7 yr", irr: "18-22%", color: "#6366f1", desc: "Value-add strategies, active asset management, platform acquisitions" },
-    { icon: IconHotel, name: "Family Offices", check: "$5-25M", hold: "7-10 yr", irr: "15%+", color: "#10b981", desc: "Patient capital, generational wealth, direct co-investment preferred" },
-    { icon: IconHotel, name: "REITs", check: "$25M+", hold: "5+ yr", irr: "Yield", color: "#f59e0b", desc: "Scale acquisitions, portfolio fit, strong operational track record required" },
-    { icon: IconStar, name: "Angel / HNW", check: "$500K-5M", hold: "5-10 yr", irr: "12-18%", color: "#ef4444", desc: "Lifestyle assets, passion-driven, relationships over returns" },
-    { icon: IconShield, name: "Debt Providers", check: "60-75% LTV", hold: "5-10 yr", irr: "6-9%", color: "#8b5cf6", desc: "Banks, CMBS, SBA 504/7a, bridge lenders for transitional assets" },
+    { icon: IconBriefcase, name: "Private Equity", check: "$10-50M", hold: "3-7 yr", irr: "18-22%", color: "hsl(var(--chart-1))", desc: "Value-add strategies, active asset management, platform acquisitions" },
+    { icon: IconHotel, name: "Family Offices", check: "$5-25M", hold: "7-10 yr", irr: "15%+", color: "hsl(var(--chart-2))", desc: "Patient capital, generational wealth, direct co-investment preferred" },
+    { icon: IconHotel, name: "REITs", check: "$25M+", hold: "5+ yr", irr: "Yield", color: "hsl(var(--chart-3))", desc: "Scale acquisitions, portfolio fit, strong operational track record required" },
+    { icon: IconStar, name: "Angel / HNW", check: "$500K-5M", hold: "5-10 yr", irr: "12-18%", color: "hsl(var(--chart-4))", desc: "Lifestyle assets, passion-driven, relationships over returns" },
+    { icon: IconShield, name: "Debt Providers", check: "60-75% LTV", hold: "5-10 yr", irr: "6-9%", color: "hsl(var(--chart-5))", desc: "Banks, CMBS, SBA 504/7a, bridge lenders for transitional assets" },
   ];
 
   const capitalFlow = [
@@ -146,10 +146,10 @@ export function CapitalInvestor({ hasData, onGenerate }: { hasData: boolean; onG
               <XAxis dataKey="quarter" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `$${v}M`} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="pe" name="PE" stackId="a" fill="#6366f1" />
-              <Bar dataKey="family" name="Family Office" stackId="a" fill="#10b981" />
-              <Bar dataKey="reit" name="REIT" stackId="a" fill="#f59e0b" />
-              <Bar dataKey="other" name="Other" stackId="a" fill="#94a3b8" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="pe" name="PE" stackId="a" fill="hsl(var(--chart-1))" />
+              <Bar dataKey="family" name="Family Office" stackId="a" fill="hsl(var(--chart-2))" />
+              <Bar dataKey="reit" name="REIT" stackId="a" fill="hsl(var(--chart-3))" />
+              <Bar dataKey="other" name="Other" stackId="a" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
@@ -160,7 +160,7 @@ export function CapitalInvestor({ hasData, onGenerate }: { hasData: boolean; onG
             <ResponsiveContainer width={200} height={200}>
               <PieChart>
                 <Pie data={dealStructure} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={3} stroke="none">
-                  <Cell fill="#6366f1" /><Cell fill="#f59e0b" /><Cell fill="#10b981" />
+                  <Cell fill="hsl(var(--chart-1))" /><Cell fill="hsl(var(--chart-3))" /><Cell fill="hsl(var(--chart-2))" />
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
@@ -168,7 +168,7 @@ export function CapitalInvestor({ hasData, onGenerate }: { hasData: boolean; onG
             <div className="space-y-3">
               {dealStructure.map((d, i) => (
                 <div key={d.name} className="flex items-center gap-2 text-xs">
-                  <span className="w-3 h-3 rounded-full" style={{ background: ["#6366f1", "#f59e0b", "#10b981"][i] }} />
+                  <span className="w-3 h-3 rounded-full" style={{ background: ["hsl(var(--chart-1))", "hsl(var(--chart-3))", "hsl(var(--chart-2))"][i] }} />
                   <span className="text-muted-foreground">{d.name}</span>
                   <span className="font-bold">{d.value}%</span>
                 </div>
@@ -185,9 +185,9 @@ export function MarketSizing({ content, hasData, onGenerate }: { content: any; h
   if (!hasData) return <EmptyState title="Market Sizing" description="Generate research to see TAM/SAM/SOM analysis and regional breakdown." onGenerate={onGenerate} />;
 
   const funnel = [
-    { label: "TAM", value: "$2.1T", sub: "Global hospitality market", width: 100, color: "#6366f1" },
-    { label: "SAM", value: "$85B", sub: "Boutique & lifestyle segment", width: 65, color: "#8b5cf6" },
-    { label: "SOM", value: "$1.2B", sub: "Addressable with current strategy", width: 35, color: "#10b981" },
+    { label: "TAM", value: "$2.1T", sub: "Global hospitality market", width: 100, color: "hsl(var(--chart-1))" },
+    { label: "SAM", value: "$85B", sub: "Boutique & lifestyle segment", width: 65, color: "hsl(var(--chart-5))" },
+    { label: "SOM", value: "$1.2B", sub: "Addressable with current strategy", width: 35, color: "hsl(var(--chart-2))" },
   ];
 
   const regionalData = [
@@ -226,7 +226,7 @@ export function MarketSizing({ content, hasData, onGenerate }: { content: any; h
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={regionalData}>
             <defs>
-              <linearGradient id="gradRegion" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6366f1" stopOpacity={0.9} /><stop offset="100%" stopColor="#6366f1" stopOpacity={0.4} /></linearGradient>
+              <linearGradient id="gradRegion" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(var(--chart-1))" stopOpacity={0.4} /></linearGradient>
             </defs>
             <XAxis dataKey="region" tick={{ fontSize: 10 }} />
             <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `$${v}M`} />
@@ -243,14 +243,14 @@ export function RegionalOpportunities({ hasData, onGenerate }: { hasData: boolea
   if (!hasData) return <EmptyState title="Regional Opportunities" description="Generate research to see regional opportunity scoring and analysis." onGenerate={onGenerate} />;
 
   const regions = [
-    { name: "Hudson Valley, NY", score: 92, revpar: "$185", supply: "Low", demand: "High", color: "#10b981" },
-    { name: "Catskills, NY", score: 88, revpar: "$165", supply: "Low", demand: "High", color: "#10b981" },
-    { name: "Berkshires, MA", score: 85, revpar: "$195", supply: "Moderate", demand: "High", color: "#6366f1" },
-    { name: "Asheville, NC", score: 82, revpar: "$155", supply: "Moderate", demand: "High", color: "#6366f1" },
-    { name: "Sedona, AZ", score: 78, revpar: "$220", supply: "Moderate", demand: "Moderate", color: "#f59e0b" },
-    { name: "Tulum, MX", score: 75, revpar: "$140", supply: "High", demand: "High", color: "#f59e0b" },
-    { name: "Joshua Tree, CA", score: 72, revpar: "$175", supply: "Moderate", demand: "Moderate", color: "#f59e0b" },
-    { name: "Big Sur, CA", score: 68, revpar: "$280", supply: "Low", demand: "Moderate", color: "#ef4444" },
+    { name: "Hudson Valley, NY", score: 92, revpar: "$185", supply: "Low", demand: "High", color: "hsl(var(--chart-2))" },
+    { name: "Catskills, NY", score: 88, revpar: "$165", supply: "Low", demand: "High", color: "hsl(var(--chart-2))" },
+    { name: "Berkshires, MA", score: 85, revpar: "$195", supply: "Moderate", demand: "High", color: "hsl(var(--chart-1))" },
+    { name: "Asheville, NC", score: 82, revpar: "$155", supply: "Moderate", demand: "High", color: "hsl(var(--chart-1))" },
+    { name: "Sedona, AZ", score: 78, revpar: "$220", supply: "Moderate", demand: "Moderate", color: "hsl(var(--chart-3))" },
+    { name: "Tulum, MX", score: 75, revpar: "$140", supply: "High", demand: "High", color: "hsl(var(--chart-3))" },
+    { name: "Joshua Tree, CA", score: 72, revpar: "$175", supply: "Moderate", demand: "Moderate", color: "hsl(var(--chart-3))" },
+    { name: "Big Sur, CA", score: 68, revpar: "$280", supply: "Low", demand: "Moderate", color: "hsl(var(--chart-4))" },
   ];
 
   return (

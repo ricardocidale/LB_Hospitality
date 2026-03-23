@@ -528,7 +528,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                             data-expandable-row="true"
                           >
                             <TableCell
-                              className="sticky left-0 bg-chart-1/5 z-10 py-0.5 text-xs text-muted-foreground"
+                              className="sticky left-0 bg-chart-1/5 z-10 py-0.5 text-xs text-foreground"
                               style={{ paddingLeft: `${(row.indent ?? 1) * 1.5 + 1}rem` }}
                             >
                               <div className="flex items-center gap-1.5">
@@ -543,13 +543,13 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                           {isOpen && (
                             <TableRow className="bg-chart-1/3" data-expandable-row="true">
                               <TableCell
-                                className="sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic"
+                                className="sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic"
                                 style={{ paddingLeft: `${(row.indent ?? 1) * 1.5 + 1 + 1.25}rem` }}
                               >
                                 {row.category}
                               </TableCell>
                               {row.values.map((val, vIdx) => (
-                                <TableCell key={vIdx} className="text-right font-mono text-xs text-muted-foreground py-0.5">
+                                <TableCell key={vIdx} className="text-right font-mono text-xs text-foreground py-0.5">
                                   {row.displayValues?.[vIdx] ?? formatMoney(val)}
                                 </TableCell>
                               ))}

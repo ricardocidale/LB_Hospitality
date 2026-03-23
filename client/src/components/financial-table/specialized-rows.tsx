@@ -99,7 +99,7 @@ export function FormulaDetailRow({ label, values, positive }: FormulaDetailRowPr
         data-expandable-row="true"
         onClick={() => setOpen(v => !v)}
       >
-        <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground">
+        <TableCell className="pl-12 py-0.5 text-xs text-foreground">
           <div className="flex items-center gap-1.5">
             {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             <span className="italic">Formula</span>
@@ -111,7 +111,7 @@ export function FormulaDetailRow({ label, values, positive }: FormulaDetailRowPr
       </TableRow>
       {open && (
         <TableRow className="bg-chart-1/3" data-expandable-row="true">
-          <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
+          <TableCell className="pl-16 py-0.5 text-xs text-foreground italic">
             {label}
           </TableCell>
           {values.map((v, i) => (
@@ -119,7 +119,7 @@ export function FormulaDetailRow({ label, values, positive }: FormulaDetailRowPr
               key={i}
               className={cn(
                 "text-right py-0.5 font-mono text-xs",
-                v < 0 ? "text-destructive" : positive ? "text-accent" : "text-muted-foreground"
+                v < 0 ? "text-destructive" : positive ? "text-accent" : "text-foreground"
               )}
             >
               <Money amount={v} />

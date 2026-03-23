@@ -264,7 +264,8 @@ export function compileReport(input: CompileInput): ReportDefinition {
 
   const sections: ReportSection[] = [];
 
-  if (input.metrics?.length) {
+  const hasChartScreenshots = !!(input.chartScreenshots?.length);
+  if (input.metrics?.length && !hasChartScreenshots) {
     sections.push({
       kind: "kpi",
       title: "Key Performance Metrics",

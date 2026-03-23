@@ -371,7 +371,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
           <>
             <div className="py-4 space-y-5">
               {hasPremiumData && (
-                <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/10 border-primary/30">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-primary/30" style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--accent) / 0.15))' }}>
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
                     <div>

@@ -125,7 +125,6 @@ export interface PropertyEngineContext {
   baseAdr: number;
   baseMonthlyRoomRev: number;
   baseMonthlyTotalRev: number;
-  stabilizedMonthlyTotalRev: number;
   revShareEvents: number;
   revShareFB: number;
   revShareOther: number;
@@ -215,11 +214,6 @@ export function resolvePropertyAssumptions(
   const baseMonthlyFBRev = baseMonthlyRoomRev * revShareFB * cateringBoostMultiplier;
   const baseMonthlyOtherRev = baseMonthlyRoomRev * revShareOther;
   const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyEventsRev + baseMonthlyFBRev + baseMonthlyOtherRev;
-
-  // Fixed costs are sized to stabilized (max occupancy) revenue, not starting occupancy.
-  // A hotel's admin staff, utilities, and insurance don't shrink because occupancy is 40% in month 1.
-  const stabilizedMonthlyRoomRev = property.roomCount * daysPerMonth * baseAdr * property.maxOccupancy;
-  const stabilizedMonthlyTotalRev = stabilizedMonthlyRoomRev * (1 + revShareEvents + revShareFB * cateringBoostMultiplier + revShareOther);
 
   const startYear = modelStart.getFullYear();
   const startMonth = modelStart.getMonth();
@@ -337,7 +331,6 @@ export function resolvePropertyAssumptions(
     baseAdr,
     baseMonthlyRoomRev,
     baseMonthlyTotalRev,
-    stabilizedMonthlyTotalRev,
     revShareEvents,
     revShareFB,
     revShareOther,

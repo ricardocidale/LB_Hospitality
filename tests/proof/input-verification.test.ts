@@ -192,15 +192,16 @@ describe("Variable Cost Verification", () => {
 });
 
 describe("Fixed Cost Escalation Verification", () => {
-  // Fixed costs are sized to stabilized (maxOccupancy) revenue, not starting occupancy.
-  // A hotel's admin staff, utilities, and insurance don't shrink because occupancy is 40% in month 1.
-  const stabilizedRoomRev = property.roomCount * DAYS_PER_MONTH * property.startAdr * property.maxOccupancy;
+  const baseRoomRev = property.roomCount * DAYS_PER_MONTH * property.startAdr * property.startOccupancy;
   const cateringMultiplier = 1 + property.cateringBoostPercent;
-  const stabilizedTotalRev =
-    stabilizedRoomRev * (1 + property.revShareEvents + property.revShareFB * cateringMultiplier + property.revShareOther);
+  const baseTotalRev =
+    baseRoomRev +
+    baseRoomRev * property.revShareEvents +
+    baseRoomRev * property.revShareFB * cateringMultiplier +
+    baseRoomRev * property.revShareOther;
 
-  it("Year 1 fixed admin = stabilizedTotalRev × costRateAdmin × (1 + escalation)^0", () => {
-    const expected = stabilizedTotalRev * property.costRateAdmin;
+  it("Year 1 fixed admin = baseTotalRev × costRateAdmin × (1 + escalation)^0", () => {
+    const expected = baseTotalRev * property.costRateAdmin;
     expect(result[0].expenseAdmin).toBeCloseTo(expected, 2);
   });
 
@@ -210,15 +211,15 @@ describe("Fixed Cost Escalation Verification", () => {
     expect(y2Admin / y1Admin).toBeCloseTo(1 + baseGlobal.fixedCostEscalationRate, 4);
   });
 
-  it("Year 5 fixed costs = stabilized base × (1 + escalation)^4", () => {
+  it("Year 5 fixed costs = base × (1 + escalation)^4", () => {
     const factor = Math.pow(1 + baseGlobal.fixedCostEscalationRate, 4);
-    const expectedAdmin = stabilizedTotalRev * property.costRateAdmin * factor;
-    const expectedPropOps = stabilizedTotalRev * property.costRatePropertyOps * factor;
-    const expectedIT = stabilizedTotalRev * property.costRateIT * factor;
+    const expectedAdmin = baseTotalRev * property.costRateAdmin * factor;
+    const expectedPropOps = baseTotalRev * property.costRatePropertyOps * factor;
+    const expectedIT = baseTotalRev * property.costRateIT * factor;
     const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
     const expectedTaxes = (totalPropertyValue / 12) * property.costRateTaxes * factor;
-    const expectedUtilFixed = stabilizedTotalRev * (property.costRateUtilities * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT)) * factor;
-    const expectedOther = stabilizedTotalRev * property.costRateOther * factor;
+    const expectedUtilFixed = baseTotalRev * (property.costRateUtilities * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT)) * factor;
+    const expectedOther = baseTotalRev * property.costRateOther * factor;
 
     expect(result[48].expenseAdmin).toBeCloseTo(expectedAdmin, 2);
     expect(result[48].expensePropertyOps).toBeCloseTo(expectedPropOps, 2);
@@ -238,9 +239,9 @@ describe("Fixed Cost Escalation Verification", () => {
     }
   });
 
-  it("Year 10 fixed costs = stabilized base × (1 + escalation)^9", () => {
+  it("Year 10 fixed costs = base × (1 + escalation)^9", () => {
     const factor = Math.pow(1 + baseGlobal.fixedCostEscalationRate, 9);
-    const expectedAdmin = stabilizedTotalRev * property.costRateAdmin * factor;
+    const expectedAdmin = baseTotalRev * property.costRateAdmin * factor;
     expect(result[108].expenseAdmin).toBeCloseTo(expectedAdmin, 2);
   });
 

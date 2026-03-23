@@ -43,6 +43,28 @@ export default function Section09Scenarios({ expanded, onToggle, sectionRef }: S
       <Callout variant="light">
         Loading a scenario replaces all current assumptions. Save your current work before loading a different scenario.
       </Callout>
+
+      <div className="bg-muted/50 rounded-lg p-4 mt-4">
+        <h4 className="font-semibold mb-2">Shared Scenarios</h4>
+        <p className="text-sm text-muted-foreground mb-2">
+          Administrators can share scenarios with user groups, companies, or individual users.
+        </p>
+        <ul className="text-sm text-muted-foreground space-y-2">
+          <li>&#8226; If your group or company has been granted access to a scenario, it appears on your Scenarios page as a shared scenario.</li>
+          <li>&#8226; Shared scenarios are <strong>read-only</strong> unless you are the owner.</li>
+          <li>&#8226; When your group or company assignment changes, your visible shared scenarios update automatically.</li>
+          <li>&#8226; Administrators manage scenario access from the Admin &gt; Scenarios section.</li>
+        </ul>
+      </div>
+
+      <div className="bg-muted/50 rounded-lg p-4 mt-4">
+        <h4 className="font-semibold mb-2">Admin Scenario Governance</h4>
+        <p className="text-sm text-muted-foreground">
+          Administrators have full control over all scenarios platform-wide. They can create scenarios for any user,
+          edit or delete any scenario regardless of ownership, and assign scenario visibility to groups, companies,
+          or individual users. Admin access always bypasses the per-user scenario management toggle.
+        </p>
+      </div>
     </SectionCard>
   );
 }

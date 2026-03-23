@@ -128,7 +128,7 @@ export default function UserCardGrid({
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete User</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete "{user.email}"? This action cannot be undone.
+                            Are you sure you want to delete "{user.email}"? This will permanently remove the user and all their data, including any scenarios they own and all associated access grants. This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

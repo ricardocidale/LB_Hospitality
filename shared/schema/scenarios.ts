@@ -2,6 +2,7 @@ import { pgTable, text, integer, timestamp, jsonb, index, unique } from "drizzle
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { users } from "./auth";
+import { userGroups, companies } from "./core";
 
 export const scenarios = pgTable("scenarios", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -25,11 +26,12 @@ export const scenarioShares = pgTable("scenario_shares", {
   scenarioId: integer("scenario_id").notNull().references(() => scenarios.id, { onDelete: "cascade" }),
   targetType: text("target_type").notNull(),
   targetId: integer("target_id").notNull(),
-  grantedByUserId: integer("granted_by_user_id").references(() => users.id, { onDelete: "set null" }),
+  grantedBy: integer("granted_by").notNull().references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
-  unique("scenario_shares_scenario_target").on(table.scenarioId, table.targetType, table.targetId),
+  index("scenario_shares_scenario_id_idx").on(table.scenarioId),
   index("scenario_shares_target_idx").on(table.targetType, table.targetId),
+  unique("scenario_shares_unique_grant").on(table.scenarioId, table.targetType, table.targetId),
 ]);
 
 export const insertScenarioSchema = createInsertSchema(scenarios).pick({
@@ -50,15 +52,7 @@ export const updateScenarioSchema = z.object({
 
 export const selectScenarioSchema = createSelectSchema(scenarios);
 
-export const insertScenarioShareSchema = createInsertSchema(scenarioShares).pick({
-  scenarioId: true,
-  targetType: true,
-  targetId: true,
-  grantedByUserId: true,
-});
-
 export type Scenario = typeof scenarios.$inferSelect;
 export type InsertScenario = z.infer<typeof insertScenarioSchema>;
 export type UpdateScenario = z.infer<typeof updateScenarioSchema>;
 export type ScenarioShare = typeof scenarioShares.$inferSelect;
-export type InsertScenarioShare = z.infer<typeof insertScenarioShareSchema>;

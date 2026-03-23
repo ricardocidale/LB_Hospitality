@@ -1,6 +1,6 @@
-import { designThemes, logos, assetDescriptions, userGroups, userGroupProperties, companies, researchQuestions, users, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type ResearchQuestion, type InsertResearchQuestion, type User } from "@shared/schema";
+import { designThemes, logos, assetDescriptions, userGroups, userGroupProperties, companies, researchQuestions, users, scenarioShares, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type ResearchQuestion, type InsertResearchQuestion, type User } from "@shared/schema";
 import { db } from "../db";
-import { eq, desc, isNull, inArray } from "drizzle-orm";
+import { eq, and, desc, isNull, inArray } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
 
 export class AdminStorage {
@@ -138,6 +138,7 @@ export class AdminStorage {
     const defaultGroup = await this.getDefaultUserGroup();
     if (!defaultGroup) throw new Error("Cannot delete group: no default group exists to reassign users");
     await db.transaction(async (tx) => {
+      await tx.delete(scenarioShares).where(and(eq(scenarioShares.targetType, "group"), eq(scenarioShares.targetId, id)));
       await tx.update(users).set({ userGroupId: defaultGroup.id, updatedAt: new Date() }).where(eq(users.userGroupId, id));
       await tx.delete(userGroups).where(eq(userGroups.id, id));
     });
@@ -180,6 +181,7 @@ export class AdminStorage {
    */
   async deleteCompany(id: number): Promise<void> {
     await db.transaction(async (tx) => {
+      await tx.delete(scenarioShares).where(and(eq(scenarioShares.targetType, "company"), eq(scenarioShares.targetId, id)));
       await tx.update(users).set({ companyId: null, updatedAt: new Date() }).where(eq(users.companyId, id));
       await tx.delete(companies).where(eq(companies.id, id));
     });

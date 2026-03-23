@@ -5,6 +5,7 @@ import { registerMarcelaRoutes } from "./marcela";
 import { registerServiceRoutes } from "./services";
 import { registerResearchConfigRoutes } from "./research";
 import { registerExportConfigRoutes } from "./exports";
+import { registerAdminScenarioRoutes } from "./scenarios";
 
 export function register(app: Express) {
   registerUserRoutes(app);
@@ -13,4 +14,5 @@ export function register(app: Express) {
   registerServiceRoutes(app);
   registerResearchConfigRoutes(app);
   registerExportConfigRoutes(app);
+  registerAdminScenarioRoutes(app);
 }

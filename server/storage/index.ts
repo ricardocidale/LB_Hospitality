@@ -108,9 +108,17 @@ export class DatabaseStorage implements IStorage {
   loadScenario = this.financial.loadScenario.bind(this.financial);
   cloneScenario = this.financial.cloneScenario.bind(this.financial);
   compareScenarios = this.financial.compareScenarios.bind(this.financial);
+  getAllScenarios = this.financial.getAllScenarios.bind(this.financial);
+  createScenarioForUser = this.financial.createScenarioForUser.bind(this.financial);
+  getScenarioSharesForScenario = this.financial.getScenarioSharesForScenario.bind(this.financial);
+  getAllScenarioShares = this.financial.getAllScenarioShares.bind(this.financial);
+  addScenarioAccess = this.financial.addScenarioAccess.bind(this.financial);
+  removeScenarioAccess = this.financial.removeScenarioAccess.bind(this.financial);
+  getScenarioCountByUser = this.financial.getScenarioCountByUser.bind(this.financial);
+  removeScenarioSharesByTarget = this.financial.removeScenarioSharesByTarget.bind(this.financial);
+  getScenariosSharedWithUser = this.financial.getScenariosSharedWithUser.bind(this.financial);
   shareScenarioWithUser = this.financial.shareScenarioWithUser.bind(this.financial);
   shareAllScenariosWithUser = this.financial.shareAllScenariosWithUser.bind(this.financial);
-  getScenariosSharedWithUser = this.financial.getScenariosSharedWithUser.bind(this.financial);
   getSharesForScenario = this.financial.getSharesForScenario.bind(this.financial);
 
   // Fee Categories
@@ -235,9 +243,8 @@ export class DatabaseStorage implements IStorage {
   async deleteUser(id: number): Promise<void> {
     await db.transaction(async (tx) => {
       await tx.delete(sessions).where(eq(sessions.userId, id));
-      await tx.delete(scenarioShares).where(
-        and(eq(scenarioShares.targetType, "user"), eq(scenarioShares.targetId, id))
-      );
+      await tx.delete(scenarioShares).where(eq(scenarioShares.grantedBy, id));
+      await tx.delete(scenarioShares).where(and(eq(scenarioShares.targetType, "user"), eq(scenarioShares.targetId, id)));
       await tx.delete(scenarios).where(eq(scenarios.userId, id));
       await tx.delete(marketResearch).where(eq(marketResearch.userId, id));
       await tx.delete(prospectiveProperties).where(eq(prospectiveProperties.userId, id));

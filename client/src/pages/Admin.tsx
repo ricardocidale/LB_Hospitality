@@ -22,6 +22,7 @@ import IntegrationHealthTab from "@/components/admin/IntegrationHealthTab";
 import NotificationsTab from "@/components/admin/NotificationsTab";
 import ModelDefaultsTab from "@/components/admin/ModelDefaultsTab";
 import ExportsTab from "@/components/admin/ExportsTab";
+import ScenariosTab from "@/components/admin/ScenariosTab";
 import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import { ErrorBoundary, SelfHealingBoundary } from "@/components/ErrorBoundary";
 import { IconAlertTriangle } from "@/components/icons";
@@ -39,6 +40,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   icp:              { title: "Ideal Customer Profile", subtitle: "Define the target property type for AI research" },
   companies:        { title: "Companies",            subtitle: "Manage companies of interest" },
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },
+  scenarios:        { title: "Scenarios",             subtitle: "Manage all scenarios, ownership, and access grants" },
   logos:            { title: "Logos",                 subtitle: "Upload and manage platform logos" },
   icons:            { title: "Icon Sets",             subtitle: "Browse and select icon libraries" },
   themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },
@@ -66,6 +68,7 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
     );
     case "companies":        return <CompaniesTab />;
     case "groups":           return <GroupsTab />;
+    case "scenarios":        return <ScenariosTab />;
     case "logos":            return <LogosTab />;
     case "icons":            return <IconSetsTab />;
     case "themes":           return <ThemesTab />;

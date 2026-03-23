@@ -50,6 +50,13 @@
       "when": 1775059200000,
       "tag": "0006_add_missing_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1775145600000,
+      "tag": "0007_scenario_shares",
+      "breakpoints": true
     }
   ]
 }

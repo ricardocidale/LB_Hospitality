@@ -6,7 +6,7 @@ import {
   IconMenu, IconHelpCircle, IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconTrending, IconTarget,
   IconBot, IconBrain, IconFileCheck, IconDatabase, IconShield, IconSettingsGear, IconSliders,
-  IconBriefcase, IconResearch, IconBookOpen, IconPhone, IconMessageCircle, IconLayers, IconExport,
+  IconBriefcase, IconResearch, IconBookOpen, IconPhone, IconMessageCircle, IconLayers, IconExport, IconScenarios,
 } from "@/components/icons";
 import { Link } from "wouter";
 
@@ -14,7 +14,7 @@ export type AdminSection =
   | "model-defaults"
   | "users" | "activity"
   | "icp"
-  | "companies" | "groups"
+  | "companies" | "groups" | "scenarios"
   | "logos" | "icons" | "themes" | "exports"
   | "ai-agents" | "llms" | "sources"
   | "research" | "navigation" | "notifications" | "verification" | "database"
@@ -44,6 +44,7 @@ const navGroups: NavGroup[] = [
       { value: "users", label: "Users", icon: IconPeople },
       { value: "companies", label: "Companies", icon: IconProperties },
       { value: "groups", label: "Groups", icon: IconUserCog },
+      { value: "scenarios", label: "Scenarios", icon: IconScenarios },
     ],
   },
   {

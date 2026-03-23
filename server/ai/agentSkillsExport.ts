@@ -1,12 +1,18 @@
-const BRAND = {
-  NAVY: "#1A2332",
-  SAGE: "#9FBCA4",
-  DARK_GREEN: "#257D41",
-  SECTION_BG: "#EFF5F0",
-  ALT_ROW: "#F8FAF9",
-  DARK_TEXT: "#3D3D3D",
-  GRAY: "#666666",
-  WHITE: "#FFFFFF",
+import { type ThemeColorMap, resolveThemeColors } from "../theme-resolver";
+
+const AGENT_SKILLS_DEFAULTS: ThemeColorMap = {
+  navy: "1A2332",
+  sage: "9FBCA4",
+  darkGreen: "257D41",
+  sectionBg: "EFF5F0",
+  altRow: "F8FAF9",
+  darkText: "3D3D3D",
+  gray: "666666",
+  white: "FFFFFF",
+  lightGray: "CCCCCC",
+  negativeRed: "DC2626",
+  chart: ["257D41", "9FBCA4", "1A2332", "CCCCCC", "666666"],
+  line: ["257D41", "9FBCA4", "1A2332", "CCCCCC"],
 };
 
 export interface AgentSkillsExportOptions {
@@ -28,6 +34,10 @@ export async function generateWithAgentSkills(
   throw new Error("Agent Skills beta APIs not supported by current AI proxy");
 }
 
+function ensureHash(hex: string): string {
+  return hex.startsWith("#") ? hex : `#${hex}`;
+}
+
 export function buildAgentSkillsPrompt(
   format: string,
   financialData: string,
@@ -35,17 +45,28 @@ export function buildAgentSkillsPrompt(
   companyName: string,
   memoSections?: Record<string, string | undefined>,
   orientation: "landscape" | "portrait" = "landscape",
-  version: "short" | "extended" = "short"
+  version: "short" | "extended" = "short",
+  themeColors?: Array<{ name: string; hexCode: string; rank?: number; description?: string }>
 ): string {
+  const tc = themeColors?.length ? resolveThemeColors(themeColors) : AGENT_SKILLS_DEFAULTS;
+
+  const navy = ensureHash(tc.navy);
+  const sage = ensureHash(tc.sage);
+  const darkGreen = ensureHash(tc.darkGreen);
+  const sectionBg = ensureHash(tc.sectionBg);
+  const altRow = ensureHash(tc.altRow);
+  const darkText = ensureHash(tc.darkText);
+  const gray = ensureHash(tc.gray);
+
   const brandInstructions = `
 Use this exact brand palette throughout:
-- Primary Navy: ${BRAND.NAVY} (headers, title backgrounds)
-- Sage Green: ${BRAND.SAGE} (accents, table header backgrounds, divider lines)
-- Dark Green: ${BRAND.DARK_GREEN} (section headings, positive values)
-- Section Background: ${BRAND.SECTION_BG} (section header rows in tables)
-- Alternating Row: ${BRAND.ALT_ROW} (every other data row)
-- Body Text: ${BRAND.DARK_TEXT}
-- Secondary Text: ${BRAND.GRAY}
+- Primary Navy: ${navy} (headers, title backgrounds)
+- Sage Green: ${sage} (accents, table header backgrounds, divider lines)
+- Dark Green: ${darkGreen} (section headings, positive values)
+- Section Background: ${sectionBg} (section header rows in tables)
+- Alternating Row: ${altRow} (every other data row)
+- Body Text: ${darkText}
+- Secondary Text: ${gray}
 - Font: Arial throughout
 
 Company: ${companyName}

@@ -119,8 +119,8 @@ function TableBody({ years, rows, theme, isLandscape, hints }: TableRenderProps)
   const cellPadding = DENSITY_PADDING[hints.tableDensity] || "6 10";
 
   return (
-    <View style={{ borderWidth: 0.5, borderColor: theme.secondary, borderRadius: 5, overflow: "hidden" }}>
-      <View style={{ flexDirection: "row", backgroundColor: theme.surface, borderBottomWidth: 1.5, borderBottomColor: theme.secondary }}>
+    <View style={{ borderWidth: 0.25, borderColor: theme.foreground, borderRadius: 4, overflow: "hidden" }}>
+      <View style={{ flexDirection: "row", backgroundColor: theme.surface, borderBottomWidth: 0.75, borderBottomColor: theme.foreground }}>
         <View style={{ width: labelWidth, padding: "6 8" }}>
           <Text style={{ fontSize: headerFontSize, fontWeight: "bold", fontFamily: "Helvetica-Bold", color: theme.primary }}> </Text>
         </View>
@@ -151,9 +151,9 @@ function TableBody({ years, rows, theme, isLandscape, hints }: TableRenderProps)
               ? theme.muted
               : theme.white;
         const borderTop = isHeader
-          ? { borderTopWidth: 1.5, borderTopColor: theme.secondary }
+          ? { borderTopWidth: 0.5, borderTopColor: theme.foreground }
           : isTotal
-            ? { borderTopWidth: 1.5, borderTopColor: theme.border }
+            ? { borderTopWidth: 0.5, borderTopColor: theme.foreground }
             : {};
 
         const rowFontSize = (isHeader || isTotal) ? headerFontSize : dataFontSize;

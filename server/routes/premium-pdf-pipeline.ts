@@ -52,8 +52,10 @@ export function buildChartSeriesByStatement(tc?: ThemeColorMap): Record<string, 
       { keyword: "adjusted noi",             label: "ANOI",    color: series4 },
     ],
     cashflow: [
-      { keyword: "free cash flow (fcf)",     label: "Cash Flow", color: accent  },
-      { keyword: "free cash flow to equity", label: "FCFE",      color: series2 },
+      { keyword: "cash flow from operations", label: "CFO",  color: accent  },
+      { keyword: "cash flow from investing",   label: "CFI",  color: series2 },
+      { keyword: "cash flow from financing",   label: "CFF",  color: series3 },
+      { keyword: "net change in cash",         label: "Net Cash", color: series4 },
     ],
     balance: [
       { keyword: "total assets",      label: "Total Assets",      color: accent  },

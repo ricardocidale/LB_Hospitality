@@ -162,6 +162,9 @@ Full reference: `.claude/skills/exports/SKILL.md`. SDD: `.claude/skills/exports/
   4. **Theme colors**: Client sends `themeColors` array; server resolves via `resolveThemeColors()`.
   5. **File save**: `saveFile()` tries native `showSaveFilePicker` (Chrome/Comet), falls back to download.
   6. **Single button**: One `ExportMenu` per page in tab bar — no per-tab export buttons.
+  7. **Tables never split**: `wrap={false}` on all section Views. Tables move to next page intact unless larger than a page.
+  8. **Thin hairlines**: Table borders use hairline widths (0.25–0.75pt) with `theme.foreground` color for strong contrast against white.
+  9. **Chart series keywords**: Must match actual row labels (e.g., "cash flow from operations" not "free cash flow").
 
 ---
 

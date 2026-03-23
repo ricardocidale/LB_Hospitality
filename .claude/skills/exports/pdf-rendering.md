@@ -36,6 +36,26 @@ These rules are mandatory for all PDF rendering:
 4. **Vertical positioning**: On the last page(s), all table rows must fit. The `wrap={false}` + grouping algorithm ensures tables are pushed to the next page intact rather than being split.
 5. **No cover pages**: Cover pages are NEVER generated. No KPI sections either.
 
+## Table Styling Rules (CRITICAL)
+
+These rules ensure clean, professional financial tables:
+
+1. **Thin hairlines**: All table borders use hairline widths — outer border `0.25pt`, header bottom `0.75pt`, section dividers `0.5pt`.
+2. **Strong contrast against white**: Border colors use `theme.foreground` (dark) — never light secondary/muted colors. Tables must be clearly visible against the white page background.
+3. **Alternating row shading**: Even rows use `theme.muted`, odd rows use `theme.white`. Headers/totals use `theme.surface`.
+4. **No thick borders**: Never use `borderWidth > 1` in tables. Financial tables are clean and professional with hairline separators.
+
+## Chart Series Keywords
+
+Charts are matched to statement rows by keyword search. Keywords must match the actual row labels:
+
+| Statement | Keywords |
+|-----------|----------|
+| Income | `total revenue`, `gross operating profit`, `net operating income`, `adjusted noi` |
+| Cash Flow | `cash flow from operations`, `cash flow from investing`, `cash flow from financing`, `net change in cash` |
+| Balance Sheet | `total assets`, `total liabilities`, `total equity` |
+| Investment | `net operating income`, `adjusted noi`, `debt service`, `free cash flow to equity` |
+
 ## PNG Pipeline (Puppeteer)
 
 `server/browser-renderer.ts` — Puppeteer with system Chromium:
@@ -83,5 +103,6 @@ When `densePagination` is enabled (default):
 | `server/report/compiler.ts` | Report compiler (ReportDefinition IR) |
 | `server/report/types.ts` | IR types (ImageSection, TableSection, ChartSection) |
 | `server/pdf/render.tsx` | @react-pdf/renderer PDF generation |
+| `server/routes/premium-pdf-pipeline.ts` | Chart series keywords, section builder |
 | `server/browser-renderer.ts` | Puppeteer abstraction (PNG only) |
 | `client/src/lib/exports/captureOverviewCharts.ts` | DOM chart capture |

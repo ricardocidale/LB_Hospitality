@@ -497,7 +497,7 @@ function renderDenseSectionContent(section: ReportSection, index: number, theme:
         rows.push(section.metrics.slice(i, i + cols));
       }
       return (
-        <View key={`kpi-${index}`} style={{ marginBottom: SECTION_GAP }}>
+        <View key={`kpi-${index}`} wrap={false} style={{ marginBottom: SECTION_GAP }}>
           <SectionDivider title={section.title} theme={theme} />
           <View style={{ flexDirection: "column", gap: 12 }}>
             {rows.map((row, ri) => (
@@ -533,7 +533,7 @@ function renderDenseSectionContent(section: ReportSection, index: number, theme:
         );
       }
       return (
-        <View key={`table-${index}`} style={{ marginBottom: SECTION_GAP }}>
+        <View key={`table-${index}`} wrap={false} style={{ marginBottom: SECTION_GAP }}>
           <SectionDivider title={section.title} theme={theme} />
           <TableBody years={section.years} rows={section.rows} theme={theme} isLandscape={isLandscape} hints={hints} />
         </View>
@@ -542,7 +542,7 @@ function renderDenseSectionContent(section: ReportSection, index: number, theme:
     case "chart": {
       if (!section.series.length || !section.years.length) return null;
       return (
-        <View key={`chart-${index}`} style={{ marginBottom: SECTION_GAP }}>
+        <View key={`chart-${index}`} wrap={false} style={{ marginBottom: SECTION_GAP }}>
           <SectionDivider title={section.title} theme={theme} />
           <ChartSvgBody series={section.series} years={section.years} theme={theme} isLandscape={isLandscape} hints={hints} />
         </View>
@@ -551,10 +551,10 @@ function renderDenseSectionContent(section: ReportSection, index: number, theme:
     case "image": {
       if (!section.dataUrl) return null;
       return (
-        <View key={`image-${index}`} style={{ marginBottom: SECTION_GAP }}>
+        <View key={`image-${index}`} wrap={false} style={{ marginBottom: SECTION_GAP }}>
           <SectionDivider title={section.title} theme={theme} />
-          <View style={{ alignItems: "center", paddingVertical: 6 }}>
-            <Image src={section.dataUrl} style={{ width: "100%", objectFit: "contain" }} />
+          <View style={{ alignItems: "center", paddingVertical: 8, paddingHorizontal: 4 }}>
+            <Image src={section.dataUrl} style={{ width: "96%", objectFit: "contain" }} />
           </View>
         </View>
       );
@@ -651,8 +651,8 @@ export async function renderPremiumPdf(input: ReportDefinition | CompileInput): 
               return (
                 <Page key={`image-${i}`} size={pageSize} style={pageStyle}>
                   <PageHeader title={section.title} companyName={cover.companyName} entityName={cover.entityName} theme={theme} />
-                  <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 6 }}>
-                    <Image src={section.dataUrl} style={{ width: "100%", objectFit: "contain" }} />
+                  <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 8, paddingHorizontal: 4 }}>
+                    <Image src={section.dataUrl} style={{ width: "96%", objectFit: "contain" }} />
                   </View>
                   <PageFooter companyName={cover.companyName} theme={theme} />
                 </Page>

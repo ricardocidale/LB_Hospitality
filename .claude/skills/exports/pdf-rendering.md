@@ -26,6 +26,16 @@ PNG:  compileReport() → ReportDefinition → Puppeteer screenshots → ZIP
 
 3. **Design Pass** (optional): LLM-powered layout hints for pagination and spacing.
 
+## PDF Layout Rules (CRITICAL)
+
+These rules are mandatory for all PDF rendering:
+
+1. **Tables never split across pages**: All section `View` containers use `wrap={false}` in `@react-pdf/renderer`. A table will move to the next page rather than split.
+2. **Oversized table exception**: Only tables that exceed a full page height are chunked by `splitOversizedSections()`. Each chunk gets a "(cont'd)" title suffix.
+3. **Image border safety**: Chart screenshots use `width: "96%"` with `paddingHorizontal: 4` to prevent borders being clipped at page edges.
+4. **Vertical positioning**: On the last page(s), all table rows must fit. The `wrap={false}` + grouping algorithm ensures tables are pushed to the next page intact rather than being split.
+5. **No cover pages**: Cover pages are NEVER generated. No KPI sections either.
+
 ## PNG Pipeline (Puppeteer)
 
 `server/browser-renderer.ts` — Puppeteer with system Chromium:
@@ -54,8 +64,17 @@ resolveThemeColors(themeColors) → { navy, sage, darkGreen, darkText, gray, alt
 Chart screenshots from client are embedded as `ImageSection`:
 - `dataUri`: base64 PNG from `dom-to-image-more` capture
 - `aspectRatio`: defaults to 16/9 if not specified
-- Rendered via `@react-pdf/renderer` `Image` component
+- Rendered via `@react-pdf/renderer` `Image` component with `width: "96%"`, `objectFit: "contain"`
 - CSS cleanup during capture ensures clean images (no borders, no shadows)
+- `paddingHorizontal: 4` prevents edge clipping
+
+## Dense Pagination
+
+When `densePagination` is enabled (default):
+- `groupSectionsIntoPages()` bins sections onto pages by estimated height
+- `splitOversizedSections()` only chunks tables exceeding a full page
+- Each section View uses `wrap={false}` to prevent mid-section page breaks
+- Result: tables either fit entirely on a page or get chunked into page-sized pieces
 
 ## Key Files
 

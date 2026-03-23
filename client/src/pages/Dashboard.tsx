@@ -568,6 +568,9 @@ export default function Dashboard() {
 
           const shouldIncludeMetrics = activeTab === "overview" && loadExportConfig().overview.kpiMetrics;
 
+          const exportCfg = loadExportConfig();
+          const tabCfg = activeTab === "overview" ? exportCfg.overview : activeTab === "investment" ? exportCfg.analysis : exportCfg.statements;
+
           return {
             entityName: "Consolidated Portfolio",
             companyName: global.companyName || APP_BRAND_NAME,
@@ -576,6 +579,7 @@ export default function Dashboard() {
             statements,
             metrics: shouldIncludeMetrics ? baseMetrics : [],
             projectionYears: py,
+            densePagination: tabCfg.densePagination,
             themeColors: branding?.themeColors?.map(c => ({ name: c.name, hexCode: c.hexCode, rank: c.rank, description: c.description })),
           } as PremiumExportPayload;
         } : undefined}

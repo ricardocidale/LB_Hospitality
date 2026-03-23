@@ -20,7 +20,7 @@ const layoutHintsSchema = z.object({
 });
 
 export const DEFAULT_HINTS: LayoutHints = {
-  globalFontSizeScale: 1.0,
+  globalFontSizeScale: 1.1,
   tableDensity: "comfortable",
   chartAreaOpacity: 0.15,
   emphasizedKpis: [],
@@ -69,7 +69,7 @@ export async function applyDesignPass(report: ReportDefinition): Promise<LayoutH
 
   const defaultForReport: LayoutHints = {
     ...DEFAULT_HINTS,
-    globalFontSizeScale: maxYears >= 10 ? 0.88 : 1.0,
+    globalFontSizeScale: maxYears >= 10 ? 0.88 : DEFAULT_HINTS.globalFontSizeScale,
   };
 
   const manifest = buildManifest(report);

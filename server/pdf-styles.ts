@@ -2,7 +2,7 @@ import { BRAND } from "./routes/premium-export-prompts";
 import { type ThemeColorMap, resolveThemeColors, adjustHex } from "./theme-resolver";
 
 export function buildPdfStylesheet(
-  data: { orientation?: string; colors?: ThemeColorMap }
+  data: { orientation?: string; colors?: ThemeColorMap; densePagination?: boolean }
 ): string {
   const isL = data.orientation === "landscape";
   const pageW = isL ? "406.4mm" : "215.9mm";
@@ -135,11 +135,11 @@ body {
 }
 
 .content-page {
-  width: ${pageW};
-  height: ${pageH};
+  width: ${data.densePagination !== false ? "auto" : pageW};
+  ${data.densePagination !== false ? "" : `height: ${pageH};`}
   padding: ${isL ? "4mm 22mm 20mm" : "4mm 18mm 20mm"};
   position: relative;
-  page-break-after: always;
+  ${data.densePagination !== false ? "break-inside: avoid; margin-bottom: 6mm;" : "page-break-after: always;"}
   background: #fff;
   display: flex;
   flex-direction: column;
@@ -176,11 +176,6 @@ body {
 .page-hdr-brand {
   font-size: 8pt; color: ${SAGE}; font-weight: 600;
   letter-spacing: 0.5px; white-space: nowrap;
-}
-.page-hdr-accent {
-  height: 2mm;
-  background: linear-gradient(90deg, ${DK}, ${SAGE});
-  border-radius: 0 0 1mm 1mm;
 }
 
 .toc-body {
@@ -319,7 +314,7 @@ body {
 
 .fin-table {
   width: 100%; border-collapse: collapse;
-  font-size: ${isL ? "9pt" : "8.5pt"};
+  font-size: ${isL ? "11pt" : "10pt"};
   border: 0.6pt solid ${SAGE};
   border-radius: 2mm; overflow: hidden;
 }
@@ -332,7 +327,7 @@ body {
 .fin-table th {
   color: ${NAVY}; font-weight: 700;
   padding: 2.5mm 3mm; text-align: center;
-  font-size: ${isL ? "9pt" : "8.5pt"};
+  font-size: ${isL ? "11pt" : "10pt"};
   letter-spacing: 0.2px; border: none;
 }
 .fin-table th.tbl-label-hdr {
@@ -350,12 +345,14 @@ body {
 .fin-table .tbl-label {
   text-align: left; color: ${TXT};
   white-space: nowrap;
+  font-size: ${isL ? "11pt" : "10pt"};
 }
 .fin-table .tbl-val {
   text-align: right;
   font-family: 'Courier New', Courier, monospace;
   white-space: nowrap;
   color: ${TXT}; letter-spacing: 0.2px;
+  font-size: ${isL ? "11pt" : "10pt"};
 }
 .fin-table .row-header td {
   font-weight: 700; background: ${SECBG};
@@ -370,7 +367,7 @@ body {
 }
 .fin-table .row-formula td {
   font-style: italic; color: ${GR};
-  font-size: 0.9em;
+  font-size: 0.95em;
 }
 .fin-table .row-stripe td {
   background: ${ALT};

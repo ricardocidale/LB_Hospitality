@@ -22,6 +22,7 @@ export interface PdfTemplateData {
   sections: any[];
   reportTitle?: string;
   colors?: ThemeColorMap;
+  densePagination?: boolean;
 }
 
 export function adjustHex(hex: string, amount: number): string {
@@ -118,6 +119,5 @@ export function pageHeader(title: string, d: PdfTemplateData): string {
         </div>
         <span class="page-hdr-brand">${esc(d.companyName)}</span>
       </div>
-      <div class="page-hdr-accent"></div>
     </div>`;
 }

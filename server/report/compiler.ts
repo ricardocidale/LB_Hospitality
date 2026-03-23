@@ -52,6 +52,7 @@ export interface CompileInput {
     rank?: number;
     description?: string;
   }>;
+  densePagination?: boolean;
 }
 
 function tokensFromColorMap(tc: ThemeColorMap): DesignTokens {
@@ -321,5 +322,6 @@ export function compileReport(input: CompileInput): ReportDefinition {
     tokens,
     orientation: isLandscape ? "landscape" : "portrait",
     sections,
+    densePagination: input.densePagination !== false,
   };
 }

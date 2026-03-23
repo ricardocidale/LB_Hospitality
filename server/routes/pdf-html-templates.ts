@@ -208,7 +208,7 @@ export function buildPdfHtml(aiResult: { sections?: PdfSection[] }, data: PdfTem
     }
   }
 
-  const stylesheet = buildPdfStylesheet({ orientation: data.orientation, colors: data.colors });
+  const stylesheet = buildPdfStylesheet({ orientation: data.orientation, colors: data.colors, densePagination: data.densePagination });
 
   return `<!DOCTYPE html>
 <html lang="en">

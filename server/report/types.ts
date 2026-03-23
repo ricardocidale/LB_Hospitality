@@ -77,4 +77,5 @@ export interface ReportDefinition {
   tokens: DesignTokens;
   orientation: "landscape" | "portrait";
   sections: ReportSection[];
+  densePagination?: boolean;
 }

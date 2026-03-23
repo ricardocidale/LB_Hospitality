@@ -6,6 +6,7 @@ import { type ExportRowMeta } from "@/lib/exports/exportStyles";
 import { type LoanParams, type GlobalLoanParams } from "@/lib/financial/loanCalculations";
 import { formatMoney } from "@/lib/financialEngine";
 import type { ExportVersion, PremiumExportPayload } from "@/components/ExportDialog";
+import { loadExportConfig } from "@/lib/exportConfig";
 import { type PropertyExportContext, getLoanCalcs, buildIncomeRows, buildCashFlowRows, computeCashFlowVectors } from "./propertyExportShared";
 import { exportIncomeStatementPDF, exportCashFlowPDF, exportUnifiedPDF } from "./propertyPdfExports";
 export { type PropertyExportContext } from "./propertyExportShared";
@@ -309,6 +310,8 @@ export function buildPremiumExportPayload(ctx: PropertyExportContext, version: E
     isHeader: r.isHeader, isItalic: r.isItalic, format: r.format,
   }));
 
+  const stmtCfg = loadExportConfig().statements;
+
   return {
     entityName: property.name,
     companyName: global?.companyName || APP_BRAND_NAME,
@@ -327,5 +330,6 @@ export function buildPremiumExportPayload(ctx: PropertyExportContext, version: E
       { label: "Total Property Cost", value: formatMoney(totalPropertyCost) },
       { label: "Equity Invested", value: formatMoney(loan.equityInvested) },
     ],
+    densePagination: stmtCfg.densePagination,
   };
 }

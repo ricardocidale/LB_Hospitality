@@ -82,6 +82,7 @@ export interface PremiumExportPayload {
   }>;
   metrics?: Array<{ label: string; value: string }>;
   projectionYears?: number;
+  densePagination?: boolean;
   themeColors?: Array<{ name: string; hexCode: string; rank: number }>;
 }
 

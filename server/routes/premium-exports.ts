@@ -46,6 +46,7 @@ const premiumExportSchema = z.object({
     rank: z.number().optional(),
     description: z.string().optional(),
   })).optional(),
+  densePagination: z.boolean().optional().default(true),
   memoSections: z.object({
     executiveSummary: z.string().optional(),
     investmentThesis: z.string().optional(),

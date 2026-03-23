@@ -322,6 +322,7 @@ export default function Company() {
               { title: "Management Company Balance Sheet", years: balanceData.years.map(String), rows: mapRows(balanceData.rows) },
             ],
             projectionYears,
+            densePagination: loadExportConfig().statements.densePagination,
             themeColors: brandingData?.themeColors?.map((c: any) => ({ name: c.name, hexCode: c.hexCode, rank: c.rank })),
           } as PremiumExportPayload;
         } : undefined}

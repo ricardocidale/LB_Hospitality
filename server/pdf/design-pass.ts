@@ -100,7 +100,7 @@ Rules:
 
     const raceResult = await Promise.race([
       client.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 300,
         messages: [{ role: "user", content: prompt }],
       }),

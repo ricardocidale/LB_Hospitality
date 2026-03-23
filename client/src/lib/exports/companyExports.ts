@@ -13,7 +13,7 @@ import {
 } from "@/lib/exports/excelExport";
 import { MONTHS_PER_YEAR } from "@/lib/constants";
 
-const EXPORT_BG = "hsl(0, 0%, 100%)";
+const EXPORT_BG = '#ffffff';
 
 export const exportCompanyPDF = async (
   type: 'income' | 'cashflow' | 'balance',

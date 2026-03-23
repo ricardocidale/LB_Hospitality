@@ -110,7 +110,7 @@ export async function exportChartPNG(ctx: PropertyExportContext, orientation: 'l
     const height = orientation === 'landscape' ? 600 : 1000;
     const domtoimage = (await import("dom-to-image-more")).default;
     const dataUrl = await domtoimage.toPng(chartContainer, {
-      bgcolor: "hsl(0, 0%, 100%)", quality: 1, width, height,
+      bgcolor: '#ffffff', quality: 1, width, height,
       style: { transform: 'scale(2)', transformOrigin: 'top left' }
     });
     const { saveDataUrl } = await import("@/lib/exports/saveFile");
@@ -127,7 +127,7 @@ export async function exportTablePNG(ctx: PropertyExportContext, orientation: 'l
     const scale = 2;
     const domtoimage = (await import("dom-to-image-more")).default;
     const dataUrl = await domtoimage.toPng(tableContainer, {
-      bgcolor: "hsl(0, 0%, 100%)", quality: 1,
+      bgcolor: '#ffffff', quality: 1,
       style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
       width: tableContainer.scrollWidth * scale,
       height: tableContainer.scrollHeight * scale,

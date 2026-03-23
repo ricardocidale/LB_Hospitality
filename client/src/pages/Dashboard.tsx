@@ -129,7 +129,7 @@ export default function Dashboard() {
     try {
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
       const { captureToPng } = await import("@/lib/exports/domCapture");
-      const dataUrl = await captureToPng(tabContentRef.current, { quality: 1, bgcolor: "hsl(0, 0%, 100%)" });
+      const dataUrl = await captureToPng(tabContentRef.current, { quality: 1, bgcolor: '#ffffff' });
       const { saveDataUrl } = await import("@/lib/exports/saveFile");
       await saveDataUrl(dataUrl, customFilename || `${label.toLowerCase().replace(/\s+/g, "-")}-chart.png`);
     } catch (error) {
@@ -191,7 +191,7 @@ export default function Dashboard() {
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
       const { captureToPng } = await import("@/lib/exports/domCapture");
       const { default: jsPDF } = await import("jspdf");
-      const dataUrl = await captureToPng(tabContentRef.current, { quality: 1, bgcolor: "hsl(0, 0%, 100%)" });
+      const dataUrl = await captureToPng(tabContentRef.current, { quality: 1, bgcolor: '#ffffff' });
       const img = new Image();
       img.src = dataUrl;
       await new Promise<void>((resolve) => { img.onload = () => resolve(); });

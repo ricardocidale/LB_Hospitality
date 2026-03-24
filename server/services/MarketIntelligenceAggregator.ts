@@ -1,8 +1,10 @@
 import { FREDService } from "./FREDService";
 import { HospitalityBenchmarkService } from "./HospitalityBenchmarkService";
 import { GroundedResearchService } from "./GroundedResearchService";
+import { MoodysService } from "./MoodysService";
+import { SPGlobalService } from "./SPGlobalService";
 import { cache } from "../cache";
-import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult } from "../../shared/market-intelligence";
+import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData } from "../../shared/market-intelligence";
 
 interface AggregatorQuery {
   location?: string;
@@ -19,11 +21,15 @@ export class MarketIntelligenceAggregator {
   private fred: FREDService;
   private hospitality: HospitalityBenchmarkService;
   private grounded: GroundedResearchService;
+  private moodys: MoodysService;
+  private spGlobal: SPGlobalService;
 
   constructor() {
     this.fred = new FREDService();
     this.hospitality = new HospitalityBenchmarkService();
     this.grounded = new GroundedResearchService();
+    this.moodys = new MoodysService();
+    this.spGlobal = new SPGlobalService();
   }
 
   async gather(query: AggregatorQuery): Promise<MarketIntelligence> {
@@ -49,7 +55,7 @@ export class MarketIntelligenceAggregator {
   private async gatherFresh(query: AggregatorQuery): Promise<MarketIntelligence> {
     const errors: string[] = [];
 
-    const [ratesResult, benchmarksResult, searchResult] = await Promise.allSettled([
+    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult] = await Promise.allSettled([
       this.fetchRates(),
       query.location
         ? this.hospitality.fetchBenchmarks({
@@ -67,6 +73,20 @@ export class MarketIntelligenceAggregator {
             )
           )
         : Promise.resolve([]),
+      query.location && this.moodys.isAvailable()
+        ? this.moodys.fetchRiskData({
+            location: query.location,
+            propertyType: query.propertyType,
+            propertyClass: query.propertyClass,
+          })
+        : Promise.resolve(null),
+      query.location && this.spGlobal.isAvailable()
+        ? this.spGlobal.fetchMarketData({
+            location: query.location,
+            state: query.state,
+            propertyType: query.propertyType,
+          })
+        : Promise.resolve(null),
     ]);
 
     let rates: Record<string, FREDRateData> = {};
@@ -90,6 +110,20 @@ export class MarketIntelligenceAggregator {
       errors.push(`Grounded research: ${searchResult.reason?.message || "Unknown error"}`);
     }
 
+    let moodys: MoodysRiskData | undefined;
+    if (moodysResult.status === "fulfilled" && moodysResult.value) {
+      moodys = moodysResult.value;
+    } else if (moodysResult.status === "rejected") {
+      errors.push(`Moody's: ${moodysResult.reason?.message || "Unknown error"}`);
+    }
+
+    let spGlobal: SPGlobalMarketData | undefined;
+    if (spGlobalResult.status === "fulfilled" && spGlobalResult.value) {
+      spGlobal = spGlobalResult.value;
+    } else if (spGlobalResult.status === "rejected") {
+      errors.push(`S&P Global: ${spGlobalResult.reason?.message || "Unknown error"}`);
+    }
+
     return {
       rates: {
         sofr: rates.sofr,
@@ -100,6 +134,8 @@ export class MarketIntelligenceAggregator {
         cpi: rates.cpi,
       },
       benchmarks,
+      moodys,
+      spGlobal,
       groundedResearch,
       fetchedAt: new Date().toISOString(),
       errors,
@@ -116,11 +152,13 @@ export class MarketIntelligenceAggregator {
     return this.fred.fetchRate(seriesKey as any);
   }
 
-  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean } {
+  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean } {
     return {
       fred: this.fred.isAvailable(),
       hospitality: this.hospitality.isAvailable(),
       grounded: this.grounded.isAvailable(),
+      moodys: this.moodys.isAvailable(),
+      spGlobal: this.spGlobal.isAvailable(),
     };
   }
   

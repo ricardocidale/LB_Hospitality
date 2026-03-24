@@ -1,12 +1,22 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { Loader2 } from "@/components/icons/themed-icons";
-import { IconBarChart3, IconAlertTriangle, IconCheckCircle } from "@/components/icons";
+import { IconBarChart3, IconAlertTriangle, IconCheckCircle, IconShield } from "@/components/icons";
 import { InsightPanel } from "@/components/graphics";
 import { InputField, formatRatio } from "./InputField";
+import { Badge } from "@/components/ui/badge";
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+interface MoodysRiskData {
+  propertyRiskScore?: { value: number };
+  defaultProbability?: { value: number };
+  creditRating?: { value: string };
+  riskPremiumBps?: { value: number };
+  lossGivenDefault?: { value: number };
+  watchlistStatus?: { value: string };
+}
 
 export function StressTestTab() {
   const [noi, setNoi] = useState("500000");
@@ -19,6 +29,16 @@ export function StressTestTab() {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [moodysData, setMoodysData] = useState<MoodysRiskData | null>(null);
+  const [moodysAvailable, setMoodysAvailable] = useState(false);
+  const [propertyLocation, setPropertyLocation] = useState("");
+
+  useEffect(() => {
+    fetch("/api/market-intelligence/status", { credentials: "include" })
+      .then((r) => r.json())
+      .then((status) => setMoodysAvailable(!!status.moodys))
+      .catch(() => {});
+  }, []);
 
   const rateShocks = [-200, -100, -50, 0, 50, 100, 200];
   const noiShocks = [-20, -10, -5, 0, 5, 10, 20];
@@ -27,33 +47,42 @@ export function StressTestTab() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/financing/sensitivity", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          noi_annual: parseFloat(noi),
-          loan_amount: parseFloat(loanAmount),
-          interest_rate_annual: parseFloat(rate) / 100,
-          amortization_months: parseInt(amortMonths),
-          term_months: parseInt(termMonths),
-          io_months: parseInt(ioMonths) || 0,
-          rate_shocks_bps: rateShocks,
-          noi_shocks_pct: noiShocks,
-          min_dscr: parseFloat(minDscr),
+      const [sensRes] = await Promise.all([
+        fetch("/api/financing/sensitivity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            noi_annual: parseFloat(noi),
+            loan_amount: parseFloat(loanAmount),
+            interest_rate_annual: parseFloat(rate) / 100,
+            amortization_months: parseInt(amortMonths),
+            term_months: parseInt(termMonths),
+            io_months: parseInt(ioMonths) || 0,
+            rate_shocks_bps: rateShocks,
+            noi_shocks_pct: noiShocks,
+            min_dscr: parseFloat(minDscr),
+            location: moodysAvailable && propertyLocation.trim() ? propertyLocation.trim() : undefined,
+          }),
         }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
+        ...(moodysAvailable && propertyLocation.trim()
+          ? [fetch(`/api/market-intelligence/credit-risk?location=${encodeURIComponent(propertyLocation.trim())}`, { credentials: "include" })
+              .then((r) => r.json())
+              .then((data) => setMoodysData(data.moodys || null))
+              .catch(() => setMoodysData(null))]
+          : []),
+      ]);
+      if (!sensRes.ok) {
+        const err = await sensRes.json();
         throw new Error(err.error || "Calculation failed");
       }
-      setResult(await res.json());
+      setResult(await sensRes.json());
     } catch (e: any) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
-  }, [noi, loanAmount, rate, amortMonths, termMonths, ioMonths, minDscr]);
+  }, [noi, loanAmount, rate, amortMonths, termMonths, ioMonths, minDscr, moodysAvailable, propertyLocation]);
 
   const getHeatmapColor = (value: number, threshold: number) => {
     if (value >= threshold + 0.5) return "bg-primary/20 text-primary dark:text-primary";
@@ -73,6 +102,9 @@ export function StressTestTab() {
         <InputField label="Loan Term (months)" value={termMonths} onChange={setTermMonths} helpText="Remaining loan term" data-testid="input-sens-term" />
         <InputField label="IO Period (months)" value={ioMonths} onChange={setIoMonths} helpText="Interest-only months at the start" data-testid="input-sens-io" />
         <InputField label="Min DSCR Threshold" value={minDscr} onChange={setMinDscr} step="0.05" helpText="Red cells in the matrix indicate DSCR below this threshold" data-testid="input-sens-min-dscr" />
+        {moodysAvailable && (
+          <InputField label="Property Location" value={propertyLocation} onChange={setPropertyLocation} helpText="City/market for Moody's credit risk context (optional)" data-testid="input-sens-location" />
+        )}
       </div>
       <Button
         onClick={calculate}
@@ -161,6 +193,46 @@ export function StressTestTab() {
               </tbody>
             </table>
           </div>
+          {result.risk_premium_bps && (
+            <InsightPanel
+              data-testid="insight-sens-risk-premium"
+              variant="compact"
+              title="Moody's Risk Adjustment"
+              insights={[
+                { text: "Risk premium applied to base rate", metric: `+${result.risk_premium_bps} bps`, type: "warning" as const },
+                { text: "Effective base rate", metric: `${(result.effective_rate * 100).toFixed(2)}%`, type: "neutral" as const },
+              ]}
+            />
+          )}
+          {moodysData && (
+            <div className="border border-border rounded-lg p-4 bg-muted/30" data-testid="moodys-stress-risk-panel">
+              <div className="flex items-center gap-2 mb-3">
+                <IconShield className="w-4 h-4 text-primary" />
+                <h4 className="text-sm font-semibold">Moody's Credit Risk Context</h4>
+                <Badge variant="secondary" className="text-xs" data-testid="badge-moodys-stress-source">Moody's Analytics</Badge>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {moodysData.propertyRiskScore && (
+                  <StatCard label="Property Risk Score" value={`${moodysData.propertyRiskScore.value} / 100`} format="text" data-testid="stat-stress-moodys-risk-score" />
+                )}
+                {moodysData.defaultProbability && (
+                  <StatCard label="Default Probability" value={`${(moodysData.defaultProbability.value * 100).toFixed(2)}%`} format="text" data-testid="stat-stress-moodys-default-prob" />
+                )}
+                {moodysData.creditRating && (
+                  <StatCard label="Credit Rating" value={moodysData.creditRating.value} format="text" data-testid="stat-stress-moodys-credit-rating" />
+                )}
+                {moodysData.riskPremiumBps && (
+                  <StatCard label="Risk Premium" value={`${moodysData.riskPremiumBps.value} bps`} format="text" data-testid="stat-stress-moodys-risk-premium" />
+                )}
+                {moodysData.watchlistStatus && (
+                  <StatCard label="Watchlist Status" value={moodysData.watchlistStatus.value} format="text" data-testid="stat-stress-moodys-watchlist" />
+                )}
+              </div>
+            </div>
+          )}
+          {moodysAvailable && !moodysData && (
+            <p className="text-xs text-muted-foreground italic" data-testid="text-stress-moodys-hint">Moody's credit risk data available — run research on a property to see risk context alongside stress scenarios.</p>
+          )}
         </div>
       )}
     </div>

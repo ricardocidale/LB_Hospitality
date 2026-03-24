@@ -29,6 +29,7 @@ import * as documentRoutes from "./routes/documents";
 import * as geoRoutes from "./routes/geo";
 import * as icpResearchRoutes from "./routes/icp-research";
 import * as googleDriveRoutes from "./routes/google-drive";
+import * as financingRoutes from "./routes/financing";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -63,6 +64,7 @@ export async function registerRoutes(
   geoRoutes.register(app);
   icpResearchRoutes.register(app);
   googleDriveRoutes.register(app);
+  financingRoutes.register(app);
 
   registerTwilioWebSocket(httpServer);
 

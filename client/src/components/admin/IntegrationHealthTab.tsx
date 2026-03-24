@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Loader2 } from "@/components/icons/themed-icons";
-import { IconActivity, IconRefreshCw, IconTrash } from "@/components/icons";
+import { IconActivity, IconRefreshCw, IconTrash, IconShield, IconSettings } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 
 interface IntegrationStatus {
@@ -140,6 +140,54 @@ export default function IntegrationHealthTab() {
           </Card>
         ))}
       </div>
+
+      <Card data-testid="card-data-source-config">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <IconShield className="w-4 h-4" />
+            Institutional Data Sources
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3 text-sm">
+            {[
+              {
+                name: "Moody's Analytics",
+                envVar: "MOODYS_API_KEY",
+                description: "Credit risk scores, default probability, risk premiums, loss given default",
+                integration: integrations?.find((i) => i.name === "Moody's Analytics"),
+              },
+              {
+                name: "S&P Global",
+                envVar: "SPGLOBAL_API_KEY",
+                description: "Case-Shiller indices, economic forecasts, cap rate forecasts, sector analytics",
+                integration: integrations?.find((i) => i.name === "S&P Global Market Intelligence"),
+              },
+            ].map((source) => {
+              const configured = source.integration?.healthy ?? false;
+              const notConfiguredMsg = source.integration?.lastError?.includes("not configured");
+              return (
+                <div key={source.name} className="flex items-start gap-3 p-3 border border-border rounded-lg" data-testid={`config-${source.name.replace(/[^a-zA-Z]/g, "").toLowerCase()}`}>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium">{source.name}</span>
+                      <Badge variant={configured ? "default" : "secondary"} className="text-xs">
+                        {configured ? "Connected" : "Not Configured"}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground text-xs">{source.description}</p>
+                    {notConfiguredMsg && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Set <code className="bg-muted px-1 rounded">{source.envVar}</code> environment variable to enable
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card data-testid="card-cache-stats">
         <CardHeader>

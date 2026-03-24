@@ -124,5 +124,5 @@ npm run test:file -- <path>  # Single test file
 -   **Email:** Resend
 -   **Voice AI:** ElevenLabs (for Marcela AI functionality)
 -   **Telephony:** Twilio (for voice webhooks, SMS, Media Streams)
--   **Research/Data APIs:** RapidAPI (Property Finder), FREDService (economic data), HospitalityBenchmarkService (CoStar/STR/AirDNA adapter), Perplexity SDK, Tavily (for GroundedResearchService)
+-   **Research/Data APIs:** RapidAPI (Property Finder), FREDService (economic data), HospitalityBenchmarkService (CoStar/STR/AirDNA adapter), MoodysService (credit risk analytics, default probability, property risk scores — requires MOODYS_API_KEY), SPGlobalService (Case-Shiller indices, economic forecasts, sector analytics — requires SPGLOBAL_API_KEY), Perplexity SDK, Tavily (for GroundedResearchService)
 -   **Spreadsheet/Presentation:** xlsx, pptxgenjs (client-side)

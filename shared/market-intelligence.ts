@@ -38,6 +38,28 @@ export interface GroundedSearchResult {
   fetchedAt: string;
 }
 
+export interface MoodysRiskData {
+  propertyRiskScore?: DataPoint;
+  defaultProbability?: DataPoint;
+  creditRating?: DataPoint<string>;
+  riskPremiumBps?: DataPoint;
+  lossGivenDefault?: DataPoint;
+  watchlistStatus?: DataPoint<string>;
+}
+
+export interface SPGlobalMarketData {
+  caseShillerIndex?: DataPoint;
+  caseShillerYoY?: DataPoint;
+  sectorOutlook?: DataPoint<string>;
+  economicForecast?: DataPoint<{
+    gdpGrowth: number;
+    employmentGrowth: number;
+    inflationForecast: number;
+  }>;
+  capRateForecast?: DataPoint<{ current: number; forecast12m: number }>;
+  marketTier?: DataPoint<string>;
+}
+
 export interface MarketIntelligence {
   rates: {
     sofr?: FREDRateData;
@@ -48,6 +70,8 @@ export interface MarketIntelligence {
     cpi?: FREDRateData;
   };
   benchmarks?: HospitalityBenchmarks;
+  moodys?: MoodysRiskData;
+  spGlobal?: SPGlobalMarketData;
   groundedResearch: GroundedSearchResult[];
   fetchedAt: string;
   errors: string[];

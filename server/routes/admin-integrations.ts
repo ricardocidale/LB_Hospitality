@@ -5,6 +5,7 @@ import { type CircuitState } from "../integrations/base";
 import { getResendHealthCheck } from "../integrations/resend";
 import { getGeospatialHealthCheck } from "../integrations/geospatial";
 import { getDocumentAIHealthCheck } from "../integrations/document-ai";
+import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
 import { logActivity, cachePatternSchema } from "./helpers";
 import { fromZodError } from "zod-validation-error";
 
@@ -36,6 +37,43 @@ export function register(app: Express) {
           circuitState: "closed" as CircuitState,
         };
       });
+
+      const aggregator = getMarketIntelligenceAggregator();
+      const miStatus = aggregator.getServiceStatus();
+
+      if (miStatus.moodys) {
+        results.push({
+          name: "Moody's Analytics",
+          healthy: true,
+          latencyMs: 0,
+          circuitState: "closed" as CircuitState,
+        });
+      } else {
+        results.push({
+          name: "Moody's Analytics",
+          healthy: false,
+          latencyMs: 0,
+          lastError: "API key not configured (MOODYS_API_KEY)",
+          circuitState: "closed" as CircuitState,
+        });
+      }
+
+      if (miStatus.spGlobal) {
+        results.push({
+          name: "S&P Global",
+          healthy: true,
+          latencyMs: 0,
+          circuitState: "closed" as CircuitState,
+        });
+      } else {
+        results.push({
+          name: "S&P Global",
+          healthy: false,
+          latencyMs: 0,
+          lastError: "API key not configured (SPGLOBAL_API_KEY)",
+          circuitState: "closed" as CircuitState,
+        });
+      }
 
       res.json(results);
     } catch (error: any) {

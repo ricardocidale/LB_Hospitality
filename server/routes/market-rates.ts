@@ -127,6 +127,28 @@ export function register(app: Express) {
     }
   });
 
+  app.get("/api/market-intelligence/credit-risk", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { location, propertyType, propertyClass, state } = req.query as Record<string, string>;
+      if (!location) {
+        return res.json({ moodys: null, spGlobal: null });
+      }
+      const aggregator = getMarketIntelligenceAggregator();
+      const data = await aggregator.gather({
+        location,
+        state,
+        propertyType,
+        propertyClass,
+      });
+      res.json({
+        moodys: data.moodys || null,
+        spGlobal: data.spGlobal || null,
+      });
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch credit risk data", error);
+    }
+  });
+
   app.post("/api/market-intelligence/gather", requireAuth, requireAdmin, async (req: Request, res: Response) => {
     try {
       const { location, state, propertyType, propertyClass, chainScale } = req.body;

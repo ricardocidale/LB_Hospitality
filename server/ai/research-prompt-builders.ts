@@ -58,6 +58,8 @@ const REQUIRED_SOURCES = [
   { name: "PKF Trends in the Hotel Industry", category: "Operating Benchmarks" },
   { name: "STR / CoStar", category: "Market Performance (RevPAR, ADR, Occupancy)", url: "https://str.com" },
   { name: "HVS", category: "Hotel Valuation & Transaction Data", url: "https://hvs.com" },
+  { name: "Moody's Analytics", category: "Credit Risk & Default Probability", url: "https://www.moodys.com" },
+  { name: "S&P Global Market Intelligence", category: "Real Estate Indices & Economic Forecasts", url: "https://www.spglobal.com/marketintelligence" },
 ];
 
 /** Build the curated source block appended to all prompt types. */
@@ -154,6 +156,34 @@ function buildMarketIntelligenceBlock(mi?: MarketIntelligence): string {
     if (b.occupancy) block += `- Trailing-12-Month Occupancy: ${(b.occupancy.value * 100).toFixed(1)}%\n`;
     if (b.capRate) block += `- Market Cap Rate: ${b.capRate.value.toFixed(2)}%\n`;
     if (b.supplyPipeline) block += `- Supply Pipeline: ${b.supplyPipeline.value.newRooms} new rooms, ${b.supplyPipeline.value.underConstruction} under construction\n`;
+  }
+
+  if (mi.moodys) {
+    const m = mi.moodys;
+    block += `\nCredit Risk Analytics (Source: Moody's Analytics):\n`;
+    if (m.propertyRiskScore) block += `- Property Risk Score: ${m.propertyRiskScore.value} / 100\n`;
+    if (m.defaultProbability) block += `- Default Probability: ${(m.defaultProbability.value * 100).toFixed(2)}%\n`;
+    if (m.creditRating) block += `- Credit Rating: ${m.creditRating.value}\n`;
+    if (m.riskPremiumBps) block += `- Risk Premium: ${m.riskPremiumBps.value} bps\n`;
+    if (m.lossGivenDefault) block += `- Loss Given Default: ${(m.lossGivenDefault.value * 100).toFixed(1)}%\n`;
+    if (m.watchlistStatus) block += `- Watchlist Status: ${m.watchlistStatus.value}\n`;
+  }
+
+  if (mi.spGlobal) {
+    const sp = mi.spGlobal;
+    block += `\nReal Estate Market Intelligence (Source: S&P Global):\n`;
+    if (sp.caseShillerIndex) block += `- Case-Shiller Home Price Index: ${sp.caseShillerIndex.value.toFixed(1)}\n`;
+    if (sp.caseShillerYoY) block += `- Case-Shiller YoY Change: ${sp.caseShillerYoY.value.toFixed(1)}%\n`;
+    if (sp.sectorOutlook) block += `- Sector Outlook: ${sp.sectorOutlook.value}\n`;
+    if (sp.marketTier) block += `- Market Tier: ${sp.marketTier.value}\n`;
+    if (sp.economicForecast) {
+      const ef = sp.economicForecast.value;
+      block += `- Economic Forecast: GDP Growth ${ef.gdpGrowth.toFixed(1)}%, Employment Growth ${ef.employmentGrowth.toFixed(1)}%, Inflation ${ef.inflationForecast.toFixed(1)}%\n`;
+    }
+    if (sp.capRateForecast) {
+      const cr = sp.capRateForecast.value;
+      block += `- Cap Rate Forecast: Current ${cr.current.toFixed(2)}%, 12-Month Forecast ${cr.forecast12m.toFixed(2)}%\n`;
+    }
   }
 
   if (mi.groundedResearch.length > 0) {

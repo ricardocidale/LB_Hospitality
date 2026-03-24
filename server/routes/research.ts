@@ -229,6 +229,8 @@ export function register(app: Express) {
           if (marketIntelligence) {
             parsed._marketIntelligence = {
               benchmarks: marketIntelligence.benchmarks || null,
+              moodys: marketIntelligence.moodys || null,
+              spGlobal: marketIntelligence.spGlobal || null,
               groundedResearch: marketIntelligence.groundedResearch || [],
               errors: marketIntelligence.errors || [],
               fetchedAt: marketIntelligence.fetchedAt,

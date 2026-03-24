@@ -25,12 +25,18 @@ export function applyFont(font: FontPreference) {
   document.documentElement.style.setProperty("--font-family", FONT_FAMILIES[font]);
 }
 
-export function resolveColorMode(mode: ColorMode | null | undefined): ColorMode {
-  return mode ?? "light";
+export interface AppearanceDefaults {
+  defaultColorMode?: ColorMode | null;
+  defaultBgAnimation?: BgAnimation | null;
+  defaultFontPreference?: FontPreference | null;
 }
 
-export function resolveBgAnimation(mode: BgAnimation | null | undefined): BgAnimation {
-  return mode ?? "auto";
+export function resolveColorMode(mode: ColorMode | null | undefined, orgDefault?: ColorMode | null): ColorMode {
+  return mode ?? orgDefault ?? "light";
+}
+
+export function resolveBgAnimation(mode: BgAnimation | null | undefined, orgDefault?: BgAnimation | null): BgAnimation {
+  return mode ?? orgDefault ?? "auto";
 }
 
 export function applyBgAnimation(mode: BgAnimation) {
@@ -40,8 +46,8 @@ export function applyBgAnimation(mode: BgAnimation) {
   document.documentElement.dataset.bgAnimation = resolved;
 }
 
-export function resolveFontPreference(pref: FontPreference | null | undefined): FontPreference {
-  return pref ?? "default";
+export function resolveFontPreference(pref: FontPreference | null | undefined, orgDefault?: FontPreference | null): FontPreference {
+  return pref ?? orgDefault ?? "default";
 }
 
 let osMediaQuery: MediaQueryList | null = null;

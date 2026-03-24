@@ -333,6 +333,11 @@ export const globalAssumptions = pgTable("global_assumptions", {
   defaultPropertyTaxRate: real("default_property_tax_rate"),
   defaultLandValuePercent: real("default_land_value_percent"),
 
+  // Appearance Defaults (org-wide defaults; users inherit unless they override)
+  defaultColorMode: text("default_color_mode"),
+  defaultBgAnimation: text("default_bg_animation"),
+  defaultFontPreference: text("default_font_preference"),
+
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),

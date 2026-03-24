@@ -291,6 +291,12 @@ async function runSchemaMigrations() {
     await runCanManageScenarios001();
     await markMigrationApplied("can_manage_scenarios_001");
   }
+
+  if (!(await isMigrationApplied("appearance_defaults_001"))) {
+    const { runAppearanceDefaults001 } = await import("./migrations/appearance-defaults-001");
+    await runAppearanceDefaults001();
+    await markMigrationApplied("appearance_defaults_001");
+  }
 }
 
 async function runSeeds() {

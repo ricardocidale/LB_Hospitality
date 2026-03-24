@@ -28,7 +28,7 @@ import { RebeccaChatbot } from "@/components/RebeccaChatbot";
 
 import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
 import { applyColorMode, applyFont, applyBgAnimation, startOsColorModeListener, stopOsColorModeListener, resolveColorMode, resolveFontPreference, resolveBgAnimation } from "@/lib/theme/appearance";
-import type { ColorMode, FontPreference, BgAnimation } from "@/lib/theme/appearance";
+import type { ColorMode, FontPreference, BgAnimation, AppearanceDefaults } from "@/lib/theme/appearance";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { IconSetProvider } from "@/components/icons/IconSetContext";
 import type { IconSetType } from "@/features/design-themes/types";
@@ -132,6 +132,16 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     enabled: !!user,
   });
 
+  const { data: appearanceDefaults } = useQuery<AppearanceDefaults>({
+    queryKey: ["appearance-defaults"],
+    queryFn: async () => {
+      const res = await fetch("/api/appearance-defaults", { credentials: "include" });
+      if (!res.ok) return { defaultColorMode: null, defaultBgAnimation: null, defaultFontPreference: null };
+      return res.json();
+    },
+    enabled: !!user,
+  });
+
   const companyName = global?.companyName || "Hospitality Business";
   const companyLogo = global?.companyLogoUrl || global?.companyLogo || defaultLogo;
 
@@ -146,14 +156,17 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
   useEffect(() => {
     if (user) {
-      const mode = resolveColorMode(user.colorMode as ColorMode | null);
+      const orgColorMode = appearanceDefaults?.defaultColorMode as ColorMode | null | undefined;
+      const orgBgAnim = appearanceDefaults?.defaultBgAnimation as BgAnimation | null | undefined;
+      const orgFont = appearanceDefaults?.defaultFontPreference as FontPreference | null | undefined;
+      const mode = resolveColorMode(user.colorMode as ColorMode | null, orgColorMode);
       applyColorMode(mode);
       startOsColorModeListener(mode);
-      applyFont(resolveFontPreference(user.fontPreference as FontPreference | null));
-      applyBgAnimation(resolveBgAnimation(user.bgAnimation as BgAnimation | null));
+      applyFont(resolveFontPreference(user.fontPreference as FontPreference | null, orgFont));
+      applyBgAnimation(resolveBgAnimation(user.bgAnimation as BgAnimation | null, orgBgAnim));
     }
     return () => { stopOsColorModeListener(); };
-  }, [user?.colorMode, user?.fontPreference, user?.bgAnimation]);
+  }, [user?.colorMode, user?.fontPreference, user?.bgAnimation, appearanceDefaults]);
 
   useEffect(() => { setMobileOpen(false); }, [location]);
 

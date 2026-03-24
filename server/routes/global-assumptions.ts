@@ -6,6 +6,12 @@ import { fromZodError } from "zod-validation-error";
 import { logActivity, logAndSendError, parseParamId } from "./helpers";
 import { z } from "zod";
 
+const appearanceDefaultsSchema = z.object({
+  defaultColorMode: z.enum(["light", "auto", "dark"]).nullable().optional(),
+  defaultBgAnimation: z.enum(["enabled", "auto", "disabled"]).nullable().optional(),
+  defaultFontPreference: z.enum(["default", "sans", "system", "dyslexic"]).nullable().optional(),
+});
+
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
   // GLOBAL ASSUMPTIONS
@@ -76,6 +82,45 @@ export function register(app: Express) {
       res.json(assumptions);
     } catch (error) {
       logAndSendError(res, "Failed to update global assumptions", error);
+    }
+  });
+
+  app.get("/api/appearance-defaults", requireAuth, async (req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      res.json({
+        defaultColorMode: ga?.defaultColorMode ?? null,
+        defaultBgAnimation: ga?.defaultBgAnimation ?? null,
+        defaultFontPreference: ga?.defaultFontPreference ?? null,
+      });
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch appearance defaults", error);
+    }
+  });
+
+  app.patch("/api/appearance-defaults", requireAdmin, async (req, res) => {
+    try {
+      const validation = appearanceDefaultsSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const current = await storage.getGlobalAssumptions(req.user!.id);
+      if (!current) {
+        return res.status(404).json({ error: "Global assumptions not found" });
+      }
+      const patch: Record<string, unknown> = {};
+      if (validation.data.defaultColorMode !== undefined) patch.defaultColorMode = validation.data.defaultColorMode;
+      if (validation.data.defaultBgAnimation !== undefined) patch.defaultBgAnimation = validation.data.defaultBgAnimation;
+      if (validation.data.defaultFontPreference !== undefined) patch.defaultFontPreference = validation.data.defaultFontPreference;
+      const updated = await storage.patchGlobalAssumptions(current.id, patch);
+      logActivity(req, "update", "global_assumptions", updated.id, "Appearance Defaults");
+      res.json({
+        defaultColorMode: updated.defaultColorMode ?? null,
+        defaultBgAnimation: updated.defaultBgAnimation ?? null,
+        defaultFontPreference: updated.defaultFontPreference ?? null,
+      });
+    } catch (error) {
+      logAndSendError(res, "Failed to update appearance defaults", error);
     }
   });
 

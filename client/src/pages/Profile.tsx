@@ -15,8 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { UserRole } from "@shared/constants";
 import { Link } from "wouter";
-import type { ColorMode, BgAnimation, FontPreference } from "@/lib/theme/appearance";
-import { applyColorMode, applyFont, startOsColorModeListener, resolveColorMode, resolveFontPreference } from "@/lib/theme/appearance";
+import type { ColorMode, BgAnimation, FontPreference, AppearanceDefaults } from "@/lib/theme/appearance";
+import { applyColorMode, applyFont, applyBgAnimation, startOsColorModeListener, resolveColorMode, resolveFontPreference, resolveBgAnimation } from "@/lib/theme/appearance";
 import { Sun, Moon, Monitor, Type, Sparkles } from "lucide-react";
 
 export default function Profile() {
@@ -71,6 +71,16 @@ export default function Profile() {
     enabled: !!user,
   });
 
+  const { data: appearanceDefaults } = useQuery<AppearanceDefaults>({
+    queryKey: ["appearance-defaults"],
+    queryFn: async () => {
+      const res = await fetch("/api/appearance-defaults", { credentials: "include" });
+      if (!res.ok) return { defaultColorMode: null, defaultBgAnimation: null, defaultFontPreference: null };
+      return res.json();
+    },
+    enabled: !!user,
+  });
+
   const themeMutation = useMutation({
     mutationFn: async (themeId: number | null) => {
       const res = await fetch("/api/profile/theme", {
@@ -112,12 +122,15 @@ export default function Profile() {
     onSuccess: (_data, variables) => {
       refetch();
       if (variables.colorMode !== undefined) {
-        const mode = resolveColorMode(variables.colorMode);
+        const mode = resolveColorMode(variables.colorMode, appearanceDefaults?.defaultColorMode as ColorMode | null);
         applyColorMode(mode);
         startOsColorModeListener(mode);
       }
       if (variables.fontPreference !== undefined) {
-        applyFont(resolveFontPreference(variables.fontPreference));
+        applyFont(resolveFontPreference(variables.fontPreference, appearanceDefaults?.defaultFontPreference as FontPreference | null));
+      }
+      if (variables.bgAnimation !== undefined) {
+        applyBgAnimation(resolveBgAnimation(variables.bgAnimation, appearanceDefaults?.defaultBgAnimation as BgAnimation | null));
       }
       toast({ title: "Appearance Updated", description: "Your preference has been saved." });
     },
@@ -366,7 +379,7 @@ export default function Profile() {
                   { value: "auto" as ColorMode, label: "Auto", icon: Monitor, preview: "bg-gradient-to-r from-white to-zinc-800 border-border" },
                   { value: "dark" as ColorMode, label: "Dark", icon: Moon, preview: "bg-zinc-900 border-zinc-700" },
                 ] as const).map(({ value, label, icon: Icon, preview }) => {
-                  const active = resolveColorMode(user?.colorMode as ColorMode | null) === value;
+                  const active = resolveColorMode(user?.colorMode as ColorMode | null, appearanceDefaults?.defaultColorMode as ColorMode | null) === value;
                   return (
                     <button
                       key={value}
@@ -394,7 +407,7 @@ export default function Profile() {
                   { value: "system" as FontPreference, label: "System", family: "-apple-system, BlinkMacSystemFont, sans-serif" },
                   { value: "dyslexic" as FontPreference, label: "Dyslexic", family: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
                 ] as const).map(({ value, label, family }) => {
-                  const active = resolveFontPreference(user?.fontPreference as FontPreference | null) === value;
+                  const active = resolveFontPreference(user?.fontPreference as FontPreference | null, appearanceDefaults?.defaultFontPreference as FontPreference | null) === value;
                   return (
                     <button
                       key={value}
@@ -418,7 +431,7 @@ export default function Profile() {
                   { value: "auto" as BgAnimation, label: "Auto", icon: Monitor },
                   { value: "disabled" as BgAnimation, label: "Disabled", icon: null },
                 ] as const).map(({ value, label, icon: Icon }) => {
-                  const active = (user?.bgAnimation as BgAnimation | null ?? "auto") === value;
+                  const active = resolveBgAnimation(user?.bgAnimation as BgAnimation | null, appearanceDefaults?.defaultBgAnimation as BgAnimation | null) === value;
                   return (
                     <button
                       key={value}

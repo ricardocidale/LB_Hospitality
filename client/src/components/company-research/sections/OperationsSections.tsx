@@ -46,8 +46,8 @@ export function RevenueFees({ content, hasData, onGenerate }: { content: any; ha
                 <linearGradient id="gradBase" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(var(--chart-1))" stopOpacity={0.5} /></linearGradient>
                 <linearGradient id="gradIncentive" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--chart-2))" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity={0.5} /></linearGradient>
               </defs>
-              <XAxis dataKey="year" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-              <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={v => `${v}%`} />
+              <XAxis dataKey="year" tick={{ fontSize: 11 }} stroke="hsl(var(--foreground))" />
+              <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--foreground))" tickFormatter={v => `${v}%`} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="baseFee" name="Base Fee %" stackId="a" fill="url(#gradBase)" radius={[0, 0, 0, 0]} />
               <Bar dataKey="incentiveFee" name="Incentive Fee %" stackId="a" fill="url(#gradIncentive)" radius={[4, 4, 0, 0]} />
@@ -272,7 +272,7 @@ export function CompetitivePosition({ content, hasData, onGenerate }: { content:
               <PolarGrid stroke="hsl(var(--border))" />
               <PolarAngleAxis dataKey="subject" tick={{ fontSize: 9 }} />
               <Radar name="Your Company" dataKey="you" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.2} strokeWidth={2} />
-              <Radar name="Industry Avg" dataKey="industry" stroke="hsl(var(--muted-foreground))" fill="hsl(var(--muted-foreground))" fillOpacity={0.1} strokeWidth={1.5} />
+              <Radar name="Industry Avg" dataKey="industry" stroke="hsl(var(--foreground))" fill="hsl(var(--muted-foreground))" fillOpacity={0.1} strokeWidth={1.5} />
               <Tooltip content={<CustomTooltip />} />
             </RadarChart>
           </ResponsiveContainer>

@@ -321,7 +321,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                     { metric: "Max Occ", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.maxOccupancy * 100])) },
                   ]}>
                     <PolarGrid stroke="hsl(var(--border))" />
-                    <PolarAngleAxis dataKey="metric" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 13, fontWeight: 500 }} />
+                    <PolarAngleAxis dataKey="metric" tick={{ fill: "hsl(var(--foreground))", fontSize: 13, fontWeight: 500 }} />
                     <PolarRadiusAxis tick={false} axisLine={false} />
                     {selectedProperties.map((p, i) => (
                       <Radar 

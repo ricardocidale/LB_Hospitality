@@ -86,7 +86,7 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
                   type="number"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
                   tickFormatter={(val) => `${val > 0 ? "+" : ""}${val.toFixed(1)}${tornadoMetric === "irr" ? "pp" : "%"}`}
                   domain={["auto", "auto"]}
                 />

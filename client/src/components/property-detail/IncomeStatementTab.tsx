@@ -125,13 +125,13 @@ export default function IncomeStatementTab({
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis 
                     dataKey="year" 
-                    stroke="hsl(var(--muted-foreground))" 
+                    stroke="hsl(var(--foreground))" 
                     fontSize={12}
                     tickLine={false}
                     axisLine={{ stroke: 'hsl(var(--border))' }}
                   />
                   <YAxis 
-                    stroke="hsl(var(--muted-foreground))" 
+                    stroke="hsl(var(--foreground))" 
                     fontSize={12}
                     tickLine={false}
                     axisLine={{ stroke: 'hsl(var(--border))' }}

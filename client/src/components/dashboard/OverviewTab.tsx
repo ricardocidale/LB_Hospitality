@@ -263,8 +263,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       </linearGradient>
                     </defs>
                     <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeOpacity={0.5} />
-                    <XAxis dataKey="year" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
-                    <YAxis tickFormatter={(v: number) => v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={60} />
+                    <XAxis dataKey="year" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }} />
+                    <YAxis tickFormatter={(v: number) => v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`} tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }} axisLine={false} tickLine={false} width={60} />
                     <Tooltip
                       cursor={false}
                       formatter={(value: number, name: string) => {
@@ -279,8 +279,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 ) : (
                   <LineChart data={revenueNOIData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                     <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeOpacity={0.5} />
-                    <XAxis dataKey="year" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
-                    <YAxis tickFormatter={(v: number) => v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={60} />
+                    <XAxis dataKey="year" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }} />
+                    <YAxis tickFormatter={(v: number) => v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`} tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }} axisLine={false} tickLine={false} width={60} />
                     <Tooltip
                       cursor={false}
                       formatter={(value: number, name: string) => {

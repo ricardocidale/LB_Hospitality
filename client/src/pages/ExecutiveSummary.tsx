@@ -437,13 +437,13 @@ export default function ExecutiveSummary() {
                 <BarChart data={waterfallData} margin={{ top: 16, right: 16, bottom: 4, left: 8 }}>
                   <XAxis
                     dataKey="name"
-                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
                     tickLine={false}
                     axisLine={false}
                   />
                   <YAxis
                     tickFormatter={(v: number) => formatCompact(Math.abs(v))}
-                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
                     tickLine={false}
                     axisLine={false}
                     width={60}

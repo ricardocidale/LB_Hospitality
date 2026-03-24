@@ -303,18 +303,18 @@ function ChartSvgBody({ series, years, theme, isLandscape, hints }: {
           return (
             <G key={`grid-${g}`}>
               <Line x1={padL} y1={y} x2={svgW - padR} y2={y} stroke={theme.border} strokeWidth={0.7} />
-              <Text x={padL - 8} y={y + 3} style={{ fontSize: 8, textAnchor: "end" }} fill={theme.border}>{fmtCompact(gVal / 1.08)}</Text>
+              <Text x={padL - 8} y={y + 3} style={{ fontSize: 8, textAnchor: "end" }} fill={theme.foreground}>{fmtCompact(gVal / 1.08)}</Text>
             </G>
           );
         })}
 
-        <Line x1={padL} y1={padT + plotH} x2={svgW - padR} y2={padT + plotH} stroke={theme.border} strokeWidth={1} />
-        <Line x1={padL} y1={padT} x2={padL} y2={padT + plotH} stroke={theme.border} strokeWidth={0.5} />
+        <Line x1={padL} y1={padT + plotH} x2={svgW - padR} y2={padT + plotH} stroke={theme.foreground} strokeWidth={1} />
+        <Line x1={padL} y1={padT} x2={padL} y2={padT + plotH} stroke={theme.foreground} strokeWidth={0.5} />
 
         {years.map((yr, i) => {
           const x = padL + (i / Math.max(years.length - 1, 1)) * plotW;
           const label = yr.length === 4 ? "'" + yr.slice(2) : yr;
-          return <Text key={`xl-${i}`} x={x} y={padT + plotH + 16} style={{ fontSize: 8, textAnchor: "middle" }} fill={theme.border}>{label}</Text>;
+          return <Text key={`xl-${i}`} x={x} y={padT + plotH + 16} style={{ fontSize: 8, textAnchor: "middle" }} fill={theme.foreground}>{label}</Text>;
         })}
 
         {series.map((s, si) => {

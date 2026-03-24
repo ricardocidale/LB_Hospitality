@@ -15,6 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { UserRole } from "@shared/constants";
 import { Link } from "wouter";
+import type { ColorMode, BgAnimation, FontPreference } from "@/lib/theme/appearance";
+import { applyColorMode, applyFont, startOsColorModeListener, resolveColorMode, resolveFontPreference } from "@/lib/theme/appearance";
+import { Sun, Moon, Monitor, Type, Sparkles } from "lucide-react";
 
 export default function Profile() {
   const { toast } = useToast();
@@ -86,6 +89,37 @@ export default function Profile() {
       queryClient.invalidateQueries({ queryKey: ["my-branding"] });
       queryClient.invalidateQueries({ queryKey: ["available-themes"] });
       toast({ title: "Theme Updated", description: "Your theme preference has been saved." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const appearanceMutation = useMutation({
+    mutationFn: async (data: { colorMode?: ColorMode | null; bgAnimation?: BgAnimation | null; fontPreference?: FontPreference | null }) => {
+      const res = await fetch("/api/profile/appearance", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to update appearance");
+      }
+      return res.json();
+    },
+    onSuccess: (_data, variables) => {
+      refetch();
+      if (variables.colorMode !== undefined) {
+        const mode = resolveColorMode(variables.colorMode);
+        applyColorMode(mode);
+        startOsColorModeListener(mode);
+      }
+      if (variables.fontPreference !== undefined) {
+        applyFont(resolveFontPreference(variables.fontPreference));
+      }
+      toast({ title: "Appearance Updated", description: "Your preference has been saved." });
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -311,6 +345,94 @@ export default function Profile() {
                   className="bg-card border-border text-foreground"
                   data-testid="input-profile-title"
                 />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border-border shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <Monitor className="w-5 h-5 text-primary" />
+              Appearance
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label className="text-foreground text-sm font-medium">Color Mode</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {([
+                  { value: "light" as ColorMode, label: "Light", icon: Sun, preview: "bg-white border-border" },
+                  { value: "auto" as ColorMode, label: "Auto", icon: Monitor, preview: "bg-gradient-to-r from-white to-zinc-800 border-border" },
+                  { value: "dark" as ColorMode, label: "Dark", icon: Moon, preview: "bg-zinc-900 border-zinc-700" },
+                ] as const).map(({ value, label, icon: Icon, preview }) => {
+                  const active = resolveColorMode(user?.colorMode as ColorMode | null) === value;
+                  return (
+                    <button
+                      key={value}
+                      data-testid={`appearance-color-${value}`}
+                      onClick={() => appearanceMutation.mutate({ colorMode: value })}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${active ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}
+                    >
+                      <div className={`w-full h-12 rounded-lg ${preview}`} />
+                      <div className="flex items-center gap-1.5">
+                        <Icon className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className="text-xs font-medium">{label}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-foreground text-sm font-medium">App Font</Label>
+              <div className="grid grid-cols-4 gap-3">
+                {([
+                  { value: "default" as FontPreference, label: "Default", family: "'Inter', sans-serif" },
+                  { value: "sans" as FontPreference, label: "Sans", family: "'DM Sans', sans-serif" },
+                  { value: "system" as FontPreference, label: "System", family: "-apple-system, BlinkMacSystemFont, sans-serif" },
+                  { value: "dyslexic" as FontPreference, label: "Dyslexic", family: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
+                ] as const).map(({ value, label, family }) => {
+                  const active = resolveFontPreference(user?.fontPreference as FontPreference | null) === value;
+                  return (
+                    <button
+                      key={value}
+                      data-testid={`appearance-font-${value}`}
+                      onClick={() => appearanceMutation.mutate({ fontPreference: value })}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${active ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}
+                    >
+                      <span className="text-2xl font-semibold" style={{ fontFamily: family }}>Aa</span>
+                      <span className="text-xs font-medium">{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-foreground text-sm font-medium">Background Animation</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {([
+                  { value: "enabled" as BgAnimation, label: "Enabled", icon: Sparkles },
+                  { value: "auto" as BgAnimation, label: "Auto", icon: Monitor },
+                  { value: "disabled" as BgAnimation, label: "Disabled", icon: null },
+                ] as const).map(({ value, label, icon: Icon }) => {
+                  const active = (user?.bgAnimation as BgAnimation | null ?? "auto") === value;
+                  return (
+                    <button
+                      key={value}
+                      data-testid={`appearance-anim-${value}`}
+                      onClick={() => appearanceMutation.mutate({ bgAnimation: value })}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${active ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}
+                    >
+                      <div className="w-full h-10 rounded-lg bg-muted flex items-center justify-center">
+                        {Icon ? <Icon className="w-5 h-5 text-muted-foreground" /> : <span className="text-xs text-muted-foreground">Off</span>}
+                      </div>
+                      <span className="text-xs font-medium">{label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </CardContent>

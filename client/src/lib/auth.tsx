@@ -41,6 +41,9 @@ interface User {
   role: string;
   hideTourPrompt: boolean;
   canManageScenarios: boolean;
+  colorMode: string | null;
+  bgAnimation: string | null;
+  fontPreference: string | null;
 }
 
 interface AuthContextType {

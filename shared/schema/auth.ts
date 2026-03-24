@@ -31,6 +31,9 @@ export const users = pgTable("users", {
   googleDriveConnected: boolean("google_drive_connected").default(false).notNull(),
   hideTourPrompt: boolean("hide_tour_prompt").default(false).notNull(),
   canManageScenarios: boolean("can_manage_scenarios").default(true).notNull(),
+  colorMode: text("color_mode"),
+  bgAnimation: text("bg_animation"),
+  fontPreference: text("font_preference"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [

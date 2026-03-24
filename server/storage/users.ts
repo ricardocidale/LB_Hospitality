@@ -77,6 +77,15 @@ export class UserStorage {
     return user;
   }
 
+  async updateUserAppearance(id: number, prefs: { colorMode?: string | null; bgAnimation?: string | null; fontPreference?: string | null }): Promise<User> {
+    const updates: Record<string, unknown> = { updatedAt: new Date() };
+    if (prefs.colorMode !== undefined) updates.colorMode = prefs.colorMode;
+    if (prefs.bgAnimation !== undefined) updates.bgAnimation = prefs.bgAnimation;
+    if (prefs.fontPreference !== undefined) updates.fontPreference = prefs.fontPreference;
+    const [user] = await db.update(users).set(updates).where(eq(users.id, id)).returning();
+    return user;
+  }
+
   async updateUserHideTourPrompt(id: number, hide: boolean): Promise<void> {
     await db.update(users).set({ hideTourPrompt: hide, updatedAt: new Date() }).where(eq(users.id, id));
   }
@@ -175,6 +184,9 @@ export class UserStorage {
           googleDriveConnected: users.googleDriveConnected,
           hideTourPrompt: users.hideTourPrompt,
           canManageScenarios: users.canManageScenarios,
+          colorMode: users.colorMode,
+          bgAnimation: users.bgAnimation,
+          fontPreference: users.fontPreference,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         },

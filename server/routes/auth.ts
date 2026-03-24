@@ -241,6 +241,28 @@ export function register(app: Express) {
     }
   });
 
+  app.patch("/api/profile/appearance", requireAuth, async (req, res) => {
+    try {
+      const schema = z.object({
+        colorMode: z.enum(["light", "auto", "dark"]).nullable().optional(),
+        bgAnimation: z.enum(["enabled", "auto", "disabled"]).nullable().optional(),
+        fontPreference: z.enum(["default", "sans", "system", "dyslexic"]).nullable().optional(),
+      });
+      const validation = schema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const user = await storage.updateUserAppearance(req.user!.id, {
+        colorMode: validation.data.colorMode,
+        bgAnimation: validation.data.bgAnimation,
+        fontPreference: validation.data.fontPreference,
+      });
+      res.json({ colorMode: user.colorMode, bgAnimation: user.bgAnimation, fontPreference: user.fontPreference });
+    } catch (error) {
+      logAndSendError(res, "Failed to update appearance preferences", error);
+    }
+  });
+
   app.patch("/api/profile/theme", requireAuth, async (req, res) => {
     try {
       const schema = z.object({ themeId: z.number().nullable() });

@@ -131,6 +131,32 @@ export const PRESET_THEMES: ThemePreset[] = [
       { rank: 5, name: "Emerald",         hexCode: "#10B981", description: "LINE: Quinary line — projection overlay." },
     ],
   },
+  {
+    name: "Claude",
+    description:
+      "Warm terracotta and cream inspired by Anthropic's Claude interface. Earthy, approachable, and quietly confident — professional warmth without pretension.",
+    isDefault: false,
+    colors: [
+      { rank: 1, name: "Terracotta",       hexCode: "#D97757", description: "PALETTE: Primary brand color. Warm terracotta for buttons, active nav, focus rings." },
+      { rank: 2, name: "Warm Umber",       hexCode: "#8B6F5E", description: "PALETTE: Secondary accent. Muted warm brown for contrast badges and secondary elements." },
+      { rank: 3, name: "Cream",            hexCode: "#FAF7F4", description: "PALETTE: Background and card surfaces. Warm off-white cream canvas." },
+      { rank: 4, name: "Charcoal",         hexCode: "#2D2B28", description: "PALETTE: Foreground text. Near-black warm charcoal for readable type." },
+      { rank: 5, name: "Linen",            hexCode: "#F0EBE5", description: "PALETTE: Muted surfaces. Light warm beige for secondary cards and table alternates." },
+      { rank: 6, name: "Sand Border",      hexCode: "#E5DED6", description: "PALETTE: Borders and input outlines. Subtle warm gray border tone." },
+      { rank: 1, name: "Teal",             hexCode: "#0D9488", description: "ACCENT: Standout highlight for IRR circles, key KPIs, and success badges." },
+      { rank: 2, name: "Warm Amber",       hexCode: "#D4A76A", description: "ACCENT: Secondary emphasis for charts, infographics, and comparative metrics." },
+      { rank: 1, name: "Teal",             hexCode: "#0D9488", description: "CHART: Primary series — revenue and key metrics." },
+      { rank: 2, name: "Terracotta",       hexCode: "#D97757", description: "CHART: Secondary series — net income and profitability." },
+      { rank: 3, name: "Slate Blue",       hexCode: "#6B7FA3", description: "CHART: Tertiary series — cash flow and operational metrics." },
+      { rank: 4, name: "Amber",            hexCode: "#D4A76A", description: "CHART: Quaternary series — expenses and budget." },
+      { rank: 5, name: "Muted Plum",       hexCode: "#9B7A94", description: "CHART: Quinary series — background and comparison." },
+      { rank: 1, name: "Teal",             hexCode: "#0D9488", description: "LINE: Primary line — revenue trend." },
+      { rank: 2, name: "Terracotta",       hexCode: "#D97757", description: "LINE: Secondary line — income trend." },
+      { rank: 3, name: "Slate Blue",       hexCode: "#6B7FA3", description: "LINE: Tertiary line — expense trend." },
+      { rank: 4, name: "Amber",            hexCode: "#D4A76A", description: "LINE: Quaternary line — cash flow trend." },
+      { rank: 5, name: "Muted Plum",       hexCode: "#9B7A94", description: "LINE: Quinary line — projection overlay." },
+    ],
+  },
 ];
 
 export function getPresetByName(name: string): ThemePreset | undefined {

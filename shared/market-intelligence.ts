@@ -60,6 +60,27 @@ export interface SPGlobalMarketData {
   marketTier?: DataPoint<string>;
 }
 
+export interface CoStarMarketData {
+  revpar?: DataPoint;
+  adr?: DataPoint;
+  occupancyRate?: DataPoint;
+  rentGrowthYoY?: DataPoint;
+  demandGrowthYoY?: DataPoint;
+  submarketCapRate?: DataPoint;
+  marketScore?: DataPoint;
+  marketVacancy?: DataPoint;
+  submarketTier?: DataPoint<string>;
+  supplyPipeline?: DataPoint<{
+    newRooms: number;
+    underConstruction: number;
+    deliverySchedule12m: number;
+  }>;
+  transactionVolume?: DataPoint<{
+    totalSales: number;
+    avgPricePerKey: number;
+  }>;
+}
+
 export interface MarketIntelligence {
   rates: {
     sofr?: FREDRateData;
@@ -72,6 +93,7 @@ export interface MarketIntelligence {
   benchmarks?: HospitalityBenchmarks;
   moodys?: MoodysRiskData;
   spGlobal?: SPGlobalMarketData;
+  costar?: CoStarMarketData;
   groundedResearch: GroundedSearchResult[];
   fetchedAt: string;
   errors: string[];

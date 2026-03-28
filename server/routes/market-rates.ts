@@ -143,6 +143,7 @@ export function register(app: Express) {
       res.json({
         moodys: data.moodys || null,
         spGlobal: data.spGlobal || null,
+        costar: data.costar || null,
       });
     } catch (error) {
       logAndSendError(res, "Failed to fetch credit risk data", error);

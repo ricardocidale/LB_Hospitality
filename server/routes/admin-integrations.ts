@@ -75,6 +75,23 @@ export function register(app: Express) {
         });
       }
 
+      if (miStatus.costar) {
+        results.push({
+          name: "CoStar Group",
+          healthy: true,
+          latencyMs: 0,
+          circuitState: "closed" as CircuitState,
+        });
+      } else {
+        results.push({
+          name: "CoStar Group",
+          healthy: false,
+          latencyMs: 0,
+          lastError: "API key not configured (COSTAR_API_KEY)",
+          circuitState: "closed" as CircuitState,
+        });
+      }
+
       res.json(results);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

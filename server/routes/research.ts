@@ -231,6 +231,7 @@ export function register(app: Express) {
               benchmarks: marketIntelligence.benchmarks || null,
               moodys: marketIntelligence.moodys || null,
               spGlobal: marketIntelligence.spGlobal || null,
+              costar: marketIntelligence.costar || null,
               groundedResearch: marketIntelligence.groundedResearch || [],
               errors: marketIntelligence.errors || [],
               fetchedAt: marketIntelligence.fetchedAt,

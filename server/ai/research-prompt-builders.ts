@@ -56,7 +56,7 @@ const REQUIRED_SOURCES = [
   { name: "Damodaran WACC by Industry", category: "Cost of Equity & WACC", url: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/wacc.html" },
   { name: "CBRE Cap Rate Survey", category: "Cap Rates & Valuation", url: "https://www.cbre.com" },
   { name: "PKF Trends in the Hotel Industry", category: "Operating Benchmarks" },
-  { name: "STR / CoStar", category: "Market Performance (RevPAR, ADR, Occupancy)", url: "https://str.com" },
+  { name: "CoStar Group / STR", category: "Market Performance (RevPAR, ADR, Occupancy, Supply Pipeline, Transaction Comps)", url: "https://www.costar.com" },
   { name: "HVS", category: "Hotel Valuation & Transaction Data", url: "https://hvs.com" },
   { name: "Moody's Analytics", category: "Credit Risk & Default Probability", url: "https://www.moodys.com" },
   { name: "S&P Global Market Intelligence", category: "Real Estate Indices & Economic Forecasts", url: "https://www.spglobal.com/marketintelligence" },
@@ -183,6 +183,28 @@ function buildMarketIntelligenceBlock(mi?: MarketIntelligence): string {
     if (sp.capRateForecast) {
       const cr = sp.capRateForecast.value;
       block += `- Cap Rate Forecast: Current ${cr.current.toFixed(2)}%, 12-Month Forecast ${cr.forecast12m.toFixed(2)}%\n`;
+    }
+  }
+
+  if (mi.costar) {
+    const cs = mi.costar;
+    block += `\nCommercial Real Estate Market Data (Source: CoStar Group / STR):\n`;
+    if (cs.revpar) block += `- RevPAR: $${cs.revpar.value.toFixed(2)}\n`;
+    if (cs.adr) block += `- ADR (Average Daily Rate): $${cs.adr.value.toFixed(2)}\n`;
+    if (cs.occupancyRate) block += `- Occupancy Rate: ${(cs.occupancyRate.value * 100).toFixed(1)}%\n`;
+    if (cs.rentGrowthYoY) block += `- Rate Growth (YoY): ${cs.rentGrowthYoY.value.toFixed(1)}%\n`;
+    if (cs.demandGrowthYoY) block += `- Demand Growth (YoY): ${cs.demandGrowthYoY.value.toFixed(1)}%\n`;
+    if (cs.submarketCapRate) block += `- Submarket Cap Rate: ${cs.submarketCapRate.value.toFixed(2)}%\n`;
+    if (cs.marketScore) block += `- CoStar Market Score: ${cs.marketScore.value.toFixed(0)} / 100\n`;
+    if (cs.marketVacancy) block += `- Market Vacancy Rate: ${(cs.marketVacancy.value * 100).toFixed(1)}%\n`;
+    if (cs.submarketTier) block += `- Submarket Tier: ${cs.submarketTier.value}\n`;
+    if (cs.supplyPipeline) {
+      const sp = cs.supplyPipeline.value;
+      block += `- Supply Pipeline: ${sp.newRooms} new rooms total, ${sp.underConstruction} under construction, ${sp.deliverySchedule12m} delivering in 12 months\n`;
+    }
+    if (cs.transactionVolume) {
+      const tv = cs.transactionVolume.value;
+      block += `- Transaction Volume: ${tv.totalSales} sales, avg $${tv.avgPricePerKey.toLocaleString()}/key\n`;
     }
   }
 

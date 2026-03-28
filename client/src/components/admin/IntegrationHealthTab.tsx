@@ -163,6 +163,12 @@ export default function IntegrationHealthTab() {
                 description: "Case-Shiller indices, economic forecasts, cap rate forecasts, sector analytics",
                 integration: integrations?.find((i) => i.name === "S&P Global Market Intelligence"),
               },
+              {
+                name: "CoStar Group",
+                envVar: "COSTAR_API_KEY",
+                description: "RevPAR, ADR, occupancy, supply pipeline, submarket cap rates, transaction comps, market scores",
+                integration: integrations?.find((i) => i.name === "CoStar Group"),
+              },
             ].map((source) => {
               const configured = source.integration?.healthy ?? false;
               const notConfiguredMsg = source.integration?.lastError?.includes("not configured");

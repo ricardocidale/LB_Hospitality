@@ -3,8 +3,9 @@ import { HospitalityBenchmarkService } from "./HospitalityBenchmarkService";
 import { GroundedResearchService } from "./GroundedResearchService";
 import { MoodysService } from "./MoodysService";
 import { SPGlobalService } from "./SPGlobalService";
+import { CoStarService } from "./CoStarService";
 import { cache } from "../cache";
-import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData } from "../../shared/market-intelligence";
+import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData } from "../../shared/market-intelligence";
 
 interface AggregatorQuery {
   location?: string;
@@ -23,6 +24,7 @@ export class MarketIntelligenceAggregator {
   private grounded: GroundedResearchService;
   private moodys: MoodysService;
   private spGlobal: SPGlobalService;
+  private costar: CoStarService;
 
   constructor() {
     this.fred = new FREDService();
@@ -30,6 +32,7 @@ export class MarketIntelligenceAggregator {
     this.grounded = new GroundedResearchService();
     this.moodys = new MoodysService();
     this.spGlobal = new SPGlobalService();
+    this.costar = new CoStarService();
   }
 
   async gather(query: AggregatorQuery): Promise<MarketIntelligence> {
@@ -55,7 +58,7 @@ export class MarketIntelligenceAggregator {
   private async gatherFresh(query: AggregatorQuery): Promise<MarketIntelligence> {
     const errors: string[] = [];
 
-    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult] = await Promise.allSettled([
+    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult] = await Promise.allSettled([
       this.fetchRates(),
       query.location
         ? this.hospitality.fetchBenchmarks({
@@ -82,6 +85,13 @@ export class MarketIntelligenceAggregator {
         : Promise.resolve(null),
       query.location && this.spGlobal.isAvailable()
         ? this.spGlobal.fetchMarketData({
+            location: query.location,
+            state: query.state,
+            propertyType: query.propertyType,
+          })
+        : Promise.resolve(null),
+      query.location && this.costar.isAvailable()
+        ? this.costar.fetchMarketData({
             location: query.location,
             state: query.state,
             propertyType: query.propertyType,
@@ -124,6 +134,13 @@ export class MarketIntelligenceAggregator {
       errors.push(`S&P Global: ${spGlobalResult.reason?.message || "Unknown error"}`);
     }
 
+    let costar: CoStarMarketData | undefined;
+    if (costarResult.status === "fulfilled" && costarResult.value) {
+      costar = costarResult.value;
+    } else if (costarResult.status === "rejected") {
+      errors.push(`CoStar: ${costarResult.reason?.message || "Unknown error"}`);
+    }
+
     return {
       rates: {
         sofr: rates.sofr,
@@ -136,6 +153,7 @@ export class MarketIntelligenceAggregator {
       benchmarks,
       moodys,
       spGlobal,
+      costar,
       groundedResearch,
       fetchedAt: new Date().toISOString(),
       errors,
@@ -152,13 +170,14 @@ export class MarketIntelligenceAggregator {
     return this.fred.fetchRate(seriesKey as any);
   }
 
-  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean } {
+  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean } {
     return {
       fred: this.fred.isAvailable(),
       hospitality: this.hospitality.isAvailable(),
       grounded: this.grounded.isAvailable(),
       moodys: this.moodys.isAvailable(),
       spGlobal: this.spGlobal.isAvailable(),
+      costar: this.costar.isAvailable(),
     };
   }
   

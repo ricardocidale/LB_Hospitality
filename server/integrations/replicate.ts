@@ -9,6 +9,8 @@ export interface ReplicateModelConfig {
   promptSuffix: string;
   params: Record<string, unknown>;
   isImg2Img?: boolean;
+  requiresSourceImage?: boolean;
+  promptOptional?: boolean;
   denoisingStrength?: {
     min: number;
     max: number;
@@ -16,7 +18,13 @@ export interface ReplicateModelConfig {
   };
 }
 
-export type ReplicateStyleKey = "architectural-exterior" | "interior-design" | "renovation-concept";
+export type ReplicateStyleKey =
+  | "architectural-exterior"
+  | "interior-design"
+  | "renovation-concept"
+  | "photo-upscale"
+  | "virtual-staging"
+  | "background-remove";
 
 interface ReplicatePrediction {
   id: string;
@@ -178,28 +186,34 @@ export class ReplicateService extends BaseIntegrationService {
   async generateImage(
     style: ReplicateStyleKey,
     userPrompt: string,
-    beforeImageUrl?: string
+    sourceImageUrl?: string
   ): Promise<Buffer> {
     const modelConfig = getModelConfig(style);
     if (!modelConfig) {
       throw new Error(`Unknown Replicate style: ${style}`);
     }
 
-    const fullPrompt = [modelConfig.promptPrefix, userPrompt, modelConfig.promptSuffix]
-      .filter(Boolean)
-      .join(", ");
-
-    const input: Record<string, unknown> = {
-      prompt: fullPrompt,
-      ...modelConfig.params,
-    };
-
-    if (modelConfig.isImg2Img && beforeImageUrl) {
-      input.image = beforeImageUrl;
-      input.prompt_strength = modelConfig.denoisingStrength?.default ?? 0.55;
+    if (modelConfig.requiresSourceImage && !sourceImageUrl) {
+      throw new Error(`Style "${style}" requires a source image`);
     }
 
-    logger.info(`Replicate: creating prediction for style=${style}`, "integration");
+    const promptParts = [modelConfig.promptPrefix, userPrompt, modelConfig.promptSuffix].filter(Boolean);
+    const fullPrompt = promptParts.join(", ");
+
+    const input: Record<string, unknown> = { ...modelConfig.params };
+
+    if (fullPrompt) {
+      input.prompt = fullPrompt;
+    }
+
+    if (modelConfig.isImg2Img && sourceImageUrl) {
+      input.image = sourceImageUrl;
+      if (modelConfig.denoisingStrength) {
+        input.prompt_strength = modelConfig.denoisingStrength.default;
+      }
+    }
+
+    logger.info(`Replicate: creating prediction for style=${style} model=${modelConfig.model.split(":")[0]}`, "integration");
 
     const prediction = await this.createPrediction(modelConfig.model, input);
 

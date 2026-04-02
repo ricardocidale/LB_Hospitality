@@ -1,6 +1,13 @@
 import { useState, useCallback } from "react";
 
-export type GenerationStyle = "standard" | "architectural-exterior" | "interior-design" | "renovation-concept";
+export type GenerationStyle =
+  | "standard"
+  | "architectural-exterior"
+  | "interior-design"
+  | "renovation-concept"
+  | "photo-upscale"
+  | "virtual-staging"
+  | "background-remove";
 
 interface GenerateImageResult {
   objectPath: string;

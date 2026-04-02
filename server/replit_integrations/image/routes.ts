@@ -13,8 +13,16 @@ import type { ResearchConfig } from "@shared/schema";
 const sharedObjectStorageService = new ObjectStorageService();
 
 const generatePropertyImageSchema = z.object({
-  prompt: z.string().min(1, "Prompt is required"),
-  style: z.enum(["standard", "architectural-exterior", "interior-design", "renovation-concept"]).optional().default("standard"),
+  prompt: z.string().optional().default(""),
+  style: z.enum([
+    "standard",
+    "architectural-exterior",
+    "interior-design",
+    "renovation-concept",
+    "photo-upscale",
+    "virtual-staging",
+    "background-remove",
+  ]).optional().default("standard"),
   beforeImageUrl: z.string().min(1).optional(),
 });
 

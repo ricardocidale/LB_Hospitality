@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Sparkles, Loader2, Plus, Star, AlertTriangle, ImageIcon } from "@/components/icons/themed-icons";
+import { Sparkles, Loader2, Plus, Star, AlertTriangle, ImageIcon, ArrowUp, Images, Crop } from "@/components/icons/themed-icons";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { useGenerateImage, type GenerationStyle } from "./useGenerateImage";
 import { useAddPropertyPhoto } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -24,16 +25,94 @@ interface PhotoGenerateDialogProps {
   existingPhotos?: PropertyPhoto[];
 }
 
-const STYLE_OPTIONS: Array<{ value: GenerationStyle; label: string; description: string }> = [
-  { value: "standard", label: "Standard", description: "OpenAI / Gemini — general purpose" },
-  { value: "architectural-exterior", label: "Architectural Exterior", description: "Photorealistic building renders" },
-  { value: "interior-design", label: "Interior Design", description: "Professional interior photography" },
-  { value: "renovation-concept", label: "Renovation Concept", description: "Before/after renovation renders" },
-];
+interface StyleMeta {
+  label: string;
+  description: string;
+  badge: string;
+  needsSourcePhoto: boolean;
+  promptOptional: boolean;
+  sourcePhotoLabel: string;
+}
 
-function buildAutoPrompt(name?: string, location?: string, roomCount?: number, type?: string): string {
+const STYLE_META: Record<GenerationStyle, StyleMeta> = {
+  "standard": {
+    label: "Standard",
+    description: "Gemini / OpenAI — general purpose",
+    badge: "General",
+    needsSourcePhoto: false,
+    promptOptional: false,
+    sourcePhotoLabel: "Source Photo",
+  },
+  "architectural-exterior": {
+    label: "Architectural Exterior",
+    description: "FLUX 1.1 Pro — photorealistic building renders",
+    badge: "FLUX Pro",
+    needsSourcePhoto: false,
+    promptOptional: false,
+    sourcePhotoLabel: "Source Photo",
+  },
+  "interior-design": {
+    label: "Interior Design",
+    description: "FLUX 1.1 Pro — professional interior photography",
+    badge: "FLUX Pro",
+    needsSourcePhoto: false,
+    promptOptional: false,
+    sourcePhotoLabel: "Source Photo",
+  },
+  "renovation-concept": {
+    label: "Renovation Concept",
+    description: "AI interior designer — transforms a before photo",
+    badge: "Img2Img",
+    needsSourcePhoto: true,
+    promptOptional: false,
+    sourcePhotoLabel: "Before Photo",
+  },
+  "photo-upscale": {
+    label: "Photo Upscale",
+    description: "Clarity Upscaler — 2× resolution enhancement",
+    badge: "Upscale",
+    needsSourcePhoto: true,
+    promptOptional: true,
+    sourcePhotoLabel: "Photo to Upscale",
+  },
+  "virtual-staging": {
+    label: "Virtual Staging",
+    description: "FLUX 1.1 Pro — furnished and staged room renders",
+    badge: "FLUX Pro",
+    needsSourcePhoto: false,
+    promptOptional: false,
+    sourcePhotoLabel: "Source Photo",
+  },
+  "background-remove": {
+    label: "Background Remove",
+    description: "AI background removal — transparent PNG output",
+    badge: "Tool",
+    needsSourcePhoto: true,
+    promptOptional: true,
+    sourcePhotoLabel: "Photo to Process",
+  },
+};
+
+function buildAutoPrompt(
+  style: GenerationStyle,
+  name?: string,
+  location?: string,
+  roomCount?: number,
+  type?: string,
+): string {
+  if (style === "background-remove") return "";
+  if (style === "photo-upscale") {
+    return "luxury real estate photography, enhance clarity and detail";
+  }
+  if (style === "virtual-staging") {
+    return [
+      "Furnished luxury boutique hotel room",
+      location,
+      "with premium furnishings and tasteful decor",
+    ].filter(Boolean).join(", ");
+  }
   const parts = [
-    "Luxury boutique property exterior",
+    style === "interior-design" ? "Luxury boutique hotel interior" : "Luxury boutique property exterior",
     name,
     location,
     roomCount ? `${roomCount}-room property` : undefined,
@@ -53,23 +132,27 @@ export function PhotoGenerateDialog({
   propertyType,
   existingPhotos = [],
 }: PhotoGenerateDialogProps) {
-  const autoPrompt = buildAutoPrompt(propertyName, location, roomCount, propertyType);
-  const [prompt, setPrompt] = useState(autoPrompt);
+  const [selectedStyle, setSelectedStyle] = useState<GenerationStyle>("standard");
+  const [prompt, setPrompt] = useState(() => buildAutoPrompt("standard", propertyName, location, roomCount, propertyType));
   const [caption, setCaption] = useState("");
   const [setAsHero, setSetAsHero] = useState(false);
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
-  const [selectedStyle, setSelectedStyle] = useState<GenerationStyle>("standard");
-  const [beforePhotoId, setBeforePhotoId] = useState<number | null>(null);
+  const [sourcePhotoId, setSourcePhotoId] = useState<number | null>(null);
   const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
   const [generatedStyle, setGeneratedStyle] = useState<string | null>(null);
 
+  const meta = STYLE_META[selectedStyle];
   const heroPhoto = existingPhotos.find((p) => p.isHero) ?? existingPhotos[0] ?? null;
 
   useEffect(() => {
-    if (open && heroPhoto && beforePhotoId === null) {
-      setBeforePhotoId(heroPhoto.id);
+    if (open && heroPhoto && sourcePhotoId === null) {
+      setSourcePhotoId(heroPhoto.id);
     }
   }, [open]);
+
+  useEffect(() => {
+    setPrompt(buildAutoPrompt(selectedStyle, propertyName, location, roomCount, propertyType));
+  }, [selectedStyle, propertyName, location, roomCount, propertyType]);
 
   const { toast } = useToast();
   const addPhoto = useAddPropertyPhoto();
@@ -91,20 +174,23 @@ export function PhotoGenerateDialog({
     },
   });
 
+  const handleStyleChange = (value: GenerationStyle) => {
+    setSelectedStyle(value);
+    setGeneratedUrl(null);
+    setFallbackNotice(null);
+  };
+
   const handleGenerate = () => {
-    if (!prompt.trim()) return;
     setGeneratedUrl(null);
     setFallbackNotice(null);
 
-    let beforeImageUrl: string | undefined;
-    if (selectedStyle === "renovation-concept" && beforePhotoId) {
-      const beforePhoto = existingPhotos.find((p) => p.id === beforePhotoId);
-      if (beforePhoto) {
-        beforeImageUrl = beforePhoto.imageUrl;
-      }
+    let sourceImageUrl: string | undefined;
+    if (meta.needsSourcePhoto && sourcePhotoId) {
+      const photo = existingPhotos.find((p) => p.id === sourcePhotoId);
+      if (photo) sourceImageUrl = photo.imageUrl;
     }
 
-    generateImage(prompt, selectedStyle, beforeImageUrl);
+    generateImage(prompt, selectedStyle, sourceImageUrl);
   };
 
   const handleAddToAlbum = async () => {
@@ -115,7 +201,7 @@ export function PhotoGenerateDialog({
         imageUrl: generatedUrl,
         caption: caption || undefined,
         generationStyle: generatedStyle || undefined,
-        beforePhotoId: selectedStyle === "renovation-concept" ? (beforePhotoId ?? undefined) : undefined,
+        beforePhotoId: meta.needsSourcePhoto ? (sourcePhotoId ?? undefined) : undefined,
       });
       toast({ title: "Photo added to album" });
       setGeneratedUrl(null);
@@ -129,15 +215,19 @@ export function PhotoGenerateDialog({
   const handleClose = () => {
     setGeneratedUrl(null);
     setCaption("");
-    setPrompt(autoPrompt);
+    setPrompt(buildAutoPrompt(selectedStyle, propertyName, location, roomCount, propertyType));
     setSelectedStyle("standard");
-    setBeforePhotoId(null);
+    setSourcePhotoId(null);
     setFallbackNotice(null);
     setGeneratedStyle(null);
     onOpenChange(false);
   };
 
-  const isRenovation = selectedStyle === "renovation-concept";
+  const sourcePhotoMissing = meta.needsSourcePhoto && !sourcePhotoId;
+  const isDisabled =
+    isGenerating ||
+    (!meta.promptOptional && !prompt.trim()) ||
+    (meta.needsSourcePhoto && existingPhotos.length > 0 && !sourcePhotoId);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -149,7 +239,7 @@ export function PhotoGenerateDialog({
           </DialogTitle>
           <DialogDescription>
             Create a professional property image using AI.
-            <InfoTooltip text="Choose a generation style: Standard uses Gemini/OpenAI, while specialized styles use architecture-optimized models for photorealistic renders." />
+            <InfoTooltip text="Standard uses Gemini/OpenAI. FLUX Pro styles use state-of-the-art photorealistic rendering. Img2Img styles transform an existing photo." />
           </DialogDescription>
         </DialogHeader>
 
@@ -158,17 +248,20 @@ export function PhotoGenerateDialog({
             <label className="text-sm font-medium">Style</label>
             <Select
               value={selectedStyle}
-              onValueChange={(v) => setSelectedStyle(v as GenerationStyle)}
+              onValueChange={(v) => handleStyleChange(v as GenerationStyle)}
             >
               <SelectTrigger data-testid="select-generation-style">
                 <SelectValue placeholder="Choose style..." />
               </SelectTrigger>
               <SelectContent>
-                {STYLE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value} data-testid={`style-option-${opt.value}`}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{opt.label}</span>
-                      <span className="text-xs text-muted-foreground">{opt.description}</span>
+                {(Object.entries(STYLE_META) as [GenerationStyle, StyleMeta][]).map(([value, m]) => (
+                  <SelectItem key={value} value={value} data-testid={`style-option-${value}`}>
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-col">
+                        <span className="font-medium">{m.label}</span>
+                        <span className="text-xs text-muted-foreground">{m.description}</span>
+                      </div>
+                      <Badge variant="outline" className="ml-auto text-[10px] shrink-0">{m.badge}</Badge>
                     </div>
                   </SelectItem>
                 ))}
@@ -176,86 +269,120 @@ export function PhotoGenerateDialog({
             </Select>
           </div>
 
-          {isRenovation && (
+          {meta.needsSourcePhoto && (
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-1.5">
                 <ImageIcon className="w-4 h-4" />
-                Before Image
+                {meta.sourcePhotoLabel}
+                <span className="text-destructive">*</span>
               </label>
               {existingPhotos.length > 0 ? (
-                <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
+                <div className="grid grid-cols-3 gap-2 max-h-36 overflow-y-auto p-0.5">
                   {existingPhotos.map((photo) => (
                     <button
                       key={photo.id}
                       type="button"
-                      onClick={() => setBeforePhotoId(photo.id === beforePhotoId ? null : photo.id)}
+                      onClick={() => setSourcePhotoId(photo.id === sourcePhotoId ? null : photo.id)}
                       className={`relative rounded-md overflow-hidden border-2 transition-colors ${
-                        beforePhotoId === photo.id
+                        sourcePhotoId === photo.id
                           ? "border-primary ring-2 ring-primary/30"
                           : "border-transparent hover:border-muted-foreground/30"
                       }`}
-                      data-testid={`before-photo-${photo.id}`}
+                      data-testid={`source-photo-${photo.id}`}
                     >
                       <img
                         src={photo.imageUrl}
                         alt={photo.caption || "Property photo"}
                         className="w-full aspect-square object-cover"
                       />
+                      {photo.isHero && (
+                        <div className="absolute top-1 right-1 bg-accent-pop/90 rounded-full p-0.5">
+                          <Star className="w-2.5 h-2.5 text-white" />
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">
-                  No existing photos available. Upload photos first to use renovation mode.
-                </p>
-              )}
-              {beforePhotoId && (
-                <p className="text-xs text-muted-foreground">
-                  Selected photo will be used as the "before" reference for renovation rendering.
+                <p className="text-sm text-muted-foreground italic rounded-md bg-muted/50 px-3 py-2">
+                  No existing photos available — upload photos first to use this style.
                 </p>
               )}
             </div>
           )}
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Image Prompt</label>
-            <Textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe the image you want..."
-              rows={3}
-              className="resize-none"
-              data-testid="input-image-prompt"
-            />
-            <p className="text-xs text-muted-foreground">
-              Auto-generated from property details. Edit for custom results.
-            </p>
-          </div>
+          {!meta.promptOptional && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Image Prompt</label>
+              <Textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Describe the image you want..."
+                rows={3}
+                className="resize-none"
+                data-testid="input-image-prompt"
+              />
+              <p className="text-xs text-muted-foreground">
+                Auto-generated from property details — edit for custom results.
+              </p>
+            </div>
+          )}
+
+          {meta.promptOptional && selectedStyle !== "background-remove" && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-1.5">
+                Enhancement Prompt
+                <span className="text-xs text-muted-foreground font-normal">(optional)</span>
+              </label>
+              <Textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Additional guidance for enhancement..."
+                rows={2}
+                className="resize-none"
+                data-testid="input-image-prompt"
+              />
+            </div>
+          )}
 
           <Button
             onClick={handleGenerate}
-            disabled={isGenerating || !prompt.trim() || (isRenovation && !beforePhotoId && existingPhotos.length > 0)}
+            disabled={isDisabled}
             className="w-full"
             data-testid="button-generate-image"
           >
             {isGenerating ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{generationStatus || "Generating..."}</>
             ) : (
-              <><Sparkles className="w-4 h-4 mr-2" />Generate Image</>
+              <>
+                {selectedStyle === "photo-upscale" ? <ArrowUp className="w-4 h-4 mr-2" /> :
+                 selectedStyle === "background-remove" ? <Crop className="w-4 h-4 mr-2" /> :
+                 selectedStyle === "virtual-staging" ? <Images className="w-4 h-4 mr-2" /> :
+                 <Sparkles className="w-4 h-4 mr-2" />}
+                {selectedStyle === "photo-upscale" ? "Upscale Photo" :
+                 selectedStyle === "background-remove" ? "Remove Background" :
+                 "Generate Image"}
+              </>
             )}
           </Button>
+
+          {sourcePhotoMissing && existingPhotos.length === 0 && (
+            <p className="text-xs text-muted-foreground text-center">
+              Upload at least one photo to use this style.
+            </p>
+          )}
 
           {isGenerating && selectedStyle !== "standard" && (
             <div className="space-y-2" data-testid="status-generation-progress">
               <Progress value={undefined} className="h-1.5" />
               <p className="text-xs text-center text-muted-foreground">
-                {generationStatus || "Specialized models take 15-60 seconds..."}
+                {generationStatus || "Specialized models take 15–60 seconds..."}
               </p>
             </div>
           )}
 
           {fallbackNotice && (
-            <div className="flex items-center gap-2 rounded-md bg-accent-pop/10 dark:bg-accent-pop/10 px-3 py-2 text-sm text-accent-pop dark:text-accent-pop" data-testid="status-fallback-notice">
+            <div className="flex items-center gap-2 rounded-md bg-accent-pop/10 px-3 py-2 text-sm text-accent-pop" data-testid="status-fallback-notice">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               {fallbackNotice}
             </div>
@@ -264,11 +391,14 @@ export function PhotoGenerateDialog({
           {generatedUrl && (
             <div className="space-y-3">
               <div className="relative rounded-lg overflow-hidden border">
-                <img src={generatedUrl} alt="Generated preview" className="w-full aspect-[16/10] object-cover" data-testid="img-generated-preview" />
+                <img
+                  src={generatedUrl}
+                  alt="Generated preview"
+                  className="w-full aspect-[16/10] object-cover bg-muted/30"
+                  data-testid="img-generated-preview"
+                />
                 <div className="absolute top-2 right-2 px-2 py-1 rounded bg-black/60 backdrop-blur-sm text-white text-xs font-medium">
-                  {generatedStyle && generatedStyle !== "standard"
-                    ? STYLE_OPTIONS.find((s) => s.value === generatedStyle)?.label || "AI Generated"
-                    : "AI Generated"}
+                  {STYLE_META[generatedStyle as GenerationStyle]?.label ?? "AI Generated"}
                 </div>
               </div>
               <Input

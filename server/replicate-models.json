@@ -1,44 +1,79 @@
 {
   "architectural-exterior": {
-    "model": "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
-    "promptPrefix": "Professional architectural photograph of a luxury hotel exterior, award-winning architectural photography, golden hour lighting, high dynamic range, ultra-detailed facade, landscaped grounds, photorealistic, 8k resolution",
-    "promptSuffix": "shot on Hasselblad, architectural digest style, no people, clean composition",
+    "model": "black-forest-labs/flux-1.1-pro",
+    "promptPrefix": "Ultra-photorealistic architectural exterior photograph of a luxury hospitality property, award-winning architectural photography, golden hour lighting, perfect exposure, sharp facade detail, manicured landscaping, no people",
+    "promptSuffix": "shot on Phase One IQ4, Architectural Digest quality, HDR, pristine composition",
     "params": {
-      "width": 1344,
-      "height": 768,
-      "num_inference_steps": 50,
-      "guidance_scale": 7.5,
-      "scheduler": "K_EULER"
+      "aspect_ratio": "16:9",
+      "output_format": "png",
+      "output_quality": 95,
+      "safety_tolerance": 5
     }
   },
   "interior-design": {
-    "model": "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
-    "promptPrefix": "Professional interior design photograph of a luxury hotel room, award-winning interior photography, natural lighting through large windows, elegant furnishings, high-end materials, photorealistic, 8k resolution",
-    "promptSuffix": "shot on Canon EOS R5, architectural digest interior, warm ambient lighting, pristine condition",
+    "model": "black-forest-labs/flux-1.1-pro",
+    "promptPrefix": "Ultra-photorealistic luxury hospitality interior photography, 5-star boutique hotel quality, natural window light flooding the space, premium materials, bespoke furnishings, immaculate styling",
+    "promptSuffix": "shot on Canon EOS R5, Architectural Digest interior editorial, 8K ultra-sharp, warm ambient lighting",
     "params": {
-      "width": 1344,
-      "height": 768,
-      "num_inference_steps": 50,
-      "guidance_scale": 7.5,
-      "scheduler": "K_EULER"
+      "aspect_ratio": "16:9",
+      "output_format": "png",
+      "output_quality": 95,
+      "safety_tolerance": 5
     }
   },
   "renovation-concept": {
-    "model": "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
-    "promptPrefix": "Professional architectural renovation rendering showing transformed luxury hotel space, modern renovation design, high-end materials, photorealistic renovation visualization",
-    "promptSuffix": "architectural visualization, before-and-after renovation concept, professional rendering quality",
+    "model": "adirik/interior-design:76604baddc85b1b4616e1c6475eca080da339c8fae2a225e1d38b0fba9571adc",
+    "promptPrefix": "Luxury boutique hotel renovation, premium finishes, contemporary design",
+    "promptSuffix": "professional interior design concept, high-end materials, architectural visualization quality",
     "params": {
-      "width": 1344,
-      "height": 768,
-      "num_inference_steps": 50,
-      "guidance_scale": 7.5,
-      "prompt_strength": 0.55
+      "guidance_scale": 15,
+      "negative_prompt": "lowres, watermark, banner, text, deformed, blurry, out of focus, surreal, ugly, cheap, low quality",
+      "strength": 0.85
     },
     "isImg2Img": true,
-    "denoisingStrength": {
-      "min": 0.4,
-      "max": 0.6,
-      "default": 0.55
+    "requiresSourceImage": true
+  },
+  "photo-upscale": {
+    "model": "philz1337x/clarity-upscaler:dfad41707589d68ecdccd1dfa600d55a208f9310748e44bfe35b4a6291453d5e",
+    "promptPrefix": "luxury real estate photography, sharp detail, photorealistic, high resolution",
+    "promptSuffix": "",
+    "params": {
+      "scale_factor": 2,
+      "dynamic": 6,
+      "creativity": 0.35,
+      "resemblance": 0.9,
+      "sharpen": 0,
+      "tiling_width": 112,
+      "tiling_height": 144,
+      "sd_model": "juggernaut_reborn.safetensors [338b85bc4f]",
+      "scheduler": "DPM++ 3M SDE Karras",
+      "num_inference_steps": 18,
+      "guidance_scale": 6
+    },
+    "isImg2Img": true,
+    "requiresSourceImage": true,
+    "promptOptional": true
+  },
+  "virtual-staging": {
+    "model": "black-forest-labs/flux-1.1-pro",
+    "promptPrefix": "Virtually staged luxury real estate interior, tastefully furnished and decorated, professional home staging photography, lifestyle-ready space",
+    "promptSuffix": "premium designer furniture, artfully curated decor, soft natural lighting, staged for discerning buyers, 8K",
+    "params": {
+      "aspect_ratio": "16:9",
+      "output_format": "png",
+      "output_quality": 95,
+      "safety_tolerance": 5
     }
+  },
+  "background-remove": {
+    "model": "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada9ad",
+    "promptPrefix": "",
+    "promptSuffix": "",
+    "params": {
+      "model": "u2net"
+    },
+    "isImg2Img": true,
+    "requiresSourceImage": true,
+    "promptOptional": true
   }
 }

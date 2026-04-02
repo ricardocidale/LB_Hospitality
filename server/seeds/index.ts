@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { globalAssumptions, marketResearch, properties } from "@shared/schema";
 import { seedUsers, seedUserGroups, seedUserGroupProperties } from "./users";
-import { seedGlobalAssumptions, seedProperties, seedFeeCategories } from "./properties";
+import { seedGlobalAssumptions, seedProperties, seedFeeCategories, seedMedellinDuplex, seedMedellinDuplexPhotos } from "./properties";
 import { seedDefaultLogos, seedCompanies } from "./branding";
 import { seedMissingMarketResearch, getHudsonEstateResearch, getEdenSummitResearch, getAustinHillsideResearch, getCasaMedellinResearch, getBlueRidgeResearch } from "./research";
 import { seedServiceTemplates } from "./services";
@@ -113,4 +113,6 @@ export {
   seedCompanies,
   seedServiceTemplates,
   seedPropertyPhotos,
+  seedMedellinDuplex,
+  seedMedellinDuplexPhotos,
 };

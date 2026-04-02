@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, Loader2, Plus, Star, AlertTriangle, ImageIcon } from "@/components/icons/themed-icons";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,12 +33,12 @@ const STYLE_OPTIONS: Array<{ value: GenerationStyle; label: string; description:
 
 function buildAutoPrompt(name?: string, location?: string, roomCount?: number, type?: string): string {
   const parts = [
-    "Luxury boutique hotel exterior",
+    "Luxury boutique property exterior",
     name,
     location,
     roomCount ? `${roomCount}-room property` : undefined,
     type ? `${type} style` : undefined,
-    "architectural photography, golden hour lighting, professional real estate photo",
+    "ultra-photorealistic architectural photography, golden hour lighting, professional real estate photography, 8K resolution, sharp detail",
   ].filter(Boolean);
   return parts.join(", ");
 }
@@ -62,6 +62,14 @@ export function PhotoGenerateDialog({
   const [beforePhotoId, setBeforePhotoId] = useState<number | null>(null);
   const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
   const [generatedStyle, setGeneratedStyle] = useState<string | null>(null);
+
+  const heroPhoto = existingPhotos.find((p) => p.isHero) ?? existingPhotos[0] ?? null;
+
+  useEffect(() => {
+    if (open && heroPhoto && beforePhotoId === null) {
+      setBeforePhotoId(heroPhoto.id);
+    }
+  }, [open]);
 
   const { toast } = useToast();
   const addPhoto = useAddPropertyPhoto();

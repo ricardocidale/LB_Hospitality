@@ -65,6 +65,11 @@ const PROPERTY_PHOTOS: Record<string, PhotoSeed[]> = {
     { imageUrl: "/images/property-cartagena-courtyard.png", caption: "Colonial courtyard with bougainvillea and central fountain", sortOrder: 1, isHero: false },
     { imageUrl: "/images/property-cartagena-rooftop.png", caption: "Rooftop terrace with Caribbean Sea and old city panorama", sortOrder: 2, isHero: false },
   ],
+  "Medellin Duplex": [
+    { imageUrl: "/images/medellin-duplex-1.jpeg", caption: "Open-concept living and dining area with Calacatta marble island and floating staircase", sortOrder: 0, isHero: true },
+    { imageUrl: "/images/medellin-duplex-2.jpeg", caption: "Chef's kitchen with marble waterfall island and panoramic Andes mountain views", sortOrder: 1, isHero: false },
+    { imageUrl: "/images/medellin-duplex-3.jpeg", caption: "Master suite with floor-to-ceiling windows overlooking Medellín's skyline and mountains", sortOrder: 2, isHero: false },
+  ],
 };
 
 export async function seedPropertyPhotos() {

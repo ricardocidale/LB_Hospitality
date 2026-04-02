@@ -5,7 +5,8 @@
  *   • Hero image (with fallback gradient if none exists)
  *   • Property name and location
  *   • Room count and key financial snapshot (ADR, purchase price)
- *   • Navigation arrow linking to the full property detail page
+ *   • Active/Inactive toggle — excludes property from all portfolio calculations when OFF
+ *   • Navigation links: Photos, Assumptions, Details
  *   • Delete button (with confirmation) to remove from the portfolio
  *
  * The card is rendered inside a responsive CSS grid on the Portfolio page.
@@ -14,27 +15,35 @@
 import { PropertyStatus } from "@shared/constants";
 import { formatMoney } from "@/lib/financialEngine";
 import { ArrowRight } from "@/components/icons/themed-icons";
-import { IconTrash, IconMapPin, IconBed, IconCalendar, IconSettings } from "@/components/icons";
+import { IconTrash, IconMapPin, IconBed, IconCalendar, IconSettings, IconCamera } from "@/components/icons";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { StaggerItem, TiltCard } from "@/components/ui/animated";
 import { AnimatedGridItem } from "@/components/graphics";
 import type { Property } from "@shared/schema";
 import { HeroImage } from "@/features/property-images";
+import { cn } from "@/lib/utils";
 
 interface PortfolioPropertyCardProps {
   property: Property;
   propertyNumber: number;
   onDelete: (id: number, name: string) => void;
+  onToggleActive?: (id: number, isActive: boolean) => void;
 }
 
-export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: PortfolioPropertyCardProps) {
+export function PortfolioPropertyCard({ property, propertyNumber, onDelete, onToggleActive }: PortfolioPropertyCardProps) {
+  const isActive = property.isActive !== false;
+
   return (
     <AnimatedGridItem>
     <StaggerItem>
     <TiltCard intensity={5}>
-    <div className="group relative overflow-hidden rounded-lg flex flex-col bg-card border border-border shadow-sm transition-shadow duration-300 hover:shadow-lg">
+    <div className={cn(
+      "group relative overflow-hidden rounded-lg flex flex-col bg-card border border-border shadow-sm transition-all duration-300 hover:shadow-lg",
+      !isActive && "opacity-60 saturate-50"
+    )}>
       <div className="relative">
         <HeroImage
           src={property.imageUrl}
@@ -74,6 +83,14 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
               {property.status}
             </span>
           </div>
+          {/* Inactive overlay label */}
+          {!isActive && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="bg-black/60 text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/20 label-text">
+                Excluded from portfolio
+              </span>
+            </div>
+          )}
         </HeroImage>
 
         <div className="p-5">
@@ -105,7 +122,22 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
           </div>
         </div>
 
-        <div className="px-5 pb-5 pt-3 border-t border-border flex items-center justify-between gap-2">
+        {/* Active toggle row */}
+        <div className="px-5 pb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={isActive}
+              onCheckedChange={(checked) => onToggleActive?.(property.id, checked)}
+              data-testid={`switch-active-${property.id}`}
+              className="data-[state=checked]:bg-primary"
+            />
+            <span className="text-xs text-muted-foreground label-text">
+              {isActive ? "Included in portfolio" : "Excluded from portfolio"}
+            </span>
+          </div>
+        </div>
+
+        <div className="px-5 pb-5 pt-2 border-t border-border flex items-center justify-between gap-2">
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
@@ -137,6 +169,17 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
           </AlertDialog>
 
           <div className="flex items-center gap-2">
+            <Link href={`/property/${property.id}/photos`}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                data-testid={`button-photos-${property.id}`}
+                title="Photo Album"
+              >
+                <IconCamera className="w-4 h-4" />
+              </Button>
+            </Link>
             <Link href={`/property/${property.id}/edit`}>
               <Button
                 variant="outline"

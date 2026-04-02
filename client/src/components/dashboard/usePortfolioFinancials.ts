@@ -54,7 +54,9 @@ export function usePortfolioFinancials(
     }
     const cache = cacheRef.current;
     const newCache = new Map<number, CachedPropertyResult>();
-    const result: CachedPropertyResult[] = properties.map(p => {
+    // Only include active properties in all calculations
+    const activeProperties = properties.filter(p => p.isActive !== false);
+    const result: CachedPropertyResult[] = activeProperties.map(p => {
       const cached = cache.get(p.id);
       const updatedAtMs = p.updatedAt ? new Date(p.updatedAt as string | Date).getTime() : 0;
       if (cached && cached.updatedAtMs === updatedAtMs) {
@@ -117,15 +119,17 @@ export function usePortfolioFinancials(
     const getPropertyInvestment = (prop: any): number =>
       propertyEquityInvested(prop);
 
+    const activeProps = properties?.filter(p => p.isActive !== false) ?? [];
+
     const getEquityInvestmentForYear = (yearIndex: number): number =>
-      properties?.reduce((sum, prop) => sum + (getPropertyAcquisitionYear(prop) === yearIndex ? getPropertyInvestment(prop) : 0), 0) ?? 0;
+      activeProps.reduce((sum, prop) => sum + (getPropertyAcquisitionYear(prop) === yearIndex ? getPropertyInvestment(prop) : 0), 0);
 
     const consolidatedFlows = Array.from({ length: projectionYears }, (_, y) =>
       allPropertyYearlyCF.reduce((sum, propYearly) => sum + (propYearly[y]?.netCashFlowToInvestors ?? 0), 0)
     );
 
     const portfolioIRR = calculateIRR(consolidatedFlows);
-    const totalInitialEquity = properties?.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0) ?? 0;
+    const totalInitialEquity = activeProps.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
     const totalExitValue = allPropertyYearlyCF.reduce(
       (sum, yearly) => sum + (yearly[projectionYears - 1]?.exitValue ?? 0), 0
     );
@@ -156,7 +160,7 @@ export function usePortfolioFinancials(
 
   if (!stats) return null;
 
-  const totalRooms = properties?.reduce((sum, p) => sum + p.roomCount, 0) ?? 0;
+  const totalRooms = properties?.filter(p => p.isActive !== false).reduce((sum, p) => sum + p.roomCount, 0) ?? 0;
 
   return {
     allPropertyFinancials,

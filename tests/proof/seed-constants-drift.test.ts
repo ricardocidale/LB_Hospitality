@@ -122,9 +122,9 @@ describe("Seed Data Structural Integrity", () => {
   it("all properties have operationsStartDate after acquisitionDate", () => {
     const acqDates = [...seedPropsContent.matchAll(/acquisitionDate:\s*"(\d{4}-\d{2}-\d{2})"/g)].map(m => m[1]);
     const opsDates = [...seedPropsContent.matchAll(/operationsStartDate:\s*"(\d{4}-\d{2}-\d{2})"/g)].map(m => m[1]);
-    expect(acqDates.length).toBe(11);
-    expect(opsDates.length).toBe(11);
-    for (let i = 0; i < 11; i++) {
+    expect(acqDates.length).toBe(12);
+    expect(opsDates.length).toBe(12);
+    for (let i = 0; i < 12; i++) {
       expect(opsDates[i] >= acqDates[i]).toBe(true);
     }
   });

@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { properties, globalAssumptions, propertyFeeCategories } from "@shared/schema";
+import { properties, globalAssumptions, propertyFeeCategories, propertyPhotos } from "@shared/schema";
 import { eq, isNull } from "drizzle-orm";
 import { logger } from "../logger";
 import {
@@ -35,6 +35,7 @@ import {
   DEFAULT_COMPANY_TAX_RATE,
   DEFAULT_BUSINESS_INSURANCE_START,
   DEFAULT_COST_RATE_INSURANCE,
+  DEFAULT_LAND_VALUE_PERCENT,
 } from "@shared/constants";
 
 export const SEED_COMPANY_IDENTITY = {
@@ -558,6 +559,107 @@ export const SEED_SYNC_PROPERTIES = [
   { ...SEED_PROPERTY_DEFAULTS, name: "Casa Medellín", streetAddress: "Carrera 43A #7-50, El Poblado", city: "Medellín", stateProvince: "Antioquia", zipPostalCode: "050021", location: "El Poblado, Medellín", market: "Latin America", imageUrl: "/images/property-medellin.png", status: PropertyStatus.PIPELINE, acquisitionDate: "2026-09-01", operationsStartDate: "2028-07-01", purchasePrice: 3800000, buildingImprovements: 1000000, preOpeningCosts: 200000, operatingReserve: 600000, roomCount: 30, startAdr: 210, adrGrowthRate: 0.04, startOccupancy: 0.50, maxOccupancy: 0.78, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Financed", costRateFB: 0.075, costRateIT: 0.005, cateringBoostPercent: 0.18, exitCapRate: 0.095, acquisitionLTV: 0.60, acquisitionInterestRate: 0.095, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02, revShareEvents: 0.25 },
   { ...SEED_PROPERTY_DEFAULTS, name: "Blue Ridge Manor", streetAddress: "275 Elk Mountain Scenic Highway", city: "Asheville", stateProvince: "NC", zipPostalCode: "28804", location: "Blue Ridge Mountains, North Carolina", market: "North America", imageUrl: "/images/property-asheville.png", status: PropertyStatus.PIPELINE, acquisitionDate: "2027-07-01", operationsStartDate: "2028-07-01", purchasePrice: 6000000, buildingImprovements: 1500000, preOpeningCosts: 250000, operatingReserve: 500000, roomCount: 30, startAdr: 375, adrGrowthRate: 0.025, startOccupancy: 0.50, maxOccupancy: 0.80, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Financed", costRateFB: 0.10, costRateIT: 0.005, cateringBoostPercent: 0.25, exitCapRate: 0.09, acquisitionLTV: 0.60, acquisitionInterestRate: 0.09, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02, revShareEvents: 0.28 },
 ];
+
+export async function seedMedellinDuplex() {
+  const existing = await db.select({ id: properties.id, name: properties.name })
+    .from(properties)
+    .where(eq(properties.name, "Medellin Duplex"))
+    .limit(1);
+
+  if (existing.length > 0) return;
+
+  await db.insert(properties).values({
+    userId: null,
+    name: "Medellin Duplex",
+    description: "A stunning two-story luxury duplex apartment in El Poblado, Medellín's most exclusive residential zone. Contemporary open-concept design with double-height ceilings, floating staircase, Calacatta marble kitchen island, and panoramic city and Andes mountain views from floor-to-ceiling windows across 350 square meters on two floors.",
+    streetAddress: "Calle 10 #43A-22, El Poblado",
+    city: "Medellín",
+    stateProvince: "Antioquia",
+    zipPostalCode: "050021",
+    country: "Colombia",
+    location: "El Poblado, Medellín, Colombia",
+    market: "Latin America",
+    imageUrl: "/images/medellin-duplex-1.jpeg",
+    status: PropertyStatus.ACQUIRED,
+    acquisitionDate: "2025-03-01",
+    operationsStartDate: "2025-09-01",
+    purchasePrice: 800000,
+    buildingImprovements: 150000,
+    landValuePercent: DEFAULT_LAND_VALUE_PERCENT,
+    preOpeningCosts: 15000,
+    operatingReserve: 60000,
+    roomCount: 4,
+    startAdr: 350,
+    adrGrowthRate: 0.04,
+    startOccupancy: 0.62,
+    maxOccupancy: 0.82,
+    occupancyRampMonths: 4,
+    stabilizationMonths: 12,
+    occupancyGrowthStep: 0.04,
+    type: "Full Equity",
+    willRefinance: "No",
+    costRateRooms: 0.14,
+    costRateFB: 0.06,
+    costRateAdmin: 0.07,
+    costRateMarketing: 0.02,
+    costRatePropertyOps: 0.04,
+    costRateUtilities: 0.04,
+    costRateTaxes: 0.018,
+    costRateIT: 0.005,
+    costRateFFE: 0.03,
+    costRateOther: 0.04,
+    costRateInsurance: DEFAULT_COST_RATE_INSURANCE,
+    revShareEvents: 0.10,
+    revShareFB: 0.12,
+    revShareOther: 0.06,
+    cateringBoostPercent: 0.10,
+    exitCapRate: 0.08,
+    taxRate: 0.35,
+    countryRiskPremium: 0.0275,
+    dispositionCommission: DEFAULT_COMMISSION_RATE,
+    baseManagementFeeRate: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+    incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+    latitude: 6.2086,
+    longitude: -75.5659,
+    isActive: true,
+  });
+
+  logger.info("Seeded Medellin Duplex property", "seed");
+}
+
+export async function seedMedellinDuplexPhotos() {
+  const [prop] = await db.select({ id: properties.id })
+    .from(properties)
+    .where(eq(properties.name, "Medellin Duplex"))
+    .limit(1);
+
+  if (!prop) return;
+
+  const existing = await db.select({ id: propertyPhotos.id })
+    .from(propertyPhotos)
+    .where(eq(propertyPhotos.propertyId, prop.id))
+    .limit(1);
+
+  if (existing.length > 0) return;
+
+  const photos = [
+    { imageUrl: "/images/medellin-duplex-1.jpeg", caption: "Open-concept living and dining area with Calacatta marble island and floating staircase", sortOrder: 0, isHero: true },
+    { imageUrl: "/images/medellin-duplex-2.jpeg", caption: "Chef's kitchen with marble waterfall island and panoramic Andes mountain views", sortOrder: 1, isHero: false },
+    { imageUrl: "/images/medellin-duplex-3.jpeg", caption: "Master suite with floor-to-ceiling windows overlooking Medellín's skyline and mountains", sortOrder: 2, isHero: false },
+  ];
+
+  for (const photo of photos) {
+    await db.insert(propertyPhotos).values({
+      propertyId: prop.id,
+      imageUrl: photo.imageUrl,
+      caption: photo.caption,
+      sortOrder: photo.sortOrder,
+      isHero: photo.isHero,
+    });
+  }
+
+  logger.info("Seeded 3 photos for Medellin Duplex", "seed");
+}
 
 export async function seedFeeCategories() {
   const allProps = await db.select({ id: properties.id }).from(properties);

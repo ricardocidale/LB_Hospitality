@@ -302,7 +302,7 @@ async function runSchemaMigrations() {
 async function runSeeds() {
   await seedAdminUser();
 
-  const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos, seedGlobalAssumptions } = await import("./seed");
+  const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos, seedGlobalAssumptions, seedMedellinDuplex, seedMedellinDuplexPhotos } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");
   const { seedUserCompanyAssignments } = await import("./seeds/users");
 
@@ -319,6 +319,9 @@ async function runSeeds() {
 
   await seedCompanies();
   await seedUserCompanyAssignments();
+
+  await seedMedellinDuplex();
+  await seedMedellinDuplexPhotos();
 
   const { cleanOrphanedLogos } = await import("./migrations/db-hygiene-001");
   await cleanOrphanedLogos();

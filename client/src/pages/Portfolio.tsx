@@ -23,7 +23,7 @@
 import { useState } from "react";
 import { PropertyStatus } from "@shared/constants";
 import Layout from "@/components/Layout";
-import { useProperties, useDeleteProperty, useCreateProperty, useGlobalAssumptions } from "@/lib/api";
+import { useProperties, useDeleteProperty, useCreateProperty, useGlobalAssumptions, useUpdateProperty } from "@/lib/api";
 import { Loader2 } from "@/components/icons/themed-icons";
 import { IconPlus, IconAlertTriangle } from "@/components/icons";
 import { PageHeader } from "@/components/ui/page-header";
@@ -83,6 +83,7 @@ export default function Portfolio() {
   const { data: global } = useGlobalAssumptions();
   const deleteProperty = useDeleteProperty();
   const createProperty = useCreateProperty();
+  const updateProperty = useUpdateProperty();
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<PortfolioTab>("properties");
@@ -94,6 +95,10 @@ export default function Portfolio() {
       updates.operationsStartDate = addMonths(date, 6);
     }
     setFormData(prev => ({ ...prev, ...updates }));
+  };
+
+  const handleToggleActive = (id: number, isActive: boolean) => {
+    updateProperty.mutate({ id, data: { isActive } });
   };
 
   const handleDelete = (id: number, name: string) => {
@@ -226,6 +231,7 @@ export default function Portfolio() {
               property={property}
               propertyNumber={index + 1}
               onDelete={handleDelete}
+              onToggleActive={handleToggleActive}
             />
           ))}
         </AnimatedGrid>

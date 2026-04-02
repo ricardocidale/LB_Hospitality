@@ -177,6 +177,11 @@ export const properties = pgTable("properties", {
   longitude: real("longitude"),
 
   researchValues: jsonb("research_values").$type<Record<string, ResearchValueEntry>>(),
+
+  // Whether this property is active in the portfolio.
+  // Inactive properties are excluded from all calculations and aggregations.
+  // Default and seed value is true (ON).
+  isActive: boolean("is_active").notNull().default(true),
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -267,6 +272,7 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   latitude: true,
   longitude: true,
   researchValues: true,
+  isActive: true,
 });
 
 export const updatePropertySchema = insertPropertySchema.partial();

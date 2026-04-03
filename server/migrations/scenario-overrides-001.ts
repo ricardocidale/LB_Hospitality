@@ -62,4 +62,15 @@ export async function runScenarioOverrides001(): Promise<void> {
     await db.execute(sql`CREATE INDEX "spo_scenario_property_id_idx" ON "scenario_property_overrides" ("scenario_id", "property_id")`);
     logger.info(`[${TAG}] Added property_id column with FK and composite index`);
   }
+
+  const ginExists = await db.execute(sql`
+    SELECT 1 FROM pg_indexes 
+    WHERE indexname = 'spo_overrides_gin_idx'
+  `);
+  if (ginExists.rows.length > 0) {
+    logger.info(`[${TAG}] GIN index on overrides already exists, skipping`);
+  } else {
+    await db.execute(sql`CREATE INDEX "spo_overrides_gin_idx" ON "scenario_property_overrides" USING GIN ("overrides")`);
+    logger.info(`[${TAG}] Added GIN index on overrides JSONB column`);
+  }
 }

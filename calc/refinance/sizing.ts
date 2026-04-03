@@ -4,6 +4,7 @@ import type { PropertyValuation } from "./types.js";
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { MONTHS_PER_YEAR } from "../../shared/constants.js";
+import { dPow } from "../shared/decimal.js";
 
 export interface SizingResult {
   property_value: number;
@@ -63,7 +64,7 @@ export function computeSizing(
         rounding,
       );
     } else {
-      const factor = Math.pow(1 + monthlyRate, amortPayments);
+      const factor = dPow(1 + monthlyRate, amortPayments);
       const k = (monthlyRate * factor) / (factor - 1);
       max_loan_dscr = roundTo(
         noi_for_dscr / (12 * k * dscr_min),

@@ -39,6 +39,7 @@ import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import type { ScheduleEntry } from "../shared/types.js";
 import { MONTHS_PER_YEAR } from "../../shared/constants.js";
+import { dPow, dDiv } from "../shared/decimal.js";
 
 export type PrepaymentType = "yield_maintenance" | "step_down" | "defeasance";
 
@@ -256,7 +257,7 @@ function computeYieldMaintenance(
       const differential = Math.max(0, loanInterest - treasuryInterest);
       const discountPeriod = i + 1;
       const discountFactor = monthlyTreasury > 0
-        ? Math.pow(1 + monthlyTreasury, -discountPeriod)
+        ? dPow(1 + monthlyTreasury, -discountPeriod)
         : 1;
       pvDiff += differential * discountFactor;
     }
@@ -265,7 +266,7 @@ function computeYieldMaintenance(
     for (let m = 1; m <= monthsRemaining; m++) {
       const differential = runningBalance * (monthlyLoan - monthlyTreasury);
       const discountFactor = monthlyTreasury > 0
-        ? Math.pow(1 + monthlyTreasury, -m)
+        ? dPow(1 + monthlyTreasury, -m)
         : 1;
       pvDiff += Math.max(0, differential) * discountFactor;
       runningBalance *= (1 - monthlyLoan);
@@ -339,7 +340,7 @@ function computeDefeasance(
     for (let i = 0; i < remainingSchedule.length; i++) {
       const entry = remainingSchedule[i];
       const discountPeriod = i + 1;
-      pvAtTreasury += entry.payment / Math.pow(1 + monthlyTreasury, discountPeriod);
+      pvAtTreasury += dDiv(entry.payment, dPow(1 + monthlyTreasury, discountPeriod));
     }
     securitiesCost = r(Math.max(0, pvAtTreasury - balance));
   } else if (monthlyTreasury > 0 && treasuryRate < loanRate) {
@@ -347,9 +348,9 @@ function computeDefeasance(
     const monthlyPayment = balance * monthlyLoan;
     let pvAtTreasury = 0;
     for (let m = 1; m <= monthsRemaining; m++) {
-      pvAtTreasury += monthlyPayment / Math.pow(1 + monthlyTreasury, m);
+      pvAtTreasury += dDiv(monthlyPayment, dPow(1 + monthlyTreasury, m));
     }
-    pvAtTreasury += balance / Math.pow(1 + monthlyTreasury, monthsRemaining);
+    pvAtTreasury += dDiv(balance, dPow(1 + monthlyTreasury, monthsRemaining));
     securitiesCost = r(Math.max(0, pvAtTreasury - balance));
   }
 

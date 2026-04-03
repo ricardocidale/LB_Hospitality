@@ -52,10 +52,7 @@ import {
 } from '@shared/constants';
 import { PropertyInput, GlobalInput } from './types';
 import { parseLocalDate } from './utils';
-
-function safeNum(n: number): number {
-  return Number.isFinite(n) ? n : 0;
-}
+import { assertFinite, dDiv, dPow } from '../../../../calc/shared/decimal.js';
 
 export interface PropertyEngineContext {
   modelStart: Date;
@@ -160,7 +157,7 @@ export function resolvePropertyAssumptions(
   const daysPerMonth = global.daysPerMonth ?? DAYS_PER_MONTH;
 
   const costSegEnabled = property.costSegEnabled ?? false;
-  let monthlyDepreciation = safeNum(buildingValue / depreciationYears / MONTHS_PER_YEAR);
+  let monthlyDepreciation = assertFinite(dDiv(dDiv(buildingValue, depreciationYears), MONTHS_PER_YEAR), 'monthlyDepreciation');
   let costSeg5yrMonthly = 0;
   let costSeg7yrMonthly = 0;
   let costSeg15yrMonthly = 0;
@@ -178,10 +175,10 @@ export function resolvePropertyAssumptions(
     costSeg7yrBasis = buildingValue * pct7;
     costSeg15yrBasis = buildingValue * pctLong;
     costSegRestBasis = buildingValue * Math.max(0, pctRest);
-    costSeg5yrMonthly = safeNum(costSeg5yrBasis / COST_SEG_5YR_LIFE_YEARS / MONTHS_PER_YEAR);
-    costSeg7yrMonthly = safeNum(costSeg7yrBasis / COST_SEG_7YR_LIFE_YEARS / MONTHS_PER_YEAR);
-    costSeg15yrMonthly = safeNum(costSeg15yrBasis / COST_SEG_15YR_LIFE_YEARS / MONTHS_PER_YEAR);
-    costSegRestMonthly = safeNum(costSegRestBasis / depreciationYears / MONTHS_PER_YEAR);
+    costSeg5yrMonthly = assertFinite(dDiv(dDiv(costSeg5yrBasis, COST_SEG_5YR_LIFE_YEARS), MONTHS_PER_YEAR), 'costSeg5yrMonthly');
+    costSeg7yrMonthly = assertFinite(dDiv(dDiv(costSeg7yrBasis, COST_SEG_7YR_LIFE_YEARS), MONTHS_PER_YEAR), 'costSeg7yrMonthly');
+    costSeg15yrMonthly = assertFinite(dDiv(dDiv(costSeg15yrBasis, COST_SEG_15YR_LIFE_YEARS), MONTHS_PER_YEAR), 'costSeg15yrMonthly');
+    costSegRestMonthly = assertFinite(dDiv(dDiv(costSegRestBasis, depreciationYears), MONTHS_PER_YEAR), 'costSegRestMonthly');
   }
 
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
@@ -196,7 +193,7 @@ export function resolvePropertyAssumptions(
   const totalPayments = loanTerm * MONTHS_PER_YEAR;
   let monthlyPayment = 0;
   if (originalLoanAmount > 0) {
-    monthlyPayment = safeNum(pmt(originalLoanAmount, monthlyRate, totalPayments));
+    monthlyPayment = assertFinite(pmt(originalLoanAmount, monthlyRate, totalPayments), 'monthlyPayment');
   }
 
   const arDays = property.arDays ?? DEFAULT_AR_DAYS;
@@ -264,10 +261,10 @@ export function resolvePropertyAssumptions(
   const adrFactors = new Array(maxOpsYear);
   const fixedEscFactors = new Array(maxOpsYear);
   for (let y = 0; y < maxOpsYear; y++) {
-    adrFactors[y] = safeNum(Math.pow(1 + adrGrowthRate, y));
-    fixedEscFactors[y] = safeNum(Math.pow(1 + fixedEscalationRate, y));
+    adrFactors[y] = assertFinite(dPow(1 + adrGrowthRate, y), `adrFactor[year=${y}]`);
+    fixedEscFactors[y] = assertFinite(dPow(1 + fixedEscalationRate, y), `fixedEscFactor[year=${y}]`);
   }
-  const monthlyEscRate = escalationMethod === 'monthly' ? Math.pow(1 + fixedEscalationRate, 1 / MONTHS_PER_YEAR) - 1 : 0;
+  const monthlyEscRate = escalationMethod === 'monthly' ? dPow(1 + fixedEscalationRate, 1 / MONTHS_PER_YEAR) - 1 : 0;
 
   return {
     modelStart,

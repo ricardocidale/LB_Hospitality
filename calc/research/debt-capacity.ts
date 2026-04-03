@@ -7,6 +7,7 @@
 import { roundCents } from "../shared/utils.js";
 import { pmt } from "../shared/pmt.js";
 import { MONTHS_PER_YEAR } from "../../shared/constants.js";
+import { dPow, dDiv } from "../shared/decimal.js";
 
 interface DebtCapacityInput {
   annual_noi: number;
@@ -51,8 +52,8 @@ export function computeDebtCapacity(input: DebtCapacityInput): DebtCapacityOutpu
   } else if (maxMonthlyPayment > 0 && totalPayments > 0) {
     // PMT = P * r * (1+r)^n / ((1+r)^n - 1)
     // P = PMT * ((1+r)^n - 1) / (r * (1+r)^n)
-    const factor = Math.pow(1 + monthlyRate, totalPayments);
-    maxLoan = maxMonthlyPayment * (factor - 1) / (monthlyRate * factor);
+    const factor = dPow(1 + monthlyRate, totalPayments);
+    maxLoan = dDiv(maxMonthlyPayment * (factor - 1), monthlyRate * factor);
   }
   maxLoan = roundCents(maxLoan);
 

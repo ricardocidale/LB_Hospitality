@@ -1,4 +1,5 @@
 import { roundCents } from "../shared/utils.js";
+import { dPow, dDiv, dSum } from "../shared/decimal.js";
 
 export interface MIRRInput {
   cash_flow_vector: number[];
@@ -21,18 +22,21 @@ export function computeMIRR(input: MIRRInput): MIRROutput {
     return { mirr: 0, is_valid: false, warnings: ["Need at least 2 periods for MIRR"] };
   }
 
-  let pvNegative = 0;
-  let fvPositive = 0;
+  const pvNegParts: number[] = [];
+  const fvPosParts: number[] = [];
   const periods = n - 1;
 
   for (let t = 0; t < n; t++) {
     const cf = cash_flow_vector[t];
     if (cf < 0) {
-      pvNegative += cf / Math.pow(1 + finance_rate, t);
+      pvNegParts.push(dDiv(cf, dPow(1 + finance_rate, t)));
     } else if (cf > 0) {
-      fvPositive += cf * Math.pow(1 + reinvestment_rate, periods - t);
+      fvPosParts.push(cf * dPow(1 + reinvestment_rate, periods - t));
     }
   }
+
+  const pvNegative = dSum(pvNegParts);
+  const fvPositive = dSum(fvPosParts);
 
   if (pvNegative >= 0) {
     return { mirr: 0, is_valid: false, warnings: ["No negative cash flows — MIRR requires an initial investment"] };
@@ -41,7 +45,7 @@ export function computeMIRR(input: MIRRInput): MIRROutput {
     return { mirr: 0, is_valid: false, warnings: ["No positive cash flows — MIRR requires returns"] };
   }
 
-  const mirr = Math.pow(fvPositive / Math.abs(pvNegative), 1 / periods) - 1;
+  const mirr = dPow(dDiv(fvPositive, Math.abs(pvNegative)), 1 / periods) - 1;
 
   return {
     mirr: Number.isFinite(mirr) ? mirr : 0,

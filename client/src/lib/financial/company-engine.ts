@@ -41,6 +41,7 @@ import type { ServiceTemplate, AggregatedServiceCosts } from '@calc/services/typ
 import { PropertyInput, GlobalInput, CompanyMonthlyFinancials, ServiceFeeBreakdown } from './types';
 import { generatePropertyProForma } from './property-engine';
 import { parseLocalDate } from '@shared/dates';
+import { assertFinite, dPow } from '../../../../calc/shared/decimal.js';
 
 /** Extract { year, month (0-based) } from a date string using parseLocalDate. */
 function parseDateComponents(dateStr: string) {
@@ -142,8 +143,8 @@ export function generateCompanyProForma(
   const fixedCostFactors = new Array(maxCompanyOpsYear);
   const variableCostFactors = new Array(maxCompanyOpsYear);
   for (let y = 0; y < maxCompanyOpsYear; y++) {
-    fixedCostFactors[y] = Math.pow(1 + fixedEscalationRate, y);
-    variableCostFactors[y] = Math.pow(1 + companyInflation, y);
+    fixedCostFactors[y] = dPow(1 + fixedEscalationRate, y);
+    variableCostFactors[y] = dPow(1 + companyInflation, y);
   }
 
   // ── Pre-computed property base fee rates ──
@@ -193,7 +194,7 @@ export function generateCompanyProForma(
         if (hasCategoryData) {
           let propServiceTotal = 0;
           for (const [catName, rawCatAmount] of Object.entries(catFees)) {
-            const catAmount = Number.isFinite(rawCatAmount) ? rawCatAmount : 0;
+            const catAmount = assertFinite(rawCatAmount as number, `serviceFee[${catName}]`);
             serviceFeeBreakdown.byCategory[catName] = (serviceFeeBreakdown.byCategory[catName] || 0) + catAmount;
             if (!serviceFeeBreakdown.byCategoryByPropertyId[catName]) {
               serviceFeeBreakdown.byCategoryByPropertyId[catName] = {};

@@ -4,6 +4,7 @@
  * Pure functions with no side effects. Used by loanCalculations.ts to
  * eliminate duplication between acquisition loan and refinance loan math.
  */
+import { dPow, dDiv } from '../../../../calc/shared/decimal.js';
 
 /**
  * Outstanding principal balance using the present-value-of-annuity formula.
@@ -28,7 +29,7 @@ export function outstandingBalance(
   const remaining = totalPayments - monthsPaid;
   if (remaining <= 0) return 0;
   if (rate === 0) return initialBalance - payment * monthsPaid;
-  return (payment * (1 - Math.pow(1 + rate, -remaining))) / rate;
+  return dDiv(payment * (1 - dPow(1 + rate, -remaining)), rate);
 }
 
 /**

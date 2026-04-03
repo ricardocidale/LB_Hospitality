@@ -38,6 +38,7 @@ import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { pmt } from "../shared/pmt.js";
 import { MONTHS_PER_YEAR } from "../../shared/constants.js";
+import { dPow, dDiv } from "../shared/decimal.js";
 
 export interface DSCRInput {
   /** Annual Net Operating Income */
@@ -190,6 +191,6 @@ function reversePMT(
 ): number {
   if (payment === 0 || totalPayments === 0) return 0;
   if (monthlyRate === 0) return payment * totalPayments;
-  const factor = Math.pow(1 + monthlyRate, totalPayments);
-  return payment * (factor - 1) / (monthlyRate * factor);
+  const factor = dPow(1 + monthlyRate, totalPayments);
+  return dDiv(payment * (factor - 1), monthlyRate * factor);
 }

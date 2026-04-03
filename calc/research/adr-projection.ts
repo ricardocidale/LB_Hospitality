@@ -6,6 +6,7 @@
  */
 import { DAYS_PER_MONTH, MONTHS_PER_YEAR } from "../../shared/constants.js";
 import { roundCents } from "../shared/utils.js";
+import { dPow } from "../shared/decimal.js";
 
 interface ADRProjectionInput {
   start_adr: number;
@@ -48,7 +49,7 @@ export function computeADRProjection(input: ADRProjectionInput): ADRProjectionOu
   const projections: YearProjection[] = [];
 
   for (let y = 1; y <= projection_years; y++) {
-    const adr = roundCents(start_adr * Math.pow(1 + effectiveRate, y));
+    const adr = roundCents(start_adr * dPow(1 + effectiveRate, y));
     const growthFromStart = ((adr - start_adr) / start_adr) * 100;
 
     const proj: YearProjection = {

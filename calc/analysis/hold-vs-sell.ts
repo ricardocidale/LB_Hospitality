@@ -52,6 +52,7 @@ import {
   DEFAULT_DEP_RECAPTURE_RATE,
   HOLD_VS_SELL_INDIFFERENCE_PCT,
 } from "../../shared/constants.js";
+import { dPow, dDiv, dSum } from "../shared/decimal.js";
 
 export interface HoldVsSellInput {
   property_name?: string;
@@ -141,11 +142,11 @@ export function computeHoldVsSell(input: HoldVsSellInput): HoldVsSellOutput {
     holdCashFlows[holdCashFlows.length - 1] += net_terminal_proceeds;
   }
 
-  let npv_hold = 0;
+  const npvParts: number[] = [];
   for (let t = 0; t < holdCashFlows.length; t++) {
-    npv_hold += holdCashFlows[t] / Math.pow(1 + input.discount_rate, t + 1);
+    npvParts.push(dDiv(holdCashFlows[t], dPow(1 + input.discount_rate, t + 1)));
   }
-  npv_hold = r(npv_hold);
+  let npv_hold = r(dSum(npvParts));
 
   const total_cash_flow_hold = r(sumArray(projected_fcf) + net_terminal_proceeds);
 
@@ -153,7 +154,7 @@ export function computeHoldVsSell(input: HoldVsSellInput): HoldVsSellOutput {
   let hold_irr_approx = 0;
   if (initialInvestment > 0 && input.remaining_hold_years > 0) {
     hold_irr_approx = ratio(
-      Math.pow(total_cash_flow_hold / initialInvestment, 1 / input.remaining_hold_years) - 1
+      dPow(total_cash_flow_hold / initialInvestment, 1 / input.remaining_hold_years) - 1
     );
   }
 
@@ -180,7 +181,7 @@ export function computeHoldVsSell(input: HoldVsSellInput): HoldVsSellOutput {
 
   let breakeven_noi_growth = 0;
   if (input.remaining_hold_years > 0 && input.current_noi > 0) {
-    const targetTotal = net_after_tax_proceeds * Math.pow(1 + input.discount_rate, input.remaining_hold_years);
+    const targetTotal = net_after_tax_proceeds * dPow(1 + input.discount_rate, input.remaining_hold_years);
     const avgAnnualNeeded = targetTotal / input.remaining_hold_years;
     breakeven_noi_growth = ratio(
       (avgAnnualNeeded / input.current_noi) - 1

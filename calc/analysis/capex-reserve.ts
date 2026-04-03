@@ -64,6 +64,7 @@ import {
   CAPEX_SPA_EQUIPMENT_LIFE_YEARS,
   CAPEX_INDUSTRY_BENCHMARK_PER_KEY,
 } from "../../shared/constants.js";
+import { dPow } from "../shared/decimal.js";
 
 /** Funded ratio ≥ 100%: reserve contributions fully cover annualized replacement costs */
 const FUNDING_RATIO_ADEQUATE = 1.0;
@@ -154,8 +155,8 @@ export function computeCapexReserve(input: CapexReserveInput): CapexReserveOutpu
       ? remaining
       : null;
     const inflated_cost = replacementYear !== null
-      ? r(cat.replacement_cost * Math.pow(1 + inflationRate, replacementYear))
-      : r(cat.replacement_cost * Math.pow(1 + inflationRate, cat.useful_life_years));
+      ? r(cat.replacement_cost * dPow(1 + inflationRate, replacementYear))
+      : r(cat.replacement_cost * dPow(1 + inflationRate, cat.useful_life_years));
 
     return {
       label: cat.label,

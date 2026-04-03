@@ -122,57 +122,68 @@ describe("Scenario Diff Engine", () => {
   describe("computeFullDiff", () => {
     it("detects no changes when scenarios match", () => {
       const ga = { inflationRate: 0.03 };
-      const props = [{ name: "Hotel A", startAdr: 200 }];
+      const props = [{ id: 1, name: "Hotel A", startAdr: 200 }];
       const result = computeFullDiff(ga, props, ga, props);
       expect(Object.keys(result.assumptionOverrides)).toHaveLength(0);
       expect(result.propertyDiffs).toHaveLength(0);
       expect(result.snapshotHash).toHaveLength(16);
     });
 
-    it("detects added property", () => {
+    it("detects added property with propertyId", () => {
       const ga = { inflationRate: 0.03 };
-      const baseProps = [{ name: "Hotel A", startAdr: 200 }];
+      const baseProps = [{ id: 1, name: "Hotel A", startAdr: 200 }];
       const scenarioProps = [
-        { name: "Hotel A", startAdr: 200 },
-        { name: "Hotel B", startAdr: 300 },
+        { id: 1, name: "Hotel A", startAdr: 200 },
+        { id: 2, name: "Hotel B", startAdr: 300 },
       ];
       const result = computeFullDiff(ga, baseProps, ga, scenarioProps);
       expect(result.propertyDiffs).toHaveLength(1);
       expect(result.propertyDiffs[0].changeType).toBe("added");
       expect(result.propertyDiffs[0].propertyName).toBe("Hotel B");
+      expect(result.propertyDiffs[0].propertyId).toBe(2);
     });
 
-    it("detects removed property", () => {
+    it("detects removed property with propertyId", () => {
       const ga = { inflationRate: 0.03 };
       const baseProps = [
-        { name: "Hotel A", startAdr: 200 },
-        { name: "Hotel B", startAdr: 300 },
+        { id: 1, name: "Hotel A", startAdr: 200 },
+        { id: 2, name: "Hotel B", startAdr: 300 },
       ];
-      const scenarioProps = [{ name: "Hotel A", startAdr: 200 }];
+      const scenarioProps = [{ id: 1, name: "Hotel A", startAdr: 200 }];
       const result = computeFullDiff(ga, baseProps, ga, scenarioProps);
       expect(result.propertyDiffs).toHaveLength(1);
       expect(result.propertyDiffs[0].changeType).toBe("removed");
       expect(result.propertyDiffs[0].propertyName).toBe("Hotel B");
+      expect(result.propertyDiffs[0].propertyId).toBe(2);
     });
 
-    it("detects modified property fields", () => {
+    it("detects modified property fields with propertyId", () => {
       const ga = { inflationRate: 0.03 };
-      const baseProps = [{ name: "Hotel A", startAdr: 200, maxOccupancy: 0.85 }];
-      const scenarioProps = [{ name: "Hotel A", startAdr: 250, maxOccupancy: 0.85 }];
+      const baseProps = [{ id: 1, name: "Hotel A", startAdr: 200, maxOccupancy: 0.85 }];
+      const scenarioProps = [{ id: 1, name: "Hotel A", startAdr: 250, maxOccupancy: 0.85 }];
       const result = computeFullDiff(ga, baseProps, ga, scenarioProps);
       expect(result.propertyDiffs).toHaveLength(1);
       expect(result.propertyDiffs[0].changeType).toBe("modified");
       expect(result.propertyDiffs[0].overrides).toEqual({ startAdr: 250 });
+      expect(result.propertyDiffs[0].propertyId).toBe(1);
     });
 
     it("detects assumption changes alongside property changes", () => {
       const baseGA = { inflationRate: 0.03 };
       const scenarioGA = { inflationRate: 0.04 };
-      const baseProps = [{ name: "Hotel A", startAdr: 200 }];
-      const scenarioProps = [{ name: "Hotel A", startAdr: 250 }];
+      const baseProps = [{ id: 1, name: "Hotel A", startAdr: 200 }];
+      const scenarioProps = [{ id: 1, name: "Hotel A", startAdr: 250 }];
       const result = computeFullDiff(baseGA, baseProps, scenarioGA, scenarioProps);
       expect(result.assumptionOverrides).toEqual({ inflationRate: 0.04 });
       expect(result.propertyDiffs).toHaveLength(1);
+    });
+
+    it("handles properties without id (null propertyId)", () => {
+      const ga = { inflationRate: 0.03 };
+      const baseProps = [{ name: "Hotel A", startAdr: 200 }];
+      const scenarioProps = [{ name: "Hotel A", startAdr: 250 }];
+      const result = computeFullDiff(ga, baseProps, ga, scenarioProps);
+      expect(result.propertyDiffs[0].propertyId).toBeNull();
     });
   });
 
@@ -186,6 +197,7 @@ describe("Scenario Diff Engine", () => {
     it("applies modified overrides", () => {
       const base = [{ name: "Hotel A", startAdr: 200, maxOccupancy: 0.85 }];
       const diffs = [{
+        propertyId: 1,
         propertyName: "Hotel A",
         changeType: "modified" as const,
         overrides: { startAdr: 250 },
@@ -202,6 +214,7 @@ describe("Scenario Diff Engine", () => {
         { name: "Hotel B", startAdr: 300 },
       ];
       const diffs = [{
+        propertyId: 2,
         propertyName: "Hotel B",
         changeType: "removed" as const,
         overrides: {},
@@ -215,6 +228,7 @@ describe("Scenario Diff Engine", () => {
     it("adds new properties with added changeType", () => {
       const base = [{ name: "Hotel A", startAdr: 200 }];
       const diffs = [{
+        propertyId: null,
         propertyName: "Hotel C",
         changeType: "added" as const,
         overrides: { name: "Hotel C", startAdr: 400 },
@@ -233,9 +247,9 @@ describe("Scenario Diff Engine", () => {
         { name: "Hotel C", startAdr: 400 },
       ];
       const diffs = [
-        { propertyName: "Hotel A", changeType: "modified" as const, overrides: { startAdr: 250 }, baseSnapshot: base[0] },
-        { propertyName: "Hotel B", changeType: "removed" as const, overrides: {}, baseSnapshot: base[1] },
-        { propertyName: "Hotel D", changeType: "added" as const, overrides: { name: "Hotel D", startAdr: 500 }, baseSnapshot: null },
+        { propertyId: 1, propertyName: "Hotel A", changeType: "modified" as const, overrides: { startAdr: 250 }, baseSnapshot: base[0] },
+        { propertyId: 2, propertyName: "Hotel B", changeType: "removed" as const, overrides: {}, baseSnapshot: base[1] },
+        { propertyId: null, propertyName: "Hotel D", changeType: "added" as const, overrides: { name: "Hotel D", startAdr: 500 }, baseSnapshot: null },
       ];
       const result = reconstructScenarioProperties(base, diffs);
       expect(result).toHaveLength(3);
@@ -243,6 +257,21 @@ describe("Scenario Diff Engine", () => {
       expect(result[0].startAdr).toBe(250);
       expect(result[1].startAdr).toBe(400);
       expect(result[2].startAdr).toBe(500);
+    });
+
+    it("applies DELETED sentinel to remove fields during reconstruction", () => {
+      const base = [{ name: "Hotel A", startAdr: 200, description: "Old desc" }];
+      const diffs = [{
+        propertyId: 1,
+        propertyName: "Hotel A",
+        changeType: "modified" as const,
+        overrides: { description: DELETED_SENTINEL },
+        baseSnapshot: base[0],
+      }];
+      const result = reconstructScenarioProperties(base, diffs);
+      expect(result).toHaveLength(1);
+      expect(result[0]).not.toHaveProperty("description");
+      expect(result[0].startAdr).toBe(200);
     });
   });
 });

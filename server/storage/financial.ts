@@ -90,6 +90,7 @@ export class FinancialStorage {
 
     const values = diffs.map(d => ({
       scenarioId,
+      propertyId: d.propertyId ?? undefined,
       propertyName: d.propertyName,
       changeType: d.changeType,
       overrides: d.overrides as Record<string, unknown>,

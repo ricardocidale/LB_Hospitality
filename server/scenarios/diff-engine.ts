@@ -7,6 +7,7 @@ const SKIP_FIELDS = new Set([
 export const DELETED_SENTINEL = "__DELETED__";
 
 export interface PropertyDiff {
+  propertyId: number | null;
   propertyName: string;
   changeType: "added" | "removed" | "modified" | "unchanged";
   overrides: Record<string, unknown>;
@@ -101,6 +102,7 @@ export function computeFullDiff(
 
     if (!baseProp && scenarioProp) {
       propertyDiffs.push({
+        propertyId: (scenarioProp.id as number) ?? null,
         propertyName: name,
         changeType: "added",
         overrides: scenarioProp,
@@ -108,6 +110,7 @@ export function computeFullDiff(
       });
     } else if (baseProp && !scenarioProp) {
       propertyDiffs.push({
+        propertyId: (baseProp.id as number) ?? null,
         propertyName: name,
         changeType: "removed",
         overrides: {},
@@ -117,6 +120,7 @@ export function computeFullDiff(
       const overrides = computePropertyDiff(baseProp, scenarioProp);
       if (Object.keys(overrides).length > 0) {
         propertyDiffs.push({
+          propertyId: (baseProp.id as number) ?? null,
           propertyName: name,
           changeType: "modified",
           overrides,

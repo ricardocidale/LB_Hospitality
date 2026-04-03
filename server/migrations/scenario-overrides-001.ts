@@ -50,4 +50,16 @@ export async function runScenarioOverrides001(): Promise<void> {
     await db.execute(sql`ALTER TABLE "scenarios" ADD COLUMN "base_snapshot_hash" text`);
     logger.info(`[${TAG}] Added base_snapshot_hash column to scenarios`);
   }
+
+  const propIdExists = await db.execute(sql`
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'scenario_property_overrides' AND column_name = 'property_id'
+  `);
+  if (propIdExists.rows.length > 0) {
+    logger.info(`[${TAG}] scenario_property_overrides.property_id column already exists, skipping`);
+  } else {
+    await db.execute(sql`ALTER TABLE "scenario_property_overrides" ADD COLUMN "property_id" integer REFERENCES "properties"("id") ON DELETE SET NULL`);
+    await db.execute(sql`CREATE INDEX "spo_scenario_property_id_idx" ON "scenario_property_overrides" ("scenario_id", "property_id")`);
+    logger.info(`[${TAG}] Added property_id column with FK and composite index`);
+  }
 }

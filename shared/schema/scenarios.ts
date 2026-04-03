@@ -3,6 +3,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { users } from "./auth";
 import { userGroups, companies } from "./core";
+import { properties } from "./properties";
 
 export const scenarios = pgTable("scenarios", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -40,6 +41,7 @@ export const scenarios = pgTable("scenarios", {
 export const scenarioPropertyOverrides = pgTable("scenario_property_overrides", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   scenarioId: integer("scenario_id").notNull().references(() => scenarios.id, { onDelete: "cascade" }),
+  propertyId: integer("property_id").references(() => properties.id, { onDelete: "set null" }),
   propertyName: text("property_name").notNull(),
   changeType: text("change_type").notNull().default("modified"),
   overrides: jsonb("overrides").notNull().default({}),
@@ -47,6 +49,7 @@ export const scenarioPropertyOverrides = pgTable("scenario_property_overrides", 
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
   index("spo_scenario_id_idx").on(table.scenarioId),
+  index("spo_scenario_property_id_idx").on(table.scenarioId, table.propertyId),
   index("spo_property_name_idx").on(table.propertyName),
   unique("spo_scenario_property_unique").on(table.scenarioId, table.propertyName),
 ]);
@@ -79,6 +82,7 @@ export const insertScenarioSchema = createInsertSchema(scenarios).pick({
 
 export const insertScenarioPropertyOverrideSchema = createInsertSchema(scenarioPropertyOverrides).pick({
   scenarioId: true,
+  propertyId: true,
   propertyName: true,
   changeType: true,
   overrides: true,

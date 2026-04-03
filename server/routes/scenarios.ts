@@ -321,6 +321,7 @@ export function register(app: Express) {
 
       const liveProperties = await storage.getAllProperties(scenario.userId);
       const propertyDiffs = overrides.map(o => ({
+        propertyId: o.propertyId ?? null,
         propertyName: o.propertyName,
         changeType: o.changeType as "added" | "removed" | "modified" | "unchanged",
         overrides: (o.overrides || {}) as Record<string, unknown>,

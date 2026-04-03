@@ -29,7 +29,7 @@ export default function ExitAssumptionsSection({ formData, onChange, global, res
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Cost of Equity
-              <InfoTooltip text="Re — the required equity return used in WACC/DCF calculations. Required equity return for private hospitality investment. Used as the Re component in WACC = (E/V × Re) + (D/V × Rd × (1−T)). For private companies, this is the investor's hurdle rate (typically 15–25%), not CAPM-derived." manualSection="investment-returns" />
+              <InfoTooltip text="The equity investor's required annual return, used as the Re component in WACC and DCF calculations. For private hospitality investments, this is the hurdle rate — the minimum return an investor needs to justify the risk. Typical range: 15–25%." formula="WACC = (E/V × Re) + (D/V × Rd × (1−T))" manualSection="investment-returns" />
               <ResearchBadge value={researchValues.costOfEquity?.display} onClick={() => researchValues.costOfEquity && onChange("costOfEquity", researchValues.costOfEquity.mid / 100)} sourceType="industry" sourceName="Private RE equity benchmarks" data-testid="badge-cost-of-equity" />
             </Label>
             <EditableValue

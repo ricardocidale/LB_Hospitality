@@ -246,7 +246,7 @@ export default function NavigationTab() {
         <CardContent>
           <div className="flex items-center justify-between px-4 py-3 rounded-xl border border-border/60 hover:bg-muted/50 transition-colors">
             <div>
-              <Label className="label-text font-medium flex items-center gap-1">Show tour prompt on login <InfoTooltip text="When ON, you'll see a prompt offering a guided tour of the platform each time you log in. When OFF, the tour prompt is suppressed." /></Label>
+              <Label className="label-text font-medium flex items-center gap-1">Show tour prompt on login <InfoTooltip text="This is a per-user preference, not an org-wide setting. Turning it off here only affects your own login experience." /></Label>
               <p className="text-xs text-muted-foreground mt-0.5">Display the guided walkthrough offer after signing in</p>
             </div>
             <Switch

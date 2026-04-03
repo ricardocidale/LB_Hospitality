@@ -9,6 +9,7 @@ import type { Draft } from "./model-defaults/FieldHelpers";
 import { MarketMacroTab } from "./model-defaults/MarketMacroTab";
 import { PropertyUnderwritingTab } from "./model-defaults/PropertyUnderwritingTab";
 import { LlmDefaultsTab } from "./model-defaults/LlmDefaultsTab";
+import { CompanyTab } from "./model-defaults/CompanyTab";
 
 interface ModelDefaultsTabProps {
   onSaveStateChange?: (state: AdminSaveState | null) => void;
@@ -92,12 +93,17 @@ export default function ModelDefaultsTab({ onSaveStateChange }: ModelDefaultsTab
 
   return (
     <div data-testid="admin-app-defaults">
-      <Tabs defaultValue="market-macro" className="space-y-4">
+      <Tabs defaultValue="company" className="space-y-4">
         <TabsList className="bg-muted/50 border border-border/60">
+          <TabsTrigger value="company" data-testid="tab-company">Company</TabsTrigger>
           <TabsTrigger value="market-macro" data-testid="tab-market-macro">Market & Macro</TabsTrigger>
           <TabsTrigger value="property-underwriting" data-testid="tab-property-underwriting">Property Underwriting</TabsTrigger>
           <TabsTrigger value="llm-defaults" data-testid="tab-llm-defaults">LLM Defaults</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="company">
+          <CompanyTab draft={draft} onChange={handleChange} />
+        </TabsContent>
 
         <TabsContent value="market-macro">
           <MarketMacroTab draft={draft} onChange={handleChange} />

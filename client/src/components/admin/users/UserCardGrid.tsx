@@ -152,7 +152,7 @@ export default function UserCardGrid({
                   {user.role}
                 </span>
                 {user.userGroupId && groupNameMap[user.userGroupId]
-                  ? <span className="text-xs text-muted-foreground">{groupNameMap[user.userGroupId]}</span>
+                  ? <span className="text-xs text-accent">{groupNameMap[user.userGroupId]}</span>
                   : <span className="text-xs text-muted-foreground/40">—</span>}
                 <div className="ml-auto flex items-center gap-1.5">
                   <span className="text-[11px] text-muted-foreground">Scenarios</span>

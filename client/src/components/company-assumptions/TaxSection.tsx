@@ -31,7 +31,7 @@ export default function TaxSection({ formData, onChange, global, researchValues 
         </h3>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <Label className="text-foreground label-text flex items-center gap-1">Company Income Tax Rate<InfoTooltip text="Income tax rate applied to the management company's positive net income. This is separate from property-level income taxes, which are set per property on each property's assumptions page." />
+            <Label className="text-foreground label-text flex items-center gap-1">Company Income Tax Rate<InfoTooltip text="Use the US federal corporate rate (21%) as a baseline, then adjust upward to model a combined federal + state effective rate for your jurisdiction." />
               <ResearchBadge value={researchValues.companyTaxRate?.display} onClick={() => researchValues.companyTaxRate && onChange("companyTaxRate", researchValues.companyTaxRate.mid / 100)} sourceType="industry" sourceName="AICPA/IRS benchmarks" data-testid="badge-company-tax" />
             </Label>
             <EditableValue

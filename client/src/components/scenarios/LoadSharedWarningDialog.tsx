@@ -24,7 +24,7 @@ export function LoadSharedWarningDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="font-display flex items-center gap-2">
-            <IconAlertTriangle className="w-5 h-5 text-amber-500" />
+            <IconAlertTriangle className="w-5 h-5 text-warning" />
             Load Shared Scenario
           </AlertDialogTitle>
           <AlertDialogDescription className="label-text space-y-2">

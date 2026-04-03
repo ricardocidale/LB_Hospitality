@@ -14,7 +14,7 @@ export function MarketMacroTab({ draft, onChange }: { draft: Draft; onChange: (f
       </TabBanner>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <Section title="Economic Environment" description="Core macroeconomic rates used in DCF, NPV, and cost escalation calculations.">
+        <Section grid title="Economic Environment" description="Core macroeconomic rates used in DCF, NPV, and cost escalation calculations.">
           <PctField
             label="Macro Inflation Rate"
             tooltip="Annual inflation rate applied to cost escalations and revenue growth projections across all properties."

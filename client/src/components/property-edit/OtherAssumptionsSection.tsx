@@ -64,7 +64,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
         <div className="mb-6">
           <h3 className="text-xl font-display text-foreground flex items-center">
             Other Assumptions
-            <InfoTooltip text="Additional assumptions for investment analysis including exit valuation, tax, and country risk calculations" />
+            <InfoTooltip text="Exit cap rate sets the terminal value when this property is sold. Tax rate and country risk affect after-tax IRR and WACC calculations for this specific property." />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Exit valuation, tax rate, and country risk assumptions</p>
         </div>

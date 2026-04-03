@@ -36,6 +36,7 @@ import {
   DEFAULT_BUSINESS_INSURANCE_START,
   DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_LAND_VALUE_PERCENT,
+  DEFAULT_SERVICE_FEE_CATEGORIES,
 } from "@shared/constants";
 
 export const SEED_COMPANY_IDENTITY = {
@@ -67,14 +68,11 @@ export const SEED_PROPERTY_DEFAULTS = {
   incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 };
 
-export const DEFAULT_FEE_CATEGORIES = [
-  { name: "Marketing", rate: 0.015, sortOrder: 1 },
-  { name: "Technology & Reservations", rate: 0.02, sortOrder: 2 },
-  { name: "Accounting", rate: 0.015, sortOrder: 3 },
-  { name: "Revenue Management", rate: 0.01, sortOrder: 4 },
-  { name: "General Management", rate: 0.015, sortOrder: 5 },
-  { name: "Procurement", rate: 0.01, sortOrder: 6 },
-];
+export const DEFAULT_FEE_CATEGORIES = DEFAULT_SERVICE_FEE_CATEGORIES.map(c => ({
+  name: c.name,
+  rate: c.rate,
+  sortOrder: c.sortOrder,
+}));
 
 export async function seedGlobalAssumptions() {
   // Check for a shared (userId IS NULL) row first — that's the canonical singleton

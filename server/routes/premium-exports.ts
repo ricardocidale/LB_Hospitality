@@ -8,6 +8,7 @@ import { compileReport } from "../report/compiler";
 import { generateExcelFromReport } from "./format-generators/excel-generator";
 import { generatePptxFromReport } from "./format-generators/pptx-generator";
 import { generateDocxFromReport } from "./format-generators/docx-generator";
+import { buildExportData } from "../report/server-export-data";
 
 const exportRowSchema = z.object({
   category: z.string(),
@@ -59,6 +60,10 @@ const premiumExportSchema = z.object({
     financialHighlights: z.string().optional(),
     riskFactors: z.string().optional(),
     conclusion: z.string().optional(),
+  }).optional(),
+  computeRef: z.object({
+    propertyIds: z.array(z.number().int().positive()).optional(),
+    projectionYears: z.number().int().min(1).max(30).optional(),
   }).optional(),
 });
 
@@ -122,6 +127,28 @@ export function register(app: Express) {
       }
 
       const data = parsed.data;
+
+      if (data.computeRef && !req.user?.id) {
+        return res.status(401).json({ error: "Authentication required for server-recomputed exports" });
+      }
+      if (data.computeRef && req.user?.id) {
+        logger.info(`[server-recompute] Computing export data server-side for user ${req.user.id}`, "premium-export");
+        const serverData = await buildExportData({
+          userId: req.user.id,
+          propertyIds: data.computeRef.propertyIds,
+          projectionYears: data.computeRef.projectionYears ?? data.projectionYears,
+        });
+
+        data.statements = serverData.statements;
+        data.rows = serverData.rows;
+        data.metrics = serverData.metrics;
+        data.years = serverData.years;
+        data.projectionYears = serverData.projectionYears;
+
+        res.setHeader("X-Finance-Output-Hash", serverData.outputHash);
+        res.setHeader("X-Finance-Engine-Version", serverData.engineVersion);
+        logger.info(`[server-recompute] Server data ready: hash=${serverData.outputHash.slice(0, 16)}..., ${serverData.statements.length} statements`, "premium-export");
+      }
 
       if (!data.themeColors?.length) {
         const defaultTheme = await storage.getDefaultDesignTheme();

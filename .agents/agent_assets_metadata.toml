@@ -6,3 +6,9 @@ id = "h4_9p3fJLsy8dBOuBmAOv"
 uri = "file://.local/tasks/migrate-authors-books-library.md"
 type = "text"
 title = "Authors-Books-Library Migration Plan (Manus → Replit)"
+
+[[outputs]]
+id = "fSu0lVBE45dlYiv5Gxt2U"
+uri = "file://.local/architecture-review-opus.md"
+type = "text"
+title = "H+ Analytics — Server-Side Architecture Review (Opus)"

@@ -5,6 +5,7 @@ import { updateScenarioSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 import { logActivity, logAndSendError, createScenarioSchema, MAX_SCENARIOS_PER_USER, fullName } from "./helpers";
+import { computeFullDiff, reconstructScenarioProperties } from "../scenarios/diff-engine";
 
 function requireScenarioPermission(req: any, res: any, next: any) {
   if (!req.user) return res.status(401).json({ error: "Authentication required" });
@@ -55,6 +56,15 @@ export function register(app: Express) {
         propertyPhotos[p.name] = photosByPropId[p.id] || [];
       }
 
+      const liveAssumptions = await storage.getGlobalAssumptions(req.user!.id);
+      const liveProperties = await storage.getAllProperties(req.user!.id);
+      const diffResult = computeFullDiff(
+        (liveAssumptions || {}) as Record<string, unknown>,
+        (liveProperties || []) as Array<Record<string, unknown>>,
+        (assumptions || {}) as Record<string, unknown>,
+        (properties || []) as Array<Record<string, unknown>>
+      );
+
       const scenario = await storage.createScenario({
         userId: req.user!.id,
         name: validation.data.name,
@@ -63,7 +73,13 @@ export function register(app: Express) {
         properties: properties as any,
         feeCategories: propertyFeeCategories as any,
         propertyPhotos: propertyPhotos as any,
+        version: 1,
+        baseSnapshotHash: diffResult.snapshotHash,
       });
+
+      if (diffResult.propertyDiffs.length > 0) {
+        await storage.writePropertyOverrides(scenario.id, diffResult.propertyDiffs);
+      }
 
       logActivity(req, "create", "scenario", scenario.id, scenario.name);
       res.status(201).json(scenario);
@@ -285,6 +301,104 @@ export function register(app: Express) {
       }
     } catch (error) {
       logAndSendError(res, "Failed to share scenario", error);
+    }
+  });
+
+  app.get("/api/scenarios/:id/preview", requireAuth, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const scenario = await storage.getScenario(id);
+      if (!scenario) return res.status(404).json({ error: "Scenario not found" });
+
+      const isOwner = scenario.userId === req.user!.id;
+      if (!isOwner) {
+        const shared = await storage.getScenariosSharedWithUser(req.user!.id);
+        const hasAccess = shared.some(s => s.id === id);
+        if (!hasAccess) return res.status(403).json({ error: "Access denied" });
+      }
+
+      const overrides = await storage.getPropertyOverrides(id);
+
+      const liveProperties = await storage.getAllProperties(scenario.userId);
+      const propertyDiffs = overrides.map(o => ({
+        propertyName: o.propertyName,
+        changeType: o.changeType as "added" | "removed" | "modified" | "unchanged",
+        overrides: (o.overrides || {}) as Record<string, unknown>,
+        baseSnapshot: (o.basePropertySnapshot || null) as Record<string, unknown> | null,
+      }));
+
+      const previewProperties = propertyDiffs.length > 0
+        ? reconstructScenarioProperties(
+            liveProperties as Array<Record<string, unknown>>,
+            propertyDiffs
+          )
+        : scenario.properties;
+
+      const changedFields = overrides.flatMap(o => {
+        const ov = (o.overrides || {}) as Record<string, unknown>;
+        return Object.keys(ov).map(field => ({
+          propertyName: o.propertyName,
+          field,
+          scenarioValue: ov[field],
+          changeType: o.changeType,
+        }));
+      });
+
+      res.json({
+        id: scenario.id,
+        name: scenario.name,
+        description: scenario.description,
+        globalAssumptions: scenario.globalAssumptions,
+        properties: previewProperties,
+        feeCategories: scenario.feeCategories,
+        changedFields,
+        version: scenario.version,
+        hasOverrides: overrides.length > 0,
+      });
+    } catch (error) {
+      logAndSendError(res, "Failed to preview scenario", error);
+    }
+  });
+
+  const crossQuerySchema = z.object({
+    field: z.string().min(1),
+  });
+
+  app.get("/api/scenarios/cross-query", requireAuth, async (req, res) => {
+    try {
+      const field = req.query.field as string;
+      if (!field) return res.status(400).json({ error: "field query parameter is required" });
+
+      const results = await storage.getPropertyOverridesForField(req.user!.id, field);
+
+      const userScenarios = await storage.getScenariosByUser(req.user!.id);
+      const scenarioBaseValues: Array<{
+        scenarioId: number;
+        scenarioName: string;
+        properties: Array<{ propertyName: string; value: unknown }>;
+      }> = [];
+
+      for (const scenario of userScenarios) {
+        const props = (scenario.properties || []) as Array<Record<string, unknown>>;
+        const propValues = props
+          .filter(p => field in p)
+          .map(p => ({ propertyName: p.name as string, value: p[field] }));
+        if (propValues.length > 0) {
+          scenarioBaseValues.push({
+            scenarioId: scenario.id,
+            scenarioName: scenario.name,
+            properties: propValues,
+          });
+        }
+      }
+
+      res.json({
+        field,
+        scenarios: scenarioBaseValues,
+        overrides: results,
+      });
+    } catch (error) {
+      logAndSendError(res, "Failed to query across scenarios", error);
     }
   });
 }

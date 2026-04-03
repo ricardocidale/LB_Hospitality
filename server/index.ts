@@ -303,6 +303,12 @@ async function runSchemaMigrations() {
     await runFkHardening001();
     await markMigrationApplied("fk_hardening_001");
   }
+
+  if (!(await isMigrationApplied("scenario_overrides_001"))) {
+    const { runScenarioOverrides001 } = await import("./migrations/scenario-overrides-001");
+    await runScenarioOverrides001();
+    await markMigrationApplied("scenario_overrides_001");
+  }
 }
 
 async function runSeeds() {

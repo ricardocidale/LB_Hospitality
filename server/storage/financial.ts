@@ -1,7 +1,8 @@
-import { globalAssumptions, scenarios, scenarioShares, propertyFeeCategories, propertyPhotos, companyServiceTemplates, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type ScenarioShare, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties, users } from "@shared/schema";
+import { globalAssumptions, scenarios, scenarioShares, scenarioPropertyOverrides, propertyFeeCategories, propertyPhotos, companyServiceTemplates, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type ScenarioShare, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties, users } from "@shared/schema";
 import { db } from "../db";
 import { eq, desc, isNull, inArray, or, sql, and } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
+import { computeFullDiff, reconstructScenarioProperties, type PropertyDiff } from "../scenarios/diff-engine";
 
 export class FinancialStorage {
   async getGlobalAssumptions(userId?: number): Promise<GlobalAssumptions | undefined> {
@@ -72,13 +73,57 @@ export class FinancialStorage {
     return scenario || undefined;
   }
 
-  /** Save a new scenario snapshot (assumptions + properties + images + fee categories). */
+  /** Save a new scenario snapshot (assumptions + properties + images + fee categories).
+   *  Also computes and stores per-property overrides for efficient cross-scenario queries. */
   async createScenario(data: InsertScenario): Promise<Scenario> {
     const [scenario] = await db
       .insert(scenarios)
       .values(data as typeof scenarios.$inferInsert)
       .returning();
     return scenario;
+  }
+
+  async writePropertyOverrides(scenarioId: number, diffs: PropertyDiff[]): Promise<void> {
+    if (diffs.length === 0) return;
+
+    await db.delete(scenarioPropertyOverrides).where(eq(scenarioPropertyOverrides.scenarioId, scenarioId));
+
+    const values = diffs.map(d => ({
+      scenarioId,
+      propertyName: d.propertyName,
+      changeType: d.changeType,
+      overrides: d.overrides as Record<string, unknown>,
+      basePropertySnapshot: d.baseSnapshot,
+    }));
+
+    await db.insert(scenarioPropertyOverrides).values(values as Array<typeof scenarioPropertyOverrides.$inferInsert>);
+  }
+
+  async getPropertyOverrides(scenarioId: number) {
+    return await db.select().from(scenarioPropertyOverrides)
+      .where(eq(scenarioPropertyOverrides.scenarioId, scenarioId));
+  }
+
+  async getPropertyOverridesForField(userId: number, field: string): Promise<Array<{ scenarioId: number; scenarioName: string; propertyName: string; value: unknown }>> {
+    const userScenarios = await this.getScenariosByUser(userId);
+    const results: Array<{ scenarioId: number; scenarioName: string; propertyName: string; value: unknown }> = [];
+
+    for (const scenario of userScenarios) {
+      const overrides = await this.getPropertyOverrides(scenario.id);
+      for (const override of overrides) {
+        const ov = override.overrides as Record<string, unknown>;
+        if (field in ov) {
+          results.push({
+            scenarioId: scenario.id,
+            scenarioName: scenario.name,
+            propertyName: override.propertyName,
+            value: ov[field],
+          });
+        }
+      }
+    }
+
+    return results;
   }
 
   /** Update scenario metadata (name, description). Does not re-snapshot financial data. */
@@ -333,6 +378,8 @@ export class FinancialStorage {
         scenarioImages: scenarios.scenarioImages,
         feeCategories: scenarios.feeCategories,
         propertyPhotos: scenarios.propertyPhotos,
+        version: scenarios.version,
+        baseSnapshotHash: scenarios.baseSnapshotHash,
         createdAt: scenarios.createdAt,
         updatedAt: scenarios.updatedAt,
         ownerEmail: users.email,
@@ -354,6 +401,8 @@ export class FinancialStorage {
       scenarioImages: r.scenarioImages,
       feeCategories: r.feeCategories,
       propertyPhotos: r.propertyPhotos,
+      version: r.version,
+      baseSnapshotHash: r.baseSnapshotHash,
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
       ownerEmail: r.ownerEmail,

@@ -1,20 +1,14 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronUp, ChevronDown, Lock, Star, AlertTriangle } from "@/components/icons/themed-icons";
-import { IconPlus, IconTrash, IconPencil, IconPalette, IconActivity, IconSparkles, IconType, IconSave } from "@/components/icons";
-import { ColorPicker } from "@/components/ui/color-picker";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Lock, Star } from "@/components/icons/themed-icons";
+import { IconPlus, IconTrash, IconPencil, IconPalette } from "@/components/icons";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useDesignThemes, useCreateTheme, useUpdateTheme, useDeleteTheme } from "./useDesignThemes";
 import { ThemePreview } from "./ThemePreview";
-import type { DesignTheme, DesignColor, IconSetType } from "./types";
-import { useToast } from "@/hooks/use-toast";
+import type { DesignTheme } from "./types";
 import {
   Star as LucideStar, Bell as LucideBell, Search as LucideSearch, Home as LucideHome,
 } from "lucide-react";
@@ -22,24 +16,15 @@ import {
   Star as PhStar, Bell as PhBell, MagnifyingGlass as PhSearch, House as PhHome,
 } from "@phosphor-icons/react";
 import { AppearanceDefaultsSection } from "./AppearanceDefaultsSection";
+import { ThemeFormDialog, DeleteConfirmDialog, BLANK_THEME, type NewThemeState } from "./ThemeFormDialog";
 
-/** Lighten a hex color toward white by factor (0–1). Returns CSS hex with #. */
 function softenHex(hex: string, factor = 0.75): string {
   const h = hex.replace(/^#/, "");
   const parse = (i: number) => parseInt(h.slice(i, i + 2), 16) || 0;
   const [r, g, b] = [0, 2, 4].map(parse);
   const s = (c: number) => Math.min(255, Math.round(c + (255 - c) * factor));
-  return "#" + [s(r), s(g), s(b)].map(c => c.toString(16).padStart(2, "0")).join("");
+  return `#${[r, g, b].map(s).map(c => c.toString(16).padStart(2, "0")).join("")}`;
 }
-
-type NewThemeState = { name: string; description: string; colors: DesignColor[]; iconSet: IconSetType };
-
-const BLANK_THEME: NewThemeState = {
-  name: "",
-  description: "",
-  colors: [{ rank: 1, name: "", hexCode: "#000000", description: "" }],
-  iconSet: "lucide",
-};
 
 export function ThemeManager() {
   const { data: designThemes, isLoading: themesLoading } = useDesignThemes();
@@ -385,281 +370,33 @@ export function ThemeManager() {
       </CardContent>
     </Card>
 
-    {/* Create / Edit Theme Dialog */}
-    <Dialog
+    <ThemeFormDialog
       open={themeDialogOpen || !!editingTheme}
-      onOpenChange={(open) => {
-        if (!open) { setThemeDialogOpen(false); setEditingTheme(null); }
+      onOpenChange={(open) => { if (!open) { setThemeDialogOpen(false); setEditingTheme(null); } }}
+      editingTheme={editingTheme}
+      themeForForm={themeForForm}
+      setThemeForForm={setThemeForForm}
+      onSave={() => {
+        if (editingTheme) {
+          updateThemeMutation.mutate({ id: editingTheme.id, data: { name: editingTheme.name, description: editingTheme.description, colors: editingTheme.colors, iconSet: editingTheme.iconSet } });
+        } else {
+          createThemeMutation.mutate(newTheme);
+        }
       }}
-    >
-      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{editingTheme ? "Edit Theme" : "Create New Theme"}</DialogTitle>
-          <DialogDescription>
-            {editingTheme ? "Update this theme's colors and settings." : "Define a new color palette and design system."}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-2">
-          <div>
-            <Label className="flex items-center gap-2 mb-1"><IconType className="w-4 h-4 text-muted-foreground" />Theme Name</Label>
-            <Input
-              value={themeForForm.name}
-              onChange={e => setThemeForForm({ ...themeForForm, name: e.target.value })}
-              placeholder="e.g. Brand Classic"
-              data-testid="input-theme-name"
-            />
-          </div>
+      isSaving={createThemeMutation.isPending || updateThemeMutation.isPending}
+    />
 
-          <div>
-            <Label className="flex items-center gap-2 mb-1"><IconPalette className="w-4 h-4 text-muted-foreground" />Description</Label>
-            <Textarea
-              value={themeForForm.description}
-              onChange={e => setThemeForForm({ ...themeForForm, description: e.target.value })}
-              placeholder="Describe the design philosophy and inspiration..."
-            />
-          </div>
-
-          <div>
-            <Label className="flex items-center gap-2 mb-1"><IconPalette className="w-4 h-4 text-muted-foreground" />Icon Set</Label>
-            <Select
-              value={themeForForm.iconSet}
-              onValueChange={(val: IconSetType) => setThemeForForm({ ...themeForForm, iconSet: val })}
-            >
-              <SelectTrigger data-testid="select-icon-set">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="lucide">Lucide (default)</SelectItem>
-                <SelectItem value="phosphor">Phosphor</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Palette Colors */}
-          <div className="p-4 rounded-lg border-2 border-primary/30 bg-primary/5">
-            <div className="flex items-center justify-between mb-3">
-              <Label className="flex items-center gap-2"><IconPalette className="w-4 h-4 text-primary" />Palette Colors</Label>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  const palette = themeForForm.colors.filter(c => c.description?.startsWith('PALETTE:'));
-                  const newColor = { rank: palette.length + 1, name: "", hexCode: "#9FBCA4", description: "PALETTE: " };
-                  setThemeForForm({ ...themeForForm, colors: [...themeForForm.colors, newColor] });
-                }}
-              >
-                <IconPlus className="w-3 h-3 mr-1" /> Add Palette Color
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {themeForForm.colors
-                .map((color, originalIdx) => ({ color, originalIdx }))
-                .filter(({ color }) => color.description?.startsWith('PALETTE:'))
-                .map(({ color, originalIdx }, displayIdx, arr) => {
-                  const moveUp = () => {
-                    if (displayIdx === 0) return;
-                    const all = [...themeForForm.colors];
-                    const prev = arr[displayIdx - 1].originalIdx;
-                    [all[prev], all[originalIdx]] = [all[originalIdx], all[prev]];
-                    setThemeForForm({ ...themeForForm, colors: all });
-                  };
-                  const moveDown = () => {
-                    if (displayIdx === arr.length - 1) return;
-                    const all = [...themeForForm.colors];
-                    const next = arr[displayIdx + 1].originalIdx;
-                    [all[originalIdx], all[next]] = [all[next], all[originalIdx]];
-                    setThemeForForm({ ...themeForForm, colors: all });
-                  };
-                  return (
-                    <div key={originalIdx} className="p-3 rounded-lg border border-border bg-card space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="flex flex-col gap-0.5">
-                          <Button type="button" variant="ghost" size="icon" onClick={moveUp} disabled={displayIdx === 0} className={`h-auto w-auto p-0.5 ${displayIdx === 0 ? 'opacity-30' : ''}`}>
-                            <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                          </Button>
-                          <Button type="button" variant="ghost" size="icon" onClick={moveDown} disabled={displayIdx === arr.length - 1} className={`h-auto w-auto p-0.5 ${displayIdx === arr.length - 1 ? 'opacity-30' : ''}`}>
-                            <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                          </Button>
-                        </div>
-                        <Input value={color.name} onChange={e => { const c = [...themeForForm.colors]; c[originalIdx] = { ...c[originalIdx], name: e.target.value }; setThemeForForm({ ...themeForForm, colors: c }); }} placeholder="Color name" className="flex-1" />
-                        <div className="w-36">
-                          <ColorPicker value={color.hexCode} onChange={nc => { const c = [...themeForForm.colors]; c[originalIdx] = { ...c[originalIdx], hexCode: nc }; setThemeForForm({ ...themeForForm, colors: c }); }} />
-                        </div>
-                        <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => setThemeForForm({ ...themeForForm, colors: themeForForm.colors.filter((_, i) => i !== originalIdx) })}>
-                          <IconTrash className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      <Input value={color.description?.replace('PALETTE: ', '') || ''} onChange={e => { const c = [...themeForForm.colors]; c[originalIdx] = { ...c[originalIdx], description: 'PALETTE: ' + e.target.value }; setThemeForForm({ ...themeForForm, colors: c }); }} placeholder="Where to use this color..." className="text-sm" />
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
-
-          {/* Chart Colors */}
-          <div className="p-4 rounded-lg border-2 border-accent/30 bg-accent/5">
-            <div className="flex items-center justify-between mb-3">
-              <Label className="flex items-center gap-2"><IconActivity className="w-4 h-4 text-accent" />Chart Colors</Label>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  const charts = themeForForm.colors.filter(c => c.description?.startsWith('CHART:'));
-                  const newColor = { rank: charts.length + 1, name: "", hexCode: "#3B82F6", description: "CHART: " };
-                  setThemeForForm({ ...themeForForm, colors: [...themeForForm.colors, newColor] });
-                }}
-              >
-                <IconPlus className="w-3 h-3 mr-1" /> Add Chart Color
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {themeForForm.colors
-                .map((color, originalIdx) => ({ color, originalIdx }))
-                .filter(({ color }) => color.description?.startsWith('CHART:'))
-                .map(({ color, originalIdx }, displayIdx, arr) => {
-                  const moveUp = () => {
-                    if (displayIdx === 0) return;
-                    const all = [...themeForForm.colors];
-                    const prev = arr[displayIdx - 1].originalIdx;
-                    [all[prev], all[originalIdx]] = [all[originalIdx], all[prev]];
-                    setThemeForForm({ ...themeForForm, colors: all });
-                  };
-                  const moveDown = () => {
-                    if (displayIdx === arr.length - 1) return;
-                    const all = [...themeForForm.colors];
-                    const next = arr[displayIdx + 1].originalIdx;
-                    [all[originalIdx], all[next]] = [all[next], all[originalIdx]];
-                    setThemeForForm({ ...themeForForm, colors: all });
-                  };
-                  return (
-                    <div key={originalIdx} className="p-3 rounded-lg border border-border bg-card space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="flex flex-col gap-0.5">
-                          <Button type="button" variant="ghost" size="icon" onClick={moveUp} disabled={displayIdx === 0} className={`h-auto w-auto p-0.5 ${displayIdx === 0 ? 'opacity-30' : ''}`}>
-                            <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                          </Button>
-                          <Button type="button" variant="ghost" size="icon" onClick={moveDown} disabled={displayIdx === arr.length - 1} className={`h-auto w-auto p-0.5 ${displayIdx === arr.length - 1 ? 'opacity-30' : ''}`}>
-                            <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                          </Button>
-                        </div>
-                        <Input value={color.name} onChange={e => { const c = [...themeForForm.colors]; c[originalIdx] = { ...c[originalIdx], name: e.target.value }; setThemeForForm({ ...themeForForm, colors: c }); }} placeholder="Color name" className="flex-1" />
-                        <div className="w-36">
-                          <ColorPicker value={color.hexCode} onChange={nc => { const c = [...themeForForm.colors]; c[originalIdx] = { ...c[originalIdx], hexCode: nc }; setThemeForForm({ ...themeForForm, colors: c }); }} />
-                        </div>
-                        <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => setThemeForForm({ ...themeForForm, colors: themeForForm.colors.filter((_, i) => i !== originalIdx) })}>
-                          <IconTrash className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      <Input value={color.description?.replace('CHART: ', '') || ''} onChange={e => { const c = [...themeForForm.colors]; c[originalIdx] = { ...c[originalIdx], description: 'CHART: ' + e.target.value }; setThemeForForm({ ...themeForForm, colors: c }); }} placeholder="What this color represents in charts..." className="text-sm" />
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
-
-          {/* Export Colors */}
-          {themeForForm.colors.filter(c => c.description?.startsWith('EXPORT:')).length > 0 && (
-            <div className="p-4 rounded-lg border-2 border-secondary/30 bg-secondary/5">
-              <div className="mb-3">
-                <Label className="flex items-center gap-2"><IconSparkles className="w-4 h-4 text-secondary-foreground/60" />Export Colors</Label>
-                <p className="text-[11px] text-muted-foreground mt-1">These colors control how rows appear in PDF, PPTX, and Excel exports. The swatch shows how the color will appear after softening.</p>
-              </div>
-              <div className="space-y-2">
-                {themeForForm.colors
-                  .map((color, originalIdx) => ({ color, originalIdx }))
-                  .filter(({ color }) => color.description?.startsWith('EXPORT:'))
-                  .map(({ color, originalIdx }) => {
-                    const pale = softenHex(color.hexCode);
-                    return (
-                      <div key={originalIdx} className="p-3 rounded-lg border border-border bg-card">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xs font-semibold text-foreground min-w-[90px]">{color.name}</span>
-                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/60 border border-border/50 text-[10px] text-muted-foreground">
-                            <span>Base</span>
-                            <div className="w-4 h-4 rounded border border-border/60" style={{ backgroundColor: color.hexCode }} />
-                            <span className="font-mono">{color.hexCode}</span>
-                          </div>
-                          <span className="text-muted-foreground text-xs">→</span>
-                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/60 border border-border/50 text-[10px] text-muted-foreground">
-                            <span>In exports</span>
-                            <div className="w-4 h-4 rounded border border-border/60" style={{ backgroundColor: pale }} />
-                            <span className="font-mono">{pale}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] text-muted-foreground flex-1">Change the base color — the export renderer softens it automatically.</span>
-                          <div className="w-36">
-                            <ColorPicker
-                              value={color.hexCode}
-                              onChange={nc => {
-                                const c = [...themeForForm.colors];
-                                c[originalIdx] = { ...c[originalIdx], hexCode: nc };
-                                setThemeForForm({ ...themeForForm, colors: c });
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-          )}
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => { setThemeDialogOpen(false); setEditingTheme(null); }}>Cancel</Button>
-          <Button
-            onClick={() => {
-              if (editingTheme) {
-                updateThemeMutation.mutate({ id: editingTheme.id, data: { name: editingTheme.name, description: editingTheme.description, colors: editingTheme.colors, iconSet: editingTheme.iconSet } });
-              } else {
-                createThemeMutation.mutate(newTheme);
-              }
-            }}
-            disabled={createThemeMutation.isPending || updateThemeMutation.isPending}
-          >
-            {(createThemeMutation.isPending || updateThemeMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-            {editingTheme ? "Save Changes" : "Create Theme"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-
-    {/* Delete Confirmation Dialog */}
-    <Dialog open={deleteConfirmId !== null} onOpenChange={open => { if (!open) setDeleteConfirmId(null); }}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
-            <AlertTriangle className="w-5 h-5" /> Delete Theme
-          </DialogTitle>
-          <DialogDescription>
-            {(() => {
-              const t = designThemes?.find(t => t.id === deleteConfirmId);
-              return `Are you sure you want to delete "${t?.name}"? This action cannot be undone.`;
-            })()}
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              if (deleteConfirmId !== null) {
-                deleteThemeMutation.mutate(deleteConfirmId, {
-                  onSuccess: () => setDeleteConfirmId(null),
-                });
-              }
-            }}
-            disabled={deleteThemeMutation.isPending}
-          >
-            {deleteThemeMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconTrash className="w-4 h-4" />}
-            Delete Theme
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DeleteConfirmDialog
+      deleteConfirmId={deleteConfirmId}
+      onOpenChange={() => setDeleteConfirmId(null)}
+      themeName={designThemes?.find(t => t.id === deleteConfirmId)?.name ?? ""}
+      onDelete={() => {
+        if (deleteConfirmId !== null) {
+          deleteThemeMutation.mutate(deleteConfirmId, { onSuccess: () => setDeleteConfirmId(null) });
+        }
+      }}
+      isPending={deleteThemeMutation.isPending}
+    />
     </>
   );
 }

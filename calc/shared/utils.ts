@@ -18,6 +18,7 @@
  */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
+import { dSum } from "./decimal.js";
 
 export const DEFAULT_ROUNDING: RoundingPolicy = { precision: 2, bankers_rounding: false };
 export const RATIO_ROUNDING: RoundingPolicy = { precision: 4, bankers_rounding: false };
@@ -34,11 +35,11 @@ export function roundCents(v: number): number {
 }
 
 export function sumArray(arr: number[]): number {
-  return arr.reduce((s, v) => s + v, 0);
+  return dSum(arr);
 }
 
 export function sumField<T>(arr: T[], fn: (item: T) => number): number {
-  return arr.reduce((s, item) => s + fn(item), 0);
+  return dSum(arr.map(fn));
 }
 
 export function withinTolerance(a: number, b: number, tol: number = DEFAULT_TOLERANCE): boolean {

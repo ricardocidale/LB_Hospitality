@@ -24,15 +24,17 @@
  * @param totalPayments  Number of amortizing payments (e.g., 360 for a 30-year loan)
  * @returns Monthly payment amount (e.g., $12,653.74)
  */
+import { dPow, dMul, dDiv } from "./decimal.js";
+
 export function pmt(
   principal: number,
   monthlyRate: number,
   totalPayments: number,
 ): number {
   if (principal === 0 || totalPayments === 0) return 0;
-  if (monthlyRate === 0) return principal / totalPayments;
-  const factor = Math.pow(1 + monthlyRate, totalPayments);
-  return (principal * monthlyRate * factor) / (factor - 1);
+  if (monthlyRate === 0) return dDiv(principal, totalPayments);
+  const factor = dPow(1 + monthlyRate, totalPayments);
+  return dDiv(dMul(principal, dMul(monthlyRate, factor)), factor - 1);
 }
 
 /**

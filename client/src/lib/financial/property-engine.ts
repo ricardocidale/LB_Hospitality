@@ -38,10 +38,7 @@ import { PropertyInput, GlobalInput, MonthlyFinancials } from './types';
 import { resolvePropertyAssumptions } from './resolve-assumptions';
 import { applyRefinancePostProcessing } from './refinance-pass';
 
-/** Coerce NaN/Infinity to 0. Prevents silent propagation from bad inputs. */
-function safeNum(n: number): number {
-  return Number.isFinite(n) ? n : 0;
-}
+import { assertFinite } from '../../../../calc/shared/decimal.js';
 
 /**
  * Generate a complete month-by-month financial projection for a single property.
@@ -69,10 +66,10 @@ export function generatePropertyProForma(
     const monthsSinceOps = isOperational ? i - ctx.opsStartIdx : 0;
 
     const opsYear = Math.floor(monthsSinceOps / MONTHS_PER_YEAR);
-    const currentAdr = safeNum(ctx.baseAdr * ctx.adrFactors[opsYear]);
+    const currentAdr = assertFinite(ctx.baseAdr * ctx.adrFactors[opsYear], `ADR[year=${opsYear}]`);
     let fixedCostFactor: number;
     if (ctx.escalationMethod === 'monthly') {
-      fixedCostFactor = safeNum(Math.pow(1 + ctx.monthlyEscRate, monthsSinceOps));
+      fixedCostFactor = assertFinite(Math.pow(1 + ctx.monthlyEscRate, monthsSinceOps), `fixedCostFactor[month=${monthsSinceOps}]`);
     } else {
       fixedCostFactor = ctx.fixedEscFactors[opsYear];
     }

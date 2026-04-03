@@ -13,4 +13,5 @@
 export { pmt, ioPayment } from "./pmt.js";
 export { buildSchedule } from "./schedule.js";
 export { roundCents, sumArray, sumField, withinTolerance, variance, pctChange } from "./utils.js";
+export { dSum, dMul, dDiv, dRound, dPow, assertFinite } from "./decimal.js";
 export type { NewLoanTerms, ScheduleEntry } from "./types.js";

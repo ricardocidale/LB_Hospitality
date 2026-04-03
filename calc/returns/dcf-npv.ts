@@ -32,6 +32,7 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, sumArray, RATE_ROUNDING, DEFAULT_TOLERANCE } from "../shared/utils.js";
+import { dPow, dDiv, dSum } from "../shared/decimal.js";
 
 export interface DCFInput {
   cash_flows: number[];
@@ -56,28 +57,29 @@ export function computeDCF(input: DCFInput): DCFOutput {
   const tolerance = input.tolerance ?? DEFAULT_TOLERANCE;
 
   const pv_timeline: number[] = [];
-  let npv = 0;
+  const pvValues: number[] = [];
 
   for (let t = 0; t < input.cash_flows.length; t++) {
-    const divisor = Math.pow(1 + input.discount_rate, t);
-    const pv = divisor !== 0 && isFinite(divisor) ? input.cash_flows[t] / divisor : 0;
+    const divisor = dPow(1 + input.discount_rate, t);
+    const pv = divisor !== 0 && isFinite(divisor) ? dDiv(input.cash_flows[t], divisor) : 0;
     pv_timeline.push(r(pv));
-    npv += pv;
+    pvValues.push(pv);
   }
+  const npv = dSum(pvValues);
 
   const annualized_discount_rate =
     periodsPerYear === 1
       ? input.discount_rate
-      : Math.pow(1 + input.discount_rate, periodsPerYear) - 1;
+      : dPow(1 + input.discount_rate, periodsPerYear) - 1;
 
   let irr_cross_check_passed: boolean | null = null;
   if (input.irr_cross_check !== undefined) {
-    let npvAtIRR = 0;
+    const irrPvs: number[] = [];
     for (let t = 0; t < input.cash_flows.length; t++) {
-      const d = Math.pow(1 + input.irr_cross_check, t);
-      npvAtIRR += d !== 0 && isFinite(d) ? input.cash_flows[t] / d : 0;
+      const d = dPow(1 + input.irr_cross_check, t);
+      irrPvs.push(d !== 0 && isFinite(d) ? dDiv(input.cash_flows[t], d) : 0);
     }
-    irr_cross_check_passed = Math.abs(npvAtIRR) <= tolerance;
+    irr_cross_check_passed = Math.abs(dSum(irrPvs)) <= tolerance;
   }
 
   return {

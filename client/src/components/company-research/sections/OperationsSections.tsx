@@ -156,7 +156,7 @@ export function VendorIntelligence({ content, hasData, onGenerate }: { content: 
 
   const matrix = [
     { service: "Accounting", make: 85, buy: 65, decision: "Make", color: "text-primary bg-primary/10" },
-    { service: "IT Infrastructure", make: 60, buy: 80, decision: "Buy", color: "text-chart-1 bg-chart-1/10" },
+    { service: "Technology & Reservations", make: 60, buy: 80, decision: "Buy", color: "text-chart-1 bg-chart-1/10" },
     { service: "Revenue Mgmt", make: 70, buy: 75, decision: "Buy", color: "text-chart-1 bg-chart-1/10" },
     { service: "HR/Payroll", make: 55, buy: 85, decision: "Buy", color: "text-chart-1 bg-chart-1/10" },
     { service: "Procurement", make: 80, buy: 60, decision: "Make", color: "text-primary bg-primary/10" },

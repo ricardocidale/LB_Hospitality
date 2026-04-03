@@ -26,7 +26,6 @@ interface MarkupWaterfallOutput {
 const INDUSTRY_MARKUPS: Record<string, { low: number; mid: number; high: number }> = {
   marketing: { low: 0.15, mid: 0.25, high: 0.35 },
   technology_reservations: { low: 0.10, mid: 0.20, high: 0.30 },
-  it: { low: 0.10, mid: 0.20, high: 0.30 },
   accounting: { low: 0.20, mid: 0.30, high: 0.40 },
   revenue_management: { low: 0.15, mid: 0.20, high: 0.30 },
   procurement: { low: 0.08, mid: 0.15, high: 0.25 },
@@ -35,13 +34,19 @@ const INDUSTRY_MARKUPS: Record<string, { low: number; mid: number; high: number 
   general_management: { low: 0.10, mid: 0.15, high: 0.25 },
 };
 
+const LEGACY_KEY_ALIASES: Record<string, string> = {
+  it: "technology_reservations",
+  reservations: "technology_reservations",
+};
+
 export function computeMarkupWaterfall(input: MarkupWaterfallInput): MarkupWaterfallOutput {
   const { vendorCost, markupPct } = input;
   const feeCharged = vendorCost * (1 + markupPct);
   const grossProfit = feeCharged - vendorCost;
   const effectiveMargin = feeCharged > 0 ? grossProfit / feeCharged : 0;
 
-  const key = (input.serviceType ?? "").toLowerCase().replace(/[\s/&]+/g, "_");
+  const rawKey = (input.serviceType ?? "").toLowerCase().replace(/[\s/&]+/g, "_");
+  const key = LEGACY_KEY_ALIASES[rawKey] ?? rawKey;
   const industryMarkupRange = INDUSTRY_MARKUPS[key] ?? null;
 
   return {

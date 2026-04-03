@@ -112,17 +112,19 @@ describe("Storage Layer — loadScenario integrity", () => {
     expect(loadBody).toContain("db.transaction(");
   });
 
-  it("updates the shared global assumptions row (not user-specific)", () => {
-    expect(loadBody).toContain("isNull(globalAssumptions.userId)");
+  it("scopes global assumptions write to the caller's userId (tenant isolation)", () => {
+    expect(loadBody).toContain("eq(globalAssumptions.userId, userId)");
+    expect(loadBody).not.toContain("isNull(globalAssumptions.userId)");
   });
 
-  it("deletes existing shared properties before restoring", () => {
-    expect(loadBody).toContain("isNull(properties.userId)");
+  it("deletes existing user-owned properties before restoring (tenant isolation)", () => {
+    expect(loadBody).toContain("eq(properties.userId, userId)");
     expect(loadBody).toContain("tx.delete(properties)");
+    expect(loadBody).not.toContain("isNull(properties.userId)");
   });
 
-  it("inserts restored properties with userId: null (shared ownership)", () => {
-    expect(loadBody).toContain("userId: null");
+  it("inserts restored properties scoped to caller userId (tenant isolation)", () => {
+    expect(loadBody).not.toContain("userId: null");
     expect(loadBody).toContain("tx.insert(properties)");
   });
 

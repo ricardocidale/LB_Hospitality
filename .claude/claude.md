@@ -97,6 +97,8 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Design Export | `.claude/skills/design-export/SKILL.md` | Replicate the HBG design system in another project (components, themes, icons, charts) |
 | Card Widths | `.claude/skills/ui/consistent-card-widths.md` | Page layout width categories, grid patterns, PageHeader alignment |
 | Save Buttons | `.claude/skills/ui/save-button-placement.md` | SaveButton component, three placement patterns, dirty-tracking |
+| Server Finance Engine | `server/finance/` | Server-authoritative portfolio pipeline: `service.ts` orchestrator, `core/` re-exports client pure functions, `POST /api/finance/compute` endpoint |
+| Deterministic Hashing | `server/scenarios/stable-json.ts` | `json-stable-stringify` + 64-char SHA-256, `fast-deep-equal` for diff engine, tenant-scoped DB writes |
 | Business Domain Pointers (13) | `.agents/skills/` | Slim pointers to `.claude/skills/` — business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision, export system, design export, card widths, save buttons, settings architecture |
 
 ---

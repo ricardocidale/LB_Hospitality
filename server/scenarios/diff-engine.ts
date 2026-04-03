@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { stableHash, stableEquals } from "./stable-json";
 
 const SKIP_FIELDS = new Set([
   "id", "createdAt", "updatedAt", "userId",
@@ -24,8 +24,7 @@ export function computeSnapshotHash(
   assumptions: Record<string, unknown>,
   properties: Array<Record<string, unknown>>
 ): string {
-  const payload = JSON.stringify({ assumptions, properties });
-  return createHash("sha256").update(payload).digest("hex").slice(0, 16);
+  return stableHash({ assumptions, properties });
 }
 
 export function computePropertyDiff(
@@ -39,7 +38,7 @@ export function computePropertyDiff(
     if (SKIP_FIELDS.has(key)) continue;
     const baseVal = baseProperty[key];
     const scenarioVal = scenarioProperty[key];
-    if (JSON.stringify(baseVal) !== JSON.stringify(scenarioVal)) {
+    if (!stableEquals(baseVal, scenarioVal)) {
       diff[key] = scenarioVal === undefined ? DELETED_SENTINEL : scenarioVal;
     }
   }
@@ -73,7 +72,7 @@ export function computeAssumptionDiff(
     if (SKIP_FIELDS.has(key)) continue;
     const baseVal = baseAssumptions[key];
     const scenarioVal = scenarioAssumptions[key];
-    if (JSON.stringify(baseVal) !== JSON.stringify(scenarioVal)) {
+    if (!stableEquals(baseVal, scenarioVal)) {
       diff[key] = scenarioVal;
     }
   }

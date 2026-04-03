@@ -94,6 +94,7 @@ const PUBLIC_API_PATHS = new Set([
   "/api/twilio/voice/incoming",
   "/api/twilio/voice/status",
   "/api/twilio/sms/incoming",
+  "/api/finance/health",
 ]);
 
 const PUBLIC_API_PREFIXES = [

@@ -3,6 +3,7 @@ import { db } from "../db";
 import { eq, desc, isNull, inArray, or, sql, and } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
 import { computeFullDiff, reconstructScenarioProperties, type PropertyDiff } from "../scenarios/diff-engine";
+import { stableEquals } from "../scenarios/stable-json";
 
 export class FinancialStorage {
   async getGlobalAssumptions(userId?: number): Promise<GlobalAssumptions | undefined> {
@@ -186,7 +187,7 @@ export class FinancialStorage {
       if (SKIP_FIELDS.has(key)) continue;
       const v1 = ga1[key];
       const v2 = ga2[key];
-      if (JSON.stringify(v1) !== JSON.stringify(v2)) {
+      if (!stableEquals(v1, v2)) {
         assumptionDiffs.push({ field: key, scenario1: v1, scenario2: v2 });
       }
     }
@@ -207,7 +208,7 @@ export class FinancialStorage {
       const changes: Array<{ field: string; scenario1: unknown; scenario2: unknown }> = [];
       for (const k of pKeys) {
         if (SKIP_FIELDS.has(k)) continue;
-        if (JSON.stringify(p1[k]) !== JSON.stringify(p2[k])) {
+        if (!stableEquals(p1[k], p2[k])) {
           changes.push({ field: k, scenario1: p1[k], scenario2: p2[k] });
         }
       }
@@ -231,22 +232,24 @@ export class FinancialStorage {
     await db.transaction(async (tx) => {
       const { id: _gaId, createdAt: _gaCreated, updatedAt: _gaUpdated, userId: _gaUser, ...gaData } = savedAssumptions;
 
-      const existingShared = await tx.select().from(globalAssumptions)
-        .where(isNull(globalAssumptions.userId))
-        .orderBy(desc(globalAssumptions.id));
-      if (existingShared.length > 0) {
+      const existingUserRow = await tx.select().from(globalAssumptions)
+        .where(eq(globalAssumptions.userId, userId))
+        .orderBy(desc(globalAssumptions.id))
+        .limit(1);
+
+      if (existingUserRow.length > 0) {
         await tx.update(globalAssumptions).set({ ...gaData, updatedAt: new Date() })
-          .where(eq(globalAssumptions.id, existingShared[0].id));
+          .where(eq(globalAssumptions.id, existingUserRow[0].id));
       } else {
-        await tx.insert(globalAssumptions).values({ ...gaData, userId: null } as typeof globalAssumptions.$inferInsert);
+        await tx.insert(globalAssumptions).values({ ...gaData, userId } as typeof globalAssumptions.$inferInsert);
       }
 
-      await tx.delete(properties).where(isNull(properties.userId));
+      await tx.delete(properties).where(eq(properties.userId, userId));
 
       const insertedProperties: Array<{ id: number; name: string }> = [];
       for (const prop of savedProperties) {
         const { id, createdAt, updatedAt, userId: _uid, ...propData } = prop;
-        const [inserted] = await tx.insert(properties).values({ ...propData, userId: null } as typeof properties.$inferInsert).returning();
+        const [inserted] = await tx.insert(properties).values({ ...propData, userId } as typeof properties.$inferInsert).returning();
         insertedProperties.push({ id: inserted.id, name: prop.name as string });
       }
 
@@ -263,14 +266,12 @@ export class FinancialStorage {
         }
 
         if (feeCategoryValues.length > 0) {
-          // Clean up old fee categories for these properties first to avoid duplicates
           const propIds = insertedProperties.map(p => p.id);
           await tx.delete(propertyFeeCategories).where(inArray(propertyFeeCategories.propertyId, propIds));
           await tx.insert(propertyFeeCategories).values(feeCategoryValues as any);
         }
       }
 
-      // Restore property photos
       if (savedPropertyPhotos) {
         const photoValues: any[] = [];
         for (const prop of insertedProperties) {

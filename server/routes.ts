@@ -30,6 +30,7 @@ import * as geoRoutes from "./routes/geo";
 import * as icpResearchRoutes from "./routes/icp-research";
 import * as googleDriveRoutes from "./routes/google-drive";
 import * as financingRoutes from "./routes/financing";
+import { registerFinanceRoutes } from "./routes/finance";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -65,6 +66,7 @@ export async function registerRoutes(
   icpResearchRoutes.register(app);
   googleDriveRoutes.register(app);
   financingRoutes.register(app);
+  registerFinanceRoutes(app);
 
   registerTwilioWebSocket(httpServer);
 

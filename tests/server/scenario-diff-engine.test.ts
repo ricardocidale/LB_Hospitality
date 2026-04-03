@@ -109,7 +109,7 @@ describe("Scenario Diff Engine", () => {
       const hash1 = computeSnapshotHash(assumptions, properties);
       const hash2 = computeSnapshotHash(assumptions, properties);
       expect(hash1).toBe(hash2);
-      expect(hash1).toHaveLength(16);
+      expect(hash1).toHaveLength(64);
     });
 
     it("produces different hash for different input", () => {
@@ -126,7 +126,7 @@ describe("Scenario Diff Engine", () => {
       const result = computeFullDiff(ga, props, ga, props);
       expect(Object.keys(result.assumptionOverrides)).toHaveLength(0);
       expect(result.propertyDiffs).toHaveLength(0);
-      expect(result.snapshotHash).toHaveLength(16);
+      expect(result.snapshotHash).toHaveLength(64);
     });
 
     it("detects added property with propertyId", () => {

@@ -6,6 +6,10 @@ import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 import { logActivity, logAndSendError, createScenarioSchema, MAX_SCENARIOS_PER_USER, fullName } from "./helpers";
 import { computeFullDiff, reconstructScenarioProperties } from "../scenarios/diff-engine";
+import { computePortfolioProjection } from "../finance/service";
+import { stableHash } from "../scenarios/stable-json";
+import type { PropertyInput, GlobalInput } from "@/lib/financial/types";
+import { logger } from "../logger";
 
 function requireScenarioPermission(req: any, res: any, next: any) {
   if (!req.user) return res.status(401).json({ error: "Authentication required" });
@@ -400,6 +404,199 @@ export function register(app: Express) {
       });
     } catch (error) {
       logAndSendError(res, "Failed to query across scenarios", error);
+    }
+  });
+
+  const recomputeBodySchema = z.object({
+    projectionYears: z.number().int().min(1).max(30).optional(),
+  }).optional();
+
+  const scenarioIdSchema = z.coerce.number().int().positive();
+
+  async function checkScenarioAccess(scenarioId: number, userId: number, scenario: { userId: number }): Promise<boolean> {
+    if (scenario.userId === userId) return true;
+    const shares = await storage.getScenarioSharesForScenario(scenarioId);
+    return shares.some(s =>
+      (s.targetType === "user" && s.targetId === userId) ||
+      (s.targetType === "group") ||
+      (s.targetType === "company")
+    );
+  }
+
+  function extractScenarioComputeInputs(scenario: { globalAssumptions: unknown; properties: unknown }, projectionYearsOverride?: number) {
+    const scenarioGA = scenario.globalAssumptions as Record<string, unknown> | null;
+    const scenarioProps = (scenario.properties || []) as Array<Record<string, unknown>>;
+
+    const propertyInputs: PropertyInput[] = scenarioProps.map((p, i) => ({
+      ...p,
+      id: (p.id as number) ?? undefined,
+      name: (p.name as string) ?? `Property_${i + 1}`,
+    } as PropertyInput));
+
+    const dbDebt = (scenarioGA?.debtAssumptions ?? null) as Record<string, unknown> | null;
+    const projYears = projectionYearsOverride ?? Number(scenarioGA?.projectionYears ?? 10);
+
+    const globalInput: GlobalInput = {
+      modelStartDate: (scenarioGA?.modelStartDate as string) ?? new Date().toISOString().slice(0, 10),
+      inflationRate: Number(scenarioGA?.inflationRate ?? 0.03),
+      marketingRate: Number(scenarioGA?.marketingRate ?? 0.01),
+      debtAssumptions: {
+        interestRate: Number(dbDebt?.interestRate ?? 0.065),
+        amortizationYears: Number(dbDebt?.amortizationYears ?? 25),
+      },
+      projectionYears: projYears,
+    };
+
+    return { propertyInputs, globalInput, projYears, scenarioProps, scenarioGA };
+  }
+
+  app.post("/api/scenarios/:id/recompute", requireAuth, async (req, res) => {
+    try {
+      const idParse = scenarioIdSchema.safeParse(req.params.id);
+      if (!idParse.success) return res.status(400).json({ error: "Invalid scenario ID" });
+      const scenarioId = idParse.data;
+
+      const bodyParse = recomputeBodySchema.safeParse(req.body);
+      if (!bodyParse.success) return res.status(400).json({ error: fromZodError(bodyParse.error).message });
+
+      const scenario = await storage.getScenario(scenarioId);
+      if (!scenario) return res.status(404).json({ error: "Scenario not found" });
+
+      if (scenario.userId !== req.user!.id) {
+        return res.status(403).json({ error: "Only the scenario owner can trigger recompute" });
+      }
+
+      const { propertyInputs, globalInput, projYears, scenarioProps, scenarioGA } =
+        extractScenarioComputeInputs(scenario, bodyParse.data?.projectionYears);
+
+      const computeResult = computePortfolioProjection({
+        properties: propertyInputs,
+        globalAssumptions: globalInput,
+        projectionYears: projYears,
+      });
+
+      const inputsPayload = { properties: scenarioProps, globalAssumptions: scenarioGA };
+      const inputsHash = stableHash(inputsPayload);
+
+      const stored = await storage.getLatestScenarioResult(scenarioId);
+      const drift = stored ? stored.outputHash !== computeResult.outputHash : false;
+      let driftStatus: "match" | "input_changed" | "engine_changed" | "first_compute" = "first_compute";
+      if (stored) {
+        if (stored.outputHash === computeResult.outputHash) {
+          driftStatus = "match";
+        } else if (stored.engineVersion !== computeResult.engineVersion) {
+          driftStatus = "engine_changed";
+        } else {
+          driftStatus = "input_changed";
+        }
+      }
+
+      const savedResult = await storage.saveScenarioResult({
+        scenarioId,
+        engineVersion: computeResult.engineVersion,
+        outputHash: computeResult.outputHash,
+        inputsHash,
+        consolidatedYearlyJson: computeResult.consolidatedYearly,
+        auditOpinion: computeResult.validationSummary.opinion,
+        projectionYears: computeResult.projectionYears,
+        propertyCount: computeResult.propertyCount,
+        computedBy: req.user!.id,
+      });
+
+      logger.info(`[recompute] Scenario ${scenarioId}: hash=${computeResult.outputHash.slice(0, 16)}..., opinion=${computeResult.validationSummary.opinion}, drift=${driftStatus}`, "scenario-results");
+
+      res.json({
+        id: savedResult.id,
+        outputHash: computeResult.outputHash,
+        inputsHash,
+        auditOpinion: computeResult.validationSummary.opinion,
+        engineVersion: computeResult.engineVersion,
+        projectionYears: computeResult.projectionYears,
+        propertyCount: computeResult.propertyCount,
+        drift,
+        driftStatus,
+        computedAt: savedResult.computedAt,
+      });
+    } catch (error) {
+      logAndSendError(res, "Failed to recompute scenario", error);
+    }
+  });
+
+  app.get("/api/scenarios/:id/results/latest", requireAuth, async (req, res) => {
+    try {
+      const idParse = scenarioIdSchema.safeParse(req.params.id);
+      if (!idParse.success) return res.status(400).json({ error: "Invalid scenario ID" });
+      const scenarioId = idParse.data;
+
+      const scenario = await storage.getScenario(scenarioId);
+      if (!scenario) return res.status(404).json({ error: "Scenario not found" });
+
+      const hasAccess = await checkScenarioAccess(scenarioId, req.user!.id, scenario);
+      if (!hasAccess) return res.status(403).json({ error: "Access denied" });
+
+      const result = await storage.getLatestScenarioResult(scenarioId);
+      if (!result) return res.status(404).json({ error: "No computed results found for this scenario" });
+
+      res.json(result);
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch scenario result", error);
+    }
+  });
+
+  app.post("/api/scenarios/:id/drift-check", requireAuth, async (req, res) => {
+    try {
+      const idParse = scenarioIdSchema.safeParse(req.params.id);
+      if (!idParse.success) return res.status(400).json({ error: "Invalid scenario ID" });
+      const scenarioId = idParse.data;
+
+      const scenario = await storage.getScenario(scenarioId);
+      if (!scenario) return res.status(404).json({ error: "Scenario not found" });
+
+      const hasAccess = await checkScenarioAccess(scenarioId, req.user!.id, scenario);
+      if (!hasAccess) return res.status(403).json({ error: "Access denied" });
+
+      const stored = await storage.getLatestScenarioResult(scenarioId);
+      if (!stored) {
+        return res.json({ drift: true, status: "no_baseline", details: "No previous computation found" });
+      }
+
+      const { propertyInputs, globalInput, projYears } =
+        extractScenarioComputeInputs(scenario, stored.projectionYears);
+
+      const computeResult = computePortfolioProjection({
+        properties: propertyInputs,
+        globalAssumptions: globalInput,
+        projectionYears: projYears,
+      });
+
+      const hashMatch = stored.outputHash === computeResult.outputHash;
+      let status: "match" | "input_changed" | "engine_changed" = "match";
+      let details = "Current computation matches stored result";
+
+      if (!hashMatch) {
+        if (stored.engineVersion !== computeResult.engineVersion) {
+          status = "engine_changed";
+          details = `Engine version changed: ${stored.engineVersion} → ${computeResult.engineVersion}`;
+        } else {
+          status = "input_changed";
+          details = "Inputs have changed since last computation";
+        }
+      }
+
+      logger.info(`[drift-check] Scenario ${scenarioId}: status=${status}`, "scenario-results");
+
+      res.json({
+        drift: !hashMatch,
+        status,
+        details,
+        storedHash: stored.outputHash,
+        currentHash: computeResult.outputHash,
+        storedEngineVersion: stored.engineVersion,
+        currentEngineVersion: computeResult.engineVersion,
+        storedAt: stored.computedAt,
+      });
+    } catch (error) {
+      logAndSendError(res, "Failed to check scenario drift", error);
     }
   });
 }

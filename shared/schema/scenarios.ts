@@ -17,6 +17,9 @@ export const scenarios = pgTable("scenarios", {
   propertyPhotos: jsonb("property_photos"),
   version: integer("version").notNull().default(1),
   baseSnapshotHash: text("base_snapshot_hash"),
+  lastOutputHash: text("last_output_hash"),
+  lastComputedAt: timestamp("last_computed_at"),
+  lastEngineVersion: text("last_engine_version"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [

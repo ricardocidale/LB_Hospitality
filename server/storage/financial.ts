@@ -1,4 +1,4 @@
-import { globalAssumptions, scenarios, scenarioShares, scenarioPropertyOverrides, propertyFeeCategories, propertyPhotos, companyServiceTemplates, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type ScenarioShare, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties, users } from "@shared/schema";
+import { globalAssumptions, scenarios, scenarioShares, scenarioPropertyOverrides, propertyFeeCategories, propertyPhotos, companyServiceTemplates, scenarioResults, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type ScenarioShare, type ScenarioResult, type InsertScenarioResult, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties, users } from "@shared/schema";
 import { db } from "../db";
 import { eq, desc, isNull, inArray, or, sql, and } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
@@ -384,6 +384,9 @@ export class FinancialStorage {
         baseSnapshotHash: scenarios.baseSnapshotHash,
         createdAt: scenarios.createdAt,
         updatedAt: scenarios.updatedAt,
+        lastOutputHash: scenarios.lastOutputHash,
+        lastComputedAt: scenarios.lastComputedAt,
+        lastEngineVersion: scenarios.lastEngineVersion,
         ownerEmail: users.email,
         ownerFirstName: users.firstName,
         ownerLastName: users.lastName,
@@ -407,6 +410,9 @@ export class FinancialStorage {
       baseSnapshotHash: r.baseSnapshotHash,
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
+      lastOutputHash: r.lastOutputHash,
+      lastComputedAt: r.lastComputedAt,
+      lastEngineVersion: r.lastEngineVersion,
       ownerEmail: r.ownerEmail,
       ownerName: [r.ownerFirstName, r.ownerLastName].filter(Boolean).join(" ") || null,
     }));
@@ -565,5 +571,50 @@ export class FinancialStorage {
         eq(scenarioShares.targetId, targetId),
       )
     );
+  }
+
+  async saveScenarioResult(data: InsertScenarioResult): Promise<ScenarioResult> {
+    return await db.transaction(async (tx) => {
+      const [result] = await tx.insert(scenarioResults).values(data)
+        .onConflictDoUpdate({
+          target: [scenarioResults.scenarioId, scenarioResults.outputHash],
+          set: {
+            engineVersion: data.engineVersion,
+            inputsHash: data.inputsHash,
+            consolidatedYearlyJson: data.consolidatedYearlyJson,
+            auditOpinion: data.auditOpinion,
+            projectionYears: data.projectionYears,
+            propertyCount: data.propertyCount,
+            computedBy: data.computedBy,
+            computedAt: sql`NOW()`,
+          },
+        })
+        .returning();
+
+      await tx.update(scenarios).set({
+        lastOutputHash: data.outputHash,
+        lastComputedAt: new Date(),
+        lastEngineVersion: data.engineVersion,
+      }).where(eq(scenarios.id, data.scenarioId));
+
+      return result;
+    });
+  }
+
+  async getLatestScenarioResult(scenarioId: number): Promise<ScenarioResult | undefined> {
+    const [result] = await db.select().from(scenarioResults)
+      .where(eq(scenarioResults.scenarioId, scenarioId))
+      .orderBy(desc(scenarioResults.computedAt))
+      .limit(1);
+    return result;
+  }
+
+  async getScenarioResultByHash(scenarioId: number, outputHash: string): Promise<ScenarioResult | undefined> {
+    const [result] = await db.select().from(scenarioResults)
+      .where(and(
+        eq(scenarioResults.scenarioId, scenarioId),
+        eq(scenarioResults.outputHash, outputHash),
+      ));
+    return result;
   }
 }

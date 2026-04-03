@@ -80,6 +80,23 @@ When `computeRef` absent: legacy path unchanged (backward compat).
 - Property DB entities have nullable fields where `PropertyInput` expects required — use `as PropertyInput` cast (DB always has values, schema allows null for migration compat)
 - `format` field on export rows must be the Zod enum union (`"currency" | "percentage" | ...`), not `string`
 
+## Scenario Computed Snapshot Persistence
+
+`scenario_results` table stores immutable computed artifacts per scenario.
+
+### Storage Methods (server/storage/financial.ts)
+
+- `saveScenarioResult(data)` — Upsert on `(scenarioId, outputHash)`, updates `scenarios` denormalized pointers
+- `getLatestScenarioResult(scenarioId)` — Most recent by `computedAt`
+- `getScenarioResultByHash(scenarioId, outputHash)` — Exact hash lookup
+
+### Drift Detection
+
+Drift-check compares current recomputation against stored baseline:
+- `match` — Output hash identical
+- `input_changed` — Hash differs, same engine version
+- `engine_changed` — Hash differs, engine version bumped
+
 ## Endpoints
 
 | Endpoint | Auth | Purpose |
@@ -87,6 +104,9 @@ When `computeRef` absent: legacy path unchanged (backward compat).
 | `POST /api/finance/compute` | Required | Full portfolio computation |
 | `GET /api/finance/health` | Public | Engine status |
 | `POST /api/exports/premium` | Required | Export with optional `computeRef` |
+| `POST /api/scenarios/:id/recompute` | Required | Recompute + persist + drift detection |
+| `GET /api/scenarios/:id/results/latest` | Required | Most recent computed result |
+| `POST /api/scenarios/:id/drift-check` | Required | Compare current vs stored (engine-aware) |
 
 ## Constants
 

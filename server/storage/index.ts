@@ -25,7 +25,7 @@
  * by every route file in server/routes/.
  */
 import { db } from "../db";
-import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, scenarioShares, notificationPreferences, documentExtractions, conversations, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
+import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, scenarioShares, scenarioResults, notificationPreferences, documentExtractions, conversations, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type ScenarioResult, type InsertScenarioResult, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
 import { UserStorage } from "./users";
 import { PropertyStorage } from "./properties";
@@ -124,6 +124,11 @@ export class DatabaseStorage implements IStorage {
   shareScenarioWithUser = this.financial.shareScenarioWithUser.bind(this.financial);
   shareAllScenariosWithUser = this.financial.shareAllScenariosWithUser.bind(this.financial);
   getSharesForScenario = this.financial.getSharesForScenario.bind(this.financial);
+
+  // Scenario Results
+  saveScenarioResult = this.financial.saveScenarioResult.bind(this.financial);
+  getLatestScenarioResult = this.financial.getLatestScenarioResult.bind(this.financial);
+  getScenarioResultByHash = this.financial.getScenarioResultByHash.bind(this.financial);
 
   // Fee Categories
   getFeeCategoriesByProperty = this.financial.getFeeCategoriesByProperty.bind(this.financial);

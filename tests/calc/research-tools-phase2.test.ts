@@ -157,12 +157,11 @@ describe("computeCapRateValuation", () => {
     expect(result.spread_to_purchase).toBe(1000000);
   });
 
-  it("handles zero cap rate gracefully", () => {
-    const result = computeCapRateValuation({
+  it("throws on zero cap rate", () => {
+    expect(() => computeCapRateValuation({
       annual_noi: 850000,
       cap_rate: 0,
-    });
-    expect(result.implied_value).toBe(0);
+    })).toThrow("must be positive");
   });
 
   it("respects custom sensitivity steps", () => {

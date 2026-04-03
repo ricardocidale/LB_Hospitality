@@ -151,8 +151,8 @@ export function computeCapexReserve(input: CapexReserveInput): CapexReserveOutpu
     const annual_reserve_needed = cat.useful_life_years > 0
       ? r(cat.replacement_cost / cat.useful_life_years)
       : 0;
-    const replacementYear = remaining > 0 && remaining <= input.hold_period_years
-      ? remaining
+    const replacementYear = remaining >= 0 && remaining <= input.hold_period_years
+      ? Math.max(1, remaining)
       : null;
     const inflated_cost = replacementYear !== null
       ? r(cat.replacement_cost * dPow(1 + inflationRate, replacementYear))

@@ -45,11 +45,10 @@ export function computeADRProjection(input: ADRProjectionInput): ADRProjectionOu
   } = input;
 
   const days = input.days_per_month ?? DAYS_PER_MONTH;
-  const effectiveRate = growth_rate + inflation_rate;
   const projections: YearProjection[] = [];
 
   for (let y = 1; y <= projection_years; y++) {
-    const adr = roundCents(start_adr * dPow(1 + effectiveRate, y));
+    const adr = roundCents(start_adr * dPow(1 + growth_rate, y) * dPow(1 + inflation_rate, y));
     const growthFromStart = ((adr - start_adr) / start_adr) * 100;
 
     const proj: YearProjection = {
@@ -76,6 +75,6 @@ export function computeADRProjection(input: ADRProjectionInput): ADRProjectionOu
     start_adr,
     end_adr: endAdr,
     total_growth_pct: Math.round(totalGrowth * 10) / 10 + "%",
-    cagr: Math.round(effectiveRate * 100 * 10) / 10 + "%",
+    cagr: Math.round(((1 + growth_rate) * (1 + inflation_rate) - 1) * 100 * 10) / 10 + "%",
   };
 }

@@ -83,7 +83,7 @@ export function computeCostBenchmarks(input: CostBenchmarksInput): CostBenchmark
 
   const department_costs: CostLine[] = [
     makeLine("Rooms", cost_rate_rooms, "Room Revenue", annual_room_revenue),
-    makeLine("F&B", cost_rate_fb, "F&B Revenue", annual_room_revenue), // simplified: uses room rev as proxy
+    makeLine("F&B", cost_rate_fb, "F&B Revenue", annual_total_revenue - annual_room_revenue),
   ];
 
   const undistributed_costs: CostLine[] = [

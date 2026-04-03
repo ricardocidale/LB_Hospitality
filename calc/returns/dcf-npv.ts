@@ -61,7 +61,10 @@ export function computeDCF(input: DCFInput): DCFOutput {
 
   for (let t = 0; t < input.cash_flows.length; t++) {
     const divisor = dPow(1 + input.discount_rate, t);
-    const pv = divisor !== 0 && isFinite(divisor) ? dDiv(input.cash_flows[t], divisor) : 0;
+    if (divisor === 0 || !isFinite(divisor)) {
+      throw new Error(`Invalid discount rate: divisor is ${divisor} at period ${t}`);
+    }
+    const pv = dDiv(input.cash_flows[t], divisor);
     pv_timeline.push(r(pv));
     pvValues.push(pv);
   }

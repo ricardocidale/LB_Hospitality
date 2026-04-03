@@ -132,7 +132,7 @@ export function computeStressTest(input: StressTestInput): StressTestOutput {
   const results: StressScenarioResult[] = [];
 
   for (const scenario of input.scenarios) {
-    const stressed_adr = r(input.base_adr * (1 + scenario.adr_shock_pct / 100));
+    const stressed_adr = r(Math.max(0, input.base_adr * (1 + scenario.adr_shock_pct / 100)));
     const stressed_occupancy = Math.min(1, Math.max(0,
       input.base_occupancy * (1 + scenario.occupancy_shock_pct / 100)
     ));

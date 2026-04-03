@@ -62,7 +62,8 @@ export function applyRefinancePostProcessing(
 
   const refiLTV = property.refinanceLTV ?? DEFAULT_REFI_LTV;
   const refiExitCap = property.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-  const rawRefiYearNOI = yearlyNOI[refiYear] || 0;
+  const rawRefiYearNOI = yearlyNOI[refiYear] ?? 0;
+  if (Number.isNaN(rawRefiYearNOI)) throw new Error(`yearlyNOI[${refiYear}] is NaN`);
   const refiYearOpsMonths = yearlyOperationalMonths[refiYear] || MONTHS_PER_YEAR;
   const stabilizedNOI = refiYearOpsMonths >= MONTHS_PER_YEAR
     ? rawRefiYearNOI

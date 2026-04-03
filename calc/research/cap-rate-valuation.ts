@@ -40,7 +40,10 @@ export function computeCapRateValuation(input: CapRateValuationInput): CapRateVa
     sensitivity_steps = 4,
   } = input;
 
-  const impliedValue = cap_rate > 0 ? Math.round(annual_noi / cap_rate) : 0;
+  if (cap_rate <= 0) {
+    throw new Error(`Invalid cap_rate: ${cap_rate} — must be positive for valuation`);
+  }
+  const impliedValue = Math.round(annual_noi / cap_rate);
 
   // Sensitivity table: ±50bps increments
   const sensitivity: SensitivityRow[] = [];

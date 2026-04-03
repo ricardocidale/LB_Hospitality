@@ -20,23 +20,35 @@ const FK_CONSTRAINTS = [
 
 export async function runFkHardening001(): Promise<void> {
   let applied = 0;
-  let skipped = 0;
+  let alreadyExists = 0;
+  const errors: string[] = [];
 
   for (const ddl of FK_CONSTRAINTS) {
+    const constraintMatch = ddl.match(/ADD CONSTRAINT "([^"]+)"/);
+    const constraintName = constraintMatch?.[1] ?? ddl.slice(0, 60);
+
+    const exists = await db.execute(
+      sql.raw(`SELECT 1 FROM pg_constraint WHERE conname = '${constraintName}' LIMIT 1`)
+    );
+    if ((exists as { rows: unknown[] }).rows.length > 0) {
+      alreadyExists++;
+      continue;
+    }
+
     try {
-      await db.execute(sql.raw(`DO $$ BEGIN ${ddl}; EXCEPTION WHEN duplicate_object THEN NULL; END $$`));
+      await db.execute(sql.raw(ddl));
       applied++;
+      logger.info(`[${TAG}] Applied: ${constraintName}`);
     } catch (error: unknown) {
-      const pgCode = (error as { code?: string })?.code;
-      if (pgCode === "42P01" || pgCode === "42703") {
-        logger.warn(`[${TAG}] Skipped (missing table/column): ${ddl.slice(0, 80)}…`);
-        skipped++;
-      } else {
-        logger.error(`[${TAG}] Failed: ${String(error)}`, TAG);
-        throw error;
-      }
+      const msg = `Failed to apply ${constraintName}: ${String(error)}`;
+      logger.error(`[${TAG}] ${msg}`, TAG);
+      errors.push(msg);
     }
   }
 
-  logger.info(`[${TAG}] FK hardening complete: ${applied} applied, ${skipped} skipped`);
+  if (errors.length > 0) {
+    throw new Error(`[${TAG}] ${errors.length} FK constraint(s) failed:\n${errors.join("\n")}`);
+  }
+
+  logger.info(`[${TAG}] FK hardening complete: ${applied} applied, ${alreadyExists} already existed`);
 }

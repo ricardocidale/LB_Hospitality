@@ -25,6 +25,7 @@ interface MarkupWaterfallOutput {
 // skipcalcscan — static industry reference data, not configurable assumptions
 const INDUSTRY_MARKUPS: Record<string, { low: number; mid: number; high: number }> = {
   marketing: { low: 0.15, mid: 0.25, high: 0.35 },
+  technology_reservations: { low: 0.10, mid: 0.20, high: 0.30 },
   it: { low: 0.10, mid: 0.20, high: 0.30 },
   accounting: { low: 0.20, mid: 0.30, high: 0.40 },
   revenue_management: { low: 0.15, mid: 0.20, high: 0.30 },

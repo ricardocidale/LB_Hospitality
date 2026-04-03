@@ -32,7 +32,7 @@ export function RevenueFees({ content, hasData, onGenerate }: { content: any; ha
 
   const serviceBreakdown = [
     { name: "Base Mgmt Fee", value: 40 }, { name: "Incentive Fee", value: 25 },
-    { name: "Accounting", value: 15 }, { name: "IT Services", value: 10 }, { name: "Procurement", value: 10 },
+    { name: "Accounting", value: 15 }, { name: "Technology & Reservations", value: 10 }, { name: "Procurement", value: 10 },
   ];
 
   return (

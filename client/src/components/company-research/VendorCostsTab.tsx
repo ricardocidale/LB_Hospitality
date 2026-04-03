@@ -10,10 +10,10 @@ import { SectionCard } from "../property-research/SectionCard";
 import { companySectionColors } from "./types";
 import { computeMarkupWaterfall } from "@calc/research/markup-waterfall";
 
-const SERVICE_TYPES = ["marketing", "it", "accounting", "revenue_management", "procurement", "hr", "design", "general_management"];
+const SERVICE_TYPES = ["marketing", "technology_reservations", "accounting", "revenue_management", "procurement", "hr", "design", "general_management"];
 const LABELS: Record<string, string> = {
   marketing: "Marketing & Digital",
-  it: "IT & Systems",
+  technology_reservations: "Technology & Reservations",
   accounting: "Accounting & Finance",
   revenue_management: "Revenue Management",
   procurement: "Procurement & Purchasing",

@@ -43,7 +43,9 @@ export function computeCashFlowSections(
 
   let runningCash = 0;
 
-  for (let i = 0; i < years; i++) {
+  const safeYears = Math.min(years, yearlyIS.length, yearlyCF.length);
+
+  for (let i = 0; i < safeYears; i++) {
     const is = yearlyIS[i];
     const cf = yearlyCF[i];
 

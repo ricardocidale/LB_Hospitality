@@ -110,6 +110,7 @@ export interface RefinanceOutput {
     accrued_interest: number;
   };
   cash_out_to_equity: number;
+  cash_in_required: number;
   proceeds_breakdown: ProceedsLineItem[];
   new_debt_service_schedule: ScheduleEntry[];
   journal_hooks: JournalDelta[];

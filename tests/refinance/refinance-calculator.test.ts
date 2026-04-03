@@ -145,12 +145,18 @@ describe("computeRefinance — journal hooks structure", () => {
     expect(cash!.cash_flow_bucket).toBe("FINANCING");
   });
 
-  it("no CASH entry when negative cash-out", () => {
+  it("cash-in required entry when negative cash-out", () => {
     const result = computeRefinance(
       baseInput({ current_loan_balance: 1_400_000 }),
     );
-    const cash = result.journal_hooks.find((j) => j.account === "CASH");
-    expect(cash).toBeUndefined();
+    const cashDebit = result.journal_hooks.find((j) => j.account === "CASH" && j.debit > 0);
+    expect(cashDebit).toBeUndefined();
+    const cashCredit = result.journal_hooks.find((j) => j.account === "CASH" && j.credit > 0);
+    expect(cashCredit).toBeDefined();
+    expect(result.cash_in_required).toBeGreaterThan(0);
+    expect(result.cash_out_to_equity).toBe(0);
+    const equity = result.journal_hooks.find((j) => j.account === "EQUITY_CONTRIBUTED");
+    expect(equity).toBeDefined();
   });
 
   it("penalty and accrued interest hooks present when applicable", () => {

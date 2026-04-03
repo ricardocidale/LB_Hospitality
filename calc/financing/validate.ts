@@ -48,6 +48,10 @@ export function validateFinancingInput(input: FinancingInput): string[] {
     }
   }
 
+  if (input.term_months < 1) {
+    errors.push("term_months must be >= 1");
+  }
+
   if (input.fixed_fees !== undefined && input.fixed_fees < 0) {
     errors.push("fixed_fees must be >= 0");
   }

@@ -86,10 +86,11 @@ export function computeRefinance(input: RefinanceInput): RefinanceOutput {
   const closingCosts = r(newLoanGross * input.closing_cost_pct);
   const newLoanNet = r(newLoanGross - closingCosts);
 
-  // Step 4: Compute cash-out to equity
+  // Step 4: Compute cash-out to equity (or cash-in required)
   const rawCashOut = r(newLoanNet - payoff.total);
   const negativeCashOut = rawCashOut < 0;
   const cashOutToEquity = negativeCashOut ? 0 : rawCashOut;
+  const cashInRequired = negativeCashOut ? r(Math.abs(rawCashOut)) : 0;
 
   // Step 5: Build proceeds breakdown
   const proceeds: ProceedsLineItem[] = [
@@ -110,7 +111,11 @@ export function computeRefinance(input: RefinanceInput): RefinanceOutput {
       amount: -payoff.accrued_interest,
     });
   }
-  proceeds.push({ label: "Cash-Out to Equity", amount: cashOutToEquity });
+  if (cashInRequired > 0) {
+    proceeds.push({ label: "Cash-In Required (Equity Contribution)", amount: -cashInRequired });
+  } else {
+    proceeds.push({ label: "Cash-Out to Equity", amount: cashOutToEquity });
+  }
 
   // Step 6: Build new debt service schedule
   const schedule = buildSchedule(
@@ -127,6 +132,7 @@ export function computeRefinance(input: RefinanceInput): RefinanceOutput {
     new_loan_amount: newLoanGross,
     closing_costs: closingCosts,
     cash_out_to_equity: cashOutToEquity,
+    cash_in_required: cashInRequired,
     policy: input.accounting_policy_ref,
     rounding: input.rounding_policy,
   });
@@ -149,6 +155,7 @@ export function computeRefinance(input: RefinanceInput): RefinanceOutput {
       accrued_interest: payoff.accrued_interest,
     },
     cash_out_to_equity: cashOutToEquity,
+    cash_in_required: cashInRequired,
     proceeds_breakdown: proceeds,
     new_debt_service_schedule: schedule,
     journal_hooks: journalHooks,
@@ -167,6 +174,7 @@ function buildErrorResult(errors: string[]): RefinanceOutput {
       accrued_interest: 0,
     },
     cash_out_to_equity: 0,
+    cash_in_required: 0,
     proceeds_breakdown: [],
     new_debt_service_schedule: [],
     journal_hooks: [],

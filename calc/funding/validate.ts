@@ -2,16 +2,24 @@ import type { FundingInput } from "./types.js";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+function isValidDate(s: string): boolean {
+  if (!DATE_RE.test(s)) return false;
+  const d = new Date(s + "T00:00:00Z");
+  if (isNaN(d.getTime())) return false;
+  const [y, m, day] = s.split("-").map(Number);
+  return d.getUTCFullYear() === y && d.getUTCMonth() + 1 === m && d.getUTCDate() === day;
+}
+
 export function validateFundingInput(input: FundingInput): string[] {
   const errors: string[] = [];
 
-  if (!input.model_start_date || !DATE_RE.test(input.model_start_date)) {
+  if (!input.model_start_date || !isValidDate(input.model_start_date)) {
     errors.push("model_start_date must be a valid YYYY-MM-DD date");
   }
 
   if (
     !input.company_ops_start_date ||
-    !DATE_RE.test(input.company_ops_start_date)
+    !isValidDate(input.company_ops_start_date)
   ) {
     errors.push("company_ops_start_date must be a valid YYYY-MM-DD date");
   }
@@ -27,7 +35,7 @@ export function validateFundingInput(input: FundingInput): string[] {
     if (t.amount <= 0) {
       errors.push(`Tranche "${t.label}": amount must be > 0`);
     }
-    if (t.trigger.type === "scheduled" && !DATE_RE.test(t.trigger.date)) {
+    if (t.trigger.type === "scheduled" && !isValidDate(t.trigger.date)) {
       errors.push(
         `Tranche "${t.label}": scheduled trigger must have a valid YYYY-MM-DD date`,
       );
@@ -39,7 +47,7 @@ export function validateFundingInput(input: FundingInput): string[] {
     }
     if (
       t.trigger.type === "conditional" &&
-      !DATE_RE.test(t.trigger.fallback_date)
+      !isValidDate(t.trigger.fallback_date)
     ) {
       errors.push(
         `Tranche "${t.label}": conditional trigger must have a valid fallback_date`,
@@ -51,12 +59,12 @@ export function validateFundingInput(input: FundingInput): string[] {
     if (!p.property_id) {
       errors.push("Each property requirement must have a property_id");
     }
-    if (!DATE_RE.test(p.acquisition_date)) {
+    if (!isValidDate(p.acquisition_date)) {
       errors.push(
         `Property "${p.property_name}": acquisition_date must be YYYY-MM-DD`,
       );
     }
-    if (!DATE_RE.test(p.operations_start_date)) {
+    if (!isValidDate(p.operations_start_date)) {
       errors.push(
         `Property "${p.property_name}": operations_start_date must be YYYY-MM-DD`,
       );

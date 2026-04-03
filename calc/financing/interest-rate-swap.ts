@@ -93,6 +93,7 @@ export interface InterestRateSwapOutput {
   rate_scenarios: SwapScenarioResult[];
   total_swap_cost_over_term: number;
   swap_recommendation: "favorable" | "unfavorable" | "neutral";
+  mark_to_market: number;
 }
 
 export function computeInterestRateSwap(input: InterestRateSwapInput): InterestRateSwapOutput {
@@ -179,6 +180,22 @@ export function computeInterestRateSwap(input: InterestRateSwapInput): InterestR
     favorableCount > rate_scenarios.length / 2 ? "favorable" :
     favorableCount < rate_scenarios.length / 2 ? "unfavorable" : "neutral";
 
+  let mtm = 0;
+  const discountRate = allInFloating / periodsPerYear;
+  if (discountRate > 0) {
+    for (let i = 0; i < period_cash_flows.length; i++) {
+      const cf = period_cash_flows[i];
+      const netToFixed = r(cf.floating_payment - cf.fixed_payment);
+      mtm += netToFixed / Math.pow(1 + discountRate, i + 1);
+    }
+    mtm = r(mtm);
+  } else {
+    for (const cf of period_cash_flows) {
+      mtm += r(cf.floating_payment - cf.fixed_payment);
+    }
+    mtm = r(mtm);
+  }
+
   return {
     notional: input.notional_amount,
     fixed_rate: input.fixed_rate,
@@ -196,5 +213,6 @@ export function computeInterestRateSwap(input: InterestRateSwapInput): InterestR
     rate_scenarios,
     total_swap_cost_over_term,
     swap_recommendation,
+    mark_to_market: mtm,
   };
 }

@@ -43,7 +43,9 @@ export function computeCostOfServices(
     const template = templateByName.get(categoryName);
 
     if (!template) {
-      // Category exists in fee breakdown but has no template — treat as direct (no cost)
+      // M15: Category in fee breakdown with no matching template defaults to direct model
+      // (100% gross profit, zero vendor cost). This is intentional — unmatched categories
+      // are treated as oversight/advisory fees with no third-party cost component.
       const result: ServiceCostResult = {
         name: categoryName,
         revenue: feeAmount,

@@ -103,10 +103,29 @@ export interface DSCROutput {
  *   Max Loan = NOI / (min_dscr * annual_rate)
  */
 export function computeDSCR(input: DSCRInput): DSCROutput {
+  if (input.min_dscr <= 0) throw new Error("min_dscr must be > 0");
+  if (input.term_months < 1) throw new Error("term_months must be >= 1");
+
   const r = (v: number) => roundTo(v, input.rounding_policy);
   const monthlyRate = input.interest_rate_annual / MONTHS_PER_YEAR;
   const ioMonths = input.io_months ?? 0;
   const isFullIO = ioMonths >= input.term_months;
+
+  if (input.noi_annual <= 0) {
+    return {
+      max_loan_dscr: 0,
+      max_loan_ltv: null,
+      binding_constraint: "dscr",
+      max_loan_binding: 0,
+      annual_debt_service_amortizing: 0,
+      annual_debt_service_io: null,
+      monthly_payment_amortizing: 0,
+      monthly_payment_io: null,
+      actual_dscr: 0,
+      io_dscr: null,
+      implied_ltv: null,
+    };
+  }
 
   const maxAnnualDS = r(input.noi_annual / input.min_dscr);
   const maxMonthlyDS = r(maxAnnualDS / MONTHS_PER_YEAR);
@@ -116,7 +135,7 @@ export function computeDSCR(input: DSCRInput): DSCROutput {
   if (isFullIO) {
     maxLoanDSCR = monthlyRate > 0
       ? r(maxMonthlyDS / monthlyRate)
-      : 0;
+      : Infinity;
   } else {
     maxLoanDSCR = reversePMT(maxMonthlyDS, monthlyRate, input.amortization_months);
     maxLoanDSCR = r(maxLoanDSCR);

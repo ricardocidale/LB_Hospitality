@@ -10,6 +10,7 @@ export interface JournalHookInputs {
   new_loan_amount: number;
   closing_costs: number;
   cash_out_to_equity: number;
+  cash_in_required?: number;
   policy: AccountingPolicy;
   rounding: RoundingPolicy;
 }
@@ -92,6 +93,26 @@ export function buildJournalHooks(inputs: JournalHookInputs): JournalDelta[] {
       classification: "BS_ASSET",
       cash_flow_bucket: "FINANCING",
       memo: "Cash-out to equity from refinance proceeds",
+    });
+  }
+
+  // 7. Cash-in required (equity contribution when new loan < payoff)
+  if (inputs.cash_in_required && inputs.cash_in_required > 0) {
+    deltas.push({
+      account: "CASH",
+      debit: 0,
+      credit: r(inputs.cash_in_required),
+      classification: "BS_ASSET",
+      cash_flow_bucket: "FINANCING",
+      memo: "Cash-in required: equity contribution to complete refinance",
+    });
+    deltas.push({
+      account: "EQUITY_CONTRIBUTED",
+      debit: r(inputs.cash_in_required),
+      credit: 0,
+      classification: "BS_EQUITY",
+      cash_flow_bucket: "FINANCING",
+      memo: "Equity contribution for refinance shortfall",
     });
   }
 

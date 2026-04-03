@@ -65,8 +65,12 @@ export function buildSchedule(
     let principal: number;
     let payment: number;
 
+    let balloon = 0;
+
     if (m === terms.term_months - 1) {
       interest = roundTo(balance * monthlyRate, rounding);
+      const regularPrincipal = isIO ? 0 : roundTo(amortPayment - interest, rounding);
+      balloon = roundTo(Math.max(0, balance - Math.max(0, regularPrincipal)), rounding);
       principal = roundTo(balance, rounding);
       payment = roundTo(interest + principal, rounding);
     } else if (isIO) {
@@ -89,6 +93,7 @@ export function buildSchedule(
       payment,
       ending_balance: balance,
       is_io: isIO,
+      ...(balloon > 0 ? { balloon } : {}),
     });
   }
 

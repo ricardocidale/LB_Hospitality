@@ -76,6 +76,7 @@ import { computeDSCR } from "./financing/dscr-calculator.js";
 import { computePrepayment } from "./financing/prepayment.js";
 import { computeSensitivity } from "./financing/sensitivity.js";
 import { compareLoanScenarios } from "./financing/loan-comparison.js";
+import { computeInterestRateSwap } from "./financing/interest-rate-swap.js";
 import { computeCentralizedServiceMargin } from "./services/dispatch-handler.js";
 import { computeCostOfServices } from "./services/cost-of-services.js";
 import { computePropertyMetrics } from "./research/property-metrics.js";
@@ -138,6 +139,7 @@ const TOOL_DISPATCH: Record<string, ToolHandler> = {
   calculate_prepayment: withRounding(computePrepayment),
   calculate_sensitivity: withRounding(computeSensitivity),
   compare_loans: (input) => compareLoanScenarios((input as ToolInput).scenarios as never ?? []),
+  interest_rate_swap: withRounding(computeInterestRateSwap as ToolFn),
   centralized_service_margin: withRounding(computeCentralizedServiceMargin),
   cost_of_services_aggregator: (input) => computeCostOfServices(
     (input as ToolInput).feesByCategory as Record<string, number>,

@@ -130,6 +130,8 @@ export function computePropertyMetrics(input: PropertyMetricsInput): PropertyMet
 
   // Management fees
   const baseFee = monthlyTotal * base_management_fee_rate;
+  // M14: Incentive fee applies to all positive GOP without a hurdle threshold.
+  // This is intentional for research/proforma estimates — actual contracts vary.
   const incentiveFee = monthlyGOP > 0 ? monthlyGOP * incentive_management_fee_rate : 0;
 
   // ANOI = GOP - Undistributed - Management Fees - Fixed Charges - FF&E

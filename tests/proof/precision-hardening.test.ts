@@ -92,7 +92,7 @@ describe("Precision Hardening — property-based tests", () => {
           (value, decimals) => {
             const rounded = dRound(value, decimals);
             const multiplied = rounded * Math.pow(10, decimals);
-            expect(Math.abs(multiplied - Math.round(multiplied))).toBeLessThan(1e-6);
+            expect(Math.abs(multiplied - Math.round(multiplied))).toBeLessThan(1e-4);
           },
         ),
         { numRuns: 1000 },

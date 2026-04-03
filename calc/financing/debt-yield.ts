@@ -74,6 +74,10 @@ export interface DebtYieldOutput {
  * useful for comparing across different financing structures.
  */
 export function computeDebtYield(input: DebtYieldInput): DebtYieldOutput {
+  if (input.min_debt_yield !== undefined && input.min_debt_yield <= 0) {
+    throw new Error("min_debt_yield must be > 0");
+  }
+
   const r = (v: number) => roundTo(v, input.rounding_policy);
   const pct = (v: number) => roundTo(v, { precision: 6, bankers_rounding: false });
 
@@ -81,9 +85,11 @@ export function computeDebtYield(input: DebtYieldInput): DebtYieldOutput {
     ? pct(input.noi_annual / input.loan_amount)
     : null;
 
-  const maxLoanDebtYield = input.min_debt_yield && input.min_debt_yield > 0
+  const maxLoanDebtYield = input.min_debt_yield && input.min_debt_yield > 0 && input.noi_annual > 0
     ? r(input.noi_annual / input.min_debt_yield)
-    : null;
+    : input.min_debt_yield && input.min_debt_yield > 0 && input.noi_annual <= 0
+      ? 0
+      : null;
 
   let maxLoanLTV: number | null = null;
   if (input.purchase_price !== undefined && input.ltv_max !== undefined) {

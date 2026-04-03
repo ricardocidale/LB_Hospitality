@@ -29,4 +29,6 @@ export interface ScheduleEntry {
   payment: number;
   ending_balance: number;
   is_io: boolean;
+  /** Balloon payment at maturity (non-zero only in the final month when amort > term) */
+  balloon?: number;
 }

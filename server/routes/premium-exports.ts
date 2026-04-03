@@ -167,8 +167,13 @@ export function register(app: Express) {
       const ext = FORMAT_EXTENSIONS[data.format] || `.${data.format}`;
       const filename = `${safeCompany} - ${reportType}${ext}`;
 
+      const MAX_EXPORT_BYTES = 50 * 1024 * 1024;
       logger.info(`Generating premium ${data.format} via compiled report + template pipeline for "${data.entityName}"...`, "premium-export");
       const buffer = await generateViaTemplatePipeline(data);
+      if (buffer.length > MAX_EXPORT_BYTES) {
+        logger.error(`Export too large: ${buffer.length} bytes exceeds ${MAX_EXPORT_BYTES} limit`, "premium-export");
+        return res.status(413).json({ error: "Export exceeds maximum size limit. Try reducing the number of properties or projection years." });
+      }
       logger.info(`Premium ${data.format} generated (${buffer.length} bytes)`, "premium-export");
 
       res.setHeader("Content-Type", contentType);

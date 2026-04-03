@@ -33,7 +33,7 @@ export const PRESET_THEMES: ThemePreset[] = [
       "Sun-dappled olive and warm earth tones. Inspired by Mediterranean hillsides, blending natural elegance with grounded sophistication.",
     isDefault: false,
     colors: [
-      { rank: 1, name: "Olive Sage",      hexCode: "#8A9A7B", description: "PALETTE: Primary brand color. Muted olive-green for buttons, active nav, focus rings." },
+      { rank: 1, name: "Olive Sage",      hexCode: "#5C7049", description: "PALETTE: Primary brand color. Deep olive-green for buttons, active nav, focus rings. WCAG AA compliant on light backgrounds." },
       { rank: 2, name: "Deep Moss",       hexCode: "#4A5D3F", description: "PALETTE: Secondary accent. Deep forest moss for contrast badges and secondary elements." },
       { rank: 3, name: "Warm Sand",       hexCode: "#FAF6F1", description: "PALETTE: Background and card surfaces. Warm sandy cream for an inviting canvas." },
       { rank: 4, name: "Bark Brown",      hexCode: "#3B3832", description: "PALETTE: Foreground text. Deep brown-charcoal for readable, warm type." },
@@ -111,7 +111,7 @@ export const PRESET_THEMES: ThemePreset[] = [
       "Warm violet and deep indigo under a lavender sky. Creative energy meets professional clarity — bold, imaginative, and forward-thinking.",
     isDefault: false,
     colors: [
-      { rank: 1, name: "Violet",          hexCode: "#7C5CFC", description: "PALETTE: Primary brand color. Warm violet-purple for buttons, active nav, focus rings." },
+      { rank: 1, name: "Violet",          hexCode: "#6344E0", description: "PALETTE: Primary brand color. Deep violet-purple for buttons, active nav, focus rings. WCAG AA compliant on light backgrounds." },
       { rank: 2, name: "Deep Indigo",     hexCode: "#5B3FD6", description: "PALETTE: Secondary accent. Deep indigo for contrast badges and emphasis." },
       { rank: 3, name: "Lavender White",  hexCode: "#FAF9FE", description: "PALETTE: Background and card surfaces. Soft lavender-tinted white." },
       { rank: 4, name: "Dark Plum",       hexCode: "#1E1B2E", description: "PALETTE: Foreground text. Deep plum-charcoal for sharp, readable type." },
@@ -137,7 +137,7 @@ export const PRESET_THEMES: ThemePreset[] = [
       "Warm terracotta and cream inspired by Anthropic's Claude interface. Earthy, approachable, and quietly confident — professional warmth without pretension.",
     isDefault: false,
     colors: [
-      { rank: 1, name: "Terracotta",       hexCode: "#D97757", description: "PALETTE: Primary brand color. Warm terracotta for buttons, active nav, focus rings." },
+      { rank: 1, name: "Terracotta",       hexCode: "#B85C3A", description: "PALETTE: Primary brand color. Rich terracotta for buttons, active nav, focus rings. WCAG AA compliant on light backgrounds." },
       { rank: 2, name: "Warm Umber",       hexCode: "#8B6F5E", description: "PALETTE: Secondary accent. Muted warm brown for contrast badges and secondary elements." },
       { rank: 3, name: "Cream",            hexCode: "#FAF7F4", description: "PALETTE: Background and card surfaces. Warm off-white cream canvas." },
       { rank: 4, name: "Charcoal",         hexCode: "#2D2B28", description: "PALETTE: Foreground text. Near-black warm charcoal for readable type." },

@@ -145,6 +145,12 @@ export function consolidateStatements(input: ConsolidationInput): ConsolidationO
 
     consolidated_revenue = r(consolidated_revenue - feeEliminated);
     consolidated_expenses = r(consolidated_expenses - feeEliminated);
+
+    const mcOpex = mc.operating_expenses ?? 0;
+    consolidated_gop = r(consolidated_gop + mc.fee_revenue - mcOpex - feeEliminated);
+    consolidated_agop = r(consolidated_agop + mc.fee_revenue - mcOpex - feeEliminated);
+    consolidated_noi = r(consolidated_noi + mc.fee_revenue - mcOpex - feeEliminated);
+    consolidated_anoi = r(consolidated_anoi + mc.fee_revenue - mcOpex - feeEliminated);
   }
 
   const bsBalanced = withinTolerance(consolidated_assets, consolidated_liabilities + consolidated_equity, DEFAULT_TOLERANCE);

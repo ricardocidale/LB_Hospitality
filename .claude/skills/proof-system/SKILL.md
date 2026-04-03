@@ -6,7 +6,7 @@ description: Automated financial proof system with 3,546 tests across 153 files,
 # Automated Financial Proof System
 
 ## Purpose
-Eliminates human Excel verification. Code proves itself correct through 3,528 automated tests (152 files) across 5 structural golden scenarios, 761 hand-calculated golden reference tests (30 files), input-to-output pipeline verification, and magic number detection.
+Eliminates human Excel verification. Code proves itself correct through 3,546 automated tests (153 files) across 5 structural golden scenarios, 761 hand-calculated golden reference tests (30 files), input-to-output pipeline verification, and magic number detection.
 
 ## Commands
 ```bash

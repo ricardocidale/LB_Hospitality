@@ -1,6 +1,6 @@
 ---
 name: proof-system
-description: Automated financial proof system with 3,528 tests across 152 files, 5 structural golden scenarios, and 761 hand-calculated golden reference tests (30 files). Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
+description: Automated financial proof system with 3,546 tests across 153 files, 5 structural golden scenarios, and 761 hand-calculated golden reference tests (30 files). Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
 ---
 
 # Automated Financial Proof System
@@ -11,7 +11,7 @@ Eliminates human Excel verification. Code proves itself correct through 3,528 au
 ## Commands
 ```bash
 npm run health             # All-in-one: tsc + tests + verification + doc harmony (~60s)
-npm run test:summary       # All 3,528 tests, 1-line output (~35s)
+npm run test:summary       # All 3,546 tests, 1-line output (~35s)
 npm run verify:summary     # 8-phase financial verification only (~20s)
 npm run lint:summary       # TypeScript check only (<10s)
 npm run stats              # File/line/test counts (<5s, no vitest or tsc)
@@ -133,7 +133,7 @@ For per-statement and per-analysis test coverage, see:
 | **Golden Scenarios** | **`.claude/skills/testing/golden-scenarios.md`** | **761 hand-calculated tests (30 files): IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity multiple, pro-forma edge cases** |
 
 ## Maintenance
-1. Run `npm test` — all 3,528 tests must pass
+1. Run `npm test` — all 3,546 tests must pass
 2. Run `npm run verify` — all 8 phases must pass
 3. Run `npx vitest run tests/golden/` — 761 hand-calculated tests must pass (~8s)
 4. Check `test-artifacts/*.md` for UNQUALIFIED opinions

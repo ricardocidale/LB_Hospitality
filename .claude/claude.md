@@ -101,7 +101,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (3,525 Tests, 152 Files)
+## Testing & Proof System (3,528 Tests, 152 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -111,7 +111,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 3,525, 152 files) · `npm run verify` (8-phase GAAP) · `npm run health` (tsc+tests+verify+doc harmony)
+**Commands**: `npm test` (all 3,528, 152 files) · `npm run verify` (8-phase GAAP) · `npm run health` (tsc+tests+verify+doc harmony)
 
 ---
 

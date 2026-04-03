@@ -6,7 +6,7 @@ export interface GlossaryEntry {
   category?: string;
 }
 
-export const GLOSSARY: Record<string, GlossaryEntry> = {
+const GLOSSARY: Record<string, GlossaryEntry> = {
   "ADR": {
     term: "ADR (Average Daily Rate)",
     definition: "Average revenue earned per occupied room per day.",

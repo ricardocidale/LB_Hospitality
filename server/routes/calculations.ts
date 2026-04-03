@@ -190,7 +190,9 @@ export function register(app: Express) {
 
   app.post("/api/calc/equity-multiple", requireAuth, async (req, res) => {
     try {
-      const result = computeEquityMultiple(req.body);
+      const validation = calcSchemas.equityMultipleSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const result = computeEquityMultiple(validation.data as any);
       res.json({ equityMultiple: result });
     } catch (error) {
       res.status(500).json({ error: "Equity multiple calculation failed" });
@@ -210,7 +212,9 @@ export function register(app: Express) {
 
   app.post("/api/calc/validate-identities", requireChecker, async (req, res) => {
     try {
-      const result = validateFinancialIdentities(req.body);
+      const validation = calcSchemas.financialIdentitiesSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const result = validateFinancialIdentities(validation.data as any);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error: "Identity validation failed" });
@@ -219,7 +223,9 @@ export function register(app: Express) {
 
   app.post("/api/calc/check-funding-gates", requireChecker, async (req, res) => {
     try {
-      const result = checkFundingGates(req.body);
+      const validation = calcSchemas.fundingGatesSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const result = checkFundingGates(validation.data as any);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error: "Funding gate check failed" });
@@ -228,7 +234,9 @@ export function register(app: Express) {
 
   app.post("/api/calc/reconcile-schedule", requireChecker, async (req, res) => {
     try {
-      const result = reconcileSchedule(req.body);
+      const validation = calcSchemas.scheduleReconcileSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const result = reconcileSchedule(validation.data as any);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error: "Schedule reconciliation failed" });
@@ -237,7 +245,9 @@ export function register(app: Express) {
 
   app.post("/api/calc/check-consistency", requireChecker, async (req, res) => {
     try {
-      const result = checkAssumptionConsistency(req.body);
+      const validation = calcSchemas.assumptionConsistencySchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const result = checkAssumptionConsistency(validation.data as any);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error: "Consistency check failed" });
@@ -246,7 +256,9 @@ export function register(app: Express) {
 
   app.post("/api/calc/verify-export", requireChecker, async (req, res) => {
     try {
-      const result = verifyExport(req.body);
+      const validation = calcSchemas.exportVerificationSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const result = verifyExport(validation.data as any);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error: "Export verification failed" });
@@ -255,7 +267,9 @@ export function register(app: Express) {
 
   app.post("/api/calc/consolidate", requireAuth, async (req, res) => {
     try {
-      const result = consolidateStatements(req.body);
+      const validation = calcSchemas.consolidationSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const result = consolidateStatements(validation.data as any);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error: "Consolidation failed" });
@@ -264,7 +278,9 @@ export function register(app: Express) {
 
   app.post("/api/calc/compare-scenarios", requireAuth, async (req, res) => {
     try {
-      const result = compareScenarios(req.body);
+      const validation = calcSchemas.scenarioCompareSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const result = compareScenarios(validation.data as any);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error: "Scenario comparison failed" });
@@ -273,7 +289,9 @@ export function register(app: Express) {
 
   app.post("/api/calc/break-even", requireAuth, async (req, res) => {
     try {
-      const result = computeBreakEven(req.body);
+      const validation = calcSchemas.breakEvenSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const result = computeBreakEven(validation.data as any);
       res.json(result);
     } catch (error) {
       res.status(500).json({ error: "Break-even analysis failed" });

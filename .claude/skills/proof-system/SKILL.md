@@ -1,17 +1,17 @@
 ---
 name: proof-system
-description: Automated financial proof system with 3,022 tests, 5 structural golden scenarios, and 418 hand-calculated golden reference tests. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
+description: Automated financial proof system with 3,528 tests across 152 files, 5 structural golden scenarios, and 418 hand-calculated golden reference tests. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
 ---
 
 # Automated Financial Proof System
 
 ## Purpose
-Eliminates human Excel verification. Code proves itself correct through 3,022 automated tests across 5 structural golden scenarios, 418 hand-calculated golden reference tests, input-to-output pipeline verification, and magic number detection.
+Eliminates human Excel verification. Code proves itself correct through 3,528 automated tests (152 files) across 5 structural golden scenarios, 418 hand-calculated golden reference tests, input-to-output pipeline verification, and magic number detection.
 
 ## Commands
 ```bash
 npm run health             # All-in-one: tsc + tests + verification + doc harmony (~60s)
-npm run test:summary       # All 3,421 tests, 1-line output (~35s)
+npm run test:summary       # All 3,528 tests, 1-line output (~35s)
 npm run verify:summary     # 8-phase financial verification only (~20s)
 npm run lint:summary       # TypeScript check only (<10s)
 npm run stats              # File/line/test counts (<5s, no vitest or tsc)
@@ -32,14 +32,15 @@ npx tsx script/export-audit.ts  # 41-check export wiring validation (<2s)
 | audit:quick | No | No | <3s | Code smell detection |
 | exports:check | No | No | <5s | Dead code detection |
 
-## 7-Phase Verification
-1. **Scenarios** — 5 golden scenarios test every financial structure
+## 8-Phase Verification
+1. **Proof Scenarios** — 5 golden scenarios test every financial structure
 2. **Hardcoded Detection** — Scans 8 finance files for magic numbers
-3. **Reconciliation** — Generates artifact reports with math checks
-4. **Data Integrity** — Shared ownership, singleton queries, portfolio dynamics
-5. **Domain Boundaries** — No prohibited cross-domain imports
-6. **Recalculation Enforcement** — Every financial mutation invalidates queries
-7. **Artifact Summary** — Produces JSON + Markdown proof reports
+3. **Golden Values** — Hand-calculated reference value validation
+4. **Reconciliation** — Generates artifact reports with math checks
+5. **Data Integrity** — Shared ownership, singleton queries
+6. **Portfolio Dynamics** — Multi-property aggregation and consolidation
+7. **Recalc Enforcement** — Every financial mutation invalidates queries
+8. **Rule Compliance** — Domain boundaries and business rule checks
 
 ## Audit Opinion Outputs
 - **UNQUALIFIED** — All checks pass. No human verification needed.
@@ -132,8 +133,8 @@ For per-statement and per-analysis test coverage, see:
 | **Golden Scenarios** | **`.claude/skills/testing/golden-scenarios.md`** | **269 hand-calculated tests: IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity multiple, pro-forma edge cases** |
 
 ## Maintenance
-1. Run `npm test` — all 3,022 tests must pass
-2. Run `npm run verify` — all 7 phases must pass
+1. Run `npm test` — all 3,528 tests must pass
+2. Run `npm run verify` — all 8 phases must pass
 3. Run `npx vitest run tests/golden/` — 269 hand-calculated tests must pass (~3s)
 4. Check `test-artifacts/*.md` for UNQUALIFIED opinions
 5. New constants go in `shared/constants.ts` (never inline magic numbers)

@@ -37,7 +37,7 @@ export function StressTestTab() {
     fetch("/api/market-intelligence/status", { credentials: "include" })
       .then((r) => r.json())
       .then((status) => setMoodysAvailable(!!status.moodys))
-      .catch(() => {});
+      .catch(() => { /* ignore — status check is best-effort */ });
   }, []);
 
   const rateShocks = [-200, -100, -50, 0, 50, 100, 200];

@@ -35,7 +35,7 @@ export function register(app: Express) {
             riskPremiumApplied = premiumBps;
             effectiveRate = interest_rate_annual + premiumBps / 10000;
           }
-        } catch {}
+        } catch { /* ignore — Moodys aggregation is best-effort; original rate is used */ }
       }
 
       const result = computeDSCR({
@@ -87,7 +87,7 @@ export function register(app: Express) {
             riskPremiumApplied = premiumBps;
             effectiveRate = interest_rate_annual + premiumBps / 10000;
           }
-        } catch {}
+        } catch { /* ignore — Moodys aggregation is best-effort; original rate is used */ }
       }
 
       const result = computeSensitivity({

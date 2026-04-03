@@ -752,7 +752,7 @@ See [Constants System](#constants-system) above.
 ### Monthly Pro Forma Generation
 ```
 Property + Global Assumptions
-  → financialEngine.generatePropertyProForma()
+  → property-engine.generatePropertyProForma()   // client/src/lib/financial/property-engine.ts
     → 120 MonthlyFinancials records
       → yearlyAggregator.aggregatePropertyByYear() → IS views
       → cashFlowAggregator.aggregateCashFlowByYear() → CF views

@@ -61,7 +61,7 @@ import { ThemeManager } from "@/features/design-themes";
 
 // Utilities
 import { formatDateTime, formatDuration } from "@/lib/formatters";
-import { formatMoney } from "@/lib/financialEngine";
+import { formatMoney } from "@/lib/financial/utils";
 import { invalidateAllFinancialQueries } from "@/lib/api";
 
 // Assets

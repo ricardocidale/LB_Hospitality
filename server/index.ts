@@ -297,6 +297,12 @@ async function runSchemaMigrations() {
     await runAppearanceDefaults001();
     await markMigrationApplied("appearance_defaults_001");
   }
+
+  if (!(await isMigrationApplied("fk_hardening_001"))) {
+    const { runFkHardening001 } = await import("./migrations/fk-hardening-001");
+    await runFkHardening001();
+    await markMigrationApplied("fk_hardening_001");
+  }
 }
 
 async function runSeeds() {

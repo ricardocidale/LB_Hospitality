@@ -109,15 +109,15 @@ export function IcpResearchSection({ enabled, onToggle }: IcpResearchSectionProp
                     <>
                       <p className="flex-1 text-xs text-foreground/90 leading-relaxed">{q.question}</p>
                       <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => h.handleEditQuestion(q.id)} className="text-muted-foreground hover:text-primary p-0.5" data-testid={`edit-question-${q.id}`}>
+                        <Button variant="ghost" onClick={() => h.handleEditQuestion(q.id)} className="text-muted-foreground hover:text-primary h-auto w-auto p-0.5" data-testid={`edit-question-${q.id}`}>
                           <IconPencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => h.handleCopyQuestion(q.id)} className="text-muted-foreground hover:text-primary p-0.5" data-testid={`copy-question-${q.id}`}>
+                        </Button>
+                        <Button variant="ghost" onClick={() => h.handleCopyQuestion(q.id)} className="text-muted-foreground hover:text-primary h-auto w-auto p-0.5" data-testid={`copy-question-${q.id}`}>
                           <IconCopy className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => h.handleDeleteQuestion(q.id)} className="text-muted-foreground hover:text-destructive p-0.5" data-testid={`delete-question-${q.id}`}>
+                        </Button>
+                        <Button variant="ghost" onClick={() => h.handleDeleteQuestion(q.id)} className="text-muted-foreground hover:text-destructive h-auto w-auto p-0.5" data-testid={`delete-question-${q.id}`}>
                           <IconTrash className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </div>
                     </>
                   )}

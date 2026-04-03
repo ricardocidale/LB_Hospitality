@@ -213,7 +213,8 @@ export default function MapView() {
               "hillshade-highlight-color": "rgba(255,255,255,0.5)",
             },
           });
-        } catch (e) {
+        } catch {
+          // Hillshading layer may already exist on re-render — not critical.
         }
       }
 
@@ -288,7 +289,8 @@ export default function MapView() {
               },
             });
           }
-        } catch (e) {
+        } catch {
+          // Terrain/hillshade layer already exists on style reload — not critical.
         }
       }
 

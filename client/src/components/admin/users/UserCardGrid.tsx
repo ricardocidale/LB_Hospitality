@@ -48,18 +48,18 @@ export default function UserCardGrid({
   return (
     <>
       <div className="flex items-center gap-4 mb-4 px-1">
-        <button className="flex items-center gap-1.5 text-sm text-muted-foreground font-display cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort("name")} data-testid="sort-user-name">
+        <Button variant="ghost" className="flex items-center gap-1.5 text-sm text-muted-foreground font-display h-auto px-1 py-0.5 hover:text-foreground" onClick={() => toggleSort("name")} data-testid="sort-user-name">
           <IconPeople className="w-4 h-4" />User <SortIcon field="name" sortField={sortField} sortDir={sortDir} />
-        </button>
-        <button className="flex items-center gap-1.5 text-sm text-muted-foreground font-display cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort("role")} data-testid="sort-user-role">
+        </Button>
+        <Button variant="ghost" className="flex items-center gap-1.5 text-sm text-muted-foreground font-display h-auto px-1 py-0.5 hover:text-foreground" onClick={() => toggleSort("role")} data-testid="sort-user-role">
           <IconShield className="w-4 h-4" />Role <SortIcon field="role" sortField={sortField} sortDir={sortDir} />
-        </button>
-        <button className="flex items-center gap-1.5 text-sm text-muted-foreground font-display cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort("company")} data-testid="sort-user-company">
+        </Button>
+        <Button variant="ghost" className="flex items-center gap-1.5 text-sm text-muted-foreground font-display h-auto px-1 py-0.5 hover:text-foreground" onClick={() => toggleSort("company")} data-testid="sort-user-company">
           <IconBuilding2 className="w-4 h-4" />Company <SortIcon field="company" sortField={sortField} sortDir={sortDir} />
-        </button>
-        <button className="flex items-center gap-1.5 text-sm text-muted-foreground font-display cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort("group")} data-testid="sort-user-group">
+        </Button>
+        <Button variant="ghost" className="flex items-center gap-1.5 text-sm text-muted-foreground font-display h-auto px-1 py-0.5 hover:text-foreground" onClick={() => toggleSort("group")} data-testid="sort-user-group">
           <IconUserCog className="w-4 h-4" />Group <SortIcon field="group" sortField={sortField} sortDir={sortDir} />
-        </button>
+        </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {sortedUsers.map((user, idx, arr) => {

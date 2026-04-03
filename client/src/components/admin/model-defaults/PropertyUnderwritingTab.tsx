@@ -27,6 +27,7 @@ import {
   DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_PROPERTY_TAX_RATE,
   DEFAULT_LAND_VALUE_PERCENT,
+  DEFAULT_PROPERTY_INFLATION_RATE,
 } from "@shared/constants";
 
 export function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: (field: string, value: any) => void }) {
@@ -428,6 +429,16 @@ export function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onC
           min={0.05} max={0.5} step={0.01}
           testId="field-defaultLandValuePercent"
           researchRange="15%–30%"
+        />
+        <PctField
+          label="Default Property Inflation Rate"
+          tooltip="Annual cost and revenue inflation rate applied at the property level. Drives expense escalation and ADR growth when no property-specific rate is set. Typically tracks CPI (1%–4%)."
+          value={draft.inflationRate}
+          fallback={DEFAULT_PROPERTY_INFLATION_RATE}
+          onChange={(_, v) => onChange("inflationRate", v)}
+          min={0} max={0.1} step={0.005}
+          testId="field-inflationRate"
+          researchRange="2%–4%"
         />
       </Section>
 

@@ -191,19 +191,19 @@ export function AIImagePicker({
   return (
     <div className={cn("space-y-3", className)} data-testid={testId}>
       <div className="flex gap-2 flex-wrap">
-        <button type="button" onClick={() => setMode("upload")} disabled={isBusy} className={modeButtonClass(mode === "upload")}>
+        <Button type="button" variant="ghost" onClick={() => setMode("upload")} disabled={isBusy} className={modeButtonClass(mode === "upload")}>
           <IconUpload className="w-3.5 h-3.5" />
           {uploadLabel}
-        </button>
-        <button type="button" onClick={() => setMode("generate")} disabled={isBusy} className={modeButtonClass(mode === "generate")}>
+        </Button>
+        <Button type="button" variant="ghost" onClick={() => setMode("generate")} disabled={isBusy} className={modeButtonClass(mode === "generate")}>
           <IconSparkles className="w-3.5 h-3.5" />
           {generateLabel}
-        </button>
+        </Button>
         {showUrlMode && (
-          <button type="button" onClick={() => setMode("url")} disabled={isBusy} className={modeButtonClass(mode === "url")}>
+          <Button type="button" variant="ghost" onClick={() => setMode("url")} disabled={isBusy} className={modeButtonClass(mode === "url")}>
             <LinkIcon className="w-3.5 h-3.5" />
             Enter URL
-          </button>
+          </Button>
         )}
       </div>
 

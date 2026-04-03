@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { SaveButton } from "@/components/ui/save-button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -682,15 +683,12 @@ export default function ResearchTab() {
       </Card>
 
       <div className="flex justify-end pt-2">
-        <Button
+        <SaveButton
           data-testid="button-save-research"
           onClick={handleSave}
-          disabled={!isDirty || saveMutation.isPending}
-          className="gap-2"
-        >
-          {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-          Save Changes
-        </Button>
+          isPending={saveMutation.isPending}
+          hasChanges={isDirty}
+        />
       </div>
     </div>
   );

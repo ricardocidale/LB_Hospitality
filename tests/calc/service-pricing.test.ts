@@ -16,7 +16,17 @@ describe("computeServiceFee", () => {
     expect(result.highFee).toBe(40_000);
   });
 
-  it("returns Technology & Reservations fee range (via 'it' alias)", () => {
+  it("returns Technology & Reservations fee range", () => {
+    const result = computeServiceFee({ propertyRevenue: 2_000_000, serviceType: "technology_reservations" });
+    expect(result.lowRate).toBe(0.02);
+    expect(result.midRate).toBe(0.03);
+    expect(result.highRate).toBe(0.04);
+    expect(result.lowFee).toBe(40_000);
+    expect(result.midFee).toBe(60_000);
+    expect(result.highFee).toBe(80_000);
+  });
+
+  it("resolves legacy 'it' alias to Technology & Reservations", () => {
     const result = computeServiceFee({ propertyRevenue: 2_000_000, serviceType: "it" });
     expect(result.lowFee).toBe(40_000);
     expect(result.midFee).toBe(60_000);
@@ -117,5 +127,21 @@ describe("computeMarkupWaterfall", () => {
     expect(result.industryMarkupRange!.low).toBe(0.20);
     expect(result.industryMarkupRange!.mid).toBe(0.30);
     expect(result.industryMarkupRange!.high).toBe(0.40);
+  });
+
+  it("returns Technology & Reservations industry markup range", () => {
+    const result = computeMarkupWaterfall({ vendorCost: 8_000, markupPct: 0.20, serviceType: "technology_reservations" });
+    expect(result.industryMarkupRange).toBeTruthy();
+    expect(result.industryMarkupRange!.low).toBe(0.10);
+    expect(result.industryMarkupRange!.mid).toBe(0.20);
+    expect(result.industryMarkupRange!.high).toBe(0.30);
+  });
+
+  it("resolves legacy 'it' alias in markup waterfall", () => {
+    const result = computeMarkupWaterfall({ vendorCost: 8_000, markupPct: 0.20, serviceType: "it" });
+    expect(result.industryMarkupRange).toBeTruthy();
+    expect(result.industryMarkupRange!.low).toBe(0.10);
+    expect(result.industryMarkupRange!.mid).toBe(0.20);
+    expect(result.industryMarkupRange!.high).toBe(0.30);
   });
 });

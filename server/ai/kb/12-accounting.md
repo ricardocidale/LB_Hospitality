@@ -8,7 +8,7 @@ ASC 470 — How debt is classified and presented (interest on the income stateme
 ASC 606 — How revenue is recognized (room revenue when the stay happens, event revenue when the event occurs)
 ASC 805 — How acquisitions are recorded (at fair value of consideration paid)
 USALI 12th Revised Edition (HFTP, effective Jan 1 2026) — The hotel industry's standard chart of accounts for categorizing revenue and expenses. The 12th edition renamed Utilities to "Energy, Water, and Waste" and added schedules for Loyalty Programs, Executive Lounge, and Brand & Operator Costs.
-IRS Publication 946 — The rules for depreciating real property (27.5-year straight-line for residential rental)
+IRS Publication 946 — The rules for depreciating real property (39-year straight-line for nonresidential real property such as hotels, per IRC §168(e)(2)(A))
 
 Industry Term — AGOP (Adjusted Gross Operating Profit): Not a standard USALI line item, but widely used in hotel management agreements (HMAs) and industry practice. Defined as GOP minus management fees. The incentive management fee is typically calculated as a percentage of AGOP. Sources: Chatlyn Glossary (chatlyn.com), Canary Technologies (canarytechnologies.com), Law Insider (lawinsider.com).
 

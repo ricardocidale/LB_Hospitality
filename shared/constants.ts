@@ -195,9 +195,9 @@ export const GOVERNED_FIELDS: Record<string, GovernedFieldMeta> = {
   depreciationYears: {
     fieldName: "Depreciation Years",
     authority: "IRS Publication 946",
-    value: "27.5 years",
+    value: "39 years",
     helperText:
-      "27.5 years: residential rental property (hotels, motels). 39 years: nonresidential real property. This model uses 27.5-year straight-line depreciation for boutique hotel assets as classified under MACRS. Changing this deviates from standard tax depreciation schedules. Consult your tax advisor.",
+      "39 years: nonresidential real property (hotels per IRC §168(e)(2)(A)). 27.5 years: residential rental property only. This model uses 39-year straight-line depreciation for hotel assets as classified under MACRS. Changing this deviates from standard tax depreciation schedules. Consult your tax advisor.",
     referenceUrl: "https://www.irs.gov/publications/p946",
   },
   daysPerMonth: {

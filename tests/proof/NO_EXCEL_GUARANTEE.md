@@ -15,7 +15,7 @@ Every item below is enforced by automated tests. If any check fails, the build i
 | 7 | Intercompany matching: management fee revenue = property fee expense per period | `tests/proof/scenarios.test.ts` |
 | 8 | Consolidated eliminations: intercompany amounts net to zero | `tests/proof/scenarios.test.ts` |
 | 9 | Monthly → yearly rollup correctness | `tests/engine/proforma-golden.test.ts` |
-| 10 | Depreciation follows 27.5-year straight-line per IRS Pub 946 | `tests/engine/proforma-golden.test.ts` |
+| 10 | Depreciation follows 39-year straight-line per IRC §168(e)(2)(A) | `tests/engine/proforma-golden.test.ts` |
 | 11 | Loan amortization matches PMT formula | `tests/financing/sizing.test.ts` |
 | 12 | Refinance payoff and sizing calculations correct | `tests/refinance/payoff.test.ts`, `tests/refinance/sizing.test.ts` |
 | 13 | IRR computation via Newton-Raphson matches expected values | `tests/analytics/irr.test.ts` |

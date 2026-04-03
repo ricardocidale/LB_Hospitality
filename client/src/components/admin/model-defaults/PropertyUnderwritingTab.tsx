@@ -387,7 +387,7 @@ export function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onC
           <GovernedFieldWrapper
             authority="IRS Publication 946"
             label="Depreciation Years"
-            helperText={<>27.5 years: residential rental property. 39 years: nonresidential real property. Changing this deviates from standard tax depreciation. Consult your tax advisor.</>}
+            helperText={<>39 years: nonresidential real property (hotels per IRC §168(e)(2)(A)). 27.5 years applies only to residential rental property. Changing this deviates from standard tax depreciation. Consult your tax advisor.</>}
             referenceUrl="https://www.irs.gov/publications/p946"
             defaultExpanded={false}
             data-testid="governed-depreciationYears"
@@ -396,14 +396,14 @@ export function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onC
               <div className="flex items-center justify-between">
                 <Label className="text-foreground label-text">Convention Value</Label>
                 <EditableValue
-                  value={draft.depreciationYears ?? 27.5}
+                  value={draft.depreciationYears ?? 39}
                   onChange={(v) => onChange("depreciationYears", v)}
                   format="number"
                   min={1} max={50} step={0.5}
                 />
               </div>
               <Slider
-                value={[draft.depreciationYears ?? 27.5]}
+                value={[draft.depreciationYears ?? 39]}
                 onValueChange={([v]) => onChange("depreciationYears", v)}
                 min={1} max={50} step={0.5}
               />

@@ -602,7 +602,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       {/* ── Net Income ── */}
       <SectionHeader label="Net Income" colSpan={colSpan} />
 
-      <LineItem label="Depreciation"      values={yd.map((y) => y.depreciationExpense)} tooltip="Non-cash accounting expense that spreads the building's cost over its useful life. Reduces taxable income without reducing actual cash — a major tax advantage of real estate investing. Land is not depreciable." formula="(Building Value + Improvements) / 27.5 years / 12 months" />
+      <LineItem label="Depreciation"      values={yd.map((y) => y.depreciationExpense)} tooltip="Non-cash accounting expense that spreads the building's cost over its useful life. Reduces taxable income without reducing actual cash — a major tax advantage of real estate investing. Land is not depreciable." formula="(Building Value + Improvements) / 39 years / 12 months" />
       <LineItem label="Income Tax"        values={yd.map((y) => y.incomeTax)} tooltip="Federal/state income tax on the property's taxable income. Only applies when taxable income is positive — operating losses produce $0 tax. Negative taxable income (from depreciation) can shelter other income." formula="max(0, (ANOI − Interest − Depreciation) × Tax Rate)" />
       <LineItem label="Cash Flow"         values={yd.map((y) => y.anoi - y.interestExpense - (y.principalPayment ?? 0) - y.incomeTax)} tooltip="Actual cash remaining after all obligations: ANOI minus debt service minus income tax. This is the investor's true take-home." formula="ANOI − Debt Service − Income Tax" />
 

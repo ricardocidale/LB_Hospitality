@@ -196,7 +196,7 @@ export function AssetsSection({
             <>
               <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
                 <TableCell className="pl-[72px] sticky left-0 bg-primary/[0.03] z-10 py-1 text-sm text-muted-foreground italic">
-                  Straight-line over 27.5 years (ASC 360)
+                  Straight-line over 39 years (ASC 360)
                 </TableCell>
                 {consolidatedAccDep.map((val, i) => (
                   <TableCell key={i} className="text-right font-mono text-sm text-foreground py-1">{formatMoney(-val)}</TableCell>

@@ -42,7 +42,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["F-P-12b", "Incentive Management Fee", "max(0, GOP) × incentiveMgmtFeeRate", "HVS 2024 Specialty: 12–20% of GOP; only charged when GOP > 0"],
             ["F-P-12c", "Fixed Charges", "Property Taxes + FF&E Reserve. In this engine, insurance is included in operating expenses (before GOP) rather than as a fixed charge. Property taxes are subtracted after AGOP; FF&E after NOI.", "USALI 12th Ed. Fixed Charges; property taxes per IRC §164 (1.5–4% of assessed value); FF&E 3–5% of revenue per lender covenants"],
             ["F-P-13", "Depreciable Basis", "(Purchase Price + Improvements) × (1 − Land Value %)", "IRS Pub 946; land is non-depreciable; typical land allocation 20–30%"],
-            ["F-P-14", "Depreciation", "Depreciable Basis / 27.5 / 12 (monthly straight-line)", "IRS Pub 946 / IRC §168: MACRS 27.5-year residential rental property"],
+            ["F-P-14", "Depreciation", "Depreciable Basis / 39 / 12 (monthly straight-line)", "IRS Pub 946 / IRC §168: MACRS 39-year nonresidential real property (hotels)"],
             ["F-P-15", "Interest Expense", "Beginning Loan Balance × Monthly Interest Rate", "ASC 835 Interest Imputation; only interest shown on income statement"],
             ["F-P-16", "Net Income", "ANOI − Interest Expense − Depreciation − Income Tax", "GAAP income statement; tax per property-level rate (default 25%)"],
             ["F-P-16a", "Income Tax", "max(0, Taxable Income) × incomeTaxRate; NOL carried forward", "IRC §172: Net Operating Loss carryforward; no carryback in this model"],

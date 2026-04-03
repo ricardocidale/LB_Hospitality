@@ -301,7 +301,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
 
   autoResearchRefreshEnabled: boolean("auto_research_refresh_enabled").notNull().default(false),
 
-  depreciationYears: real("depreciation_years").notNull().default(27.5),
+  depreciationYears: real("depreciation_years").notNull().default(39),
   daysPerMonth: real("days_per_month").notNull().default(30.5),
 
   // Property Revenue Defaults (nullable — NULL = use constant fallback from shared/constants.ts)

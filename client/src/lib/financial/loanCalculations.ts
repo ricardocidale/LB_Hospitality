@@ -16,7 +16,7 @@
  *     typically require ≥ 1.25x
  *   - Cap Rate: NOI / property value — used to estimate market value at exit
  *   - Depreciation: under IRS rules, commercial real estate (excluding land)
- *     is depreciated straight-line over 27.5 years (residential rental property)
+ *     is depreciated straight-line over 39 years (nonresidential hotel per IRC §168(e)(2)(A))
  */
 
 export interface LoanParams {

@@ -222,7 +222,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
         label="Less: Accumulated Depreciation"
         amount={-totalAccumulatedDepreciation}
         indent={2}
-        tooltip="Cumulative straight-line depreciation (ASC 360) over building basis / 27.5 years"
+        tooltip="Cumulative straight-line depreciation (ASC 360) over building basis / 39 years"
         expanded={isExpanded("accDep")}
         onToggle={() => toggle("accDep")}
       >

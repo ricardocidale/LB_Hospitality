@@ -266,7 +266,7 @@ Total Revenue
   - FF&E Reserve
   = Net Operating Income (NOI)
   - Interest Expense
-  - Depreciation (27.5-year straight-line per IRS Pub 946)
+  - Depreciation (39-year straight-line per IRC §168(e)(2)(A))
   = Net Income
 ```
 
@@ -358,7 +358,7 @@ When ON (default), every financial line item shows a help icon explaining its fo
 | Standard | Topic | Application |
 |----------|-------|-------------|
 | ASC 230 | Statement of Cash Flows | Indirect method, operating/investing/financing classification |
-| ASC 360 | Property, Plant & Equipment | 27.5-year straight-line depreciation, asset valuation |
+| ASC 360 | Property, Plant & Equipment | 39-year straight-line depreciation (nonresidential per IRC §168(e)(2)(A)), asset valuation |
 | ASC 470 | Debt | Loan amortization, interest/principal separation |
 | ASC 606 | Revenue Recognition | Revenue timing and calculation verification |
 | USALI | Uniform System of Accounts for Lodging | Hospitality-specific expense categorization |

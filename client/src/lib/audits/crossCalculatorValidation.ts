@@ -369,7 +369,7 @@ export function crossValidateFinancingCalculators(
     source: 'GAAP ASC 606: Revenue Recognition',
   });
 
-  // 14. IRS: Depreciation = Basis / 27.5 / 12 (straight-line)
+  // 14. IRS: Depreciation = Basis / 39 / 12 (straight-line, nonresidential hotel)
   const depMonths = monthlyData.filter(m => m.depreciationExpense > 0);
   if (depMonths.length > 0) {
     const depLandPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;

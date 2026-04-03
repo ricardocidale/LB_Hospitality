@@ -136,7 +136,12 @@ export function register(app: Express) {
   // Group property visibility
   app.get("/api/user-groups/:id/properties", requireAuth, async (req, res) => {
     try {
-      const ids = await storage.getGroupPropertyIds(Number(req.params.id));
+      const groupId = Number(req.params.id);
+      const user = req.user!;
+      if (user.role !== UserRole.ADMIN && user.userGroupId !== groupId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      const ids = await storage.getGroupPropertyIds(groupId);
       res.json(ids);
     } catch (error) {
       logAndSendError(res, "Failed to fetch group properties", error);
@@ -238,13 +243,19 @@ export function register(app: Express) {
 
   app.patch("/api/properties/:id", requireManagementAccess, async (req, res) => {
     try {
+      const propertyId = Number(req.params.id);
+      const hasAccess = await checkPropertyAccess(req.user!, propertyId);
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
       const validation = updatePropertySchema.safeParse(req.body);
       if (!validation.success) {
         const error = fromZodError(validation.error);
         return res.status(400).json({ error: error.message });
       }
       
-      const property = await storage.updateProperty(Number(req.params.id), validation.data);
+      const property = await storage.updateProperty(propertyId, validation.data);
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
@@ -271,6 +282,11 @@ export function register(app: Express) {
   app.delete("/api/properties/:id", requireManagementAccess, async (req, res) => {
     try {
       const id = Number(req.params.id);
+      const hasAccess = await checkPropertyAccess(req.user!, id);
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
       const property = await storage.getProperty(id);
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
@@ -287,6 +303,10 @@ export function register(app: Express) {
   app.post("/api/properties/:id/seed-research", requireManagementAccess, async (req, res) => {
     try {
       const id = Number(req.params.id);
+      const hasAccess = await checkPropertyAccess(req.user!, id);
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied" });
+      }
       const property = await storage.getProperty(id);
       if (!property) {
         return res.status(404).json({ error: "Property not found" });

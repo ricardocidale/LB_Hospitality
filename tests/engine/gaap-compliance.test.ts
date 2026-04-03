@@ -403,7 +403,7 @@ describe("ASC 230 — Operating Cash Flow indirect method", () => {
 // 6. ASC 360 — Depreciation
 // ===========================================================================
 describe("ASC 360 — Depreciation (PP&E)", () => {
-  it("monthly depreciation = buildingValue / 27.5 / 12", () => {
+  it("monthly depreciation = buildingValue / DEPRECIATION_YEARS / 12", () => {
     const data = generatePropertyProForma(fullEquityProperty, baseGlobal, 12);
     const landPct = fullEquityProperty.landValuePercent;
     const buildingValue = fullEquityProperty.purchasePrice * (1 - landPct);
@@ -450,7 +450,7 @@ describe("ASC 360 — Depreciation (PP&E)", () => {
     }
   });
 
-  it("27.5 years is IRS-mandated and used consistently", () => {
+  it("39 years is IRS-mandated for nonresidential real property (hotels)", () => {
     expect(DEPRECIATION_YEARS).toBe(39);
     // Verify the engine uses this value
     const data = generatePropertyProForma(fullEquityProperty, baseGlobal, 12);

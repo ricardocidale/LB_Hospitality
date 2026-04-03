@@ -5,7 +5,7 @@
  * produced by the financial engine. Each audit module lives in ./audits/ and
  * targets a different area:
  *   1. Timing Rules — No revenue before operations start, no debt before acquisition
- *   2. Depreciation — 27.5-year straight-line per IRS Publication 946 / ASC 360
+ *   2. Depreciation — 39-year straight-line per IRS Publication 946 / ASC 360 (nonresidential hotel)
  *   3. Loan Amortization — PMT formula verification, interest/principal split (ASC 470)
  *   4. Income Statement — Revenue, GOP, NOI, Net Income formulas (USALI / ASC 606)
  *   5. Management Fees — Base fee on revenue, incentive fee on GOP (ASC 606)

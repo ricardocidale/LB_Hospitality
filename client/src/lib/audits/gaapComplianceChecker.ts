@@ -13,7 +13,7 @@
  *    - ASC 230 (Cash Flows): Cash Flow = NOI - full debt service (interest + principal) - tax.
  *      Unlike Net Income, cash flow DOES include principal because it's actual cash leaving.
  *    - ASC 606 (Revenue): Room revenue recognized when the guest stays (point-in-time).
- *    - ASC 360 (Property): 27.5-year straight-line depreciation for residential rental property.
+ *    - ASC 360 (Property): 39-year straight-line depreciation for nonresidential real property (hotels).
  *    - Matching Principle: Expenses are recorded in the same period as related revenue.
  *    - USALI: NOI is calculated BEFORE debt service (industry standard for hotels).
  *    - FF&E Reserve: Set-aside for furniture/fixtures replacement is properly recorded.

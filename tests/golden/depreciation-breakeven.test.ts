@@ -11,8 +11,8 @@ describe("Golden Depreciation Scenarios", () => {
    * - Building Value: $1,500,000
    * - Improvements: $0
    * - Depreciable Basis: $1,500,000
-   * - Annual Depreciation: $1,500,000 / 27.5 = $54,545.45
-   * - Monthly Depreciation: $54,545.45 / 12 = $4,545.45
+   * - Annual Depreciation: $1,500,000 / 39 = $38,461.54
+   * - Monthly Depreciation: $38,461.54 / 12 = $3,205.13
    */
   it("should calculate standard depreciation correctly", () => {
     const result = computeDepreciationBasis({
@@ -35,7 +35,7 @@ describe("Golden Depreciation Scenarios", () => {
    * - Building Value: $800,000
    * - Improvements: $200,000
    * - Depreciable Basis: $800,000 + $200,000 = $1,000,000
-   * - Annual Depreciation: $1,000,000 / 27.5 = $36,363.64
+   * - Annual Depreciation: $1,000,000 / 39 = $25,641.03
    */
   it("should calculate depreciation with improvements correctly", () => {
     const result = computeDepreciationBasis({

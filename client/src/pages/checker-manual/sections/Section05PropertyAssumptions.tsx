@@ -70,12 +70,12 @@ import { SectionCard } from "@/components/ui/section-card";
           headers={["Field", "Standard", "Rule Summary"]}
           rows={[
             ["Purchase Price", "ASC 805", "Acquisition cost = fair value of consideration transferred; depreciable basis excludes land"],
-            ["Building Improvements", "ASC 360 / IRS Pub 946", "Capitalized and depreciated over 27.5 years straight-line; not expensed immediately"],
+            ["Building Improvements", "ASC 360 / IRS Pub 946", "Capitalized and depreciated over 39 years straight-line; not expensed immediately"],
             ["Land Value %", "IRS Pub 946", "Land is NOT depreciable; higher land % = lower depreciation deduction"],
             ["LTV", "ASC 470", "Debt separated into interest (IS expense) and principal (BS/CFF); only interest reduces taxable income"],
             ["Closing Costs", "ASC 310-20", "Loan origination costs capitalized and amortized over loan term; shown as reduction of loan liability"],
             ["Exit Cap Rate", "ASC 360 / IRC §1250", "Terminal value for impairment testing; depreciation recapture taxed at up to 25%"],
-            ["Income Tax Rate", "IRC §168", "Taxable income = NOI − Interest − Depreciation; 27.5-year depreciation shelters cash flow"],
+            ["Income Tax Rate", "IRC §168", "Taxable income = NOI − Interest − Depreciation; 39-year depreciation shelters cash flow"],
             ["Events Revenue", "ASC 606", "Point-in-time recognition when event occurs; deposits = deferred revenue"],
             ["F&B Revenue", "ASC 606", "Revenue at point of sale; bundled packages allocated to standalone selling prices"],
             ["FF&E Reserve", "USALI", "Deducted below GOP to arrive at NOI; actual replacements capitalized 5–7 years"],

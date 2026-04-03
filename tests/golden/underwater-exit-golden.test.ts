@@ -134,7 +134,7 @@ const H_PMT = pmt(H_LOAN, H_MONTHLY_RATE, H_TOTAL_PAYMENTS);
 const H_LAND_PCT = DEFAULT_LAND_VALUE_PERCENT;                           // 0.25
 const H_BUILDING_VALUE = H_TOTAL_PROP_VALUE * (1 - H_LAND_PCT);         // 1,125,000
 const H_LAND_VALUE = H_TOTAL_PROP_VALUE * H_LAND_PCT;                   // 375,000
-const H_MONTHLY_DEPR = H_BUILDING_VALUE / DEPRECIATION_YEARS / 12;      // 1125000 / 27.5 / 12
+const H_MONTHLY_DEPR = H_BUILDING_VALUE / DEPRECIATION_YEARS / 12;      // 1125000 / 39 / 12
 
 // Equity invested
 const H_EQUITY = H_TOTAL_PROP_VALUE - H_LOAN;                           // 225,000
@@ -264,7 +264,7 @@ describe("Golden Scenario: Underwater Exit (Negative Equity)", () => {
 
   // ─── Depreciation ───────────────────────────────────────────────────────
   describe("Depreciation", () => {
-    it("monthly depreciation = $1,125,000 / 27.5 / 12", () => {
+    it("monthly depreciation = $1,125,000 / 39 / 12", () => {
       expect(propFinancials[0].depreciationExpense).toBeCloseTo(H_MONTHLY_DEPR, 2);
     });
 

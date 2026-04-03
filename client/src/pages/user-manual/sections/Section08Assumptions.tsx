@@ -42,7 +42,7 @@ export default function Section08Assumptions({ expanded, onToggle, sectionRef }:
             ["Exit Cap Rate", "8.5%", "HVS / CBRE cap rate surveys", "7–10%"],
             ["Sales Commission", "5%", "Broker industry standard", "4–6%"],
             ["Land Value %", "25%", "IRS Pub 946 guidelines", "20–30%"],
-            ["Depreciation Years", "27.5 years", "IRS Pub 946 / IRC §168 (MACRS)", "Fixed by IRS"],
+            ["Depreciation Years", "39 years", "IRS Pub 946 / IRC §168(e)(2)(A) (MACRS)", "Fixed by IRS"],
             ["FF&E Reserve", "4% of revenue", "USALI / lender covenants", "3–5%"],
             ["Days Per Month", "30.5", "Industry convention (365 ÷ 12)", "Fixed"],
             ["Projection Horizon", "10 years", "PE underwriting standard", "5–15 years"],

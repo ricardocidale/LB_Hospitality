@@ -1,4 +1,5 @@
 import { useMemo, useState, useRef, lazy, Suspense } from "react";
+import { DEPRECIATION_YEARS } from "@shared/constants";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { usePropertyPhotos } from "@/lib/api/property-photos";
@@ -113,7 +114,7 @@ export default function PropertyDetail() {
     const loanProps = property as LoanParams;
     const loan = calculateLoanParams(loanProps, global as GlobalLoanParams);
     const totalCost = loanProps.purchasePrice + (loanProps.buildingImprovements ?? 0) + (loanProps.preOpeningCosts ?? 0);
-    const depPerYear = totalCost > 0 ? totalCost / 39 : 0;
+    const depPerYear = totalCost > 0 ? totalCost / DEPRECIATION_YEARS : 0;
     let runCash = 0;
     let cumPrincipal = 0;
     return yearlyChartData.map((d, i) => {

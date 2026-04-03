@@ -143,7 +143,7 @@ ANOI − Interest Expense − Depreciation − Income Tax = Net Income
 Free Cash Flow to Equity (FCFE):
 ANOI − Debt Service (Principal + Interest) − Income Tax = FCFE
 
-Depreciation: Straight-line over 27.5 years on depreciable basis (building portion of purchase price × (1 − land value percent) + building improvements).
+Depreciation: Straight-line over 39 years on depreciable basis (building portion of purchase price × (1 − land value percent) + building improvements). Hotels are nonresidential real property per IRC §168(e)(2)(A).
 
 Balance Sheet Identity: Assets = Liabilities + Equity
 - Assets: Cash + Net Property (Purchase Price + Closing Costs − Accumulated Depreciation)
@@ -271,12 +271,12 @@ GAAP Standards Applied:
 
 GAAP/IRS Rules by Field:
 - Purchase Price → ASC 805: Acquisition cost is fair value of consideration. Depreciable basis excludes the land allocation.
-- Building Improvements → ASC 360 / IRS Pub 946: Capital improvements are capitalized and depreciated over 27.5 years straight-line. They are not expensed immediately.
+- Building Improvements → ASC 360 / IRS Pub 946: Capital improvements are capitalized and depreciated over 39 years straight-line (nonresidential real property per IRC §168(e)(2)(A)). They are not expensed immediately.
 - Land Value % → IRS Publication 946: Land is NOT depreciable. Only the building portion (Purchase Price × (1 − Land %) + Improvements) is depreciated. Higher land % = lower depreciation deduction.
 - LTV → ASC 470: Debt must be separated into interest expense (Income Statement) and principal repayment (Balance Sheet/Financing Activity). Only interest reduces taxable income.
 - Closing Costs → ASC 310-20: Loan origination costs are capitalized and amortized over the loan term. Not expensed immediately. Shown as a reduction of the loan liability on the balance sheet.
 - Exit Cap Rate → ASC 360 / IRC §1250: The exit cap rate determines terminal value for impairment testing. Gain on sale = Sale Price − (Adjusted Basis − Accumulated Depreciation). Depreciation recapture is taxed at up to 25% under IRC §1250.
-- Income Tax Rate → IRC §168: Taxable income = ANOI − Interest − Depreciation. The 27.5-year straight-line depreciation on the building portion creates a non-cash deduction that shelters cash flow from taxes.
+- Income Tax Rate → IRC §168: Taxable income = ANOI − Interest − Depreciation. The 39-year straight-line depreciation on the building portion (nonresidential real property per IRC §168(e)(2)(A)) creates a non-cash deduction that shelters cash flow from taxes.
 - Events Revenue → ASC 606: Event revenue is recognized when the event occurs (point-in-time). Deposits are recorded as deferred revenue until the performance obligation is satisfied.
 - F&B Revenue → ASC 606: F&B revenue is recognized at the point of sale. Bundled packages (e.g., room + breakfast) must allocate revenue to each performance obligation based on standalone selling prices.
 - FF&E Reserve → USALI Standard: FF&E reserve is deducted below NOI to arrive at ANOI. Actual FF&E replacements are capitalized and depreciated over 5–7 years (IRS Class Life), not expensed. The reserve funds future CapEx.
@@ -373,7 +373,7 @@ Income Statement (USALI Waterfall):
 - Less: FF&E Reserve
 - = Adjusted NOI (ANOI)
 - Less: Interest Expense (interest portion only, per Rule #6)
-- Less: Depreciation (straight-line, 27.5 years)
+- Less: Depreciation (straight-line, 39 years per IRC §168(e)(2)(A))
 - Less: Income Tax
 - = Net Income
 

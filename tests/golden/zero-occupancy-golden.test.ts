@@ -123,10 +123,10 @@ const H_ANOI = H_NOI - H_EXP_FFE;                                               
 const H_LAND_PCT = DEFAULT_LAND_VALUE_PERCENT;                                     // 0.25
 const H_BUILDING_VALUE = H_TOTAL_PROP_VALUE * (1 - H_LAND_PCT);                   // 750,000
 const H_LAND_VALUE = H_TOTAL_PROP_VALUE * H_LAND_PCT;                             // 250,000
-const H_MONTHLY_DEPR = H_BUILDING_VALUE / DEPRECIATION_YEARS / 12;                // 750000 / 27.5 / 12 = 2272.73
+const H_MONTHLY_DEPR = H_BUILDING_VALUE / DEPRECIATION_YEARS / 12;                // 750000 / 39 / 12 = 1602.56
 
 // Income tax: taxableIncome = ANOI - interest - depreciation
-// = -2500 - 0 - 2272.73 = -4772.73 → negative → tax = $0
+// = -2500 - 0 - 1602.56 = -4102.56 → negative → tax = $0
 const H_TAXABLE_INCOME = H_ANOI - 0 - H_MONTHLY_DEPR;
 const H_INCOME_TAX = H_TAXABLE_INCOME > 0 ? H_TAXABLE_INCOME * 0.25 : 0;         // $0
 
@@ -244,9 +244,9 @@ describe("Golden Scenario: Zero Occupancy (Failed Asset)", () => {
     });
   });
 
-  // ─── 8. Depreciation = $2,272.73/mo ──────────────────────────────────────
+  // ─── 8. Depreciation = $1,602.56/mo ──────────────────────────────────────
   describe("Depreciation", () => {
-    it("monthly depreciation = $750,000 / 27.5 / 12 = $2,272.73", () => {
+    it("monthly depreciation = $750,000 / 39 / 12 = $1,602.56", () => {
       for (let i = 0; i < MONTHS; i++) {
         expect(propFinancials[i].depreciationExpense).toBeCloseTo(H_MONTHLY_DEPR, 2);
       }

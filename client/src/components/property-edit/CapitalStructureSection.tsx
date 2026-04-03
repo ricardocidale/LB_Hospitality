@@ -16,7 +16,7 @@
  *     • DSCR (Debt Service Coverage Ratio) = NOI / Annual Debt Service
  *
  *   Depreciation:
- *     • Building useful life (typically 27.5 or 39 years for GAAP)
+ *     • Building useful life (39 years for nonresidential hotel per IRC §168(e)(2)(A))
  *     • FF&E useful life (typically 5-7 years)
  *     • Cost basis = purchase price − land value (straight-line depreciation)
  *
@@ -65,7 +65,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="label-text text-foreground flex items-center gap-1.5">Building Improvements<InfoTooltip text="Capital improvements and renovation costs (in dollars) added to the building basis. These are depreciated over 27.5 years along with the building portion of the purchase price." /><GaapBadge rule="ASC 360 / IRS Pub 946: Capital improvements are added to the depreciable basis and depreciated over 27.5 years (straight-line). They are not expensed immediately." /></Label>
+            <Label className="label-text text-foreground flex items-center gap-1.5">Building Improvements<InfoTooltip text="Capital improvements and renovation costs (in dollars) added to the building basis. These are depreciated over 39 years along with the building portion of the purchase price." /><GaapBadge rule="ASC 360 / IRS Pub 946: Capital improvements are added to the depreciable basis and depreciated over 39 years (straight-line). They are not expensed immediately." /></Label>
             <Input 
               value={formatMoneyInput(draft.buildingImprovements)} 
               onChange={(e) => onNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())}
@@ -92,8 +92,8 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             <div className="flex flex-col gap-0.5">
               <Label className="label-text text-foreground flex items-center gap-1.5">
                 Land Value (%)
-                <InfoTooltip text="Percentage of the purchase price allocated to land. Land does not depreciate under IRS rules (Publication 946). Only the building portion is depreciated over 27.5 years. Typical land allocation ranges from 15-40% depending on location and property type." />
-                <GaapBadge rule="IRS Publication 946: Land is NOT depreciable. Only the building portion (Purchase Price × (1 − Land %) + Improvements) is depreciated over 27.5 years using straight-line method. Higher land % = lower depreciation deduction." />
+                <InfoTooltip text="Percentage of the purchase price allocated to land. Land does not depreciate under IRS rules (Publication 946). Only the building portion is depreciated over 39 years. Typical land allocation ranges from 15-40% depending on location and property type." />
+                <GaapBadge rule="IRS Publication 946: Land is NOT depreciable. Only the building portion (Purchase Price × (1 − Land %) + Improvements) is depreciated over 39 years using straight-line method. Higher land % = lower depreciation deduction." />
               </Label>
               <ResearchBadge entry={researchValues.landValue} onClick={() => researchValues.landValue && onChange("landValuePercent", researchValues.landValue.mid / 100)} />
             </div>
@@ -128,7 +128,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
           <div className="space-y-1.5 mt-2">
             <Label className="label-text text-foreground flex items-center gap-1.5 text-xs">
               Property Override
-              <InfoTooltip text="Override the global depreciation period for this property. Leave blank to use the global or IRS default (27.5 years)." />
+              <InfoTooltip text="Override the global depreciation period for this property. Leave blank to use the global or IRS default (39 years)." />
             </Label>
             <Input
               type="number"

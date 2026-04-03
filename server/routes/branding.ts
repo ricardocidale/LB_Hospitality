@@ -238,7 +238,7 @@ export function register(app: Express) {
     }
   });
 
-  app.get("/api/letter-logo/:name", (req, res) => {
+  app.get("/api/letter-logo/:name", requireAuth, (req, res) => {
     const raw = decodeURIComponent(req.params.name);
     const name = raw.replace(/[<>&"'/\\]/g, "").substring(0, 100);
     const letter = name.charAt(0) || "?";

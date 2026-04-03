@@ -1,4 +1,4 @@
-import { APP_BRAND_NAME } from "@shared/constants";
+import { APP_BRAND_NAME, DEPRECIATION_YEARS } from "@shared/constants";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
 import { exportFullPropertyWorkbook } from "@/lib/exports/excelExport";
@@ -269,11 +269,11 @@ export function buildPremiumExportPayload(ctx: PropertyExportContext, version: E
   bsRows.push({ category: "ASSETS", values: yearlyDetails.map(() => 0), isHeader: true });
   bsRows.push({ category: "Cash & Equivalents", values: closeCash, indent: 1 });
   bsRows.push({ category: "Property (Net Book Value)", values: yearlyDetails.map((_, i) => {
-    const depPerYear = totalPropertyCost / 39;
+    const depPerYear = totalPropertyCost / DEPRECIATION_YEARS;
     return Math.max(totalPropertyCost - depPerYear * (i + 1), 0);
   }), indent: 1 });
   bsRows.push({ category: "Total Assets", values: yearlyDetails.map((_, i) => {
-    const depPerYear = totalPropertyCost / 39;
+    const depPerYear = totalPropertyCost / DEPRECIATION_YEARS;
     return closeCash[i] + Math.max(totalPropertyCost - depPerYear * (i + 1), 0);
   }), isBold: true });
   bsRows.push({ category: "LIABILITIES", values: yearlyDetails.map(() => 0), isHeader: true });
@@ -286,7 +286,7 @@ export function buildPremiumExportPayload(ctx: PropertyExportContext, version: E
   bsRows.push({ category: "Total Liabilities", values: loanBalances, isBold: true });
   bsRows.push({ category: "EQUITY", values: yearlyDetails.map(() => 0), isHeader: true });
   bsRows.push({ category: "Total Equity", values: yearlyDetails.map((_: any, i: number) => {
-    const depPerYear = totalPropertyCost / 39;
+    const depPerYear = totalPropertyCost / DEPRECIATION_YEARS;
     const totalAssets = closeCash[i] + Math.max(totalPropertyCost - depPerYear * (i + 1), 0);
     return totalAssets - loanBalances[i];
   }), isBold: true });

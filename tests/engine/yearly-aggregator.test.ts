@@ -547,8 +547,8 @@ describe("Depreciation: Yearly aggregation", () => {
     }
   });
 
-  it("annual depreciation matches the IRS 27.5-year schedule", () => {
-    // Annual depreciation should be depBasis / 27.5
+  it("annual depreciation matches the IRS 39-year schedule", () => {
+    // Annual depreciation should be depBasis / DEPRECIATION_YEARS (39)
     const expectedAnnualDep = depBasis / DEPRECIATION_YEARS;
     expect(yearly[0].depreciationExpense).toBeCloseTo(expectedAnnualDep, 0);
   });

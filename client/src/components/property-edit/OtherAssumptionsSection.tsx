@@ -116,7 +116,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
                 <Label className="flex items-center label-text text-foreground gap-1.5">
                   Income Tax Rate
                   <InfoTooltip text="Income tax rate for this property's SPV entity, applied to taxable income (NOI minus interest and depreciation) to calculate after-tax cash flow. Set per property to reflect the jurisdiction where the property is located." />
-                  <GaapBadge rule="IRC §168: Taxable income = NOI − Interest − Depreciation. The 27.5-year straight-line depreciation on the building portion creates a non-cash deduction that shelters cash flow from taxes." />
+                  <GaapBadge rule="IRC §168: Taxable income = NOI − Interest − Depreciation. The 39-year straight-line depreciation on the building portion (nonresidential hotel) creates a non-cash deduction that shelters cash flow from taxes." />
                 </Label>
                 <ResearchBadge entry={researchValues.incomeTax} onClick={() => researchValues.incomeTax && onChange("taxRate", researchValues.incomeTax.mid / 100)} />
               </div>

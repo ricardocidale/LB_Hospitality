@@ -65,7 +65,7 @@ const PROPERTY_FORMULAS = [
   ["F-P-10", "NOI", "GOP − Fixed Charges (Property Taxes)"],
   ["F-P-11", "ANOI", "NOI − Base Fee − Incentive Fee − FF&E Reserve"],
   ["F-P-13", "Depreciable Basis", "Price × (1 − Land%) + Improvements"],
-  ["F-P-14", "Monthly Depreciation", "Depreciable Basis / 27.5 / 12"],
+  ["F-P-14", "Monthly Depreciation", "Depreciable Basis / 39 / 12"],
   ["F-P-16", "Net Income", "ANOI − Interest − Depreciation − Tax"],
   ["F-P-17", "CFO", "Net Income + Depreciation"],
 ];

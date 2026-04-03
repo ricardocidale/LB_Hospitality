@@ -5,7 +5,7 @@
  * and land value allocation for a given property. Used by AI research to
  * validate land value recommendations against exact tax math.
  *
- * IRS Publication 946: Residential rental property = 27.5 years straight-line.
+ * IRS Publication 946 / IRC §168(e)(2)(A): Nonresidential real property (hotels) = 39 years straight-line.
  */
 import { roundCents } from "../shared/utils.js";
 import { DEPRECIATION_YEARS, DEFAULT_PROPERTY_TAX_RATE, RESEARCH_TAX_RATE_30_PCT, MONTHS_PER_YEAR } from "../../shared/constants.js";

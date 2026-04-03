@@ -56,7 +56,7 @@ export function AuditSections({
           <li>&#8226; <strong>ASC 230</strong>: Operating Cash Flow = Net Income + Depreciation (indirect method); interest = operating, principal = financing</li>
           <li>&#8226; <strong>ASC 310-20</strong>: Loan origination (closing) costs capitalized and amortized over loan term</li>
           <li>&#8226; <strong>ASC 606</strong>: Revenue recognition — rooms nightly, events point-in-time, F&B at point of sale</li>
-          <li>&#8226; <strong>IRC §168</strong>: 27.5-year straight-line depreciation on building portion; shelters taxable income</li>
+          <li>&#8226; <strong>IRC §168</strong>: 39-year straight-line depreciation on building portion (nonresidential hotel per IRC §168(e)(2)(A)); shelters taxable income</li>
           <li>&#8226; <strong>IRC §1250</strong>: Depreciation recapture on sale taxed at up to 25%</li>
           <li>&#8226; <strong>IRC §164</strong>: Property taxes fully deductible as operating expense</li>
           <li>&#8226; <strong>IRS Pub 946</strong>: Land is non-depreciable; only building portion + improvements depreciated</li>

@@ -148,7 +148,7 @@ describe("Golden Lodge — Hand-Calculated IRR Scenario", () => {
   // ── Depreciation ───────────────────────────────────────────────────────
   const buildingValue = purchasePrice * 0.75; // 1,500,000
   const monthlyDepreciation = buildingValue / DEPRECIATION_YEARS / 12;
-  // = 1,500,000 / 27.5 / 12 = 1,500,000 / 330 = 4,545.454545...
+  // = 1,500,000 / 39 / 12 = 1,500,000 / 468 = 3,205.128205...
 
   // ── Income statement ───────────────────────────────────────────────────
   const taxableIncome = anoi - interestMonth1 - monthlyDepreciation;

@@ -6,7 +6,7 @@
  *
  *   PP&E (Property, Plant & Equipment):
  *     Cost basis = Purchase Price − Land Value.
- *     Depreciated over the building's useful life (typically 27.5 or 39 years).
+ *     Depreciated over the building's useful life (39 years for nonresidential hotel).
  *
  *   FF&E (Furniture, Fixtures & Equipment):
  *     Cost basis = initial FF&E budget.
@@ -161,7 +161,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
               </>
             )}
 
-            <SectionRow sectionKey="depreciation" label="Depreciation Schedule (ASC 360)" value={fmt(annualDepreciation) + " /yr"} tooltip="Annual non-cash expense that reduces taxable income. Building and improvements depreciate over 27.5 years; land is excluded." />
+            <SectionRow sectionKey="depreciation" label="Depreciation Schedule (ASC 360)" value={fmt(annualDepreciation) + " /yr"} tooltip="Annual non-cash expense that reduces taxable income. Building and improvements depreciate over 39 years; land is excluded." />
             {openSections.depreciation && (
               <>
                 <DetailRow label="Building Value (from purchase)" value={fmt(buildingValue)} />

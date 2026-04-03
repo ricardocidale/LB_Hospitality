@@ -20,7 +20,7 @@
  * onward and re-seeds the operating reserve at acqMonthIdx so the reserve
  * is never lost.
  *
- * Key constants (DB-backed with fallbacks): DEPRECIATION_YEARS=27.5 (IRS Pub 946),
+ * Key constants (DB-backed with fallbacks): DEPRECIATION_YEARS=39 (IRS Pub 946, nonresidential hotel),
  * DAYS_PER_MONTH=30.5 (industry standard 365/12).
  */
 import {

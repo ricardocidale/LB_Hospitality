@@ -27,14 +27,14 @@ export function auditDepreciation(
   
   findings.push({
     category: "Depreciation",
-    rule: "27.5-Year Straight-Line Method",
+    rule: "39-Year Straight-Line Method",
     gaapReference: "IRS Publication 946 / ASC 360-10",
     severity: "critical",
     passed: true,
     expected: `Depreciable Basis: $${depreciableBasis.toLocaleString()} (${((1 - landPct) * 100).toFixed(0)}% of purchase + improvements)`,
     actual: `Monthly: $${expectedMonthlyDep.toFixed(2)}`,
     variance: `Annual: $${expectedAnnualDep.toFixed(2)}`,
-    recommendation: "Verify depreciation uses 27.5-year schedule for residential rental property",
+    recommendation: "Verify depreciation uses 39-year schedule for nonresidential hotel property",
     workpaperRef: "WP-DEP-001"
   });
   
@@ -107,7 +107,7 @@ export function auditDepreciation(
       expected: `$${expectedMonthlyDep.toFixed(2)}/month`,
       actual: `Verified ${sampleEnd - acqMonthIndex} post-acquisition months`,
       variance: "Within tolerance",
-      recommendation: "Monthly depreciation matches 27.5-year straight-line calculation",
+      recommendation: "Monthly depreciation matches 39-year straight-line calculation",
       workpaperRef: "WP-DEP-AMT-OK"
     });
   }
@@ -117,7 +117,7 @@ export function auditDepreciation(
   
   return {
     name: "Depreciation Audit",
-    description: "Verify 27.5-year straight-line depreciation per IRS/GAAP requirements",
+    description: "Verify 39-year straight-line depreciation per IRS/GAAP requirements",
     findings,
     passed,
     failed: findings.length - passed,

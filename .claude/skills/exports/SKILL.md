@@ -91,6 +91,33 @@ Each export produces:
 
 **No cover pages. No KPI sections. Ever.**
 
+## Server-Recompute (Export Reproducibility Lock)
+
+**File**: `server/report/server-export-data.ts`
+
+When `computeRef` is in the export payload, the server ignores client-supplied financial data and recomputes:
+
+```typescript
+POST /api/exports/premium
+Body: {
+  format: "xlsx",
+  entityName: "...",
+  computeRef: {                    // Triggers server-recompute
+    propertyIds?: number[],        // Optional filter (positive ints)
+    projectionYears?: number,      // 1-30, optional
+  }
+}
+Response Headers:
+  X-Finance-Output-Hash: <64-char SHA-256>
+  X-Finance-Engine-Version: 1.0.0
+```
+
+Lock enforcement: if `computeRef` present but user unauthenticated → 401 (never falls through to legacy path).
+
+DB mapping gotchas:
+- `globalAssumptions.debtAssumptions` is JSONB — cast to `Record<string, unknown>` before accessing fields
+- Export row `format` must use the Zod enum union, not `string`
+
 ## Key Rules
 
 1. **Full-scope**: Export from ANY tab exports ALL statements — never just the active tab

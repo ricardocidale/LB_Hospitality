@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
@@ -212,13 +213,15 @@ function LocationCard({
                     className="text-xs gap-1 pr-1"
                   >
                     {name}
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleRemoveState(location.states[i])}
-                      className="ml-0.5 hover:text-destructive"
+                      className="ml-0.5 h-4 w-4 p-0 hover:text-destructive hover:bg-transparent"
                       data-testid={`remove-state-${location.states[i]}`}
                     >
                       <X className="w-3 h-3" />
-                    </button>
+                    </Button>
                   </Badge>
                 ))}
               </div>
@@ -307,13 +310,15 @@ function LocationCard({
                         data-testid={`input-radius-${city.name}`}
                       />
                       <span className="text-[10px] text-muted-foreground">mi</span>
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleRemoveCity(city.name)}
-                        className="text-muted-foreground hover:text-destructive transition-colors"
+                        className="h-5 w-5 p-0 text-muted-foreground hover:text-destructive hover:bg-transparent transition-colors"
                         data-testid={`remove-city-${city.name}`}
                       >
                         <X className="w-3.5 h-3.5" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -327,11 +332,11 @@ function LocationCard({
             Additional Notes
             <InfoTooltip text="Optional. Free-text context for the AI research engine — e.g. neighborhoods to exclude, proximity preferences, zoning notes, or market nuances specific to this location." side="right" />
           </Label>
-          <textarea
+          <Textarea
             value={location.notes || ""}
             onChange={(e) => onUpdate({ ...location, notes: e.target.value })}
             placeholder="e.g. Exclude downtown areas, prefer properties near international airport, focus on gated communities, include suburban neighborhoods within 10 min of city center..."
-            className="w-full min-h-[72px] text-xs leading-relaxed text-foreground bg-transparent border border-border/60 rounded-md p-3 resize-y focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50 placeholder:italic"
+            className="min-h-[72px] text-xs leading-relaxed resize-y placeholder:text-muted-foreground/50 placeholder:italic"
             data-testid={`textarea-notes-${location.id}`}
           />
         </div>

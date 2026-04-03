@@ -102,8 +102,8 @@ export function FCFAnalysisTable({
             </TableRow>
             {expandedRows.has('fcfOperating') && (
               <>
-                <TableRow className="bg-chart-1/10 dark:bg-chart-1/5">
-                  <TableCell className="sticky left-0 bg-chart-1/10 dark:bg-chart-1/5 pl-8 text-sm font-medium text-muted-foreground" colSpan={1}>Cash Flow</TableCell>
+                <TableRow className="bg-primary/5">
+                  <TableCell className="sticky left-0 bg-primary/5 pl-8 text-sm font-medium text-muted-foreground" colSpan={1}>Cash Flow</TableCell>
                   <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => <TableCell key={y} className="text-right text-sm text-muted-foreground">-</TableCell>)}
                 </TableRow>

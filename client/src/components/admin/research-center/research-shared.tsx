@@ -32,8 +32,6 @@ export const FALLBACK_MODELS: AiModelEntry[] = [
   { id: "claude-opus-4-1", label: "Claude Opus 4.1", provider: "anthropic" },
   { id: "claude-opus-4", label: "Claude Opus 4", provider: "anthropic" },
   { id: "claude-sonnet-4", label: "Claude Sonnet 4", provider: "anthropic" },
-  { id: "claude-3.5-sonnet", label: "Claude 3.5 Sonnet", provider: "anthropic" },
-
   { id: "gpt-5.4", label: "GPT-5.4", provider: "openai" },
   { id: "gpt-5.4-pro", label: "GPT-5.4 Pro", provider: "openai" },
   { id: "gpt-4.1", label: "GPT-4.1", provider: "openai" },

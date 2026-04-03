@@ -9,7 +9,7 @@
 | `client/src/lib/financial/property-engine.ts` | Single-property pro-forma engine (`generatePropertyProForma`) |
 | `client/src/lib/financial/company-engine.ts` | Management-company pro-forma engine (`generateCompanyProForma`) |
 | `client/src/lib/financialEngine.ts` | Re-export shim (backward compat) |
-| `client/src/lib/loanCalculations.ts` | Loan amortization, PMT |
+| `client/src/lib/financial/loanCalculations.ts` | Loan amortization, PMT |
 | `client/src/lib/constants.ts` | Named constants and defaults |
 | `server/calculationChecker.ts` | Independent server-side recalculation |
 

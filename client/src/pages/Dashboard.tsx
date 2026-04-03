@@ -220,12 +220,12 @@ export default function Dashboard() {
     } else if (exportType === "xlsx") {
       const companyName = global?.companyName || "Portfolio";
       const modelStartDate = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
-      const datasets = buildAllPortfolioStatements(financials, properties!, projectionYears, getFiscalYear, modelStartDate);
+      const datasets = await buildAllPortfolioStatements(financials, properties!, projectionYears, getFiscalYear, modelStartDate);
       await exportPortfolioExcel(datasets, companyName, customFilename, overviewData);
     } else if (exportType === "pptx") {
       const companyName = global?.companyName || "Portfolio";
       const modelStartDate = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
-      const datasets = buildAllPortfolioStatements(financials, properties!, projectionYears, getFiscalYear, modelStartDate);
+      const datasets = await buildAllPortfolioStatements(financials, properties!, projectionYears, getFiscalYear, modelStartDate);
       const { exportPortfolioPPTX } = await import("@/lib/exports/pptxExport");
       await exportPortfolioPPTX({
         projectionYears,

@@ -12,3 +12,9 @@ id = "fSu0lVBE45dlYiv5Gxt2U"
 uri = "file://.local/architecture-review-opus.md"
 type = "text"
 title = "H+ Analytics — Server-Side Architecture Review (Opus)"
+
+[[outputs]]
+id = "l_LCSp3FEmvMOkekMUCBy"
+uri = "file://.local/architecture-implementation-plan.md"
+type = "text"
+title = "H+ Analytics — Server-Authoritative Implementation Plan"

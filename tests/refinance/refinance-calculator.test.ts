@@ -150,9 +150,9 @@ describe("computeRefinance — journal hooks structure", () => {
       baseInput({ current_loan_balance: 1_400_000 }),
     );
     const cashDebit = result.journal_hooks.find((j) => j.account === "CASH" && j.debit > 0);
-    expect(cashDebit).toBeUndefined();
-    const cashCredit = result.journal_hooks.find((j) => j.account === "CASH" && j.credit > 0);
-    expect(cashCredit).toBeDefined();
+    expect(cashDebit).toBeDefined();
+    const equityCredit = result.journal_hooks.find((j) => j.account === "EQUITY_CONTRIBUTED" && j.credit > 0);
+    expect(equityCredit).toBeDefined();
     expect(result.cash_in_required).toBeGreaterThan(0);
     expect(result.cash_out_to_equity).toBe(0);
     const equity = result.journal_hooks.find((j) => j.account === "EQUITY_CONTRIBUTED");

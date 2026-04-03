@@ -100,16 +100,16 @@ export function buildJournalHooks(inputs: JournalHookInputs): JournalDelta[] {
   if (inputs.cash_in_required && inputs.cash_in_required > 0) {
     deltas.push({
       account: "CASH",
-      debit: 0,
-      credit: r(inputs.cash_in_required),
+      debit: r(inputs.cash_in_required),
+      credit: 0,
       classification: "BS_ASSET",
       cash_flow_bucket: "FINANCING",
       memo: "Cash-in required: equity contribution to complete refinance",
     });
     deltas.push({
       account: "EQUITY_CONTRIBUTED",
-      debit: r(inputs.cash_in_required),
-      credit: 0,
+      debit: 0,
+      credit: r(inputs.cash_in_required),
       classification: "BS_EQUITY",
       cash_flow_bucket: "FINANCING",
       memo: "Equity contribution for refinance shortfall",

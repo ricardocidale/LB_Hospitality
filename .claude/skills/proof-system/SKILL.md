@@ -1,12 +1,12 @@
 ---
 name: proof-system
-description: Automated financial proof system with 3,528 tests across 152 files, 5 structural golden scenarios, and 418 hand-calculated golden reference tests. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
+description: Automated financial proof system with 3,528 tests across 152 files, 5 structural golden scenarios, and 761 hand-calculated golden reference tests (30 files). Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
 ---
 
 # Automated Financial Proof System
 
 ## Purpose
-Eliminates human Excel verification. Code proves itself correct through 3,528 automated tests (152 files) across 5 structural golden scenarios, 418 hand-calculated golden reference tests, input-to-output pipeline verification, and magic number detection.
+Eliminates human Excel verification. Code proves itself correct through 3,528 automated tests (152 files) across 5 structural golden scenarios, 761 hand-calculated golden reference tests (30 files), input-to-output pipeline verification, and magic number detection.
 
 ## Commands
 ```bash
@@ -59,7 +59,7 @@ Only UNQUALIFIED is acceptable for production.
 | 4 | Portfolio aggregate | Multi-property aggregation, fee linkage |
 | 5 | Consolidated + eliminations | Full intercompany elimination, consolidated statements |
 
-## 65 Hand-Calculated Golden Tests (tests/golden/)
+## 761 Hand-Calculated Golden Tests (tests/golden/, 30 files)
 
 | File | Tests | Calculators Covered |
 |------|-------|--------------------|
@@ -130,12 +130,12 @@ For per-statement and per-analysis test coverage, see:
 | Analysis: Returns | `.claude/skills/testing/analysis-returns.md` | IRR, NPV, MOIC, sensitivity |
 | Analysis: DCF/FCF | `.claude/skills/testing/analysis-dcf-fcf.md` | FCF, FCFE reconciliation |
 | Financing & Refinancing | `.claude/skills/testing/financing-refinance-funding.md` | Debt, refi, funding instruments |
-| **Golden Scenarios** | **`.claude/skills/testing/golden-scenarios.md`** | **269 hand-calculated tests: IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity multiple, pro-forma edge cases** |
+| **Golden Scenarios** | **`.claude/skills/testing/golden-scenarios.md`** | **761 hand-calculated tests (30 files): IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity multiple, pro-forma edge cases** |
 
 ## Maintenance
 1. Run `npm test` — all 3,528 tests must pass
 2. Run `npm run verify` — all 8 phases must pass
-3. Run `npx vitest run tests/golden/` — 269 hand-calculated tests must pass (~3s)
+3. Run `npx vitest run tests/golden/` — 761 hand-calculated tests must pass (~8s)
 4. Check `test-artifacts/*.md` for UNQUALIFIED opinions
 5. New constants go in `shared/constants.ts` (never inline magic numbers)
 6. New calculators require golden tests with hand-calculated reference values

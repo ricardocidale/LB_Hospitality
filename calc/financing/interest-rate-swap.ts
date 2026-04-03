@@ -35,6 +35,7 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING } from "../shared/utils.js";
+import { dPow } from "../shared/decimal.js";
 
 /** Rounding tolerance for net swap payments — amounts below this are treated as neutral */
 const NET_PAYMENT_THRESHOLD = 0.01;
@@ -186,7 +187,7 @@ export function computeInterestRateSwap(input: InterestRateSwapInput): InterestR
     for (let i = 0; i < period_cash_flows.length; i++) {
       const cf = period_cash_flows[i];
       const netToFixed = r(cf.floating_payment - cf.fixed_payment);
-      mtm += netToFixed / Math.pow(1 + discountRate, i + 1);
+      mtm += netToFixed / dPow(1 + discountRate, i + 1);
     }
     mtm = r(mtm);
   } else {

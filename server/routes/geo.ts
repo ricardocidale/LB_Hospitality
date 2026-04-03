@@ -88,8 +88,8 @@ export function register(app: Express) {
       });
 
       res.json(locations);
-    } catch (err: any) {
-      res.status(500).json({ error: err.message || "Failed to build default locations" });
+    } catch {
+      res.status(500).json({ error: "Failed to build default locations" });
     }
   });
 }

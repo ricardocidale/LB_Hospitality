@@ -16,7 +16,7 @@
  *
  * Two categories:
  *   IMMUTABLE — Fixed by IRS/GAAP, never change:
- *     DEPRECIATION_YEARS (27.5), DAYS_PER_MONTH (30.5)
+ *     DEPRECIATION_YEARS (39), DAYS_PER_MONTH (30.5)
  *   CONFIGURABLE — User-overridable defaults (DEFAULT_* prefix):
  *     All other constants. Database value takes precedence; these are fallbacks.
  */
@@ -144,7 +144,7 @@ export const DEFAULT_EXIT_CAP_RATE = 0.085;
 // This is the per-entity default for property-level income tax.
 // The management company has its own rate: DEFAULT_COMPANY_TAX_RATE.
 export const DEFAULT_PROPERTY_TAX_RATE = 0.25;
-/** @deprecated Use DEFAULT_PROPERTY_TAX_RATE — entity-specific naming */
+/** @deprecated Use DEFAULT_PROPERTY_TAX_RATE — remove after full migration */
 export const DEFAULT_TAX_RATE = DEFAULT_PROPERTY_TAX_RATE;
 // Broker commission on property sale (% of sale price)
 export const DEFAULT_COMMISSION_RATE = 0.05;
@@ -240,7 +240,7 @@ export const DEFAULT_STABILIZATION_MONTHS = 36;
 // Each property can override with its own rate on the Property Edit screen.
 // Cascade: property.inflationRate → global.inflationRate → this value
 export const DEFAULT_PROPERTY_INFLATION_RATE = 0.03;
-/** @deprecated Use DEFAULT_PROPERTY_INFLATION_RATE — entity-specific naming */
+/** @deprecated Use DEFAULT_PROPERTY_INFLATION_RATE — remove after full migration */
 export const DEFAULT_INFLATION_RATE = DEFAULT_PROPERTY_INFLATION_RATE;
 
 // Default inflation rate for management company overhead escalation.

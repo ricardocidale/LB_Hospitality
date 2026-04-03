@@ -2,7 +2,7 @@
  * market-rates routes — CRUD + refresh endpoints for live market rates.
  */
 import type { Express, Request, Response } from "express";
-import { requireAuth } from "../auth";
+import { requireAuth, requireAdmin } from "../auth";
 import { sendError, logAndSendError } from "./helpers";
 import {
   getAllMarketRates,
@@ -12,14 +12,6 @@ import {
   refreshAllStaleRates,
 } from "../data/marketRates";
 import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
-import { UserRole } from "@shared/constants";
-
-function requireAdmin(req: Request, res: Response, next: Function) {
-  if (req.user?.role !== UserRole.ADMIN) {
-    return sendError(res, 403, "Admin access required");
-  }
-  next();
-}
 
 export function register(app: Express) {
   // GET /api/market-rates — list all rates with staleness status

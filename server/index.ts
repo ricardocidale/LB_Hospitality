@@ -215,14 +215,14 @@ app.use((req, res, next) => {
           const refreshed = await refreshAllStaleRates();
           if (refreshed > 0) log(`Refreshed ${refreshed} stale market rates`);
         } catch (err) {
-          console.error("Market rate refresh error:", err);
+          serverLog(`[ERROR] [market-rates] Market rate refresh error: ${err instanceof Error ? err.message : err}`);
         }
         try {
           const { getMarketIntelligenceAggregator } = await import("./services/MarketIntelligenceAggregator");
           const aggregator = getMarketIntelligenceAggregator();
           await aggregator.refreshFREDRates();
         } catch (err) {
-          console.error("FRED market intelligence refresh error:", err);
+          serverLog(`[ERROR] [market-rates] FRED refresh error: ${err instanceof Error ? err.message : err}`);
         }
       }, MARKET_RATE_REFRESH_INTERVAL_MS);
 

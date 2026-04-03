@@ -9,6 +9,7 @@
  * departmental vs. unallocated expenses.
  */
 import { DEFAULT_ROUNDING } from "../shared/utils.js";
+import { dPow } from "../shared/decimal.js";
 import {
   RESEARCH_MAKE_VS_BUY_MARGINAL_THRESHOLD,
   RESEARCH_MAKE_VS_BUY_DEFAULT_DISCOUNT_RATE,
@@ -85,8 +86,8 @@ export function computeMakeVsBuy(input: MakeVsBuyInput): MakeVsBuyResult {
   let npvInhouse = 0;
   let npvVendor = 0;
   for (let y = 1; y <= projYears; y++) {
-    const factor = Math.pow(1 + escalation, y - 1);
-    const discFactor = Math.pow(1 + discRate, y);
+    const factor = dPow(1 + escalation, y - 1);
+    const discFactor = dPow(1 + discRate, y);
     npvInhouse += (totalInHouseCost * factor) / discFactor;
     npvVendor += (totalVendorCost * factor) / discFactor;
   }

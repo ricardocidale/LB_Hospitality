@@ -91,8 +91,9 @@ describe("Precision Hardening — property-based tests", () => {
           fc.integer({ min: 0, max: 6 }),
           (value, decimals) => {
             const rounded = dRound(value, decimals);
-            const multiplied = rounded * Math.pow(10, decimals);
-            expect(Math.abs(multiplied - Math.round(multiplied))).toBeLessThan(1e-4);
+            const parts = String(rounded).split(".");
+            const actualDecimals = parts.length > 1 ? parts[1].length : 0;
+            expect(actualDecimals).toBeLessThanOrEqual(decimals);
           },
         ),
         { numRuns: 1000 },

@@ -1,7 +1,8 @@
 import type { Express, Request, Response } from "express";
+import { requireAuth } from "../auth";
 
 export function register(app: Express) {
-  app.get("/api/tiles/osm/:z/:x/:y", async (req: Request, res: Response) => {
+  app.get("/api/tiles/osm/:z/:x/:y", requireAuth, async (req: Request, res: Response) => {
     const { z, x, y } = req.params;
     try {
       const url = `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
@@ -20,7 +21,7 @@ export function register(app: Express) {
     }
   });
 
-  app.get("/api/tiles/satellite/:z/:x/:y", async (req: Request, res: Response) => {
+  app.get("/api/tiles/satellite/:z/:x/:y", requireAuth, async (req: Request, res: Response) => {
     const { z, x, y } = req.params;
     try {
       const url = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
@@ -39,7 +40,7 @@ export function register(app: Express) {
     }
   });
 
-  app.get("/api/tiles/terrain/:z/:x/:y", async (req: Request, res: Response) => {
+  app.get("/api/tiles/terrain/:z/:x/:y", requireAuth, async (req: Request, res: Response) => {
     const { z, x, y } = req.params;
     try {
       const url = `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`;

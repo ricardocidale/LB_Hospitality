@@ -173,6 +173,12 @@ export function register(app: Express) {
         return res.status(400).json({ error: "Invalid extraction ID" });
       }
 
+      const extraction = await storage.getDocumentExtraction(extractionId);
+      if (!extraction) return res.status(404).json({ error: "Extraction not found" });
+      if (!await checkPropertyAccess(req.user!, extraction.propertyId)) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
       const fields = await storage.getExtractionFields(extractionId);
       res.json(
         fields.map((f) => ({
@@ -196,8 +202,13 @@ export function register(app: Express) {
 
       const updated = await storage.updateExtractionFieldStatus(fieldId, status);
 
+      const ownerExtraction = await storage.getDocumentExtraction(updated.extractionId);
+      if (ownerExtraction && !await checkPropertyAccess(req.user!, ownerExtraction.propertyId)) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
       if (status === "approved" && updated.mappedPropertyField) {
-        const extraction = await storage.getDocumentExtraction(updated.extractionId);
+        const extraction = ownerExtraction;
         if (extraction) {
           const numericValue = parseFloat(updated.extractedValue.replace(/[$,%]/g, ""));
           if (!isNaN(numericValue)) {
@@ -244,9 +255,14 @@ export function register(app: Express) {
       }
       const { status } = validation.data;
 
+      const extraction = await storage.getDocumentExtraction(extractionId);
+      if (!extraction) return res.status(404).json({ error: "Extraction not found" });
+      if (!await checkPropertyAccess(req.user!, extraction.propertyId)) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
       if (status === "approved") {
         const fields = await storage.getExtractionFields(extractionId);
-        const extraction = await storage.getDocumentExtraction(extractionId);
 
         if (extraction) {
           const updateData: Record<string, any> = {};

@@ -51,6 +51,7 @@ import {
   DEFAULT_CAPITAL_GAINS_RATE,
   DEFAULT_DEP_RECAPTURE_RATE,
   HOLD_VS_SELL_INDIFFERENCE_PCT,
+  DEPRECIATION_YEARS,
 } from "../../shared/constants.js";
 import { dPow, dDiv, dSum } from "../shared/decimal.js";
 
@@ -135,7 +136,7 @@ export function computeHoldVsSell(input: HoldVsSellInput): HoldVsSellOutput {
 
   const terminal_value = futureExitCap > 0 ? r(terminal_noi / futureExitCap) : 0;
   const terminalCommission = r(terminal_value * commRate);
-  const holdYearsDepreciation = r(accDepreciation + (costBasis / 39) * input.remaining_hold_years);
+  const holdYearsDepreciation = r(accDepreciation + (costBasis / DEPRECIATION_YEARS) * input.remaining_hold_years);
   const terminalAdjBasis = r(costBasis - holdYearsDepreciation);
   const terminalGain = r(Math.max(0, terminal_value - terminalCommission - terminalAdjBasis));
   const terminalDepRecapTax = r(Math.min(terminalGain, holdYearsDepreciation) * depRecapRate);

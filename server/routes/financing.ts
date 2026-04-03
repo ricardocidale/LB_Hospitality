@@ -7,6 +7,7 @@ import { computeDebtYield } from "../../calc/financing/debt-yield";
 import { computePrepayment } from "../../calc/financing/prepayment";
 import { DEFAULT_ROUNDING } from "../../calc/shared/utils";
 import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
+import { logger } from "../logger";
 
 const dscrSchema = z.object({
   noi_annual: z.number(),
@@ -75,7 +76,7 @@ export function register(app: Express) {
             riskPremiumApplied = premiumBps;
             effectiveRate = interest_rate_annual + premiumBps / 10000;
           }
-        } catch { /* ignore — Moodys aggregation is best-effort; original rate is used */ }
+        } catch (err) { logger.warn(`Moody's risk premium lookup failed: ${err instanceof Error ? err.message : err}`, "financing"); }
       }
 
       const result = computeDSCR({
@@ -121,7 +122,7 @@ export function register(app: Express) {
             riskPremiumApplied = premiumBps;
             effectiveRate = interest_rate_annual + premiumBps / 10000;
           }
-        } catch { /* ignore — Moodys aggregation is best-effort; original rate is used */ }
+        } catch (err) { logger.warn(`Moody's risk premium lookup failed: ${err instanceof Error ? err.message : err}`, "financing"); }
       }
 
       const result = computeSensitivity({

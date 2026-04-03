@@ -239,8 +239,9 @@ export function register(app: Express) {
   });
 
   app.get("/api/letter-logo/:name", (req, res) => {
-    const name = decodeURIComponent(req.params.name);
-    const letter = name.charAt(0);
+    const raw = decodeURIComponent(req.params.name);
+    const name = raw.replace(/[<>&"'/\\]/g, "").substring(0, 100);
+    const letter = name.charAt(0) || "?";
     res.setHeader("Content-Type", "image/svg+xml");
     res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
     res.send(generateLetterLogoSvg(letter, name));

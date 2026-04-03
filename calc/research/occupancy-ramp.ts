@@ -51,7 +51,7 @@ export function computeOccupancyRamp(input: OccupancyRampInput): OccupancyRampOu
   let monthsSinceLastStep = 0;
   let stabilizedAt = 0;
 
-  for (let m = 1; m <= Math.max(stabilization_months, 60); m++) {
+  for (let m = 1; m <= stabilization_months; m++) {
     monthsSinceLastStep++;
 
     if (ramp_months >= 1 && monthsSinceLastStep >= ramp_months && currentOcc < max_occupancy) {

@@ -81,9 +81,11 @@ export function computeFinancing(input: FinancingInput): FinancingOutput {
   const reserves = r(input.upfront_reserves ?? 0);
 
   // Step 4: Compute equity required
-  // Equity = purchase price + closing costs + reserves - net loan proceeds
+  // Equity = purchase price + closing costs + reserves - gross loan amount
+  // (closing costs are funded from the loan, so net proceeds = gross - closing;
+  //  using gross here avoids double-counting closing costs)
   const equityRequired = r(
-    input.purchase_price + closingCosts.total + reserves - loanAmountNet,
+    input.purchase_price + closingCosts.total + reserves - loanAmountGross,
   );
 
   // Step 5: Derive loan terms and build schedule

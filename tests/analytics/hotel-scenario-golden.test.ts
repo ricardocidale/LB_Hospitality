@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { computeIRR } from "../../analytics/returns/irr.js";
 import { computeReturnMetrics } from "../../analytics/returns/metrics.js";
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
+import { DEPRECIATION_YEARS } from "../../shared/constants.js";
 
 const rounding: RoundingPolicy = { precision: 2, bankers_rounding: false };
 
@@ -25,7 +26,7 @@ describe("Realistic 10-year hotel scenario — assumptions through IRR", () => {
   const taxRate = 0.21;
   const landPercent = 0.25;
   const depreciableBasis = purchasePrice * (1 - landPercent) + buildingImprovements;
-  const annualDepreciation = depreciableBasis / 27.5;
+  const annualDepreciation = depreciableBasis / DEPRECIATION_YEARS;
   const exitCapRate = 0.075;
   const sellingCostRate = 0.02;
 
@@ -263,7 +264,7 @@ describe("Cash purchase hotel scenario (no debt)", () => {
   const equityInvested = purchasePrice;
   const taxRate = 0.21;
   const depBasis = purchasePrice * 0.75;
-  const annualDep = depBasis / 27.5;
+  const annualDep = depBasis / DEPRECIATION_YEARS;
   const yearlyNOI = [300_000, 350_000, 400_000, 430_000, 460_000, 490_000, 520_000, 550_000, 580_000, 610_000];
 
   it("FCFE = NOI - Tax (no debt service)", () => {

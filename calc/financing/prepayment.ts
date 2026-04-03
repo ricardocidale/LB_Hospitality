@@ -335,15 +335,18 @@ function computeDefeasance(
 
   let securitiesCost = 0;
 
-  if (remainingSchedule.length > 0 && monthlyTreasury > 0) {
+  if (remainingSchedule.length > 0) {
     let pvAtTreasury = 0;
     for (let i = 0; i < remainingSchedule.length; i++) {
       const entry = remainingSchedule[i];
       const discountPeriod = i + 1;
-      pvAtTreasury += dDiv(entry.payment, dPow(1 + monthlyTreasury, discountPeriod));
+      const discountFactor = monthlyTreasury > 0
+        ? dPow(1 + monthlyTreasury, discountPeriod)
+        : 1;
+      pvAtTreasury += dDiv(entry.payment, discountFactor);
     }
     securitiesCost = r(Math.max(0, pvAtTreasury - balance));
-  } else if (monthlyTreasury > 0 && treasuryRate < loanRate) {
+  } else if (treasuryRate < loanRate) {
     const monthlyLoan = loanRate / MONTHS_PER_YEAR;
     const monthlyPayment = balance * monthlyLoan;
     let pvAtTreasury = 0;

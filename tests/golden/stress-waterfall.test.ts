@@ -173,9 +173,9 @@ describe("T006: Golden Stress Test & Waterfall", () => {
      *    - GP ROC: 1,000,000 * 0.1 = 100,000
      *    Remaining: 500,000
      * 
-     * 2. Pref (8% of 1M): 80,000
-     *    - LP Pref: 80,000 * 0.9 = 72,000
-     *    - GP Pref: 80,000 * 0.1 = 8,000
+     * 2. Pref (8% of 1M): 80,000 — LP-priority (entire pref to LP)
+     *    - LP Pref: 80,000
+     *    - GP Pref: 0
      *    Remaining: 420,000
      * 
      * 3. Tier 1 (80/20 split):
@@ -184,10 +184,10 @@ describe("T006: Golden Stress Test & Waterfall", () => {
      *    Remaining: 0
      * 
      * Totals:
-     * - LP: 900k + 72k + 336k = 1,308,000
-     * - GP: 100k + 8k + 84k = 192,000
-     * - LP Multiple: 1,308,000 / 900,000 = 1.4533
-     * - GP Multiple: 192,000 / 100,000 = 1.92
+     * - LP: 900k + 80k + 336k = 1,316,000
+     * - GP: 100k + 0 + 84k = 184,000
+     * - LP Multiple: 1,316,000 / 900,000 = 1.4622
+     * - GP Multiple: 184,000 / 100,000 = 1.84
      */
     it("Scenario 1: Simple 2-tier waterfall", () => {
       const input = {
@@ -210,10 +210,10 @@ describe("T006: Golden Stress Test & Waterfall", () => {
       expect(result.tier_results[0].amount_distributed).toBe(420000);
       expect(result.tier_results[0].lp_amount).toBe(336000);
       expect(result.tier_results[0].gp_amount).toBe(84000);
-      expect(result.total_to_lp).toBe(1308000);
-      expect(result.total_to_gp).toBe(192000);
-      expect(result.lp_multiple).toBe(1.4533);
-      expect(result.gp_multiple).toBe(1.92);
+      expect(result.total_to_lp).toBe(1316000);
+      expect(result.total_to_gp).toBe(184000);
+      expect(result.lp_multiple).toBe(1.4622);
+      expect(result.gp_multiple).toBe(1.84);
     });
 
     /**
@@ -254,25 +254,23 @@ describe("T006: Golden Stress Test & Waterfall", () => {
      * LP Equity: 900k, GP Equity: 100k
      * Distributable: 1.5M
      * 1. ROC: LP 900k, GP 100k. Remaining 500k.
-     * 2. Pref: LP 72k, GP 8k. Remaining 420k.
+     * 2. Pref: 80k entirely to LP (LP-priority). Remaining 420k.
      * 
      * 3. Catch-up: GP target 20% of all distributions so far (1.08M)
      *    Total distributed so far = 1.08M
      *    GP target total = 1.08M * 0.20 / (1 - 0.20) = 1.08M * 0.25 = 270,000
-     *    GP has received = 108,000
-     *    GP Shortfall = 270,000 - 108,000 = 162,000
-     *    Remaining is 420,000, so GP gets full 162,000 (at 100% rate)
-     *    Remaining after catch-up: 420,000 - 162,000 = 258,000
+     *    GP has received = 100,000 (ROC only)
+     *    GP Shortfall = 270,000 - 100,000 = 170,000
+     *    Remaining is 420,000, so GP gets full 170,000 (at 100% rate)
+     *    Remaining after catch-up: 420,000 - 170,000 = 250,000
      * 
-     * 4. Tier 1 (80/20 split of 258,000):
-     *    LP: 258,000 * 0.8 = 206,400
-     *    GP: 258,000 * 0.2 = 51,600
+     * 4. Tier 1 (80/20 split of 250,000):
+     *    LP: 250,000 * 0.8 = 200,000
+     *    GP: 250,000 * 0.2 = 50,000
      * 
      * Totals:
-     * LP: 900k + 72k + 206.4k = 1,178,400
-     * GP: 100k + 8k + 162k + 51.6k = 321,600
-     * Check: 1,178,400 / (1,178,400 + 321,600) = 1,178,400 / 1,500,000 = 78.56%
-     * GP share of profit (above ROC): (321,600 - 100,000) / 500,000 = 221,600 / 500,000 = 44.32%
+     * LP: 900k + 80k + 200k = 1,180,000
+     * GP: 100k + 0 + 170k + 50k = 320,000
      */
     it("Scenario 3: Waterfall with 100% GP catch-up", () => {
       const input = {
@@ -291,9 +289,9 @@ describe("T006: Golden Stress Test & Waterfall", () => {
 
       const result = computeWaterfall(input);
 
-      expect(result.catch_up_amount).toBe(162000);
-      expect(result.total_to_lp).toBe(1178400);
-      expect(result.total_to_gp).toBe(321600);
+      expect(result.catch_up_amount).toBe(170000);
+      expect(result.total_to_lp).toBe(1180000);
+      expect(result.total_to_gp).toBe(320000);
     });
 
     it("Scenario 4: Zero distributable returns all zeros", () => {

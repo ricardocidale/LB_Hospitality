@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { computePropertyMetrics } from "../../calc/research/property-metrics";
 import { computeDepreciationBasis } from "../../calc/research/depreciation-basis";
 import { computeDebtCapacity } from "../../calc/research/debt-capacity";
+import { DEPRECIATION_YEARS } from "../../shared/constants.js";
 
 describe("Research Deterministic Tools", () => {
   describe("computePropertyMetrics", () => {
@@ -76,9 +77,9 @@ describe("Research Deterministic Tools", () => {
       expect(result.depreciable_basis).toBe(1_840_000 + 200_000);
     });
 
-    it("annual depreciation = basis / 27.5", () => {
+    it("annual depreciation = basis / DEPRECIATION_YEARS", () => {
       const result = computeDepreciationBasis({ purchase_price: 2_300_000, land_value_pct: 0.20 });
-      const expected = 1_840_000 / 27.5;
+      const expected = 1_840_000 / DEPRECIATION_YEARS;
       expect(result.annual_depreciation).toBeCloseTo(expected, 0);
     });
 
@@ -99,9 +100,9 @@ describe("Research Deterministic Tools", () => {
       expect(result.tax_shield_at_30pct).toBeCloseTo(result.annual_depreciation * 0.30, 0);
     });
 
-    it("uses 27.5 year depreciation period", () => {
+    it("uses IRS depreciation period", () => {
       const result = computeDepreciationBasis({ purchase_price: 2_300_000, land_value_pct: 0.20 });
-      expect(result.depreciation_years).toBe(27.5);
+      expect(result.depreciation_years).toBe(DEPRECIATION_YEARS);
     });
   });
 

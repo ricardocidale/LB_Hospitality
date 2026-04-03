@@ -65,15 +65,14 @@ export function buildSchedule(
     let principal: number;
     let payment: number;
 
-    if (isIO) {
-      interest = roundTo(ioPayment(balance, monthlyRate), rounding);
-      principal = 0;
-      payment = interest;
-    } else if (m === terms.term_months - 1) {
-      // Final month: clean up remaining balance
+    if (m === terms.term_months - 1) {
       interest = roundTo(balance * monthlyRate, rounding);
       principal = roundTo(balance, rounding);
       payment = roundTo(interest + principal, rounding);
+    } else if (isIO) {
+      interest = roundTo(ioPayment(balance, monthlyRate), rounding);
+      principal = 0;
+      payment = interest;
     } else {
       interest = roundTo(balance * monthlyRate, rounding);
       payment = roundTo(amortPayment, rounding);

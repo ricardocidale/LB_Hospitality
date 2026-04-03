@@ -164,15 +164,6 @@ export function generateCompanyProForma(
     
     let totalPropertyRevenue = 0;
     let totalPropertyGOP = 0;
-    
-    for (let i = 0; i < properties.length; i++) {
-      const pf = propertyFinancials[i];
-      if (m < pf.length) {
-        totalPropertyRevenue += pf[m].revenueTotal;
-        totalPropertyGOP += pf[m].gop;
-      }
-    }
-    
     let baseFeeRevenue = 0;
     let incentiveFeeRevenue = 0;
     const incentiveFeeByPropertyId: Record<string, number> = {};
@@ -181,38 +172,49 @@ export function generateCompanyProForma(
       byPropertyId: {},
       byCategoryByPropertyId: {},
     };
-    for (let i = 0; i < properties.length; i++) {
-      const pf = propertyFinancials[i];
-      if (m < pf.length) {
-        const propId = propIds[i];
-        const propIncentive = pf[m].feeIncentive;
-        incentiveFeeRevenue += propIncentive;
-        incentiveFeeByPropertyId[propId] = propIncentive;
-        
-        const catFees = pf[m].serviceFeesByCategory;
-        const hasCategoryData = Object.keys(catFees).length > 0;
-        if (hasCategoryData) {
-          let propServiceTotal = 0;
-          for (const [catName, rawCatAmount] of Object.entries(catFees)) {
-            const catAmount = assertFinite(rawCatAmount as number, `serviceFee[${catName}]`);
-            serviceFeeBreakdown.byCategory[catName] = (serviceFeeBreakdown.byCategory[catName] || 0) + catAmount;
-            if (!serviceFeeBreakdown.byCategoryByPropertyId[catName]) {
-              serviceFeeBreakdown.byCategoryByPropertyId[catName] = {};
+
+    if (hasStartedOps) {
+      for (let i = 0; i < properties.length; i++) {
+        const pf = propertyFinancials[i];
+        if (m < pf.length) {
+          totalPropertyRevenue += pf[m].revenueTotal;
+          totalPropertyGOP += pf[m].gop;
+        }
+      }
+
+      for (let i = 0; i < properties.length; i++) {
+        const pf = propertyFinancials[i];
+        if (m < pf.length) {
+          const propId = propIds[i];
+          const propIncentive = pf[m].feeIncentive;
+          incentiveFeeRevenue += propIncentive;
+          incentiveFeeByPropertyId[propId] = propIncentive;
+          
+          const catFees = pf[m].serviceFeesByCategory;
+          const hasCategoryData = Object.keys(catFees).length > 0;
+          if (hasCategoryData) {
+            let propServiceTotal = 0;
+            for (const [catName, rawCatAmount] of Object.entries(catFees)) {
+              const catAmount = assertFinite(rawCatAmount as number, `serviceFee[${catName}]`);
+              serviceFeeBreakdown.byCategory[catName] = (serviceFeeBreakdown.byCategory[catName] || 0) + catAmount;
+              if (!serviceFeeBreakdown.byCategoryByPropertyId[catName]) {
+                serviceFeeBreakdown.byCategoryByPropertyId[catName] = {};
+              }
+              serviceFeeBreakdown.byCategoryByPropertyId[catName][propId] = catAmount;
+              propServiceTotal += catAmount;
             }
-            serviceFeeBreakdown.byCategoryByPropertyId[catName][propId] = catAmount;
-            propServiceTotal += catAmount;
+            serviceFeeBreakdown.byPropertyId[propId] = propServiceTotal;
+            baseFeeRevenue += propServiceTotal;
+          } else {
+            const propServiceFee = pf[m].revenueTotal * propBaseFeeRates[i];
+            baseFeeRevenue += propServiceFee;
+            serviceFeeBreakdown.byPropertyId[propId] = propServiceFee;
+            serviceFeeBreakdown.byCategory["Service Fee"] = (serviceFeeBreakdown.byCategory["Service Fee"] || 0) + propServiceFee;
+            if (!serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"]) {
+              serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"] = {};
+            }
+            serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"][propId] = propServiceFee;
           }
-          serviceFeeBreakdown.byPropertyId[propId] = propServiceTotal;
-          baseFeeRevenue += propServiceTotal;
-        } else {
-          const propServiceFee = pf[m].revenueTotal * propBaseFeeRates[i];
-          baseFeeRevenue += propServiceFee;
-          serviceFeeBreakdown.byPropertyId[propId] = propServiceFee;
-          serviceFeeBreakdown.byCategory["Service Fee"] = (serviceFeeBreakdown.byCategory["Service Fee"] || 0) + propServiceFee;
-          if (!serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"]) {
-            serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"] = {};
-          }
-          serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"][propId] = propServiceFee;
         }
       }
     }

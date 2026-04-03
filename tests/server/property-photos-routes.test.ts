@@ -46,12 +46,16 @@ describe("Property Photos Routes — endpoint structure", () => {
 });
 
 describe("Property Photos Routes — auth guard", () => {
-  it("all endpoints require authentication", () => {
-    // Count occurrences of requireAuth in route registrations (not imports)
-    const matches = routesSrc.match(/requireAuth/g);
-    expect(matches).not.toBeNull();
-    // 6 endpoints + 1 import = 7 total
-    expect(matches!.length).toBe(7);
+  it("all endpoints require authentication or management access", () => {
+    const authMatches = routesSrc.match(/requireAuth|requireManagementAccess/g);
+    expect(authMatches).not.toBeNull();
+    expect(authMatches!.length).toBeGreaterThanOrEqual(7);
+  });
+
+  it("write endpoints require management access (IDOR protection)", () => {
+    const mgmtMatches = routesSrc.match(/requireManagementAccess/g);
+    expect(mgmtMatches).not.toBeNull();
+    expect(mgmtMatches!.length).toBeGreaterThanOrEqual(5);
   });
 });
 

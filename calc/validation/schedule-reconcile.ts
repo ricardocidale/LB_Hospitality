@@ -104,10 +104,16 @@ export function reconcileSchedule(input: ScheduleReconcileInput): ScheduleReconc
   }
 
   let totalChecked = 0;
+  let missingInEngine = 0;
 
   for (const sched of input.schedule) {
     const eng = engineMap.get(sched.month);
-    if (!eng) continue;
+    if (!eng) {
+      missingInEngine++;
+      monthsWithVar.add(sched.month);
+      variances.push({ month: sched.month, field: "ending_balance", expected: sched.expected_ending_balance, actual: 0, variance: sched.expected_ending_balance });
+      continue;
+    }
     totalChecked++;
 
     cumulativeInterestVar += sched.expected_interest - eng.actual_interest;
@@ -123,8 +129,18 @@ export function reconcileSchedule(input: ScheduleReconcileInput): ScheduleReconc
     pushIfExceedsTol(variances, monthsWithVar, sched.month, "ending_balance", sched.expected_ending_balance, eng.actual_ending_balance, tol);
   }
 
+  const extraInEngine = input.engine_outputs.length - totalChecked;
+  if (extraInEngine > 0) {
+    for (const eng of input.engine_outputs) {
+      if (!input.schedule.some(s => s.month === eng.month)) {
+        monthsWithVar.add(eng.month);
+        variances.push({ month: eng.month, field: "ending_balance", expected: 0, actual: eng.actual_ending_balance, variance: eng.actual_ending_balance });
+      }
+    }
+  }
+
   return {
-    all_reconciled: variances.length === 0,
+    all_reconciled: variances.length === 0 && missingInEngine === 0 && extraInEngine <= 0,
     total_months_checked: totalChecked,
     months_with_variances: monthsWithVar.size,
     variances,

@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireAdmin, isApiRateLimited } from "../auth";
+import { requireAuth, requireAdmin, isApiRateLimited, checkPropertyAccess } from "../auth";
 import { researchGenerateSchema, logActivity, logAndSendError } from "./helpers";
 import { fromZodError } from "zod-validation-error";
 import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../ai/aiResearch";
@@ -79,6 +79,9 @@ export function register(app: Express) {
   app.get("/api/market-research", requireAuth, async (req, res) => {
     try {
       const { type, propertyId } = req.query;
+      if (propertyId && !(await checkPropertyAccess(req.user!, Number(propertyId)))) {
+        return res.status(403).json({ error: "Access denied" });
+      }
       const research = await storage.getMarketResearch(
         type as string,
         req.user!.id,
@@ -93,6 +96,9 @@ export function register(app: Express) {
   app.get("/api/research/property", requireAuth, async (req, res) => {
     try {
       const { propertyId } = req.query;
+      if (propertyId && !(await checkPropertyAccess(req.user!, Number(propertyId)))) {
+        return res.status(403).json({ error: "Access denied" });
+      }
       const research = await storage.getMarketResearch(
         "property",
         req.user!.id,
@@ -112,6 +118,10 @@ export function register(app: Express) {
       }
 
       const { type, propertyId, propertyContext, assetDefinition, researchVariables } = validation.data;
+
+      if (propertyId && !(await checkPropertyAccess(req.user!, propertyId))) {
+        return res.status(403).json({ error: "Access denied" });
+      }
 
       if (isApiRateLimited(req.user!.id, "market-research", 5)) {
         return res.status(429).json({ error: "Rate limit exceeded. Please wait a minute." });

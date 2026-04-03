@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { generatePropertyProForma } from "../../client/src/lib/financialEngine.js";
 import { baseProperty, makeGlobal } from "../fixtures";
+import { DEPRECIATION_YEARS } from "../../shared/constants.js";
 
 /**
  * Edge case tests for generatePropertyProForma().
@@ -766,14 +767,14 @@ describe("Edge Case: Very large purchase price ($100M)", () => {
 
   it("depreciation is proportionally large", () => {
     const depBasis = 100_000_000 * 0.75; // landValuePercent = 0.25
-    const expectedMonthlyDep = depBasis / 27.5 / 12;
+    const expectedMonthlyDep = depBasis / DEPRECIATION_YEARS / 12;
     expect(result[0].depreciationExpense).toBeCloseTo(expectedMonthlyDep, 0);
   });
 
   it("property value is computed correctly", () => {
     const landValue = 100_000_000 * 0.25;
     const buildingValue = 100_000_000 * 0.75;
-    const monthlyDep = buildingValue / 27.5 / 12;
+    const monthlyDep = buildingValue / DEPRECIATION_YEARS / 12;
     const expected = landValue + buildingValue - monthlyDep;
     expect(result[0].propertyValue).toBeCloseTo(expected, 0);
   });
@@ -1101,7 +1102,7 @@ describe("Edge Case: Building improvements increase depreciable basis", () => {
     // depreciableBasis = purchasePrice * (1 - landPct) + improvements
     // = 1,000,000 * 0.75 + 500,000 = 1,250,000
     const depBasis = 1_000_000 * 0.75 + 500_000;
-    const expectedMonthlyDep = depBasis / 27.5 / 12;
+    const expectedMonthlyDep = depBasis / DEPRECIATION_YEARS / 12;
     expect(result[0].depreciationExpense).toBeCloseTo(expectedMonthlyDep, 2);
   });
 

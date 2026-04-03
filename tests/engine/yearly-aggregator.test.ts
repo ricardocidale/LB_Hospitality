@@ -5,6 +5,7 @@ import {
   type YearlyPropertyFinancials,
 } from "../../client/src/lib/financial/yearlyAggregator.js";
 import { baseProperty, makeGlobal, makeProperty } from "../fixtures";
+import { DEPRECIATION_YEARS } from "../../shared/constants.js";
 
 /**
  * Comprehensive tests for aggregatePropertyByYear() — the single source of
@@ -519,9 +520,9 @@ describe("Depreciation: Yearly aggregation", () => {
   const yearly = aggregatePropertyByYear(monthly, 10);
 
   // Depreciable basis = $1M * 0.75 = $750K
-  // Monthly depreciation = $750,000 / 27.5 / 12 = ~$2,272.73
+  // Monthly depreciation = $750,000 / DEPRECIATION_YEARS / 12 = ~$2,272.73
   const depBasis = 1_000_000 * 0.75;
-  const expectedMonthlyDep = depBasis / 27.5 / 12;
+  const expectedMonthlyDep = depBasis / DEPRECIATION_YEARS / 12;
 
   it("yearly depreciation = monthly depreciation x 12", () => {
     const expectedYearlyDep = expectedMonthlyDep * 12;
@@ -548,7 +549,7 @@ describe("Depreciation: Yearly aggregation", () => {
 
   it("annual depreciation matches the IRS 27.5-year schedule", () => {
     // Annual depreciation should be depBasis / 27.5
-    const expectedAnnualDep = depBasis / 27.5;
+    const expectedAnnualDep = depBasis / DEPRECIATION_YEARS;
     expect(yearly[0].depreciationExpense).toBeCloseTo(expectedAnnualDep, 0);
   });
 });

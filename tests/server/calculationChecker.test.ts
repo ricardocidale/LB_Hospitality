@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { DEPRECIATION_YEARS } from "../../shared/constants.js";
 import { runIndependentVerification } from "../../server/calculationChecker.js";
 import type { VerificationReport, ClientPropertyMonthly } from "../../server/calculationChecker.js";
 
@@ -283,7 +284,7 @@ describe("calculationChecker — depreciation", () => {
     expect(depCheck).toBeDefined();
     expect(depCheck!.passed).toBe(true);
     const depreciableBasis = 1_000_000 * (1 - 0.25);
-    const expectedAnnual = depreciableBasis / 27.5;
+    const expectedAnnual = depreciableBasis / DEPRECIATION_YEARS;
     expect(depCheck!.expected).toBeCloseTo(expectedAnnual, 2);
   });
 });

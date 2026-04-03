@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { generatePropertyProForma } from "../../client/src/lib/financialEngine.js";
 import { baseProperty, makeGlobal } from "../fixtures";
+import { DEPRECIATION_YEARS } from "../../shared/constants.js";
 
 /**
  * Golden-scenario test for generatePropertyProForma().
@@ -24,7 +25,7 @@ import { baseProperty, makeGlobal } from "../fixtures";
  *   Other Revenue = $36,600 × 0.07 = $2,562
  *   Total Revenue = $36,600 + $15,738 + $10,471.60 + $2,562 = $65,371.60
  *
- *   Depreciation = $750,000 / 27.5 / 12 = $2,272.727...
+ *   Depreciation = $750,000 / DEPRECIATION_YEARS / 12 = $2,272.727...
  *   Debt = $0 (Full Equity)
  */
 
@@ -45,7 +46,7 @@ const otherRev = roomRev * 0.07; // 2,562
 const totalRev = roomRev + eventRev + fbRev + otherRev;
 
 const depreciableBasis = 1_000_000 * 0.75; // 750,000
-const monthlyDep = depreciableBasis / 27.5 / 12;
+const monthlyDep = depreciableBasis / DEPRECIATION_YEARS / 12;
 
 describe("generatePropertyProForma — golden scenario (Full Equity)", () => {
   const result = generatePropertyProForma(property, global, 12);
@@ -93,7 +94,7 @@ describe("generatePropertyProForma — golden scenario (Full Equity)", () => {
       expect(m0.revenueTotal).toBeCloseTo(totalRev, 2);
     });
 
-    it("depreciation = $750K / 27.5 / 12", () => {
+    it("depreciation = $750K / DEPRECIATION_YEARS / 12", () => {
       expect(m0.depreciationExpense).toBeCloseTo(monthlyDep, 2);
     });
 

@@ -38,7 +38,7 @@ import {
 describe("NOL Carryforward — High-Cost Property with Early Losses", () => {
   // ── Scenario inputs ──────────────────────────────────────────────────────
   const property = makeProperty({
-    purchasePrice: 1_450_000,
+    purchasePrice: 1_600_000,
     roomCount: 10,
     startAdr: 150,
     startOccupancy: 0.70,
@@ -48,7 +48,7 @@ describe("NOL Carryforward — High-Cost Property with Early Losses", () => {
     type: "Financed" as any,
     acquisitionLTV: 0.75,
     acquisitionInterestRate: 0.09,
-    acquisitionTermYears: 25,
+    acquisitionTermYears: 15,
     landValuePercent: 0.25,
     buildingImprovements: 0,
     taxRate: DEFAULT_PROPERTY_TAX_RATE, // 0.25
@@ -66,17 +66,17 @@ describe("NOL Carryforward — High-Cost Property with Early Losses", () => {
   const PENNY = 2; // toBeCloseTo precision (within $0.01)
 
   // ── Hand-calculated constants ──────────────────────────────────────────
-  const purchasePrice = 1_450_000;
-  const loanAmount = purchasePrice * 0.75; // $1,087,500
+  const purchasePrice = 1_600_000;
+  const loanAmount = purchasePrice * 0.75; // $1,200,000
   const monthlyRate = 0.09 / 12; // 0.0075
-  const totalPayments = 25 * 12; // 300
+  const totalPayments = 15 * 12; // 180
   const monthlyPayment = pmt(loanAmount, monthlyRate, totalPayments);
 
-  const buildingValue = purchasePrice * 0.75; // $1,087,500
+  const buildingValue = purchasePrice * 0.75; // $1,200,000
   const monthlyDepreciation = buildingValue / DEPRECIATION_YEARS / 12;
-  // = 1,087,500 / 27.5 / 12 = 1,087,500 / 330 ≈ 3,295.45
+  // = 1,200,000 / 39 / 12 ≈ 2,564.10
 
-  const interestMonth1 = loanAmount * monthlyRate; // 1,087,500 * 0.0075 = 8,156.25
+  const interestMonth1 = loanAmount * monthlyRate; // 1,200,000 * 0.0075 = 9,000.00
 
   // Helper: compute pre-tax income for a given month
   function preTaxIncome(i: number): number {

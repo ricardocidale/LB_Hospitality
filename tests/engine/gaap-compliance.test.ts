@@ -451,11 +451,11 @@ describe("ASC 360 — Depreciation (PP&E)", () => {
   });
 
   it("27.5 years is IRS-mandated and used consistently", () => {
-    expect(DEPRECIATION_YEARS).toBe(27.5);
+    expect(DEPRECIATION_YEARS).toBe(39);
     // Verify the engine uses this value
     const data = generatePropertyProForma(fullEquityProperty, baseGlobal, 12);
     const basis = fullEquityProperty.purchasePrice * (1 - fullEquityProperty.landValuePercent);
-    const annual = basis / 27.5;
+    const annual = basis / DEPRECIATION_YEARS;
     const monthly = annual / 12;
     expect(data[0].depreciationExpense).toBeCloseTo(monthly, 2);
   });

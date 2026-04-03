@@ -415,11 +415,13 @@ export function register(app: Express) {
 
   async function checkScenarioAccess(scenarioId: number, userId: number, scenario: { userId: number }): Promise<boolean> {
     if (scenario.userId === userId) return true;
+    const user = await storage.getUserById(userId);
+    if (!user) return false;
     const shares = await storage.getScenarioSharesForScenario(scenarioId);
     return shares.some(s =>
       (s.targetType === "user" && s.targetId === userId) ||
-      (s.targetType === "group") ||
-      (s.targetType === "company")
+      (s.targetType === "group" && user.userGroupId != null && s.targetId === user.userGroupId) ||
+      (s.targetType === "company" && user.companyId != null && s.targetId === user.companyId)
     );
   }
 

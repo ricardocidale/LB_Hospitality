@@ -366,6 +366,21 @@ export function getSessionExpiryDate(): Date {
   return new Date(Date.now() + SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000);
 }
 
+export async function checkPropertyAccess(
+  user: Express.User,
+  propertyId: number
+): Promise<boolean> {
+  if (user.role === UserRole.ADMIN) return true;
+  const property = await storage.getProperty(propertyId);
+  if (!property) return false;
+  if (property.userId === user.id) return true;
+  if (user.userGroupId) {
+    const allowedIds = await storage.getGroupPropertyIds(user.userGroupId);
+    if (allowedIds.includes(propertyId)) return true;
+  }
+  return false;
+}
+
 /**
  * Creates a default "Development" scenario for a newly created user, populated with
  * the current global assumptions and properties. Skips creation if the user already

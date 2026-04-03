@@ -179,7 +179,12 @@ export function runFullVerification(
       );
       crossReports.push(crossReport);
       
-    } catch (_error) {
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : String(error);
+      complianceReports.push({
+        propertyName: property.name,
+        checks: [{ rule: "verification_error", passed: false, severity: "critical" as const, message: `Verification crashed: ${errMsg}` }],
+      });
     }
   }
   

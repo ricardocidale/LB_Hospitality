@@ -640,10 +640,8 @@ describe("Golden Scenario: Clearwater Inn — Mgmt Co + 1 Property", () => {
       expect(propFinancials[0].revenueRooms).toBeCloseTo(54442.50, 0);
     });
 
-    it("monthly depreciation = building_value / 27.5 / 12", () => {
-      // buildingValue = purchasePrice * (1 - landPct) + buildingImprovements
-      // = 1,500,000 * 0.75 + 200,000 = 1,325,000
-      const expected = 1_325_000 / 27.5 / 12;
+    it("monthly depreciation = building_value / DEPRECIATION_YEARS / 12", () => {
+      const expected = 1_325_000 / DEPRECIATION_YEARS / 12;
       expect(propFinancials[0].depreciationExpense).toBeCloseTo(expected, 0);
     });
 

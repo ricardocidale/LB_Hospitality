@@ -91,7 +91,8 @@ export function compareLoanScenarios(scenarios: LoanScenario[]): LoanComparisonO
     const totalPayments = r(schedule.reduce((sum, e) => sum + e.payment, 0));
 
     const lastEntry = schedule[schedule.length - 1];
-    const balloon = lastEntry ? lastEntry.ending_balance : 0;
+    const isBalloon = scenario.input.amortization_months > scenario.input.term_months;
+    const balloon = isBalloon && lastEntry ? lastEntry.beginning_balance : 0;
 
     const ioEntries = schedule.filter(e => e.is_io);
     const amortEntries = schedule.filter(e => !e.is_io);

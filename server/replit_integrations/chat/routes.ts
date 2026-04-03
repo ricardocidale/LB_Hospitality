@@ -189,14 +189,13 @@ You are currently in a voice conversation. Adjust your responses accordingly:
 
 async function buildContextPrompt(userId?: number): Promise<string> {
   try {
-    const [assumptions, properties, allUsers, allResearch] = await Promise.all([
+    const [assumptions, properties, allResearch] = await Promise.all([
       storage.getGlobalAssumptions(userId),
       storage.getAllProperties(userId),
-      storage.getAllUsers(),
       storage.getAllMarketResearch(userId),
     ]);
 
-    const safeUsers = allUsers.map(({ id, firstName, lastName, email, role, title }) => ({ id, name: [firstName, lastName].filter(Boolean).join(' ') || null, email, role, title }));
+    const currentUser = userId ? await storage.getUserById(userId) : null;
 
     const parts: string[] = [];
 
@@ -256,16 +255,9 @@ async function buildContextPrompt(userId?: number): Promise<string> {
       }
     }
 
-    if (safeUsers.length > 0) {
-      parts.push(`\n## Team Members (${safeUsers.length} users)`);
-      for (const u of safeUsers) {
-        const displayName = u.name || u.email;
-        parts.push(`- **${displayName}** — ${u.role}${u.title ? `, ${u.title}` : ""}`);
-      }
-      const currentUser = userId ? safeUsers.find(u => u.id === userId) : null;
-      if (currentUser) {
-        parts.push(`\nYou are currently speaking with **${currentUser.name || currentUser.email}** (${currentUser.role}).`);
-      }
+    if (currentUser) {
+      const displayName = [currentUser.firstName, currentUser.lastName].filter(Boolean).join(' ') || currentUser.email;
+      parts.push(`\nYou are currently speaking with **${displayName}** (${currentUser.role}).`);
     }
 
     if (allResearch && allResearch.length > 0) {

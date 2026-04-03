@@ -18,9 +18,6 @@ import type { ResearchConfig } from "@shared/schema";
 
 import { MAX_MESSAGE_LENGTH, MAX_HISTORY_LENGTH } from "../constants";
 
-// Cache property context to avoid rebuilding on every message (TTL: 5 min)
-let cachedPropertyContext: { text: string; timestamp: number; count: number } | null = null;
-const CONTEXT_CACHE_TTL = 5 * 60 * 1000;
 
 const chatMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -52,21 +49,14 @@ export function register(app: Express) {
       }
       const { message, history } = parsed.data;
 
-      // Check feature gate
-      const global = await storage.getGlobalAssumptions();
+      const userId = req.user!.id;
+
+      const global = await storage.getGlobalAssumptions(userId);
       if (!(global as any)?.rebeccaEnabled) {
         return res.status(403).json({ error: "Chat assistant is not enabled" });
       }
-
-      const properties = await storage.getAllProperties();
-      const now = Date.now();
-      let propertyContext: string;
-      if (cachedPropertyContext && (now - cachedPropertyContext.timestamp) < CONTEXT_CACHE_TTL && cachedPropertyContext.count === properties.length) {
-        propertyContext = cachedPropertyContext.text;
-      } else {
-        propertyContext = buildPropertyContext(properties);
-        cachedPropertyContext = { text: propertyContext, timestamp: now, count: properties.length };
-      }
+      const properties = await storage.getAllProperties(userId);
+      const propertyContext = buildPropertyContext(properties);
 
       const ga = global as any;
       const fundingInterestRate = ga?.fundingInterestRate ?? 0;

@@ -625,8 +625,8 @@ describe("Golden Scenario: Full Financial Statements", () => {
       expect(propFinancials[0].interestExpense).toBeCloseTo(8000, 2);
     });
 
-    it("monthly depreciation = $4,545.4545...", () => {
-      expect(propFinancials[0].depreciationExpense).toBeCloseTo(1_500_000 / 27.5 / 12, 2);
+    it("monthly depreciation = building / DEPRECIATION_YEARS / 12", () => {
+      expect(propFinancials[0].depreciationExpense).toBeCloseTo(1_500_000 / DEPRECIATION_YEARS / 12, 2);
     });
 
     it("company monthly partner comp = $45,000", () => {

@@ -598,8 +598,8 @@ describe("Golden Scenario: Pre-Ops Gap + Refinance Combo", () => {
       expect(propF[0].interestExpense).toBeCloseTo(7500, 2);
     });
 
-    it("monthly depreciation = $4,545.4545...", () => {
-      expect(propF[0].depreciationExpense).toBeCloseTo(1_500_000 / 27.5 / 12, 2);
+    it("monthly depreciation = building / DEPRECIATION_YEARS / 12", () => {
+      expect(propF[0].depreciationExpense).toBeCloseTo(1_500_000 / DEPRECIATION_YEARS / 12, 2);
     });
 
     it("original loan = $1,200,000", () => {

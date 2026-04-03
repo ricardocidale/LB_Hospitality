@@ -16,7 +16,7 @@ const rounding: RoundingPolicy = { precision: 2, bankers_rounding: false };
  * Total closing: 39,500
  * Net loan: 1,725,000 - 39,500 = 1,685,500
  * Reserves: 50,000
- * Equity = 2,300,000 + 39,500 + 50,000 - 1,685,500 = 704,000
+ * Equity = 2,300,000 + 39,500 + 50,000 - 1,725,000 = 664,500
  *
  * PMT(1,725,000, 0.09/12, 300):
  *   r = 0.0075
@@ -56,7 +56,7 @@ describe("golden scenario", () => {
     expect(result.closing_costs.total).toBe(39_500);
 
     // Equity & reserves
-    expect(result.equity_required).toBe(704_000);
+    expect(result.equity_required).toBe(664_500);
     expect(result.upfront_reserves).toBe(50_000);
     expect(result.initial_cash_in).toBe(1_685_500);
 

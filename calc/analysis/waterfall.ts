@@ -104,7 +104,7 @@ export function computeWaterfall(input: WaterfallInput): WaterfallOutput {
   const lpPct = totalEquity > 0 ? input.lp_equity / totalEquity : 0;
   const totalDistributable = r(sumArray(input.distributable_cash_flows));
 
-  let remaining = totalDistributable;
+  let remaining = Math.max(0, totalDistributable);
   let totalToLP = 0;
   let totalToGP = 0;
 
@@ -117,10 +117,7 @@ export function computeWaterfall(input: WaterfallInput): WaterfallOutput {
 
   const preferred_return_amount_target = r(totalEquity * input.preferred_return);
   const preferred_return_amount = r(Math.min(remaining, preferred_return_amount_target));
-  const prefLP = r(preferred_return_amount * lpPct);
-  const prefGP = r(preferred_return_amount - prefLP);
-  totalToLP += prefLP;
-  totalToGP += prefGP;
+  totalToLP += preferred_return_amount;
   remaining = r(remaining - preferred_return_amount);
 
   const preferred_return_shortfall = r(Math.max(0, preferred_return_amount_target - preferred_return_amount));

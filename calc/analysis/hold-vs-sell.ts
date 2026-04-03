@@ -135,7 +135,13 @@ export function computeHoldVsSell(input: HoldVsSellInput): HoldVsSellOutput {
 
   const terminal_value = futureExitCap > 0 ? r(terminal_noi / futureExitCap) : 0;
   const terminalCommission = r(terminal_value * commRate);
-  const net_terminal_proceeds = r(terminal_value - terminalCommission - debt);
+  const holdYearsDepreciation = r(accDepreciation + (costBasis / 39) * input.remaining_hold_years);
+  const terminalAdjBasis = r(costBasis - holdYearsDepreciation);
+  const terminalGain = r(Math.max(0, terminal_value - terminalCommission - terminalAdjBasis));
+  const terminalDepRecapTax = r(Math.min(terminalGain, holdYearsDepreciation) * depRecapRate);
+  const terminalCapGain = r(Math.max(0, terminalGain - holdYearsDepreciation));
+  const terminalCapGainsTax = r(terminalCapGain * cgRate);
+  const net_terminal_proceeds = r(terminal_value - terminalCommission - debt - terminalDepRecapTax - terminalCapGainsTax);
 
   const holdCashFlows = [...projected_fcf];
   if (holdCashFlows.length > 0) {
@@ -181,11 +187,34 @@ export function computeHoldVsSell(input: HoldVsSellInput): HoldVsSellOutput {
 
   let breakeven_noi_growth = 0;
   if (input.remaining_hold_years > 0 && input.current_noi > 0) {
-    const targetTotal = net_after_tax_proceeds * dPow(1 + input.discount_rate, input.remaining_hold_years);
-    const avgAnnualNeeded = targetTotal / input.remaining_hold_years;
-    breakeven_noi_growth = ratio(
-      (avgAnnualNeeded / input.current_noi) - 1
-    );
+    const computeHoldNPV = (g: number): number => {
+      const nois: number[] = [];
+      let n = input.current_noi;
+      for (let y = 0; y < input.remaining_hold_years; y++) {
+        n = y === 0 ? n : n * (1 + g);
+        nois.push(n);
+      }
+      const termNOI = nois[nois.length - 1] * (1 + g);
+      const termVal = futureExitCap > 0 ? termNOI / futureExitCap : 0;
+      const termComm = termVal * commRate;
+      const termProceeds = termVal - termComm - debt;
+      const fcfs = nois.map(ni => ni - capex - debtService);
+      if (fcfs.length > 0) fcfs[fcfs.length - 1] += termProceeds;
+      let npv = 0;
+      for (let t = 0; t < fcfs.length; t++) {
+        npv += fcfs[t] / dPow(1 + input.discount_rate, t + 1);
+      }
+      return npv;
+    };
+    const BISECT_LO = -0.5;
+    const BISECT_HI = 2.0;
+    let lo = BISECT_LO, hi = BISECT_HI;
+    for (let iter = 0; iter < 60; iter++) {
+      const mid = (lo + hi) / 2;
+      if (computeHoldNPV(mid) < net_after_tax_proceeds) lo = mid;
+      else hi = mid;
+    }
+    breakeven_noi_growth = ratio((lo + hi) / 2);
   }
 
   let recommendation: "hold" | "sell" | "indifferent";

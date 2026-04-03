@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { DEPRECIATION_YEARS } from "../../shared/constants.js";
 import { computeDepreciationBasis } from "../../calc/research/depreciation-basis";
 import { computeBreakEven } from "../../calc/analysis/break-even";
 
@@ -23,8 +24,8 @@ describe("Golden Depreciation Scenarios", () => {
     expect(result.land_value_dollars).toBe(500000);
     expect(result.building_value).toBe(1500000);
     expect(result.depreciable_basis).toBe(1500000);
-    expect(result.annual_depreciation).toBe(54545.45);
-    expect(result.monthly_depreciation).toBe(4545.45);
+    expect(result.annual_depreciation).toBeCloseTo(1500000 / DEPRECIATION_YEARS, 2);
+    expect(result.monthly_depreciation).toBeCloseTo(1500000 / DEPRECIATION_YEARS / 12, 2);
   });
 
   /**
@@ -46,7 +47,7 @@ describe("Golden Depreciation Scenarios", () => {
     expect(result.land_value_dollars).toBe(200000);
     expect(result.building_value).toBe(800000);
     expect(result.depreciable_basis).toBe(1000000);
-    expect(result.annual_depreciation).toBe(36363.64);
+    expect(result.annual_depreciation).toBeCloseTo(1000000 / DEPRECIATION_YEARS, 2);
   });
 
   /**
@@ -74,15 +75,13 @@ describe("Golden Depreciation Scenarios", () => {
    * - Tax Shield at 30%: $30,000
    */
   it("should calculate tax shields correctly", () => {
-    // We need a basis that gives exactly 100,000 annual dep
-    // Basis / 27.5 = 100,000 => Basis = 2,750,000
+    const targetBasis = DEPRECIATION_YEARS * 100000;
     const result = computeDepreciationBasis({
-      purchase_price: 2750000 / 0.8, // Adjusting so building value is 2.75M at 20% land
+      purchase_price: targetBasis / 0.8,
       land_value_pct: 0.2,
     });
 
-    // Building value = (2750000 / 0.8) * 0.8 = 2,750,000
-    expect(result.depreciable_basis).toBe(2750000);
+    expect(result.depreciable_basis).toBe(targetBasis);
     expect(result.annual_depreciation).toBe(100000);
     expect(result.tax_shield_at_25pct).toBe(25000);
     expect(result.tax_shield_at_30pct).toBe(30000);

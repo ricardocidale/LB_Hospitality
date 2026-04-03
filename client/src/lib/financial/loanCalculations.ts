@@ -341,13 +341,17 @@ export function calculateYearlyDebtService(
   const yearEndMonth = (year + 1) * 12;
   
   if (refi.refiYear >= 0 && year >= refi.refiYear && refi.refiLoanAmount > 0) {
-    const skipMonths = (year - refi.refiYear) * 12;
+    const refiStartMonth = refi.refiYear * 12;
+    const refiPaymentsThisYear = Math.min(12,
+      Math.max(0, Math.min(yearEndMonth, refiStartMonth + refi.refiTotalPayments) - Math.max(yearStartMonth, refiStartMonth))
+    );
+    const skipMonths = Math.max(0, yearStartMonth - refiStartMonth);
     const { interest, principal } = debtServiceForPeriod(
-      refi.refiMonthlyPayment, refi.refiMonthlyRate, skipMonths, 12, refi.refiLoanAmount
+      refi.refiMonthlyPayment, refi.refiMonthlyRate, skipMonths, refiPaymentsThisYear, refi.refiLoanAmount
     );
     yearlyInterest = interest;
     yearlyPrincipal = principal;
-    yearlyDebtService = refi.refiMonthlyPayment * 12;
+    yearlyDebtService = refi.refiMonthlyPayment * refiPaymentsThisYear;
   } else if (loan.loanAmount > 0) {
     const loanPaymentsThisYear = Math.min(12,
       Math.max(0, Math.min(yearEndMonth, loan.acqMonthsFromModelStart + loan.totalPayments) - Math.max(yearStartMonth, loan.acqMonthsFromModelStart))

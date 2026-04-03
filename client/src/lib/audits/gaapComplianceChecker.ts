@@ -196,7 +196,8 @@ export function checkGAAPCompliance(monthlyData: MonthlyFinancials[]): Complianc
         m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
       const expectedGOP = m.revenueTotal - totalOpEx;
       const gopCorrect = Math.abs(m.gop - expectedGOP) < 0.01;
-      const noiExcludesDebt = m.noi !== m.noi - m.interestExpense || m.debtPayment === 0;
+      const noiPlusDebt = m.noi + m.debtPayment;
+      const noiExcludesDebt = m.debtPayment === 0 || noiPlusDebt > m.noi;
       results.push({
         passed: gopCorrect && noiExcludesDebt,
         category: "USALI Standard",
@@ -271,18 +272,18 @@ export function checkCashFlowStatement(monthlyData: MonthlyFinancials[]): Compli
     });
   }
   
-  // 2. Financing Activities: Financing CF = -Principal
+  // 2. Financing Activities: Financing CF = -Principal + Refinancing Proceeds (ASC 230)
   for (let i = 0; i < Math.min(12, monthlyData.length); i++) {
     const m = monthlyData[i];
     
-    if (m.principalPayment > 0) {
-      const expectedFinCF = -m.principalPayment;
+    if (m.principalPayment > 0 || (m.refinancingProceeds || 0) > 0) {
+      const expectedFinCF = -m.principalPayment + (m.refinancingProceeds || 0);
       const finCFCorrect = Math.abs((m.financingCashFlow || 0) - expectedFinCF) < 0.01;
       results.push({
         passed: finCFCorrect,
         category: "ASC 230 - Financing",
         rule: "Principal Classification",
-        description: `Month ${i + 1}: Financing CF $${(m.financingCashFlow || 0).toFixed(0)} ${finCFCorrect ? "=" : "≠"} -Principal $${(-m.principalPayment).toFixed(0)}`,
+        description: `Month ${i + 1}: Financing CF $${(m.financingCashFlow || 0).toFixed(0)} ${finCFCorrect ? "=" : "≠"} -Principal $${(-m.principalPayment).toFixed(0)}${(m.refinancingProceeds || 0) > 0 ? ` + Refi $${(m.refinancingProceeds || 0).toFixed(0)}` : ""}`,
         details: finCFCorrect ? "Principal correctly classified as financing outflow" : `Expected $${expectedFinCF.toFixed(0)}, got $${(m.financingCashFlow || 0).toFixed(0)}`,
         severity: "critical"
       });

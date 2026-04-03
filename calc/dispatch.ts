@@ -47,6 +47,13 @@
  * Returns: JSON string of the result, or null if the tool name is not recognized.
  */
 import { DEFAULT_ROUNDING } from "./shared/utils.js";
+import {
+  dcfSchema, irrVectorSchema, equityMultipleSchema, exitValuationSchema,
+  financialIdentitiesSchema, fundingGatesSchema, scheduleReconcileSchema,
+  assumptionConsistencySchema, exportVerificationSchema, consolidationSchema,
+  scenarioCompareSchema, breakEvenSchema,
+} from "./shared/schemas.js";
+import type { ZodSchema } from "zod";
 import { computeDCF } from "./returns/dcf-npv.js";
 import { buildIRRVector } from "./returns/irr-vector.js";
 import { computeEquityMultiple } from "./returns/equity-multiple.js";
@@ -92,6 +99,21 @@ const withRounding = (fn: ToolFn): ToolHandler =>
   (input) => fn({ ...input, rounding_policy: DEFAULT_ROUNDING } as never);
 
 const wrap = (fn: ToolFn): ToolHandler => (input) => fn(input as never);
+
+const TOOL_SCHEMAS: Record<string, ZodSchema> = {
+  calculate_dcf_npv: dcfSchema,
+  build_irr_cashflow_vector: irrVectorSchema,
+  compute_equity_multiple: equityMultipleSchema,
+  exit_valuation: exitValuationSchema,
+  validate_financial_identities: financialIdentitiesSchema,
+  funding_gate_checks: fundingGatesSchema,
+  schedule_reconcile: scheduleReconcileSchema,
+  assumption_consistency_check: assumptionConsistencySchema,
+  export_verification: exportVerificationSchema,
+  consolidate_statements: consolidationSchema,
+  scenario_compare: scenarioCompareSchema,
+  break_even_analysis: breakEvenSchema,
+};
 
 const TOOL_DISPATCH: Record<string, ToolHandler> = {
   calculate_dcf_npv: withRounding(computeDCF),
@@ -146,6 +168,13 @@ export function executeComputationTool(name: string, input: Record<string, unkno
   const handler = TOOL_DISPATCH[name];
   if (!handler) return null;
   try {
+    const schema = TOOL_SCHEMAS[name];
+    if (schema) {
+      const parsed = schema.safeParse(input);
+      if (!parsed.success) {
+        return JSON.stringify({ error: `Validation failed: ${parsed.error.issues.map(i => i.message).join("; ")}` });
+      }
+    }
     return JSON.stringify(handler(input));
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);

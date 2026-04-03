@@ -159,9 +159,11 @@ export const DEFAULT_COMMISSION_RATE = 0.05;
 export const DEFAULT_LAND_VALUE_PERCENT = 0.25;
 
 // Commercial real property depreciation period per IRS Publication 946
-// and ASC 360 (Property, Plant, and Equipment). The building portion of
-// a hotel is depreciated straight-line over 27.5 years.
-export const DEPRECIATION_YEARS = 27.5;
+// and ASC 360 (Property, Plant, and Equipment). Hotels providing transient
+// lodging (<30 days) are classified as nonresidential real property under
+// IRC §168(e)(2)(A), depreciated straight-line over 39 years (MACRS).
+// Individual properties can override via property.depreciationYears.
+export const DEPRECIATION_YEARS = 39;
 
 // ──────────────────────────────────────────────────────────
 // TIME CONSTANTS
@@ -505,6 +507,8 @@ export const RESEARCH_TAX_RATE_30_PCT = 0.30;
 
 // Make-vs-buy: savings must exceed this threshold to recommend outsource/in-house
 export const RESEARCH_MAKE_VS_BUY_MARGINAL_THRESHOLD = 0.10;
+export const RESEARCH_MAKE_VS_BUY_DEFAULT_DISCOUNT_RATE = 0.08;
+export const RESEARCH_MAKE_VS_BUY_DEFAULT_ESCALATION_RATE = 0.03;
 
 // ── Hold-vs-Sell Analysis Defaults ──────────────────────────────────────────
 // Default tax rates for disposition analysis (IRC §1 / §1250)

@@ -13,7 +13,7 @@ import {
   LoanCalculation,
   RefinanceCalculation,
 } from "../../client/src/lib/financial/loanCalculations.js";
-import { DEFAULT_LTV, DEFAULT_INTEREST_RATE, DEFAULT_TERM_YEARS, DEFAULT_PROPERTY_TAX_RATE } from "../../client/src/lib/constants.js";
+import { DEFAULT_LTV, DEFAULT_INTEREST_RATE, DEFAULT_TERM_YEARS, DEFAULT_PROPERTY_TAX_RATE, DEPRECIATION_YEARS } from "../../client/src/lib/constants.js";
 import { pmt } from "../../calc/shared/pmt.js";
 
 // ---------------------------------------------------------------------------
@@ -135,8 +135,7 @@ describe("calculateLoanParams", () => {
     const expectedBuildingValue = 2_000_000 * (1 - 0.25) + 100_000;
     expect(loan.buildingValue).toBe(expectedBuildingValue);
 
-    // annualDepreciation = buildingValue / 27.5
-    expect(loan.annualDepreciation).toBeCloseTo(expectedBuildingValue / 27.5, 2);
+    expect(loan.annualDepreciation).toBeCloseTo(expectedBuildingValue / DEPRECIATION_YEARS, 2);
   });
 
   it("uses fallback chain: property -> constants (per-property financing)", () => {

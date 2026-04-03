@@ -253,7 +253,7 @@ export function crossValidateFinancingCalculators(
   let cfErrors = 0;
   for (const m of monthlyData) {
     const expectedCF = (m.operatingCashFlow || 0) + (m.financingCashFlow || 0);
-    if (Math.abs(m.cashFlow - expectedCF) > TOLERANCE && m.refinancingProceeds === 0) {
+    if (Math.abs(m.cashFlow - expectedCF) > TOLERANCE) {
       cfErrors++;
     }
   }

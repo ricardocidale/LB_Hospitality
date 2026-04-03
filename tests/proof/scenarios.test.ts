@@ -83,7 +83,7 @@ describe("Proof Scenario 1: Cash Purchase (Full Equity, No Debt)", () => {
     }
   });
 
-  it("depreciation = depreciable basis / 27.5 / 12 (IRS Pub 946)", () => {
+  it("depreciation = depreciable basis / DEPRECIATION_YEARS / 12 (IRS Pub 946)", () => {
     const depreciableBasis = property.purchasePrice * (1 - DEFAULT_LAND_VALUE_PERCENT);
     const expectedMonthly = depreciableBasis / DEPRECIATION_YEARS / 12;
     for (const m of result) {

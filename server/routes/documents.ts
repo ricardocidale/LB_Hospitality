@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireAuth, requireManagementAccess, isApiRateLimited } from "../auth";
+import { requireAuth, requireManagementAccess, isApiRateLimited, checkPropertyAccess } from "../auth";
 import { storage } from "../storage";
 import { logActivity, logAndSendError } from "./helpers";
 import { DocumentAIService } from "../integrations/document-ai";
@@ -155,6 +155,9 @@ export function register(app: Express) {
       if (isNaN(propertyId)) {
         return res.status(400).json({ error: "Invalid property ID" });
       }
+      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+        return res.status(403).json({ error: "Access denied" });
+      }
 
       const extractions = await storage.getPropertyExtractions(propertyId);
       res.json(extractions);
@@ -308,6 +311,9 @@ export function register(app: Express) {
       const property = await storage.getProperty(data.propertyId);
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
+      }
+      if (!(await checkPropertyAccess(req.user!, data.propertyId))) {
+        return res.status(403).json({ error: "Access denied" });
       }
 
       const globalAssumptions = await storage.getGlobalAssumptions();

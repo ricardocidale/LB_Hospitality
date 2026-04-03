@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireManagementAccess } from "../auth";
+import { requireAuth, requireManagementAccess, checkPropertyAccess } from "../auth";
 import { insertPropertySchema, updatePropertySchema, updateFeeCategorySchema, type GlobalAssumptions } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
@@ -315,7 +315,11 @@ export function register(app: Express) {
   // Fee categories for a property
   app.get("/api/properties/:id/fee-categories", requireAuth, async (req, res) => {
     try {
-      const categories = await storage.getFeeCategoriesByProperty(Number(req.params.id));
+      const propertyId = Number(req.params.id);
+      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      const categories = await storage.getFeeCategoriesByProperty(propertyId);
       res.json(categories);
     } catch (error) {
       logAndSendError(res, "Failed to fetch fee categories", error);
@@ -333,6 +337,9 @@ export function register(app: Express) {
   app.put("/api/properties/:id/fee-categories", requireAuth, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
+      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+        return res.status(403).json({ error: "Access denied" });
+      }
       const parsed = feeCategoryBatchSchema.safeParse(req.body);
       if (!parsed.success) {
         return res.status(400).json({ error: fromZodError(parsed.error).message });

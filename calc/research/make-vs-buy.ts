@@ -9,22 +9,26 @@
  * departmental vs. unallocated expenses.
  */
 import { DEFAULT_ROUNDING } from "../shared/utils.js";
-import { RESEARCH_MAKE_VS_BUY_MARGINAL_THRESHOLD } from "../../shared/constants.js";
+import {
+  RESEARCH_MAKE_VS_BUY_MARGINAL_THRESHOLD,
+  RESEARCH_MAKE_VS_BUY_DEFAULT_DISCOUNT_RATE,
+  RESEARCH_MAKE_VS_BUY_DEFAULT_ESCALATION_RATE,
+} from "../../shared/constants.js";
 
 interface MakeVsBuyInput {
   serviceName: string;
-  // In-house costs (Annual)
-  inHouseLabor: number;        // Direct wages
-  benefitsRate: number;        // e.g. 0.25 for 25%
-  trainingAnnual: number;      // Recruitment & training costs
-  suppliesAnnual: number;      // Direct materials/supplies
-  allocatedOverhead: number;   // Space/utilities allocated
-  // Vendor costs (Annual)
-  vendorContractPrice: number; // Annual contract fee
-  internalOversightHours: number; // Hours/week for manager to oversee vendor
-  managerHourlyRate: number;   // Manager's fully loaded rate
-  // Scaling
-  unitCount: number;           // e.g. number of rooms or keys
+  inHouseLabor: number;
+  benefitsRate: number;
+  trainingAnnual: number;
+  suppliesAnnual: number;
+  allocatedOverhead: number;
+  vendorContractPrice: number;
+  internalOversightHours: number;
+  managerHourlyRate: number;
+  unitCount: number;
+  projection_years?: number;
+  discount_rate?: number;
+  cost_escalation_rate?: number;
   rounding_policy?: typeof DEFAULT_ROUNDING;
 }
 
@@ -37,6 +41,9 @@ interface MakeVsBuyResult {
   costPerUnitInHouse: number;
   costPerUnitVendor: number;
   breakEvenUnits: number;
+  npv_inhouse: number;
+  npv_vendor: number;
+  npv_savings: number;
   recommendation: 'In-House' | 'Outsource' | 'Marginal';
   analysis: string;
 }
@@ -70,17 +77,29 @@ export function computeMakeVsBuy(input: MakeVsBuyInput): MakeVsBuyResult {
   const costPerUnitInHouse = unitCount > 0 ? (totalInHouseCost / unitCount) : 0;
   const costPerUnitVendor = unitCount > 0 ? (totalVendorCost / unitCount) : 0;
 
-  // 4. Break-even analysis (at what unit count does it flip?)
-  // This assumes labor scales semi-linearly with units, which is a simplification.
-  // We'll report it based on current cost structure.
-  const breakEvenUnits = unitCount; // Simplified for this version
+  const breakEvenUnits = unitCount;
 
-  // 5. Recommendation logic
+  const projYears = input.projection_years ?? 5;
+  const discRate = input.discount_rate ?? RESEARCH_MAKE_VS_BUY_DEFAULT_DISCOUNT_RATE;
+  const escalation = input.cost_escalation_rate ?? RESEARCH_MAKE_VS_BUY_DEFAULT_ESCALATION_RATE;
+  let npvInhouse = 0;
+  let npvVendor = 0;
+  for (let y = 1; y <= projYears; y++) {
+    const factor = Math.pow(1 + escalation, y - 1);
+    const discFactor = Math.pow(1 + discRate, y);
+    npvInhouse += (totalInHouseCost * factor) / discFactor;
+    npvVendor += (totalVendorCost * factor) / discFactor;
+  }
+  npvInhouse = Math.round(npvInhouse * 100) / 100;
+  npvVendor = Math.round(npvVendor * 100) / 100;
+  const npvSavings = Math.round((npvInhouse - npvVendor) * 100) / 100;
+
   let recommendation: 'In-House' | 'Outsource' | 'Marginal';
   const MARGINAL_THRESHOLD = RESEARCH_MAKE_VS_BUY_MARGINAL_THRESHOLD;
-  if (savingsPercent > MARGINAL_THRESHOLD) {
+  const npvDiffPct = npvInhouse > 0 ? npvSavings / npvInhouse : savingsPercent;
+  if (npvDiffPct > MARGINAL_THRESHOLD) {
     recommendation = 'Outsource';
-  } else if (savingsPercent < -MARGINAL_THRESHOLD) {
+  } else if (npvDiffPct < -MARGINAL_THRESHOLD) {
     recommendation = 'In-House';
   } else {
     recommendation = 'Marginal';
@@ -101,6 +120,9 @@ export function computeMakeVsBuy(input: MakeVsBuyInput): MakeVsBuyResult {
     costPerUnitInHouse,
     costPerUnitVendor,
     breakEvenUnits,
+    npv_inhouse: npvInhouse,
+    npv_vendor: npvVendor,
+    npv_savings: npvSavings,
     recommendation,
     analysis
   };

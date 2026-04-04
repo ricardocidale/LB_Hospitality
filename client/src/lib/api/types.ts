@@ -239,3 +239,45 @@ export interface SavedSearch {
 }
 
 export type SavedSearchData = SavedSearch;
+
+export interface HotelSnapshotData {
+  location: string;
+  sampleSize: number;
+  avgPriceMin: number | null;
+  avgPriceMax: number | null;
+  topHotels: Array<{
+    name: string;
+    type: string;
+    rating: number | null;
+    reviewCount: number | null;
+    priceMin: number | null;
+    priceMax: number | null;
+  }>;
+}
+
+export interface HotelRateData {
+  name: string;
+  key: string;
+  rates: Array<{ name: string; rate: number }>;
+  avgRate: number | null;
+}
+
+export interface CityMedianData {
+  city: string;
+  stateCode: string;
+  medianListingPrice: number;
+  medianByType: Record<string, number>;
+}
+
+export interface MarketContextResponse {
+  hotelSnapshot: HotelSnapshotData | null;
+  topHotelRates: HotelRateData[];
+  regionalMedians: {
+    searchCity: string;
+    searchState: string;
+    medians: CityMedianData[];
+    avgMedian: number | null;
+    fetchedAt: string;
+  } | null;
+  fetchedAt: string;
+}

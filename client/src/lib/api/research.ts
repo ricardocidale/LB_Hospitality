@@ -5,7 +5,8 @@ import {
   PropertyFinderSearchResponse, 
   SavedProspectiveProperty,
   PropertyFinderResult,
-  SavedSearch
+  SavedSearch,
+  MarketContextResponse
 } from "./types";
 import { invalidateAllFinancialQueries } from "./properties";
 
@@ -172,5 +173,23 @@ export function useDeleteSavedSearch() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["savedSearches"] });
     },
+  });
+}
+
+async function fetchMarketContext(location: string, state?: string): Promise<MarketContextResponse> {
+  const params = new URLSearchParams({ location });
+  if (state) params.set("state", state);
+  const res = await fetch(`/api/property-finder/market-context?${params.toString()}`);
+  if (!res.ok) throw new Error("Failed to fetch market context");
+  return res.json();
+}
+
+export function useMarketContext(location: string | null, state?: string) {
+  return useQuery({
+    queryKey: ["marketContext", location, state],
+    queryFn: () => fetchMarketContext(location!, state),
+    enabled: !!location,
+    staleTime: 15 * 60 * 1000,
+    retry: false,
   });
 }

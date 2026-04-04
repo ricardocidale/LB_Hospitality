@@ -5,9 +5,65 @@ import { insertProspectivePropertySchema, insertSavedSearchSchema } from "@share
 import { fromZodError } from "zod-validation-error";
 import { logActivity, logAndSendError } from "./helpers";
 import { z } from "zod";
-import { getOpenAIClient } from "../ai/clients";
 import { logger } from "../logger";
 import { aiRateLimit } from "../middleware/rate-limit";
+import { RealtyService } from "../services/RealtyService";
+import { USRealEstateService } from "../services/USRealEstateService";
+import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
+
+const realtyService = new RealtyService();
+const usRealEstateService = new USRealEstateService();
+
+const XOTELO_LOCATION_KEYS: Record<string, string> = {
+  "miami, fl": "g34438",
+  "miami beach, fl": "g34439",
+  "fort lauderdale, fl": "g34227",
+  "key west, fl": "g34345",
+  "naples, fl": "g34467",
+  "sarasota, fl": "g34618",
+  "st. augustine, fl": "g34599",
+  "tampa, fl": "g34678",
+  "orlando, fl": "g34515",
+  "palm beach, fl": "g34542",
+  "savannah, ga": "g60814",
+  "charleston, sc": "g54171",
+  "nashville, tn": "g55229",
+  "new orleans, la": "g60864",
+  "austin, tx": "g30196",
+  "san antonio, tx": "g60956",
+  "new york, ny": "g60763",
+  "los angeles, ca": "g32655",
+  "san francisco, ca": "g60713",
+  "san diego, ca": "g60750",
+  "chicago, il": "g35805",
+  "boston, ma": "g60745",
+  "washington, dc": "g28970",
+  "seattle, wa": "g60878",
+  "portland, or": "g52024",
+  "denver, co": "g33388",
+  "phoenix, az": "g31310",
+  "scottsdale, az": "g31350",
+  "sedona, az": "g31352",
+  "aspen, co": "g29141",
+  "asheville, nc": "g49005",
+  "napa, ca": "g32766",
+  "santa fe, nm": "g47990",
+  "jackson, wy": "g60491",
+  "honolulu, hi": "g60982",
+  "maui, hi": "g29220",
+};
+
+function findXoteloKey(location: string): { key: string; label: string } | null {
+  const lower = location.toLowerCase().trim();
+  const direct = XOTELO_LOCATION_KEYS[lower];
+  if (direct) return { key: direct, label: location };
+
+  for (const [loc, key] of Object.entries(XOTELO_LOCATION_KEYS)) {
+    const city = loc.split(",")[0].trim();
+    if (lower.includes(city)) return { key, label: loc };
+  }
+  return null;
+}
 
 const searchQuerySchema = z.object({
   location: z.string().min(1).max(200),
@@ -19,13 +75,16 @@ const searchQuerySchema = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 
-export function register(app: Express) {
-  // ────────────────────────────────────────────────────────────
-  // PROPERTY FINDER
-  // External property search via RapidAPI (Realtor.com). Users can search,
-  // save favorites, and manage saved search criteria.
-  // ────────────────────────────────────────────────────────────
+const marketContextSchema = z.object({
+  location: z.string().min(1).max(200),
+  state: z.string().max(2).optional(),
+});
 
+const propertyValueSchema = z.object({
+  property_id: z.string().min(1).max(50),
+});
+
+export function register(app: Express) {
   app.get("/api/property-finder/prospective", requireAuth, async (req, res) => {
     try {
       const properties = await storage.getProspectiveProperties(getAuthUser(req).id);
@@ -89,72 +148,129 @@ export function register(app: Express) {
 
       const { location, priceMin, priceMax, bedsMin, lotSizeMin, propertyType, offset: pageOffset } = parsed.data;
 
-      const filters: string[] = [];
-      if (priceMin) filters.push(`minimum price $${Number(priceMin).toLocaleString()}`);
-      if (priceMax) filters.push(`maximum price $${Number(priceMax).toLocaleString()}`);
-      if (bedsMin) filters.push(`at least ${bedsMin} bedrooms`);
-      if (lotSizeMin) filters.push(`minimum lot size ${lotSizeMin} acre(s)`);
-      if (propertyType && propertyType !== "any") filters.push(`property type: ${propertyType}`);
-
-      const filterText = filters.length > 0 ? `\nFilters: ${filters.join(", ")}` : "";
-
-      const openai = getOpenAIClient();
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        temperature: 0.7,
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content: `You are a real estate data API. Return JSON with realistic property listings for the given location.
-Return EXACTLY this JSON structure:
-{
-  "total": <number, realistic total count for this market, 20-200>,
-  "results": [<array of 6 property objects>]
-}
-
-Each property object MUST have these exact fields:
-{
-  "externalId": "<unique string like 'zpid-' + random 8 digits>",
-  "address": "<realistic full street address for the location>",
-  "city": "<city name>",
-  "state": "<2-letter state code>",
-  "zipCode": "<valid zip code for the area>",
-  "price": <realistic price as number>,
-  "beds": <number>,
-  "baths": <number>,
-  "sqft": <number>,
-  "lotSizeAcres": <number with 1-2 decimals>,
-  "propertyType": "<House|Multi-Family|Land|Commercial>",
-  "imageUrl": null,
-  "listingUrl": null
-}
-
-Make listings realistic for the location's market. Vary prices, sizes, and lot sizes. Focus on larger homes and estates suitable for boutique hotel conversion (3+ beds, larger lots preferred).`,
-          },
-          {
-            role: "user",
-            content: `Find properties for sale in: ${location.trim()}${filterText}\nPage offset: ${pageOffset}`,
-          },
-        ],
-      });
-
-      const content = completion.choices[0]?.message?.content;
-      if (!content) {
-        return res.status(500).json({ error: "No response from search service", results: [], total: 0, offset: 0 });
+      if (!realtyService.isAvailable()) {
+        return res.status(503).json({ error: "RapidAPI key not configured. Add RAPIDAPI_KEY in Secrets to enable real property listings.", results: [], total: 0, offset: 0 });
       }
 
-      const aiResponse = JSON.parse(content);
-      const results = Array.isArray(aiResponse.results) ? aiResponse.results : [];
-      const total = typeof aiResponse.total === "number" ? aiResponse.total : results.length;
+      const result = await realtyService.searchProperties({
+        location,
+        priceMin,
+        priceMax,
+        bedsMin,
+        lotSizeMinAcres: lotSizeMin,
+        propertyType,
+        offset: pageOffset,
+        limit: 20,
+      });
 
-      logger.info(`[property-finder] Search for "${location}" returned ${results.length} results (total: ${total})`);
-
-      res.json({ results, total, offset: pageOffset });
+      logger.info(`[property-finder] Search for "${location}" returned ${result.results.length} results (total: ${result.total})`);
+      res.json(result);
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Search failed";
       logger.error(`[property-finder] Search error: ${msg}`);
       logAndSendError(res, "Property search failed", error);
+    }
+  });
+
+  app.get("/api/property-finder/market-context", requireAuth, searchLimiter, async (req, res) => {
+    try {
+      const parsed = marketContextSchema.safeParse(req.query);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid parameters" });
+      }
+
+      const { location, state } = parsed.data;
+      const xoteloMatch = findXoteloKey(state ? `${location}, ${state}` : location);
+
+      const [hotelSnapshotResult, regionalMediansResult] = await Promise.allSettled([
+        xoteloMatch
+          ? getMarketIntelligenceAggregator().getXoteloService().getMarketSnapshotByKey(xoteloMatch.key, xoteloMatch.label)
+          : Promise.resolve(null),
+        state && usRealEstateService.isAvailable()
+          ? usRealEstateService.getRegionalMedians(location.split(",")[0].trim(), state)
+          : Promise.resolve(null),
+      ]);
+
+      const hotelSnapshot = hotelSnapshotResult.status === "fulfilled" ? hotelSnapshotResult.value : null;
+      const regionalMedians = regionalMediansResult.status === "fulfilled" ? regionalMediansResult.value : null;
+
+      let topHotelRates: Array<{
+        name: string;
+        key: string;
+        rates: Array<{ name: string; rate: number }>;
+        avgRate: number | null;
+      }> = [];
+
+      if (hotelSnapshot && hotelSnapshot.hotels.length > 0) {
+        const today = new Date();
+        const checkIn = today.toISOString().split("T")[0];
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const checkOut = tomorrow.toISOString().split("T")[0];
+
+        const xotelo = getMarketIntelligenceAggregator().getXoteloService();
+        const top3 = hotelSnapshot.hotels
+          .filter((h) => h.rating && h.rating >= 3.5)
+          .slice(0, 3);
+
+        const rateResults = await Promise.allSettled(
+          top3.map((h) => xotelo.getHotelRates(h.key, checkIn, checkOut))
+        );
+
+        topHotelRates = rateResults
+          .map((r, i) => {
+            if (r.status === "fulfilled" && r.value) {
+              return {
+                name: top3[i].name,
+                key: top3[i].key,
+                rates: r.value.rates.map((rate) => ({ name: rate.name, rate: rate.rate })),
+                avgRate: r.value.avgRate,
+              };
+            }
+            return null;
+          })
+          .filter((r): r is NonNullable<typeof r> => r !== null);
+      }
+
+      res.json({
+        hotelSnapshot: hotelSnapshot ? {
+          location: hotelSnapshot.location,
+          sampleSize: hotelSnapshot.sampleSize,
+          avgPriceMin: hotelSnapshot.avgPriceMin,
+          avgPriceMax: hotelSnapshot.avgPriceMax,
+          topHotels: hotelSnapshot.hotels.slice(0, 5).map((h) => ({
+            name: h.name,
+            type: h.type,
+            rating: h.rating,
+            reviewCount: h.reviewCount,
+            priceMin: h.priceMin,
+            priceMax: h.priceMax,
+          })),
+        } : null,
+        topHotelRates,
+        regionalMedians,
+        fetchedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      logAndSendError(res, "Market context failed", error);
+    }
+  });
+
+  app.get("/api/property-finder/property-value", requireAuth, searchLimiter, async (req, res) => {
+    try {
+      const parsed = propertyValueSchema.safeParse(req.query);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid parameters" });
+      }
+
+      if (!usRealEstateService.isAvailable()) {
+        return res.status(503).json({ error: "RapidAPI key not configured" });
+      }
+
+      const history = await usRealEstateService.getPropertyValueHistory(parsed.data.property_id);
+      res.json({ history });
+    } catch (error) {
+      logAndSendError(res, "Property value lookup failed", error);
     }
   });
 

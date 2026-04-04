@@ -12,6 +12,7 @@ import {
   useSavedSearches,
   useCreateSavedSearch,
   useDeleteSavedSearch,
+  useMarketContext,
   type PropertyFinderSearchParams,
   type PropertyFinderResult,
   type SavedProspectiveProperty,
@@ -25,6 +26,7 @@ import {
   FavoriteCard,
   SearchForm,
   SavedSearchBar,
+  MarketContextPanel,
   type SearchFormData,
 } from "@/components/property-finder";
 import { AnimatedPage } from "@/components/graphics/AnimatedPage";
@@ -49,6 +51,12 @@ export default function PropertyFinder() {
 
   const { data: searchData, isLoading: isSearching, error: searchError } = usePropertySearch(searchParams);
   const { data: favorites = [], isLoading: isFavoritesLoading } = useProspectiveFavorites();
+
+  const searchState = searchData?.results?.[0]?.state || searchParams?.location?.split(",")[1]?.trim() || undefined;
+  const { data: marketContext, isLoading: isMarketContextLoading } = useMarketContext(
+    searchParams ? searchParams.location : null,
+    searchState
+  );
   const { data: savedSearches = [], isLoading: isSavedSearchesLoading } = useSavedSearches();
   const saveFavorite = useSaveFavorite();
   const deleteFavorite = useDeleteFavorite();
@@ -227,6 +235,14 @@ export default function PropertyFinder() {
               <p className="text-foreground text-sm">{searchError.message}</p>
             </div>
           </div>
+        )}
+
+        {searchParams && (
+          <MarketContextPanel
+            data={marketContext}
+            isLoading={isMarketContextLoading}
+            location={searchParams.location}
+          />
         )}
 
         {isSearching && (

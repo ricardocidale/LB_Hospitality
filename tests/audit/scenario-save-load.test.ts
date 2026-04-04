@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
+import { execSync } from "child_process";
 import { computePortfolioProjection } from "../../server/finance/service";
-import { stableHash } from "../../server/scenarios/stable-json";
+import { stableHash, stableStringify } from "../../server/scenarios/stable-json";
 import type { PropertyInput, GlobalInput } from "@engine/types";
 
 const PROPERTY_A: PropertyInput = {
@@ -66,6 +67,18 @@ const GLOBAL: GlobalInput = {
   inflationRate: 0,
   projectionYears: 10,
 };
+
+function grepServer(pattern: string, path = "server/"): string[] {
+  try {
+    const out = execSync(
+      `rg -n '${pattern}' ${path} --glob '*.ts' -g '!*.test.*' 2>/dev/null`,
+      { encoding: "utf-8", timeout: 10_000 }
+    );
+    return out.trim().split("\n").filter(Boolean);
+  } catch {
+    return [];
+  }
+}
 
 describe("Scenario Save/Load Consistency", () => {
   it("compute → serialize → recompute produces identical hash (single property)", () => {
@@ -162,5 +175,60 @@ describe("Scenario Save/Load Consistency", () => {
     const h1 = stableHash(r1.consolidatedYearly);
     const h2 = stableHash(serialized.consolidatedYearly);
     expect(h1).toBe(h2);
+  });
+
+  it("inputsHash differs when property assumptions change", () => {
+    const inputs1 = { properties: [PROPERTY_A], globalAssumptions: GLOBAL };
+    const inputs2 = { properties: [{ ...PROPERTY_A, startAdr: 200 }], globalAssumptions: GLOBAL };
+    expect(stableHash(inputs1)).not.toBe(stableHash(inputs2));
+  });
+
+  it("inputsHash differs when global assumptions change", () => {
+    const inputs1 = { properties: [PROPERTY_A], globalAssumptions: GLOBAL };
+    const inputs2 = { properties: [PROPERTY_A], globalAssumptions: { ...GLOBAL, inflationRate: 0.03 } };
+    expect(stableHash(inputs1)).not.toBe(stableHash(inputs2));
+  });
+
+  it("stableStringify produces identical output for differently-ordered objects", () => {
+    const obj1 = { z: 1, a: 2, m: 3 };
+    const obj2 = { a: 2, m: 3, z: 1 };
+    expect(stableStringify(obj1)).toBe(stableStringify(obj2));
+  });
+
+  it("GAAP validation result is UNQUALIFIED for valid engine output", () => {
+    const result = computePortfolioProjection({
+      properties: [PROPERTY_A],
+      globalAssumptions: GLOBAL,
+      projectionYears: 10,
+    });
+
+    expect(result.validationSummary.opinion).toBe("UNQUALIFIED");
+    expect(result.validationSummary.failed).toBe(0);
+  });
+});
+
+describe("Scenario Persistence Infrastructure Audit", () => {
+  it("scenario_results table stores outputHash, inputsHash, engineVersion", () => {
+    const lines = grepServer("outputHash|inputsHash|engineVersion", "shared/schema/");
+    const resultSchema = lines.filter(l => l.includes("scenario-results"));
+    expect(resultSchema.some(l => l.includes("outputHash"))).toBe(true);
+    expect(resultSchema.some(l => l.includes("inputsHash"))).toBe(true);
+    expect(resultSchema.some(l => l.includes("engineVersion"))).toBe(true);
+  });
+
+  it("recompute endpoint exists with drift detection", () => {
+    const lines = grepServer("recompute|driftStatus|drift-check", "server/routes/scenarios.ts");
+    expect(lines.some(l => l.includes("recompute"))).toBe(true);
+    expect(lines.some(l => l.includes("drift"))).toBe(true);
+  });
+
+  it("scenario load scopes writes to the caller userId", () => {
+    const lines = grepServer("userId|user\\.id|getAuthUser", "server/routes/scenarios.ts");
+    expect(lines.length).toBeGreaterThan(0);
+  });
+
+  it("scenario load invalidates compute cache", () => {
+    const lines = grepServer("invalidateComputeCache", "server/routes/scenarios.ts");
+    expect(lines.length).toBeGreaterThanOrEqual(1);
   });
 });

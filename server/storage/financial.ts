@@ -63,15 +63,62 @@ export class FinancialStorage {
     return updated;
   }
 
-  /** List all scenarios belonging to a user, ordered by last update. */
   async getScenariosByUser(userId: number): Promise<Scenario[]> {
-    return await db.select().from(scenarios).where(eq(scenarios.userId, userId)).orderBy(scenarios.updatedAt);
+    return await db.select().from(scenarios)
+      .where(and(eq(scenarios.userId, userId), isNull(scenarios.deletedAt)))
+      .orderBy(scenarios.updatedAt);
   }
 
-  /** Fetch a single scenario by ID, including its full JSON snapshot. */
   async getScenario(id: number): Promise<Scenario | undefined> {
+    const [scenario] = await db.select().from(scenarios)
+      .where(and(eq(scenarios.id, id), isNull(scenarios.deletedAt)));
+    return scenario || undefined;
+  }
+
+  async getScenarioIncludingDeleted(id: number): Promise<Scenario | undefined> {
     const [scenario] = await db.select().from(scenarios).where(eq(scenarios.id, id));
     return scenario || undefined;
+  }
+
+  async getDeletedScenarios(filters?: { userId?: number }): Promise<Scenario[]> {
+    const conditions = [sql`${scenarios.deletedAt} IS NOT NULL`];
+    if (filters?.userId) conditions.push(eq(scenarios.userId, filters.userId));
+    return await db.select().from(scenarios).where(and(...conditions)).orderBy(desc(scenarios.deletedAt));
+  }
+
+  async restoreScenario(id: number): Promise<Scenario | undefined> {
+    const [restored] = await db.update(scenarios)
+      .set({ deletedAt: null, deletedBy: null, purgeAfter: null, updatedAt: new Date() })
+      .where(eq(scenarios.id, id))
+      .returning();
+    return restored || undefined;
+  }
+
+  async purgeExpiredScenarios(): Promise<number> {
+    const now = new Date();
+    const deleted = await db.delete(scenarios)
+      .where(and(sql`${scenarios.purgeAfter} IS NOT NULL`, sql`${scenarios.purgeAfter} < ${now}`))
+      .returning({ id: scenarios.id });
+    return deleted.length;
+  }
+
+  async getDefaultScenario(userId: number): Promise<Scenario | undefined> {
+    const [scenario] = await db.select().from(scenarios)
+      .where(and(eq(scenarios.userId, userId), eq(scenarios.kind, "default"), isNull(scenarios.deletedAt)));
+    return scenario || undefined;
+  }
+
+  async getAutoSaveScenario(userId: number): Promise<Scenario | undefined> {
+    const [scenario] = await db.select().from(scenarios)
+      .where(and(eq(scenarios.userId, userId), eq(scenarios.kind, "autosave"), isNull(scenarios.deletedAt)));
+    return scenario || undefined;
+  }
+
+  async countManualScenarios(userId: number): Promise<number> {
+    const [result] = await db.select({ count: sql<number>`count(*)::int` })
+      .from(scenarios)
+      .where(and(eq(scenarios.userId, userId), eq(scenarios.kind, "manual"), isNull(scenarios.deletedAt)));
+    return result?.count ?? 0;
   }
 
   /** Save a new scenario snapshot (assumptions + properties + images + fee categories).
@@ -144,8 +191,30 @@ export class FinancialStorage {
       .where(eq(scenarios.id, scenarioId));
   }
 
-  /** Delete a scenario. The "Base" scenario is protected by the route handler, not here. */
-  async deleteScenario(id: number): Promise<void> {
+  async updateScenarioSnapshot(scenarioId: number, data: {
+    globalAssumptions: any;
+    properties: any;
+    feeCategories?: any;
+    propertyPhotos?: any;
+    computedResults?: any;
+    computeHash?: string | null;
+  }): Promise<Scenario | undefined> {
+    const [updated] = await db.update(scenarios)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(scenarios.id, scenarioId))
+      .returning();
+    return updated || undefined;
+  }
+
+  async softDeleteScenario(id: number, userId: number): Promise<void> {
+    const now = new Date();
+    const purge = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    await db.update(scenarios)
+      .set({ deletedAt: now, deletedBy: userId, purgeAfter: purge, updatedAt: now })
+      .where(eq(scenarios.id, id));
+  }
+
+  async hardDeleteScenario(id: number): Promise<void> {
     await db.delete(scenarios).where(eq(scenarios.id, id));
   }
 
@@ -582,7 +651,7 @@ export class FinancialStorage {
     for (const share of shares) {
       if (seen.has(share.scenarioId)) continue;
       seen.add(share.scenarioId);
-      const [scenario] = await db.select().from(scenarios).where(eq(scenarios.id, share.scenarioId));
+      const [scenario] = await db.select().from(scenarios).where(and(eq(scenarios.id, share.scenarioId), isNull(scenarios.deletedAt)));
       if (!scenario) continue;
       if (scenario.userId === userId) continue;
       const [granter] = await db.select().from(users).where(eq(users.id, share.grantedBy));
@@ -611,7 +680,7 @@ export class FinancialStorage {
   }
 
   async shareAllScenariosWithUser(ownerId: number, recipientId: number): Promise<ScenarioShare[]> {
-    const userScenarios = await db.select().from(scenarios).where(eq(scenarios.userId, ownerId));
+    const userScenarios = await db.select().from(scenarios).where(and(eq(scenarios.userId, ownerId), isNull(scenarios.deletedAt)));
     const results: ScenarioShare[] = [];
     for (const s of userScenarios) {
       const share = await this.shareScenarioWithUser(s.id, recipientId, ownerId);

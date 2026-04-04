@@ -83,6 +83,50 @@ export function extractScenarioComputeInputs(scenario: { globalAssumptions: unkn
   return { propertyInputs, globalInput, projYears, scenarioProps, scenarioGA };
 }
 
+export async function ensureDefaultScenario(userId: number): Promise<void> {
+  const existing = await storage.getDefaultScenario(userId);
+  if (existing) return;
+
+  const user = await storage.getUserById(userId);
+  if (!user) return;
+
+  const fi = (user.firstName || "")[0]?.toUpperCase() || "";
+  const li = (user.lastName || "")[0]?.toUpperCase() || "";
+  const initials = (fi + li) || user.email.split("@")[0].slice(0, 2).toUpperCase();
+  const name = `${initials} Default Scenario`;
+
+  const { scenarioGA, scenarioProps, propertyFeeCategories, propertyPhotos, diffResult } = await buildCreateSnapshotData(userId);
+  const { computedResults, computeHash } = tryComputeResults(scenarioGA, scenarioProps);
+
+  const scenario = await storage.createScenario({
+    userId,
+    name,
+    description: "Automatically created baseline scenario",
+    globalAssumptions: scenarioGA,
+    properties: scenarioProps,
+    feeCategories: propertyFeeCategories,
+    propertyPhotos,
+    computedResults,
+    computeHash,
+    kind: "default",
+    isLocked: true,
+  });
+
+  if (diffResult.propertyDiffs.length > 0) {
+    await storage.writePropertyOverrides(scenario.id, diffResult.propertyDiffs);
+  }
+
+  logger.info(`Created default scenario "${name}" (id=${scenario.id}) for userId=${userId}`, "scenario");
+}
+
+export function computeGhostName(manualCount: number, user: { firstName?: string | null; lastName?: string | null; email: string }): string {
+  const fi = (user.firstName || "")[0]?.toUpperCase() || "";
+  const li = (user.lastName || "")[0]?.toUpperCase() || "";
+  const initials = (fi + li) || user.email.split("@")[0].slice(0, 2).toUpperCase();
+  const num = String(manualCount + 1).padStart(2, "0");
+  return `Scenario ${num} - ${initials}`;
+}
+
 export async function buildCreateSnapshotData(userId: number) {
   const assumptions = await storage.getGlobalAssumptions(userId);
   const properties = await storage.getAllProperties(userId);

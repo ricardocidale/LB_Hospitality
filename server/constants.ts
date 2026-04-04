@@ -106,6 +106,12 @@ export const MAX_HISTORY_LENGTH = 20;
 /** Maximum scenarios a user may create */
 export const MAX_SCENARIOS_PER_USER = 20;
 
+/** Soft-delete purge interval — 1 hour */
+export const SCENARIO_PURGE_INTERVAL_MS = 60 * 60 * 1000;
+
+/** Soft-delete retention — 30 days (ms) */
+export const SCENARIO_PURGE_DAYS = 30;
+
 /** Maximum image upload size (bytes) */
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 

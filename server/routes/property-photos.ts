@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireManagementAccess, checkPropertyAccess , getAuthUser } from "../auth";
+import { requireAuth, requireManagementAccess, requireAdmin, checkPropertyAccess , getAuthUser } from "../auth";
 import { insertPropertyPhotoSchema, updatePropertyPhotoSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { logAndSendError } from "./helpers";
@@ -83,13 +83,19 @@ export function register(app: Express) {
     }
   });
 
-  // DELETE /api/properties/:id/photos/:photoId — remove a photo
   app.delete("/api/properties/:id/photos/:photoId", requireManagementAccess, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
       if (!(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
+
+      const photos = await storage.getPropertyPhotos(propertyId);
+      const user = getAuthUser(req);
+      if (photos.length <= 1 && user.role !== "admin") {
+        return res.status(403).json({ error: "Cannot delete the last photo — admin required" });
+      }
+
       const photoId = Number(req.params.photoId);
       await storage.deletePropertyPhoto(photoId);
       res.status(204).send();

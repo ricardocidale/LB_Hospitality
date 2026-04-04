@@ -112,11 +112,54 @@ export function registerAdminScenarioRoutes(app: Express) {
       const existing = await storage.getScenario(id);
       if (!existing) return res.status(404).json({ error: "Scenario not found" });
 
-      await storage.deleteScenario(id);
+      await storage.hardDeleteScenario(id);
       logActivity(req, "admin-delete-scenario", "scenario", id, existing.name);
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to delete admin scenario", error);
+    }
+  });
+
+  app.get("/api/admin/scenarios/deleted", requireAdmin, async (req, res) => {
+    try {
+      const userId = req.query.userId ? Number(req.query.userId) : undefined;
+      const deleted = await storage.getDeletedScenarios({ userId });
+      res.json(deleted);
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch deleted scenarios", error);
+    }
+  });
+
+  app.post("/api/admin/scenarios/:id/restore", requireAdmin, async (req, res) => {
+    try {
+      const id = parseParamId(req.params.id, res, "scenario ID");
+      if (id === null) return;
+
+      const existing = await storage.getScenarioIncludingDeleted(id);
+      if (!existing) return res.status(404).json({ error: "Scenario not found" });
+      if (!existing.deletedAt) return res.status(400).json({ error: "Scenario is not deleted" });
+
+      const restored = await storage.restoreScenario(id);
+      logActivity(req, "admin-restore-scenario", "scenario", id, existing.name);
+      res.json(restored);
+    } catch (error) {
+      logAndSendError(res, "Failed to restore scenario", error);
+    }
+  });
+
+  app.delete("/api/admin/scenarios/:id/purge", requireAdmin, async (req, res) => {
+    try {
+      const id = parseParamId(req.params.id, res, "scenario ID");
+      if (id === null) return;
+
+      const existing = await storage.getScenarioIncludingDeleted(id);
+      if (!existing) return res.status(404).json({ error: "Scenario not found" });
+
+      await storage.hardDeleteScenario(id);
+      logActivity(req, "admin-purge-scenario", "scenario", id, existing.name);
+      res.json({ success: true });
+    } catch (error) {
+      logAndSendError(res, "Failed to purge scenario", error);
     }
   });
 

@@ -14,6 +14,7 @@ import {
   getAuthUser
 } from "../auth";
 import { loginSchema, adminLoginSchema, userResponse, fullName, logAndSendError } from "./helpers";
+import { ensureDefaultScenario } from "./scenario-helpers";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { UserRole } from "@shared/constants";
@@ -55,6 +56,7 @@ export function register(app: Express) {
     const expiresAt = getSessionExpiryDate();
     await storage.createSession(user.id, sessionId, expiresAt);
     await storage.createLoginLog(user.id, sessionId, clientIp);
+    ensureDefaultScenario(user.id).catch(() => {});
     setSessionCookie(res, sessionId);
     res.json({ user: userResponse(user) });
   }

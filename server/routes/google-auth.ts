@@ -8,6 +8,7 @@ import {
   sanitizeEmail,
 } from "../auth";
 import { logger } from "../logger";
+import { ensureDefaultScenario } from "./scenario-helpers";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
@@ -148,6 +149,7 @@ export function registerGoogleAuthRoutes(app: Express) {
       const clientIp = req.ip || req.socket.remoteAddress || "unknown";
       await storage.createSession(user.id, sessionId, expiresAt);
       await storage.createLoginLog(user.id, sessionId, clientIp);
+      ensureDefaultScenario(user.id).catch(() => {});
       setSessionCookie(res, sessionId);
 
       logger.info(`Google sign-in successful: ${email} (userId: ${user.id})`, "auth");

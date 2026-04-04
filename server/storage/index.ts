@@ -106,7 +106,16 @@ export class DatabaseStorage implements IStorage {
   createScenario = this.financial.createScenario.bind(this.financial);
   updateScenario = this.financial.updateScenario.bind(this.financial);
   updateScenarioComputedResults = this.financial.updateScenarioComputedResults.bind(this.financial);
-  deleteScenario = this.financial.deleteScenario.bind(this.financial);
+  softDeleteScenario = this.financial.softDeleteScenario.bind(this.financial);
+  hardDeleteScenario = this.financial.hardDeleteScenario.bind(this.financial);
+  getScenarioIncludingDeleted = this.financial.getScenarioIncludingDeleted.bind(this.financial);
+  getDeletedScenarios = this.financial.getDeletedScenarios.bind(this.financial);
+  restoreScenario = this.financial.restoreScenario.bind(this.financial);
+  purgeExpiredScenarios = this.financial.purgeExpiredScenarios.bind(this.financial);
+  getDefaultScenario = this.financial.getDefaultScenario.bind(this.financial);
+  getAutoSaveScenario = this.financial.getAutoSaveScenario.bind(this.financial);
+  countManualScenarios = this.financial.countManualScenarios.bind(this.financial);
+  updateScenarioSnapshot = this.financial.updateScenarioSnapshot.bind(this.financial);
   loadScenario = this.financial.loadScenario.bind(this.financial);
   cloneScenario = this.financial.cloneScenario.bind(this.financial);
   compareScenarios = this.financial.compareScenarios.bind(this.financial);

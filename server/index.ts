@@ -39,6 +39,7 @@ import {
   MARKET_RATE_REFRESH_INTERVAL_MS,
   SESSION_CLEANUP_INTERVAL_MS,
   MI_CACHE_INVALIDATION_INTERVAL_MS,
+  SCENARIO_PURGE_INTERVAL_MS,
 } from "./constants";
 
 initSentry();
@@ -253,6 +254,16 @@ app.use((req, res, next) => {
           serverLog(`MI cache invalidation error: ${err instanceof Error ? err.message : err}`, "cache", "error");
         }
       }, MI_CACHE_INVALIDATION_INTERVAL_MS);
+
+      // Purge soft-deleted scenarios past their retention period
+      setInterval(async () => {
+        try {
+          const purged = await storage.purgeExpiredScenarios();
+          if (purged > 0) log(`Purged ${purged} expired soft-deleted scenarios`);
+        } catch (err) {
+          serverLog(`Scenario purge error: ${err instanceof Error ? err.message : err}`, "purge", "error");
+        }
+      }, SCENARIO_PURGE_INTERVAL_MS);
     },
   );
 })();

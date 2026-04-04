@@ -31,18 +31,81 @@ import {
   determineDriftStatus,
   buildCrossQueryResult,
   buildDriftCheckResponse,
+  computeGhostName,
 } from "./scenario-helpers";
 
 export function register(app: Express) {
   app.get("/api/scenarios", requireAuth, async (req, res) => {
     try {
-      const owned = await storage.getScenariosByUser(getAuthUser(req).id);
-      const shared = await storage.getScenariosSharedWithUser(getAuthUser(req).id);
+      const userId = getAuthUser(req).id;
+      const owned = await storage.getScenariosByUser(userId);
+      const shared = await storage.getScenariosSharedWithUser(userId);
 
-      const ownedWithAccess = owned.map(s => ({ ...s, accessType: "owned" as const, sharedByUserId: null, sharedByName: null }));
+      const userVisible = owned.filter(s => s.kind === "manual");
+      const ownedWithAccess = userVisible.map(s => ({ ...s, accessType: "owned" as const, sharedByUserId: null, sharedByName: null }));
       res.json([...ownedWithAccess, ...shared]);
     } catch (error) {
       logAndSendError(res, "Failed to fetch scenarios", error);
+    }
+  });
+
+  app.post("/api/scenarios/auto-save", requireManagementAccess, async (req, res) => {
+    try {
+      const user = getAuthUser(req);
+      const { scenarioGA, scenarioProps, propertyFeeCategories, propertyPhotos } = await buildCreateSnapshotData(user.id);
+      const { computedResults, computeHash } = tryComputeResults(scenarioGA, scenarioProps);
+
+      const existing = await storage.getAutoSaveScenario(user.id);
+      if (existing) {
+        const updated = await storage.updateScenarioSnapshot(existing.id, {
+          globalAssumptions: scenarioGA,
+          properties: scenarioProps,
+          feeCategories: propertyFeeCategories,
+          propertyPhotos,
+          computedResults,
+          computeHash,
+        });
+        res.json({ success: true, scenario: updated });
+      } else {
+        const fi = (user.firstName || "")[0]?.toUpperCase() || "";
+        const li = (user.lastName || "")[0]?.toUpperCase() || "";
+        const initials = (fi + li) || user.email.split("@")[0].slice(0, 2).toUpperCase();
+
+        const scenario = await storage.createScenario({
+          userId: user.id,
+          name: `${initials} Auto-Save`,
+          globalAssumptions: scenarioGA,
+          properties: scenarioProps,
+          feeCategories: propertyFeeCategories,
+          propertyPhotos,
+          computedResults,
+          computeHash,
+          kind: "autosave",
+        });
+        res.json({ success: true, scenario });
+      }
+    } catch (error) {
+      logAndSendError(res, "Failed to auto-save scenario", error);
+    }
+  });
+
+  app.get("/api/scenarios/auto-save/check", requireAuth, async (req, res) => {
+    try {
+      const existing = await storage.getAutoSaveScenario(getAuthUser(req).id);
+      res.json({ exists: !!existing, updatedAt: existing?.updatedAt?.toISOString() ?? null });
+    } catch (error) {
+      logAndSendError(res, "Failed to check auto-save", error);
+    }
+  });
+
+  app.get("/api/scenarios/suggest-name", requireAuth, async (req, res) => {
+    try {
+      const user = getAuthUser(req);
+      const count = await storage.countManualScenarios(user.id);
+      const suggestion = computeGhostName(count, user);
+      res.json({ suggestion });
+    } catch (error) {
+      logAndSendError(res, "Failed to suggest scenario name", error);
     }
   });
 
@@ -54,8 +117,8 @@ export function register(app: Express) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
 
-      const existing = await storage.getScenariosByUser(user.id);
-      if (existing.length >= MAX_SCENARIOS_PER_USER) {
+      const manualCount = await storage.countManualScenarios(user.id);
+      if (manualCount >= MAX_SCENARIOS_PER_USER) {
         return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios allowed` });
       }
 
@@ -98,6 +161,10 @@ export function register(app: Express) {
       const existing = await storage.getScenario(id);
       if (!existing) return res.status(404).json({ error: "Scenario not found" });
       if (existing.userId !== getAuthUser(req).id) return res.status(403).json({ error: "Access denied" });
+
+      if (existing.isLocked) {
+        return res.status(403).json({ error: "This scenario is locked and cannot be edited" });
+      }
 
       const validation = updateScenarioSchema.safeParse(req.body);
       if (!validation.success) {
@@ -177,11 +244,12 @@ export function register(app: Express) {
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
       if (scenario.userId !== getAuthUser(req).id) return res.status(403).json({ error: "Access denied" });
 
-      if (scenario.name === "Development") {
-        return res.status(400).json({ error: "The default Development scenario cannot be deleted" });
+      if (scenario.isLocked) {
+        return res.status(403).json({ error: "This scenario is locked and cannot be deleted" });
       }
 
-      await storage.deleteScenario(id);
+      const user = getAuthUser(req);
+      await storage.softDeleteScenario(id, user.id);
       logActivity(req, "delete", "scenario", id, scenario.name);
       res.json({ success: true });
     } catch (error) {
@@ -196,8 +264,8 @@ export function register(app: Express) {
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
       if (scenario.userId !== getAuthUser(req).id) return res.status(403).json({ error: "Access denied" });
 
-      const existing = await storage.getScenariosByUser(getAuthUser(req).id);
-      if (existing.length >= MAX_SCENARIOS_PER_USER) {
+      const cloneManualCount = await storage.countManualScenarios(getAuthUser(req).id);
+      if (cloneManualCount >= MAX_SCENARIOS_PER_USER) {
         return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios allowed` });
       }
 
@@ -242,8 +310,8 @@ export function register(app: Express) {
       }
 
       const user = getAuthUser(req);
-      const existing = await storage.getScenariosByUser(user.id);
-      if (existing.length >= MAX_SCENARIOS_PER_USER) {
+      const importManualCount = await storage.countManualScenarios(user.id);
+      if (importManualCount >= MAX_SCENARIOS_PER_USER) {
         return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios allowed` });
       }
 

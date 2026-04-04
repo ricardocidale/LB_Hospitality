@@ -144,7 +144,7 @@ export function computePortfolioProjection(
   const companyMonthly = generateCompanyProForma(input.properties, input.globalAssumptions, months);
   const companyYearly = aggregateCompanyByYear(companyMonthly, projectionYears);
 
-  const outputPayload = { perPropertyYearly, consolidatedYearly, companyMonthly, companyYearly };
+  const outputPayload = { perPropertyYearly, perPropertyMonthly, consolidatedYearly, companyMonthly, companyYearly };
   const outputHash = stableHash(outputPayload);
 
   const result: PortfolioComputeResult = {
@@ -192,7 +192,7 @@ export function computeSingleProperty(
 
   const validationSummary = runValidation([yearly]);
 
-  const outputHash = stableHash({ yearly });
+  const outputHash = stableHash({ monthly, yearly });
 
   const result: SinglePropertyComputeResult = {
     engineVersion: ENGINE_VERSION,
@@ -224,6 +224,20 @@ export function computeSingleProperty(
 export function computeCompanyProjection(
   input: ComputeCompanyInput,
 ): CompanyComputeResult {
+  const cacheKey = computeCacheKey({ type: "company", ...input });
+  const cached = getCachedResult(cacheKey);
+  if (cached && cached.companyMonthly && cached.companyYearly) {
+    return {
+      engineVersion: cached.engineVersion,
+      computedAt: cached.computedAt,
+      companyMonthly: cached.companyMonthly,
+      companyYearly: cached.companyYearly,
+      outputHash: cached.outputHash,
+      projectionYears: cached.projectionYears,
+      cached: true,
+    };
+  }
+
   const projectionYears = input.projectionYears ?? PROJECTION_YEARS_DEFAULT;
   const months = projectionYears * MONTHS_PER_YEAR;
 
@@ -236,7 +250,7 @@ export function computeCompanyProjection(
 
   const outputHash = stableHash({ companyMonthly, companyYearly });
 
-  return {
+  const result: CompanyComputeResult = {
     engineVersion: ENGINE_VERSION,
     computedAt: new Date().toISOString(),
     companyMonthly,
@@ -244,4 +258,20 @@ export function computeCompanyProjection(
     outputHash,
     projectionYears,
   };
+
+  setCachedResult(cacheKey, {
+    engineVersion: result.engineVersion,
+    computedAt: result.computedAt,
+    perPropertyYearly: {},
+    perPropertyMonthly: {},
+    consolidatedYearly: [],
+    companyMonthly,
+    companyYearly,
+    outputHash,
+    propertyCount: input.properties.length,
+    projectionYears,
+    validationSummary: { opinion: "UNQUALIFIED", identityChecks: 0, passed: 0, failed: 0 },
+  });
+
+  return result;
 }

@@ -1,6 +1,4 @@
 import { generatePropertyProForma } from "./finance/core/property-pipeline";
-import type { MonthlyFinancials } from "@engine/types";
-import type { PropertyInput, GlobalInput } from "@engine/types";
 import { MONTHS_PER_YEAR } from "@shared/constants";
 import { runIndependentVerification } from "./calculation-checker";
 import type {
@@ -14,7 +12,9 @@ import type {
 export type { VerificationReport, ClientPropertyMonthly, EngineMonthlyResult };
 export { runIndependentVerification };
 
-function mapEngineMonthly(m: MonthlyFinancials): EngineMonthlyResult {
+type PipelineMonth = ReturnType<typeof generatePropertyProForma>[number];
+
+function mapEngineMonthly(m: PipelineMonth): EngineMonthlyResult {
   return {
     monthIndex: m.monthIndex,
     occupancy: m.occupancy,
@@ -76,8 +76,8 @@ export function computeEngineResultsForChecker(
 
   return properties.map((property) => {
     const engineMonthly = generatePropertyProForma(
-      property as unknown as PropertyInput,
-      globalAssumptions as unknown as GlobalInput,
+      property as any,
+      globalAssumptions as any,
       months,
     );
     return engineMonthly.map(mapEngineMonthly);

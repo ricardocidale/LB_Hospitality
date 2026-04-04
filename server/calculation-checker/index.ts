@@ -1,10 +1,6 @@
 import {
-  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
-  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   DEFAULT_PROJECTION_YEARS,
   DEFAULT_LTV,
-  DEFAULT_INTEREST_RATE,
-  DEFAULT_TERM_YEARS,
   CHECKER_REVENUE_GROWTH_VARIANCE,
   CHECKER_NOI_MARGIN_MIN_PCT,
   CHECKER_NOI_MARGIN_MAX_PCT,
@@ -34,6 +30,7 @@ import {
   aggregateYearMetrics,
   addCrossValidationChecks,
 } from "./helpers";
+import { sweepNaN, checkDebtRollForward } from "../../calc/validation/data-integrity";
 
 const PROJECTION_YEARS = DEFAULT_PROJECTION_YEARS;
 
@@ -43,6 +40,14 @@ export function runIndependentVerification(
   clientResults?: ClientPropertyMonthly[][],
   engineResults?: EngineMonthlyResult[][]
 ): VerificationReport {
+  if (!engineResults || engineResults.length === 0) {
+    throw new Error(
+      "runIndependentVerification requires pre-computed engineResults. " +
+      "Use runVerificationWithEngine() from server/calculationChecker.ts " +
+      "to compute engine results automatically."
+    );
+  }
+
   const propertyResults: PropertyCheckResults[] = [];
   let totalChecks = 0;
   let totalPassed = 0;
@@ -53,7 +58,7 @@ export function runIndependentVerification(
   const projectionYears = globalAssumptions.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * MONTHS_PER_YEAR;
 
-  const allEngineCalcs: EngineMonthlyResult[][] = engineResults ?? [];
+  const allEngineCalcs: EngineMonthlyResult[][] = engineResults;
 
   for (let pi = 0; pi < properties.length; pi++) {
     const property = properties[pi];
@@ -463,47 +468,43 @@ export function runIndependentVerification(
       }
     }
 
-    let nanFieldCount = 0;
-    for (const m of engineCalc) {
-      const numericValues = [
-        m.revenueTotal, m.revenueRooms, m.gop, m.agop, m.noi, m.anoi,
-        m.netIncome, m.cashFlow, m.operatingCashFlow, m.financingCashFlow,
-        m.endingCash, m.debtOutstanding, m.propertyValue, m.depreciationExpense,
-        m.interestExpense, m.principalPayment, m.debtPayment, m.incomeTax,
-        m.feeBase, m.feeIncentive, m.expenseTaxes, m.expenseFFE,
-      ];
-      for (const v of numericValues) {
-        if (typeof v === "number" && isNaN(v)) nanFieldCount++;
-      }
-    }
+    const nanFields = [
+      "revenueTotal", "revenueRooms", "gop", "agop", "noi", "anoi",
+      "netIncome", "cashFlow", "operatingCashFlow", "financingCashFlow",
+      "endingCash", "debtOutstanding", "propertyValue", "depreciationExpense",
+      "interestExpense", "principalPayment", "debtPayment", "incomeTax",
+      "feeBase", "feeIncentive", "expenseTaxes", "expenseFFE",
+    ];
+    const nanResult = sweepNaN({
+      label: property.name || "Unnamed Property",
+      values: engineCalc as unknown as Record<string, number>[],
+      fields: nanFields,
+      rounding_policy: { precision: 2, bankers_rounding: false },
+    });
     checks.push(check(
       "No NaN in Financial Fields",
       "Data Integrity",
       "Business Rule",
-      `All numeric financial fields must be valid numbers; NaN count = ${nanFieldCount}`,
+      `All numeric financial fields must be valid numbers; NaN count = ${nanResult.nanCount}`,
       0,
-      nanFieldCount,
+      nanResult.nanCount,
       "critical"
     ));
 
     if (property.type === "Financed" && loanAmount > 0) {
-      let debtRollForwardErrors = 0;
-      for (let mi = 1; mi < engineCalc.length; mi++) {
-        const prev = engineCalc[mi - 1];
-        const curr = engineCalc[mi];
-        if (prev.debtOutstanding > 0 && curr.debtOutstanding >= 0) {
-          const expectedBalance = prev.debtOutstanding - curr.principalPayment;
-          const gap = Math.abs(expectedBalance - curr.debtOutstanding);
-          if (gap > CHECKER_BALANCE_SHEET_TOLERANCE) debtRollForwardErrors++;
-        }
-      }
+      const rollForward = checkDebtRollForward({
+        balances: engineCalc.map(m => m.debtOutstanding),
+        principalPayments: engineCalc.map(m => m.principalPayment),
+        tolerance: CHECKER_BALANCE_SHEET_TOLERANCE,
+        rounding_policy: { precision: 2, bankers_rounding: false },
+      });
       checks.push(check(
         "Debt Roll-Forward Consistency",
         "Debt",
         "ASC 470",
-        `Balance[n] = Balance[n-1] - Principal[n] for all months; errors = ${debtRollForwardErrors}`,
+        `Balance[n] = Balance[n-1] - Principal[n] for all months; errors = ${rollForward.errorCount}`,
         0,
-        debtRollForwardErrors,
+        rollForward.errorCount,
         "critical"
       ));
     }

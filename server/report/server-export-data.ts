@@ -516,7 +516,7 @@ export async function buildCompanyExportData(
     rows: allRows,
     years,
     outputHash: result.outputHash,
-    engineVersion: "1.0.0",
+    engineVersion: result.engineVersion,
     projectionYears: projYears,
   };
 }

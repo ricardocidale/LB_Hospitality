@@ -33,7 +33,7 @@ import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { storage } from "./storage";
-import type { User } from "@shared/schema";
+import type { User, ScenarioGlobalAssumptionsSnapshot, ScenarioPropertySnapshot } from "@shared/schema";
 import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
@@ -413,8 +413,8 @@ async function createDefaultScenarioForUser(userId: number, userName: string) {
         userId,
         name: "Development",
         description: "Default development scenario with initial assumptions",
-        globalAssumptions: globalAssumptions as Record<string, unknown>,
-        properties: properties as unknown as Record<string, unknown>[],
+        globalAssumptions: globalAssumptions as ScenarioGlobalAssumptionsSnapshot,
+        properties: properties as unknown as ScenarioPropertySnapshot[],
       });
       logger.info(`Default "Development" scenario created for ${userName}`, "auth");
     }

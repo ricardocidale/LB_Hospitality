@@ -4,6 +4,14 @@ import { z } from "zod";
 import { users } from "./auth";
 import { userGroups, companies } from "./core";
 import { properties } from "./properties";
+import type {
+  ScenarioGlobalAssumptionsSnapshot,
+  ScenarioPropertySnapshot,
+  ScenarioFeeCategorySnapshot,
+  ScenarioPhotoSnapshot,
+  ScenarioImagesSnapshot,
+  ScenarioPropertyOverrideData,
+} from "./types/jsonb-shapes";
 
 export interface ComputedResultsSnapshot {
   engineVersion: string;
@@ -20,11 +28,11 @@ export const scenarios = pgTable("scenarios", {
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   description: text("description"),
-  globalAssumptions: jsonb("global_assumptions").notNull().$type<Record<string, unknown>>(),
-  properties: jsonb("properties").notNull().$type<Record<string, unknown>[]>(),
-  scenarioImages: jsonb("scenario_images").$type<Record<string, unknown>>(),
-  feeCategories: jsonb("fee_categories").$type<Record<string, Record<string, unknown>[]>>(),
-  propertyPhotos: jsonb("property_photos").$type<Record<string, Record<string, unknown>[]>>(),
+  globalAssumptions: jsonb("global_assumptions").notNull().$type<ScenarioGlobalAssumptionsSnapshot>(),
+  properties: jsonb("properties").notNull().$type<ScenarioPropertySnapshot[]>(),
+  scenarioImages: jsonb("scenario_images").$type<ScenarioImagesSnapshot>(),
+  feeCategories: jsonb("fee_categories").$type<Record<string, ScenarioFeeCategorySnapshot[]>>(),
+  propertyPhotos: jsonb("property_photos").$type<Record<string, ScenarioPhotoSnapshot[]>>(),
   computedResults: jsonb("computed_results").$type<ComputedResultsSnapshot | null>(),
   computeHash: text("compute_hash"),
   version: integer("version").notNull().default(1),
@@ -59,8 +67,8 @@ export const scenarioPropertyOverrides = pgTable("scenario_property_overrides", 
   propertyId: integer("property_id").references(() => properties.id, { onDelete: "set null" }),
   propertyName: text("property_name").notNull(),
   changeType: text("change_type").notNull().default("modified"),
-  overrides: jsonb("overrides").notNull().default({}).$type<Record<string, unknown>>(),
-  basePropertySnapshot: jsonb("base_property_snapshot").$type<Record<string, unknown> | null>(),
+  overrides: jsonb("overrides").notNull().default({}).$type<ScenarioPropertyOverrideData>(),
+  basePropertySnapshot: jsonb("base_property_snapshot").$type<ScenarioPropertySnapshot | null>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
   index("spo_scenario_id_idx").on(table.scenarioId),

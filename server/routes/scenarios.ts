@@ -3,6 +3,12 @@ import { storage } from "../storage";
 import { requireManagementAccess, requireAuth , getAuthUser } from "../auth";
 import { updateScenarioSchema } from "@shared/schema";
 import type { ComputedResultsSnapshot } from "@shared/schema";
+import type {
+  ScenarioGlobalAssumptionsSnapshot,
+  ScenarioPropertySnapshot,
+  ScenarioFeeCategorySnapshot,
+  ScenarioPhotoSnapshot,
+} from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 import { logActivity, logAndSendError, createScenarioSchema, MAX_SCENARIOS_PER_USER, fullName } from "./helpers";
@@ -55,27 +61,27 @@ export function register(app: Express) {
         storage.getPhotosByProperties(propertyIds),
       ]);
 
-      const propertyFeeCategories: Record<string, Record<string, unknown>[]> = {};
-      const propertyPhotos: Record<string, Record<string, unknown>[]> = {};
+      const propertyFeeCategories: Record<string, ScenarioFeeCategorySnapshot[]> = {};
+      const propertyPhotos: Record<string, ScenarioPhotoSnapshot[]> = {};
       for (const p of properties) {
-        propertyFeeCategories[p.name] = (feeCatsByPropId[p.id] || []) as Record<string, unknown>[];
-        propertyPhotos[p.name] = (photosByPropId[p.id] || []) as Record<string, unknown>[];
+        propertyFeeCategories[p.name] = (feeCatsByPropId[p.id] || []) as ScenarioFeeCategorySnapshot[];
+        propertyPhotos[p.name] = (photosByPropId[p.id] || []) as ScenarioPhotoSnapshot[];
       }
 
       const liveAssumptions = await storage.getGlobalAssumptions(getAuthUser(req).id);
       const liveProperties = await storage.getAllProperties(getAuthUser(req).id);
+      const scenarioGA: ScenarioGlobalAssumptionsSnapshot = (assumptions || {}) as ScenarioGlobalAssumptionsSnapshot;
+      const scenarioProps: ScenarioPropertySnapshot[] = (properties || []) as ScenarioPropertySnapshot[];
       const diffResult = computeFullDiff(
-        (liveAssumptions || {}) as Record<string, unknown>,
-        (liveProperties || []) as Array<Record<string, unknown>>,
-        (assumptions || {}) as Record<string, unknown>,
-        (properties || []) as Array<Record<string, unknown>>
+        (liveAssumptions || {}) as ScenarioGlobalAssumptionsSnapshot,
+        (liveProperties || []) as ScenarioPropertySnapshot[],
+        scenarioGA,
+        scenarioProps
       );
 
       let computedResults: ComputedResultsSnapshot | null = null;
       let computeHash: string | null = null;
       try {
-        const scenarioGA = (assumptions || {}) as Record<string, unknown>;
-        const scenarioProps = (properties || []) as Array<Record<string, unknown>>;
         const { propertyInputs, globalInput, projYears } = extractScenarioComputeInputs(
           { globalAssumptions: scenarioGA, properties: scenarioProps }
         );
@@ -102,8 +108,8 @@ export function register(app: Express) {
         userId: getAuthUser(req).id,
         name: validation.data.name,
         description: validation.data.description,
-        globalAssumptions: (assumptions || {}) as Record<string, unknown>,
-        properties: properties as unknown as Record<string, unknown>[],
+        globalAssumptions: scenarioGA,
+        properties: scenarioProps,
         feeCategories: propertyFeeCategories,
         propertyPhotos: propertyPhotos,
         computedResults,
@@ -161,10 +167,10 @@ export function register(app: Express) {
         if (!hasAccess) return res.status(403).json({ error: "Access denied" });
       }
 
-      const snapshotProps = (scenario.properties || []) as Array<Record<string, unknown>>;
-      const snapshotPropNames = snapshotProps.map(p => p.name as string).filter(Boolean);
-      const snapshotFeeCats = scenario.feeCategories as Record<string, Record<string, unknown>[]> | undefined;
-      const snapshotPhotos = scenario.propertyPhotos as Record<string, Record<string, unknown>[]> | undefined;
+      const snapshotProps: ScenarioPropertySnapshot[] = scenario.properties || [];
+      const snapshotPropNames = snapshotProps.map(p => p.name).filter(Boolean);
+      const snapshotFeeCats = scenario.feeCategories;
+      const snapshotPhotos = scenario.propertyPhotos;
 
       if (snapshotProps.length === 0) {
         return res.status(422).json({ error: "Scenario snapshot contains no properties" });
@@ -177,7 +183,7 @@ export function register(app: Express) {
 
       if (!isOwner) {
         const snapshotPropertyIds = snapshotProps
-          .map(p => p.id as number | undefined)
+          .map(p => p.id)
           .filter((pid): pid is number => typeof pid === "number");
 
         if (snapshotPropertyIds.length > 0) {
@@ -209,10 +215,10 @@ export function register(app: Express) {
 
       await storage.loadScenario(
         getAuthUser(req).id,
-        scenario.globalAssumptions as Record<string, unknown>,
+        scenario.globalAssumptions,
         snapshotProps,
-        snapshotFeeCats,
-        snapshotPhotos
+        snapshotFeeCats ?? undefined,
+        snapshotPhotos ?? undefined
       );
 
       invalidateComputeCache();
@@ -276,7 +282,7 @@ export function register(app: Express) {
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
       if (scenario.userId !== getAuthUser(req).id) return res.status(403).json({ error: "Access denied" });
 
-      const exportData: Record<string, unknown> = {
+      const exportData = {
         name: scenario.name,
         description: scenario.description,
         globalAssumptions: scenario.globalAssumptions,
@@ -319,9 +325,9 @@ export function register(app: Express) {
         userId: getAuthUser(req).id,
         name: data.name,
         description: data.description ?? null,
-        globalAssumptions: data.globalAssumptions as Record<string, unknown>,
-        properties: data.properties as Record<string, unknown>[],
-        feeCategories: (data.feeCategories || {}) as Record<string, Record<string, unknown>[]>,
+        globalAssumptions: data.globalAssumptions as ScenarioGlobalAssumptionsSnapshot,
+        properties: data.properties as ScenarioPropertySnapshot[],
+        feeCategories: (data.feeCategories || {}) as Record<string, ScenarioFeeCategorySnapshot[]>,
       });
 
       logActivity(req, "import", "scenario", scenario.id, scenario.name);

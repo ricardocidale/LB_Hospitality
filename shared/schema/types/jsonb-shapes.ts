@@ -73,6 +73,45 @@ export interface ActivityLogMetadata {
   [key: string]: unknown;
 }
 
+export interface ScenarioGlobalAssumptionsSnapshot {
+  modelStartDate?: string;
+  baseManagementFeePercent?: number;
+  projectionYears?: number;
+  [key: string]: unknown;
+}
+
+export interface ScenarioPropertySnapshot {
+  id?: number;
+  name: string;
+  startAdr?: number;
+  adrGrowthRate?: number;
+  occupancyRate?: number;
+  roomCount?: number;
+  [key: string]: unknown;
+}
+
+export interface ScenarioFeeCategorySnapshot {
+  id?: number;
+  name?: string;
+  amount?: number;
+  [key: string]: unknown;
+}
+
+export interface ScenarioPhotoSnapshot {
+  id?: number;
+  url?: string;
+  caption?: string;
+  [key: string]: unknown;
+}
+
+export interface ScenarioImagesSnapshot {
+  [key: string]: unknown;
+}
+
+export interface ScenarioPropertyOverrideData {
+  [key: string]: unknown;
+}
+
 export interface VerificationRunResults {
   propertyResults?: Array<{
     propertyName: string;

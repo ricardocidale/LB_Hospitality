@@ -14,7 +14,7 @@ import type { OverviewExportData } from "../../../components/dashboard/overviewE
 
 export const SLIDE_W = 13.33;
 export const SLIDE_H = 7.5;
-export const MARGIN_X = 0.3;
+const MARGIN_X = 0.3;
 
 export interface SlideContext {
   pres: any;

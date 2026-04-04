@@ -172,19 +172,21 @@ export function register(app: Express) {
         return res.status(422).json({ error: `Scenario snapshot contains ${invalidProps.length} property(ies) without a valid name` });
       }
 
-      const snapshotPropertyIds = snapshotProps
-        .map(p => p.id as number | undefined)
-        .filter((id): id is number => typeof id === "number");
+      if (!isOwner) {
+        const snapshotPropertyIds = snapshotProps
+          .map(p => p.id as number | undefined)
+          .filter((pid): pid is number => typeof pid === "number");
 
-      if (snapshotPropertyIds.length > 0) {
-        const ownerProperties = await storage.getAllProperties(scenario.userId);
-        const ownerPropertyIds = new Set(ownerProperties.map(p => p.id));
-        const unauthorizedIds = snapshotPropertyIds.filter(pid => !ownerPropertyIds.has(pid));
-        if (unauthorizedIds.length > 0 && !isOwner) {
-          logger.warn(`[scenario-load] Scenario ${id}: ${unauthorizedIds.length} property IDs in snapshot not owned by scenario owner ${scenario.userId}`, "scenarios");
-          return res.status(403).json({
-            error: "Scenario contains properties you do not have access to",
-          });
+        if (snapshotPropertyIds.length > 0) {
+          const requesterProperties = await storage.getAllProperties(req.user!.id);
+          const requesterPropertyIds = new Set(requesterProperties.map(p => p.id));
+          const unauthorizedIds = snapshotPropertyIds.filter(pid => !requesterPropertyIds.has(pid));
+          if (unauthorizedIds.length > 0) {
+            logger.warn(`[scenario-load] Scenario ${id}: user ${req.user!.id} lacks access to ${unauthorizedIds.length} property ID(s): ${unauthorizedIds.join(", ")}`, "scenarios");
+            return res.status(403).json({
+              error: "Scenario contains properties you do not have access to",
+            });
+          }
         }
       }
 

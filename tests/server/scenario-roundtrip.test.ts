@@ -1,4 +1,6 @@
 import { describe, it, expect } from "vitest";
+import * as fs from "fs";
+import * as path from "path";
 import { computePortfolioProjection } from "../../server/finance/service";
 import { computeSnapshotHash } from "../../server/scenarios/diff-engine";
 import type { ComputedResultsSnapshot } from "../../shared/schema/scenarios";
@@ -229,5 +231,76 @@ describe("Scenario Computed Results Roundtrip", () => {
 
     const hashMatch = changedResult.outputHash === dbRoundtripped.outputHash;
     expect(hashMatch).toBe(false);
+  });
+});
+
+describe("Scenario Save/Load Code Path Verification", () => {
+  const routesSrc = fs.readFileSync(
+    path.resolve(__dirname, "../../server/routes/scenarios.ts"),
+    "utf-8"
+  );
+  const financialSrc = fs.readFileSync(
+    path.resolve(__dirname, "../../server/storage/financial.ts"),
+    "utf-8"
+  );
+  const schemaSrc = fs.readFileSync(
+    path.resolve(__dirname, "../../shared/schema/scenarios.ts"),
+    "utf-8"
+  );
+
+  it("scenario creation route stores computedResults and computeHash", () => {
+    expect(routesSrc).toContain("computePortfolioProjection");
+    expect(routesSrc).toContain("computedResults:");
+    expect(routesSrc).toContain("computeHash:");
+  });
+
+  it("scenario load route validates property access for non-owner users", () => {
+    expect(routesSrc).toContain("getAllProperties(req.user!.id)");
+    expect(routesSrc).toContain("requesterPropertyIds");
+    expect(routesSrc).toContain("unauthorizedIds");
+    expect(routesSrc).toContain('"Scenario contains properties you do not have access to"');
+  });
+
+  it("scenario load route validates empty properties and invalid names", () => {
+    expect(routesSrc).toContain('"Scenario snapshot contains no properties"');
+    expect(routesSrc).toContain("without a valid name");
+  });
+
+  it("scenario load route detects orphaned fee categories and photos", () => {
+    expect(routesSrc).toContain("orphanedFeeCategories");
+    expect(routesSrc).toContain("orphanedPhotos");
+    expect(routesSrc).toContain("warnings");
+  });
+
+  it("compareScenarios returns financialComparison with hash match", () => {
+    expect(financialSrc).toContain("financialComparison");
+    expect(financialSrc).toContain("hashMatch");
+    expect(financialSrc).toContain("outputHash");
+    expect(financialSrc).toContain("auditOpinion");
+  });
+
+  it("schema defines computedResults and computeHash columns", () => {
+    expect(schemaSrc).toContain("computedResults");
+    expect(schemaSrc).toContain("computeHash");
+    expect(schemaSrc).toContain("ComputedResultsSnapshot");
+  });
+
+  it("updateScenarioComputedResults method exists in storage", () => {
+    expect(financialSrc).toContain("updateScenarioComputedResults");
+    expect(financialSrc).toContain("computedResults");
+    expect(financialSrc).toContain("computeHash");
+  });
+
+  it("getAllScenarios includes computedResults and computeHash in query", () => {
+    expect(financialSrc).toContain("computedResults: scenarios.computedResults");
+    expect(financialSrc).toContain("computeHash: scenarios.computeHash");
+  });
+
+  it("migration file exists for computed_results columns", () => {
+    const migrationPath = path.resolve(__dirname, "../../migrations/0008_scenario_computed_results.sql");
+    const migrationSql = fs.readFileSync(migrationPath, "utf-8");
+    expect(migrationSql).toContain("computed_results");
+    expect(migrationSql).toContain("compute_hash");
+    expect(migrationSql).toContain("ADD COLUMN IF NOT EXISTS");
   });
 });

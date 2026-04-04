@@ -81,6 +81,21 @@ export interface CoStarMarketData {
   }>;
 }
 
+export interface XoteloOTARate {
+  code: string;
+  name: string;
+  rate: number;
+}
+
+export interface XoteloMarketData {
+  adrBenchmark?: DataPoint;
+  otaRates?: XoteloOTARate[];
+  hotelCount?: number;
+  avgPriceMin?: number;
+  avgPriceMax?: number;
+  location?: string;
+}
+
 export interface MarketIntelligence {
   rates: {
     sofr?: FREDRateData;
@@ -94,6 +109,7 @@ export interface MarketIntelligence {
   moodys?: MoodysRiskData;
   spGlobal?: SPGlobalMarketData;
   costar?: CoStarMarketData;
+  xotelo?: XoteloMarketData;
   groundedResearch: GroundedSearchResult[];
   fetchedAt: string;
   errors: string[];

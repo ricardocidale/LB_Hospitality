@@ -60,6 +60,7 @@ const REQUIRED_SOURCES = [
   { name: "HVS", category: "Hotel Valuation & Transaction Data", url: "https://hvs.com" },
   { name: "Moody's Analytics", category: "Credit Risk & Default Probability", url: "https://www.moodys.com" },
   { name: "S&P Global Market Intelligence", category: "Real Estate Indices & Economic Forecasts", url: "https://www.spglobal.com/marketintelligence" },
+  { name: "Xotelo", category: "Live OTA Hotel Rates (Booking.com, Expedia, Hotels.com, Agoda — real-time ADR benchmarks)", url: "https://xotelo.com" },
 ];
 
 /** Build the curated source block appended to all prompt types. */
@@ -206,6 +207,17 @@ function buildMarketIntelligenceBlock(mi?: MarketIntelligence): string {
       const tv = cs.transactionVolume.value;
       block += `- Transaction Volume: ${tv.totalSales} sales, avg $${tv.avgPricePerKey.toLocaleString()}/key\n`;
     }
+  }
+
+  if (mi.xotelo) {
+    const x = mi.xotelo;
+    block += `\nLive OTA Hotel Rate Data (Source: Xotelo — real-time rates from Booking.com, Expedia, Hotels.com, Agoda):\n`;
+    if (x.location) block += `- Market: ${x.location}\n`;
+    if (x.hotelCount != null) block += `- Sample Size: ${x.hotelCount} hotels surveyed\n`;
+    if (x.avgPriceMin != null) block += `- Average Nightly Rate (low end): $${x.avgPriceMin}\n`;
+    if (x.avgPriceMax != null) block += `- Average Nightly Rate (high end): $${x.avgPriceMax}\n`;
+    if (x.adrBenchmark) block += `- ADR Benchmark (midpoint): $${x.adrBenchmark.value} (confidence: ${x.adrBenchmark.confidence})\n`;
+    block += `NOTE: These are live OTA published rates, not negotiated rates. Actual ADR may differ due to discounting, group rates, and direct bookings.\n`;
   }
 
   if (mi.groundedResearch.length > 0) {

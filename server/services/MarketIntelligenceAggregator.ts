@@ -4,8 +4,9 @@ import { GroundedResearchService } from "./GroundedResearchService";
 import { MoodysService } from "./MoodysService";
 import { SPGlobalService } from "./SPGlobalService";
 import { CoStarService } from "./CoStarService";
+import { XoteloService } from "./XoteloService";
 import { cache } from "../cache";
-import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData } from "../../shared/market-intelligence";
+import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData } from "../../shared/market-intelligence";
 
 interface AggregatorQuery {
   location?: string;
@@ -25,6 +26,7 @@ export class MarketIntelligenceAggregator {
   private moodys: MoodysService;
   private spGlobal: SPGlobalService;
   private costar: CoStarService;
+  private xotelo: XoteloService;
 
   constructor() {
     this.fred = new FREDService();
@@ -33,6 +35,7 @@ export class MarketIntelligenceAggregator {
     this.moodys = new MoodysService();
     this.spGlobal = new SPGlobalService();
     this.costar = new CoStarService();
+    this.xotelo = new XoteloService();
   }
 
   async gather(query: AggregatorQuery): Promise<MarketIntelligence> {
@@ -58,7 +61,7 @@ export class MarketIntelligenceAggregator {
   private async gatherFresh(query: AggregatorQuery): Promise<MarketIntelligence> {
     const errors: string[] = [];
 
-    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult] = await Promise.allSettled([
+    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult] = await Promise.allSettled([
       this.fetchRates(),
       query.location
         ? this.hospitality.fetchBenchmarks({
@@ -96,6 +99,9 @@ export class MarketIntelligenceAggregator {
             state: query.state,
             propertyType: query.propertyType,
           })
+        : Promise.resolve(null),
+      query.location
+        ? this.fetchXoteloData(query.location)
         : Promise.resolve(null),
     ]);
 
@@ -141,6 +147,13 @@ export class MarketIntelligenceAggregator {
       errors.push(`CoStar: ${costarResult.reason?.message || "Unknown error"}`);
     }
 
+    let xotelo: XoteloMarketData | undefined;
+    if (xoteloResult.status === "fulfilled" && xoteloResult.value) {
+      xotelo = xoteloResult.value;
+    } else if (xoteloResult.status === "rejected") {
+      errors.push(`Xotelo: ${xoteloResult.reason?.message || "Unknown error"}`);
+    }
+
     return {
       rates: {
         sofr: rates.sofr,
@@ -154,6 +167,7 @@ export class MarketIntelligenceAggregator {
       moodys,
       spGlobal,
       costar,
+      xotelo,
       groundedResearch,
       fetchedAt: new Date().toISOString(),
       errors,
@@ -170,7 +184,7 @@ export class MarketIntelligenceAggregator {
     return this.fred.fetchRate(seriesKey as any);
   }
 
-  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean } {
+  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean } {
     return {
       fred: this.fred.isAvailable(),
       hospitality: this.hospitality.isAvailable(),
@@ -178,6 +192,7 @@ export class MarketIntelligenceAggregator {
       moodys: this.moodys.isAvailable(),
       spGlobal: this.spGlobal.isAvailable(),
       costar: this.costar.isAvailable(),
+      xotelo: this.xotelo.isAvailable(),
     };
   }
   
@@ -189,6 +204,29 @@ export class MarketIntelligenceAggregator {
   private async fetchRates(): Promise<Record<string, FREDRateData>> {
     if (!this.fred.isAvailable()) return {};
     return this.fred.fetchAllRates();
+  }
+
+  private async fetchXoteloData(location: string): Promise<XoteloMarketData | null> {
+    try {
+      const snapshot = await this.xotelo.getMarketSnapshot(location);
+      if (!snapshot) return null;
+
+      const adrBenchmark = await this.xotelo.fetchAdrBenchmark(location);
+
+      return {
+        adrBenchmark: adrBenchmark ?? undefined,
+        hotelCount: snapshot.sampleSize,
+        avgPriceMin: snapshot.avgPriceMin ?? undefined,
+        avgPriceMax: snapshot.avgPriceMax ?? undefined,
+        location: snapshot.location,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  getXoteloService(): XoteloService {
+    return this.xotelo;
   }
 }
 

@@ -243,6 +243,7 @@ export function register(app: Express) {
               moodys: marketIntelligence.moodys || null,
               spGlobal: marketIntelligence.spGlobal || null,
               costar: marketIntelligence.costar || null,
+              xotelo: marketIntelligence.xotelo || null,
               groundedResearch: marketIntelligence.groundedResearch || [],
               errors: marketIntelligence.errors || [],
               fetchedAt: marketIntelligence.fetchedAt,

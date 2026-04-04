@@ -68,7 +68,7 @@ export function generateCompanyProForma(
   months: number = PROJECTION_MONTHS,
   serviceTemplates?: ServiceTemplate[],
 ): CompanyMonthlyFinancials[] {
-  const results: any[] = [];
+  const results: CompanyMonthlyFinancials[] = [];
   let cumulativeCompanyCash = 0;
   let cumulativeAccruedInterest = 0;
   let monthsOfAccrual = 0;

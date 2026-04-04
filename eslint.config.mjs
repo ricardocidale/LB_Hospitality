@@ -26,7 +26,7 @@ export default [
           message: "Math.pow is banned in financial code. Use dPow from calc/shared/decimal-helpers.ts instead.",
         },
         {
-          selector: "TSTypeReference[typeName.name='any']",
+          selector: ":matches(TSAnyKeyword)",
           message: "'any' type is banned in financial code. Use a specific type instead.",
         },
         {

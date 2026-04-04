@@ -122,7 +122,7 @@ export const geocodeSchema = z.object({
 });
 
 export const marketRatePatchSchema = z.object({
-  value: z.number({ required_error: "value is required" }),
+  value: z.coerce.number({ required_error: "value is required" }),
   manualNote: z.string().max(500).nullish(),
 });
 

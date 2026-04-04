@@ -143,7 +143,8 @@ describe("Storage Layer — loadScenario integrity", () => {
     expect(stableBody).toContain("tx.insert(properties)");
   });
 
-  it("stable path preserves orphaned live properties (no delete)", () => {
+  it("stable path soft-archives orphaned properties (isActive=false, no delete)", () => {
+    expect(stableBody).toContain("isActive: false");
     expect(stableBody).not.toContain("tx.delete(properties)");
   });
 
@@ -152,9 +153,8 @@ describe("Storage Layer — loadScenario integrity", () => {
     expect(destructiveBody).toContain("tx.insert(properties)");
   });
 
-  it("restores fee categories keyed by property name", () => {
-    expect(loadBody).toContain("savedFeeCategories");
-    expect(loadBody).toContain("tx.insert(propertyFeeCategories)");
+  it("delegates fee category sync to syncFeeCategories function", () => {
+    expect(loadBody).toContain("syncFeeCategories(tx, resolvedProperties, savedFeeCategories)");
   });
 
   it("strips id/createdAt/updatedAt/userId from restored global assumptions", () => {
@@ -268,10 +268,11 @@ describe("Storage Layer — loadScenario photo decoupling", () => {
     expect(stableBody).toContain("snapshotStableKeys");
   });
 
-  it("stable path never deletes properties (FK cascade safety)", () => {
+  it("stable path soft-archives orphans instead of deleting (FK cascade safety)", () => {
     const stableStart = src.indexOf("async function stableLoadProperties(");
     const stableEnd = src.indexOf("async function destructiveLoadProperties(");
     const stableBody = src.slice(stableStart, stableEnd);
+    expect(stableBody).toContain("isActive: false");
     expect(stableBody).not.toContain("tx.delete(properties)");
   });
 });

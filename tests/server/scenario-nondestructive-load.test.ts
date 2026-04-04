@@ -75,12 +75,18 @@ describe("Non-Destructive Load — stableLoadProperties behavior", () => {
     expect(stableBody).toContain("insertData.stableKey = stableKey");
   });
 
-  it("never deletes orphaned properties (preserves photos via FK cascade safety)", () => {
-    expect(stableBody).not.toContain("tx.delete(properties)");
+  it("soft-archives orphaned properties (isActive=false) instead of deleting", () => {
+    expect(stableBody).toContain("isActive: false");
+    expect(stableBody).toContain("tx.update(properties).set(");
+    expect(stableBody).toContain("!snapshotStableKeys.has(liveProp.stableKey)");
   });
 
-  it("does NOT delete all properties (unlike destructive path)", () => {
-    expect(stableBody).not.toContain("tx.delete(properties).where(eq(properties.userId");
+  it("sets isActive=true on matched/inserted properties", () => {
+    expect(stableBody).toContain("isActive: true");
+  });
+
+  it("does NOT delete any properties (unlike destructive path)", () => {
+    expect(stableBody).not.toContain("tx.delete(properties)");
   });
 
   it("returns resolved property list with {id, name}", () => {
@@ -138,27 +144,52 @@ describe("Non-Destructive Load — photo decoupling across both paths", () => {
   });
 });
 
-describe("Non-Destructive Load — fee category sync", () => {
+describe("Non-Destructive Load — fee category sync (name-based upsert)", () => {
   const src = readFile("server/storage/financial.ts");
-  const loadStart = src.indexOf("async loadScenario(");
-  const loadEnd = src.indexOf("/** Fetch all fee categories");
-  const loadBody = src.slice(loadStart, loadEnd);
+  const syncStart = src.indexOf("async function syncFeeCategories(");
+  const classStart = src.indexOf("export class FinancialStorage");
+  const syncBody = src.slice(syncStart, classStart);
 
-  it("deletes fee categories for resolved property IDs before reinserting", () => {
-    expect(loadBody).toContain("tx.delete(propertyFeeCategories).where(inArray(propertyFeeCategories.propertyId, resolvedIds))");
+  it("syncFeeCategories is a standalone function", () => {
+    expect(syncBody).toContain("async function syncFeeCategories(");
   });
 
-  it("maps fee categories by property name from snapshot", () => {
-    expect(loadBody).toContain("savedFeeCategories[prop.name]");
+  it("queries live fee categories per resolved property", () => {
+    expect(syncBody).toContain("tx.select().from(propertyFeeCategories)");
+    expect(syncBody).toContain("eq(propertyFeeCategories.propertyId, prop.id)");
   });
 
-  it("strips id/propertyId/createdAt from fee category data", () => {
-    expect(loadBody).toContain("id: _catId, propertyId: _propId, createdAt: _catCreated");
+  it("builds name-based Map of live categories for matching", () => {
+    expect(syncBody).toContain("liveByName");
+    expect(syncBody).toContain("new Map(liveCats.map(c => [c.name, c]))");
   });
 
-  it("inserts fee categories with the resolved property ID", () => {
-    expect(loadBody).toContain("propertyId: prop.id");
-    expect(loadBody).toContain("tx.insert(propertyFeeCategories).values(feeCategoryValues)");
+  it("updates matched categories in place by name", () => {
+    expect(syncBody).toContain("tx.update(propertyFeeCategories)");
+    expect(syncBody).toContain("eq(propertyFeeCategories.id, existing.id)");
+  });
+
+  it("inserts new categories not in live data", () => {
+    expect(syncBody).toContain("tx.insert(propertyFeeCategories)");
+    expect(syncBody).toContain("propertyId: prop.id");
+  });
+
+  it("deletes orphaned live categories not in snapshot", () => {
+    expect(syncBody).toContain("!snapshotNames.has(liveCat.name)");
+    expect(syncBody).toContain("tx.delete(propertyFeeCategories)");
+  });
+
+  it("strips auto fields from category data", () => {
+    expect(syncBody).toContain("stripAutoFields(cat)");
+  });
+
+  it("loadScenario delegates to syncFeeCategories", () => {
+    const loadBody = src.slice(0, syncStart);
+    const fullSrc = readFile("server/storage/financial.ts");
+    const loadStart = fullSrc.indexOf("async loadScenario(");
+    const loadEnd = fullSrc.indexOf("/** Fetch all fee categories");
+    const loadSection = fullSrc.slice(loadStart, loadEnd);
+    expect(loadSection).toContain("syncFeeCategories(tx, resolvedProperties, savedFeeCategories)");
   });
 });
 
@@ -283,21 +314,37 @@ describe("Non-Destructive Load — behavioral: photo FK cascade safety", () => {
     expect(schema).toContain('references(() => properties.id, { onDelete: "cascade" })');
   });
 
-  it("stableLoadProperties has ZERO tx.delete calls (orphans preserved)", () => {
+  it("stableLoadProperties soft-archives orphans (isActive=false) instead of deleting", () => {
     const src = readFile("server/storage/financial.ts");
     const stableStart = src.indexOf("async function stableLoadProperties(");
     const stableEnd = src.indexOf("async function destructiveLoadProperties(");
     const stableBody = src.slice(stableStart, stableEnd);
-    const deleteMatches = stableBody.match(/tx\.delete\(/g);
-    expect(deleteMatches).toBeNull();
+    expect(stableBody).toContain("isActive: false");
+    expect(stableBody).not.toContain("tx.delete(properties)");
+  });
+
+  it("stableLoadProperties sets isActive=true on matched and inserted properties", () => {
+    const src = readFile("server/storage/financial.ts");
+    const stableStart = src.indexOf("async function stableLoadProperties(");
+    const stableEnd = src.indexOf("async function destructiveLoadProperties(");
+    const stableBody = src.slice(stableStart, stableEnd);
+    const activeMatches = stableBody.match(/isActive: true/g);
+    expect(activeMatches).not.toBeNull();
+    expect(activeMatches!.length).toBeGreaterThanOrEqual(2);
   });
 
   it("destructiveLoadProperties DOES delete all properties (expected behavior for fallback)", () => {
     const src = readFile("server/storage/financial.ts");
     const destructiveStart = src.indexOf("async function destructiveLoadProperties(");
-    const classStart = src.indexOf("export class FinancialStorage");
-    const destructiveBody = src.slice(destructiveStart, classStart);
+    const syncStart = src.indexOf("async function syncFeeCategories(");
+    const destructiveBody = src.slice(destructiveStart, syncStart);
     expect(destructiveBody).toContain("tx.delete(properties).where(eq(properties.userId, userId))");
+  });
+
+  it("properties table has isActive column (used for soft-archive)", () => {
+    const schema = readFile("shared/schema/properties.ts");
+    expect(schema).toContain("isActive: boolean");
+    expect(schema).toContain("is_active");
   });
 });
 

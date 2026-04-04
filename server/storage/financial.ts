@@ -32,17 +32,24 @@ async function stableLoadProperties(tx: DbOrTx, userId: number, savedProperties:
     if (stableKey && liveByStableKey.has(stableKey)) {
       const liveProp = liveByStableKey.get(stableKey)!;
       snapshotStableKeys.add(stableKey);
-      await tx.update(properties).set({ ...propData, userId, updatedAt: new Date() } as typeof properties.$inferInsert)
+      await tx.update(properties).set({ ...propData, userId, isActive: true, updatedAt: new Date() } as typeof properties.$inferInsert)
         .where(eq(properties.id, liveProp.id));
       resolvedProperties.push({ id: liveProp.id, name: prop.name as string });
     } else {
-      const insertData: typeof properties.$inferInsert = { ...propData, userId } as typeof properties.$inferInsert;
+      const insertData: typeof properties.$inferInsert = { ...propData, userId, isActive: true } as typeof properties.$inferInsert;
       if (stableKey) {
         insertData.stableKey = stableKey;
         snapshotStableKeys.add(stableKey);
       }
       const [inserted] = await tx.insert(properties).values(insertData).returning();
       resolvedProperties.push({ id: inserted.id, name: prop.name as string });
+    }
+  }
+
+  for (const liveProp of liveProps) {
+    if (liveProp.stableKey && !snapshotStableKeys.has(liveProp.stableKey)) {
+      await tx.update(properties).set({ isActive: false, updatedAt: new Date() } as typeof properties.$inferInsert)
+        .where(eq(properties.id, liveProp.id));
     }
   }
 
@@ -61,6 +68,45 @@ async function destructiveLoadProperties(tx: DbOrTx, userId: number, savedProper
   }
 
   return resolvedProperties;
+}
+
+async function syncFeeCategories(
+  tx: DbOrTx,
+  resolvedProperties: Array<{ id: number; name: string }>,
+  savedFeeCategories: Record<string, Array<Record<string, unknown>>>,
+): Promise<void> {
+  for (const prop of resolvedProperties) {
+    const snapshotCats = savedFeeCategories[prop.name] ?? [];
+
+    const liveCats = await tx.select().from(propertyFeeCategories)
+      .where(eq(propertyFeeCategories.propertyId, prop.id));
+    const liveByName = new Map(liveCats.map(c => [c.name, c]));
+
+    const snapshotNames = new Set<string>();
+
+    for (const cat of snapshotCats) {
+      const catData = stripAutoFields(cat);
+      const catName = cat.name as string;
+      snapshotNames.add(catName);
+
+      const existing = liveByName.get(catName);
+      if (existing) {
+        await tx.update(propertyFeeCategories)
+          .set({ ...catData, propertyId: prop.id } as typeof propertyFeeCategories.$inferInsert)
+          .where(eq(propertyFeeCategories.id, existing.id));
+      } else {
+        await tx.insert(propertyFeeCategories)
+          .values({ ...catData, propertyId: prop.id } as typeof propertyFeeCategories.$inferInsert);
+      }
+    }
+
+    for (const liveCat of liveCats) {
+      if (!snapshotNames.has(liveCat.name)) {
+        await tx.delete(propertyFeeCategories)
+          .where(eq(propertyFeeCategories.id, liveCat.id));
+      }
+    }
+  }
 }
 
 export class FinancialStorage {
@@ -398,9 +444,10 @@ export class FinancialStorage {
    * When USE_STABLE_SCENARIO_LOAD is true (default), uses non-destructive
    * stableKey-based upsert: matches properties by stableKey, updates in place
    * (preserving property IDs and photo FK references), and inserts new
-   * properties. Orphaned live properties (not in snapshot) are preserved —
-   * never deleted — to avoid cascading photo deletions via the property_photos
-   * ON DELETE CASCADE FK constraint.
+   * properties. Orphaned live properties (not in snapshot) are soft-archived
+   * by setting isActive=false — never deleted — to avoid cascading photo
+   * deletions via the property_photos ON DELETE CASCADE FK constraint.
+   * Matched/inserted properties are explicitly set to isActive=true.
    *
    * When USE_STABLE_SCENARIO_LOAD is false, falls back to the legacy
    * destructive path: deletes all user properties and recreates from snapshot.
@@ -433,23 +480,7 @@ export class FinancialStorage {
       }
 
       if (savedFeeCategories) {
-        const resolvedIds = resolvedProperties.map(p => p.id);
-        if (resolvedIds.length > 0) {
-          await tx.delete(propertyFeeCategories).where(inArray(propertyFeeCategories.propertyId, resolvedIds));
-        }
-        const feeCategoryValues: (typeof propertyFeeCategories.$inferInsert)[] = [];
-        for (const prop of resolvedProperties) {
-          const feeCats = savedFeeCategories[prop.name];
-          if (feeCats && feeCats.length > 0) {
-            for (const cat of feeCats) {
-              const { id: _catId, propertyId: _propId, createdAt: _catCreated, ...catData } = cat;
-              feeCategoryValues.push({ ...catData, propertyId: prop.id } as typeof propertyFeeCategories.$inferInsert);
-            }
-          }
-        }
-        if (feeCategoryValues.length > 0) {
-          await tx.insert(propertyFeeCategories).values(feeCategoryValues);
-        }
+        await syncFeeCategories(tx, resolvedProperties, savedFeeCategories);
       }
     });
   }

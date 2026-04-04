@@ -340,7 +340,8 @@ export const DEFAULT_MAX_STALENESS_HOURS = 24;
 //   - Matches snapshot properties to live properties by stableKey
 //   - Updates matched properties in place (preserving property IDs and photos)
 //   - Inserts new snapshot properties that don't exist in live data
-//   - Deletes orphaned live properties not in the snapshot
+//   - Soft-archives orphaned live properties (isActive=false) instead of deleting
+//     to prevent cascading photo deletions via property_photos ON DELETE CASCADE
 // When false, falls back to destructive delete-all-and-recreate behavior.
 // ──────────────────────────────────────────────────────────
 export const USE_STABLE_SCENARIO_LOAD = true;

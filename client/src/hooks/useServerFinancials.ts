@@ -226,6 +226,20 @@ export function useServerFinancials(
   return { data: mapped, isLoading: enabled && isLoading, isError, error: error as Error | null };
 }
 
+export function buildPropertyQueryKey(
+  propertyId: number,
+  property: Property | undefined,
+  global: GlobalResponse | undefined,
+): unknown[] {
+  if (!property || !global) return ["server-property-financials", propertyId];
+  return [
+    "server-property-financials",
+    propertyId,
+    property.updatedAt ?? 0,
+    stableGlobalHash(global),
+  ];
+}
+
 export interface ServerSinglePropertyResult {
   engineVersion: string;
   computedAt: string;

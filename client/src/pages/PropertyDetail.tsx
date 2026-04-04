@@ -39,7 +39,7 @@ import {
   handleExport,
   buildPremiumExportPayload,
 } from "@/lib/exports/propertyDetailExports";
-import { fetchSinglePropertyCompute } from "@/hooks/useServerFinancials";
+import { fetchSinglePropertyCompute, buildPropertyQueryKey } from "@/hooks/useServerFinancials";
 
 export default function PropertyDetail() {
   const [, params] = useRoute("/property/:id");
@@ -75,12 +75,8 @@ export default function PropertyDetail() {
   const fiscalYearStartMonth = global?.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => global ? getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex) : 2026 + yearIndex;
 
-  const serverPropertyQueryKey = ["server-property-financials", propertyId, property?.updatedAt,
-    global ? [global.projectionYears, global.modelStartDate, global.inflationRate,
-    global.debtAssumptions?.interestRate, global.debtAssumptions?.amortizationYears].join("|") : ""];
-
-  const { data: serverFinancials, isLoading: serverFinancialsLoading } = useQuery({
-    queryKey: serverPropertyQueryKey,
+  const { data: serverFinancials, isLoading: serverFinancialsLoading, isError: serverFinancialsError } = useQuery({
+    queryKey: buildPropertyQueryKey(propertyId, property, global),
     queryFn: () => fetchSinglePropertyCompute(property!, global!),
     enabled: USE_SERVER_COMPUTE && !!property && !!global,
     staleTime: 30_000,
@@ -154,7 +150,7 @@ export default function PropertyDetail() {
     );
   }
 
-  if (propertyError || globalError) {
+  if (propertyError || globalError || (USE_SERVER_COMPUTE && serverFinancialsError)) {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">

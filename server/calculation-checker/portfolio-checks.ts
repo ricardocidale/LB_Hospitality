@@ -15,6 +15,7 @@ import {
   diffMonthsYM,
 } from "./property-checks";
 import { sumServerPortfolioTotals, sumClientPortfolioTotals } from "./helpers";
+import { checkFeeZeroSum } from "../../calc/validation/data-integrity";
 
 export function runCompanyChecks(
   properties: CheckerProperty[],
@@ -77,11 +78,16 @@ export function runCompanyChecks(
     }
   }
 
+  const feeZeroSum = checkFeeZeroSum({
+    propertyFeesPaid: totalPropertyFeesPaid,
+    companyFeesReceived: companyFeesReceivable,
+    rounding_policy: { precision: 2, bankers_rounding: false },
+  });
   companyChecks.push(check(
     "Fee Zero-Sum (Intercompany Elimination)",
     "Consolidated",
     "ASC 810",
-    "Management fees paid by properties = fees receivable by management company",
+    `Management fees paid by properties = fees receivable by management company; diff = $${feeZeroSum.difference}`,
     companyFeesReceivable,
     totalPropertyFeesPaid,
     "critical"

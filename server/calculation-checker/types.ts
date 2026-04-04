@@ -40,6 +40,7 @@ export interface YearMonth {
 }
 
 export interface EngineMonthlyResult {
+  [key: string]: number | boolean;
   monthIndex: number;
   occupancy: number;
   adr: number;

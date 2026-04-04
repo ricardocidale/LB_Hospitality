@@ -1,4 +1,8 @@
-import { generatePropertyProForma } from "./finance/core/property-pipeline";
+import {
+  generatePropertyProForma,
+  type PropertyInput,
+  type GlobalInput,
+} from "./finance/core/property-pipeline";
 import { MONTHS_PER_YEAR } from "@shared/constants";
 import { runIndependentVerification } from "./calculation-checker";
 import type {
@@ -76,8 +80,8 @@ export function computeEngineResultsForChecker(
 
   return properties.map((property) => {
     const engineMonthly = generatePropertyProForma(
-      property as any,
-      globalAssumptions as any,
+      property as PropertyInput,
+      globalAssumptions as GlobalInput,
       months,
     );
     return engineMonthly.map(mapEngineMonthly);

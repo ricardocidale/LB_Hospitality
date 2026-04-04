@@ -3,7 +3,7 @@ import { rounder } from "../shared/utils.js";
 
 export interface NaNSweepInput {
   label: string;
-  values: Record<string, number>[];
+  values: Record<string, unknown>[];
   fields: string[];
   rounding_policy: RoundingPolicy;
 }

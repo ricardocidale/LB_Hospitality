@@ -193,6 +193,7 @@ export function runIndependentVerification(
         m.financingCashFlow,
         "material"
       ));
+
     }
 
     const depBasis = property.purchasePrice * (1 - (property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT)) + (property.buildingImprovements ?? 0);
@@ -424,7 +425,7 @@ export function runIndependentVerification(
         "Working Capital AR (First Operational Month)",
         "Balance Sheet",
         "ASC 310",
-        `AR = Monthly Revenue / 30 × ${(property as any).arDays ?? 30} AR days`,
+        `AR = Monthly Revenue / 30 × 30 AR days`,
         m0.accountsReceivable,
         m0.accountsReceivable,
         "info"
@@ -434,7 +435,7 @@ export function runIndependentVerification(
         "Working Capital AP (First Operational Month)",
         "Balance Sheet",
         "ASC 405",
-        `AP = Monthly OpEx / 30 × ${(property as any).apDays ?? 45} AP days`,
+        `AP = Monthly OpEx / 30 × 45 AP days`,
         m0.accountsPayable,
         m0.accountsPayable,
         "info"
@@ -452,7 +453,7 @@ export function runIndependentVerification(
       "info"
     ));
 
-    if ((property as any).costSegEnabled) {
+    if (property.costSegEnabled) {
       const costSegDepMonth1 = engineCalc.find(m => m.depreciationExpense > 0);
       const standardMonthlyDep = depBasis / effectiveDepYears / MONTHS_PER_YEAR;
       if (costSegDepMonth1) {
@@ -468,6 +469,24 @@ export function runIndependentVerification(
       }
     }
 
+    let cashTieOutErrors = 0;
+    for (let mi = 1; mi < engineCalc.length; mi++) {
+      const em = engineCalc[mi];
+      const prevCash = engineCalc[mi - 1].endingCash;
+      const deltaCash = em.endingCash - prevCash;
+      const gap = Math.abs(deltaCash - em.cashFlow);
+      if (gap > CHECKER_BALANCE_SHEET_TOLERANCE) cashTieOutErrors++;
+    }
+    checks.push(check(
+      "Cash Tie-Out: ΔEndingCash = Cash Flow",
+      "Cash Flow",
+      "ASC 230",
+      `EndingCash[n] - EndingCash[n-1] = CashFlow[n] for all months (n>0); errors = ${cashTieOutErrors}`,
+      0,
+      cashTieOutErrors,
+      "critical"
+    ));
+
     const nanFields = [
       "revenueTotal", "revenueRooms", "gop", "agop", "noi", "anoi",
       "netIncome", "cashFlow", "operatingCashFlow", "financingCashFlow",
@@ -477,7 +496,7 @@ export function runIndependentVerification(
     ];
     const nanResult = sweepNaN({
       label: property.name || "Unnamed Property",
-      values: engineCalc as unknown as Record<string, number>[],
+      values: engineCalc,
       fields: nanFields,
       rounding_policy: { precision: 2, bankers_rounding: false },
     });

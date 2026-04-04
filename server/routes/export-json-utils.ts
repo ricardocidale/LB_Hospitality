@@ -70,14 +70,14 @@ export function extractJsonFromText(text: string): string {
 export function aggressiveParse(raw: string): any {
   const jsonStr = extractJsonFromText(raw);
 
-  try { return JSON.parse(jsonStr); } catch { /* parse strategy failed, try next */ }
+  try { return JSON.parse(jsonStr); } catch (_e1) { /* direct parse failed, try repair */ }
 
-  try { return JSON.parse(repairTruncatedJson(jsonStr)); } catch { /* parse strategy failed, try next */ }
+  try { return JSON.parse(repairTruncatedJson(jsonStr)); } catch (_e2) { /* repair failed, try line-trimming */ }
 
   const lines = jsonStr.split("\n");
   for (let drop = 1; drop <= Math.min(20, lines.length - 1); drop++) {
     const trimmed = lines.slice(0, lines.length - drop).join("\n");
-    try { return JSON.parse(repairTruncatedJson(trimmed)); } catch { /* parse strategy failed, try next */ }
+    try { return JSON.parse(repairTruncatedJson(trimmed)); } catch (_e3) { /* trim strategy failed, try next */ }
   }
 
   throw new Error("Could not parse AI response as JSON after all repair strategies");

@@ -143,9 +143,8 @@ describe("Storage Layer — loadScenario integrity", () => {
     expect(stableBody).toContain("tx.insert(properties)");
   });
 
-  it("stable path deletes only orphaned live properties", () => {
-    expect(stableBody).toContain("snapshotStableKeys.has(liveProp.stableKey)");
-    expect(stableBody).toContain("tx.delete(properties)");
+  it("stable path preserves orphaned live properties (no delete)", () => {
+    expect(stableBody).not.toContain("tx.delete(properties)");
   });
 
   it("destructive fallback deletes all user properties then inserts", () => {
@@ -165,8 +164,8 @@ describe("Storage Layer — loadScenario integrity", () => {
     expect(loadBody).toContain("userId: _gaUser");
   });
 
-  it("strips id/createdAt/updatedAt/userId from restored properties", () => {
-    expect(stableBody).toContain("id, createdAt, updatedAt, userId: _uid");
+  it("strips auto fields from restored properties via stripAutoFields", () => {
+    expect(stableBody).toContain("stripAutoFields(prop)");
   });
 });
 
@@ -267,6 +266,13 @@ describe("Storage Layer — loadScenario photo decoupling", () => {
     const stableBody = src.slice(stableStart, stableEnd);
     expect(stableBody).toContain("liveByStableKey");
     expect(stableBody).toContain("snapshotStableKeys");
+  });
+
+  it("stable path never deletes properties (FK cascade safety)", () => {
+    const stableStart = src.indexOf("async function stableLoadProperties(");
+    const stableEnd = src.indexOf("async function destructiveLoadProperties(");
+    const stableBody = src.slice(stableStart, stableEnd);
+    expect(stableBody).not.toContain("tx.delete(properties)");
   });
 });
 

@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 1,007 source files, ~165K lines, 3,872 tests across 168 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 1,007 source files, ~165K lines, 3,884 tests across 168 test files. Hosted on Replit.
 
 > **Marcela ISOLATED** — Voice agent + ElevenLabs + Twilio phone all gated behind `MARCELA_ISOLATED` flag. Config preserved, zero network calls. Rebecca sole active agent. See `.claude/plans/MARCELA-ISOLATION.md` for full restoration guide.
 
@@ -54,7 +54,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,872 tests across 167 files, 583 golden values, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,884 tests across 167 files, 583 golden values, verification commands |
 | Testing (8 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database/SKILL.md` | Dev/prod databases, Drizzle ORM, migrations, sync |
@@ -103,7 +103,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (3,872 Tests, 167 Files)
+## Testing & Proof System (3,884 Tests, 167 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -113,7 +113,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 3,872 tests, 167 files) · `npm run verify` (8-phase GAAP) · `npm run health` (tsc+tests+verify+doc harmony)
+**Commands**: `npm test` (all 3,884 tests, 167 files) · `npm run verify` (8-phase GAAP) · `npm run health` (tsc+tests+verify+doc harmony)
 
 ---
 
@@ -248,7 +248,7 @@ Old individual `server/migrations/*.ts` files have been superseded by this conso
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify + doc harmony (~60s)
-npm run test:summary   # All 3,872 tests, 167 files (~35s)
+npm run test:summary   # All 3,884 tests, 167 files (~35s)
 npm run verify:summary # 8-phase financial verification (~20s)
 npm run lint:summary   # TypeScript check only (<10s)
 npm run stats          # File/line/test counts (<5s, no vitest)

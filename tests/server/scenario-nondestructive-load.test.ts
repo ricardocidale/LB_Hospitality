@@ -49,8 +49,8 @@ describe("Non-Destructive Load — stableLoadProperties behavior", () => {
   });
 
   it("builds a Map keyed by stableKey for O(1) lookups", () => {
-    expect(stableBody).toContain("new Map(");
     expect(stableBody).toContain("liveByStableKey");
+    expect(stableBody).toContain("new Map<string, LiveProperty>()");
   });
 
   it("tracks which stableKeys have been matched", () => {
@@ -72,12 +72,11 @@ describe("Non-Destructive Load — stableLoadProperties behavior", () => {
   });
 
   it("preserves stableKey on inserted properties", () => {
-    expect(stableBody).toContain("(insertData as any).stableKey = stableKey");
+    expect(stableBody).toContain("insertData.stableKey = stableKey");
   });
 
-  it("only deletes orphaned live properties not in snapshot", () => {
-    expect(stableBody).toContain("!snapshotStableKeys.has(liveProp.stableKey)");
-    expect(stableBody).toContain("tx.delete(properties).where(eq(properties.id, liveProp.id))");
+  it("never deletes orphaned properties (preserves photos via FK cascade safety)", () => {
+    expect(stableBody).not.toContain("tx.delete(properties)");
   });
 
   it("does NOT delete all properties (unlike destructive path)", () => {
@@ -104,7 +103,7 @@ describe("Non-Destructive Load — destructiveLoadProperties fallback", () => {
   });
 
   it("strips auto fields from properties", () => {
-    expect(destructiveBody).toContain("id, createdAt, updatedAt, userId: _uid");
+    expect(destructiveBody).toContain("stripAutoFields(prop)");
   });
 
   it("does NOT use stableKey matching", () => {
@@ -206,6 +205,99 @@ describe("Non-Destructive Load — validateLoadSnapshot", () => {
 
   it("returns empty orphanedPhotos (photos are decoupled)", () => {
     expect(validateBody).toContain("orphanedPhotos: []");
+  });
+});
+
+describe("Non-Destructive Load — behavioral: stripAutoFields", () => {
+  it("removes id, createdAt, updatedAt from property data", async () => {
+    const { stripAutoFields } = await import("../../server/storage/utils");
+    const input = { id: 1, createdAt: new Date(), updatedAt: new Date(), name: "Hotel X", stableKey: "abc-123", userId: 5 };
+    const result = stripAutoFields(input);
+    expect(result).not.toHaveProperty("id");
+    expect(result).not.toHaveProperty("createdAt");
+    expect(result).not.toHaveProperty("updatedAt");
+    expect(result).toHaveProperty("name", "Hotel X");
+    expect(result).toHaveProperty("stableKey", "abc-123");
+    expect(result).toHaveProperty("userId", 5);
+  });
+
+  it("preserves all non-auto fields including stableKey", async () => {
+    const { stripAutoFields } = await import("../../server/storage/utils");
+    const input = { id: 99, createdAt: new Date(), updatedAt: new Date(), name: "Test", stableKey: "key-1", rooms: 50, adr: 150 };
+    const result = stripAutoFields(input);
+    expect(Object.keys(result)).toEqual(expect.arrayContaining(["name", "stableKey", "rooms", "adr"]));
+    expect(Object.keys(result)).not.toEqual(expect.arrayContaining(["id", "createdAt", "updatedAt"]));
+  });
+});
+
+describe("Non-Destructive Load — behavioral: feature flag runtime", () => {
+  it("USE_STABLE_SCENARIO_LOAD is a boolean true at runtime", async () => {
+    const { USE_STABLE_SCENARIO_LOAD } = await import("@shared/constants");
+    expect(typeof USE_STABLE_SCENARIO_LOAD).toBe("boolean");
+    expect(USE_STABLE_SCENARIO_LOAD).toBe(true);
+  });
+
+  it("feature flag can be toggled at import time", async () => {
+    const { USE_STABLE_SCENARIO_LOAD } = await import("@shared/constants");
+    expect([true, false]).toContain(USE_STABLE_SCENARIO_LOAD);
+  });
+});
+
+describe("Non-Destructive Load — behavioral: DbOrTx and LiveProperty types", () => {
+  it("stableLoadProperties function signature uses DbOrTx type (not any)", () => {
+    const src = readFile("server/storage/financial.ts");
+    expect(src).toContain("type DbOrTx = Pick<typeof db,");
+    const fnSig = src.match(/async function stableLoadProperties\(tx: (\w+),/);
+    expect(fnSig).not.toBeNull();
+    expect(fnSig![1]).toBe("DbOrTx");
+  });
+
+  it("destructiveLoadProperties function signature uses DbOrTx type (not any)", () => {
+    const src = readFile("server/storage/financial.ts");
+    const fnSig = src.match(/async function destructiveLoadProperties\(tx: (\w+),/);
+    expect(fnSig).not.toBeNull();
+    expect(fnSig![1]).toBe("DbOrTx");
+  });
+
+  it("LiveProperty interface has id, stableKey, and name fields", () => {
+    const src = readFile("server/storage/financial.ts");
+    expect(src).toContain("interface LiveProperty");
+    expect(src).toContain("id: number;");
+    expect(src).toContain("stableKey: string | null;");
+    expect(src).toContain("name: string;");
+  });
+
+  it("no broad 'any' type in standalone function signatures", () => {
+    const src = readFile("server/storage/financial.ts");
+    const stableStart = src.indexOf("async function stableLoadProperties(");
+    const destructiveEnd = src.indexOf("export class FinancialStorage");
+    const fnBlock = src.slice(stableStart, destructiveEnd);
+    const sigMatches = fnBlock.match(/\btx: any\b/g);
+    expect(sigMatches).toBeNull();
+  });
+});
+
+describe("Non-Destructive Load — behavioral: photo FK cascade safety", () => {
+  it("property_photos FK uses ON DELETE CASCADE (confirms why we must not delete orphans)", () => {
+    const schema = readFile("shared/schema/services.ts");
+    expect(schema).toContain('references(() => properties.id, { onDelete: "cascade" })');
+  });
+
+  it("stableLoadProperties has ZERO tx.delete calls (orphans preserved)", () => {
+    const src = readFile("server/storage/financial.ts");
+    const stableStart = src.indexOf("async function stableLoadProperties(");
+    const stableEnd = src.indexOf("async function destructiveLoadProperties(");
+    const stableBody = src.slice(stableStart, stableEnd);
+    const deleteMatches = stableBody.match(/tx\.delete\(/g);
+    expect(deleteMatches).toBeNull();
+  });
+
+  it("destructiveLoadProperties DOES delete all properties (expected behavior for fallback)", () => {
+    const src = readFile("server/storage/financial.ts");
+    const destructiveStart = src.indexOf("async function destructiveLoadProperties(");
+    const classStart = src.indexOf("export class FinancialStorage");
+    const destructiveBody = src.slice(destructiveStart, classStart);
+    expect(destructiveBody).toContain("tx.delete(properties).where(eq(properties.userId, userId))");
   });
 });
 

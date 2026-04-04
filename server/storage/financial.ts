@@ -6,27 +6,39 @@ import { computeFullDiff, reconstructScenarioProperties, type PropertyDiff } fro
 import { stableEquals } from "../scenarios/stable-json";
 import { USE_STABLE_SCENARIO_LOAD } from "@shared/constants";
 
-async function stableLoadProperties(tx: any, userId: number, savedProperties: Array<Record<string, unknown>>): Promise<Array<{ id: number; name: string }>> {
-  const liveProps: Array<{ id: number; stableKey: string | null; [k: string]: unknown }> = await tx.select().from(properties).where(eq(properties.userId, userId));
-  const liveByStableKey = new Map(liveProps.filter(p => p.stableKey).map(p => [p.stableKey, p]));
+type DbOrTx = Pick<typeof db, "select" | "insert" | "update" | "delete">;
+
+interface LiveProperty {
+  id: number;
+  stableKey: string | null;
+  name: string;
+  [k: string]: unknown;
+}
+
+async function stableLoadProperties(tx: DbOrTx, userId: number, savedProperties: Array<Record<string, unknown>>): Promise<Array<{ id: number; name: string }>> {
+  const liveProps = await tx.select().from(properties).where(eq(properties.userId, userId)) as LiveProperty[];
+  const liveByStableKey = new Map<string, LiveProperty>();
+  for (const p of liveProps) {
+    if (p.stableKey) liveByStableKey.set(p.stableKey, p);
+  }
 
   const snapshotStableKeys = new Set<string>();
   const resolvedProperties: Array<{ id: number; name: string }> = [];
 
   for (const prop of savedProperties) {
-    const { id, createdAt, updatedAt, userId: _uid, ...propData } = prop;
+    const propData = stripAutoFields(prop);
     const stableKey = prop.stableKey as string | undefined;
 
     if (stableKey && liveByStableKey.has(stableKey)) {
       const liveProp = liveByStableKey.get(stableKey)!;
       snapshotStableKeys.add(stableKey);
-      await tx.update(properties).set({ ...propData, userId, updatedAt: new Date() } as any)
+      await tx.update(properties).set({ ...propData, userId, updatedAt: new Date() } as typeof properties.$inferInsert)
         .where(eq(properties.id, liveProp.id));
       resolvedProperties.push({ id: liveProp.id, name: prop.name as string });
     } else {
-      const insertData = { ...propData, userId } as typeof properties.$inferInsert;
+      const insertData: typeof properties.$inferInsert = { ...propData, userId } as typeof properties.$inferInsert;
       if (stableKey) {
-        (insertData as any).stableKey = stableKey;
+        insertData.stableKey = stableKey;
         snapshotStableKeys.add(stableKey);
       }
       const [inserted] = await tx.insert(properties).values(insertData).returning();
@@ -34,22 +46,16 @@ async function stableLoadProperties(tx: any, userId: number, savedProperties: Ar
     }
   }
 
-  for (const liveProp of liveProps) {
-    if (liveProp.stableKey && !snapshotStableKeys.has(liveProp.stableKey)) {
-      await tx.delete(properties).where(eq(properties.id, liveProp.id));
-    }
-  }
-
   return resolvedProperties;
 }
 
-async function destructiveLoadProperties(tx: any, userId: number, savedProperties: Array<Record<string, unknown>>): Promise<Array<{ id: number; name: string }>> {
+async function destructiveLoadProperties(tx: DbOrTx, userId: number, savedProperties: Array<Record<string, unknown>>): Promise<Array<{ id: number; name: string }>> {
   await tx.delete(properties).where(eq(properties.userId, userId));
 
   const resolvedProperties: Array<{ id: number; name: string }> = [];
   for (const prop of savedProperties) {
-    const { id, createdAt, updatedAt, userId: _uid, ...propData } = prop;
-    const insertData = { ...propData, userId } as typeof properties.$inferInsert;
+    const propData = stripAutoFields(prop);
+    const insertData: typeof properties.$inferInsert = { ...propData, userId } as typeof properties.$inferInsert;
     const [inserted] = await tx.insert(properties).values(insertData).returning();
     resolvedProperties.push({ id: inserted.id, name: prop.name as string });
   }
@@ -391,8 +397,10 @@ export class FinancialStorage {
    *
    * When USE_STABLE_SCENARIO_LOAD is true (default), uses non-destructive
    * stableKey-based upsert: matches properties by stableKey, updates in place
-   * (preserving property IDs and photo FK references), inserts new properties,
-   * and deletes only orphaned properties not in the snapshot.
+   * (preserving property IDs and photo FK references), and inserts new
+   * properties. Orphaned live properties (not in snapshot) are preserved —
+   * never deleted — to avoid cascading photo deletions via the property_photos
+   * ON DELETE CASCADE FK constraint.
    *
    * When USE_STABLE_SCENARIO_LOAD is false, falls back to the legacy
    * destructive path: deletes all user properties and recreates from snapshot.

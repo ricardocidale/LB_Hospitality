@@ -99,6 +99,9 @@ export function register(app: Express) {
   });
 
   app.post("/api/uploads/process-image", requireAuth, async (req, res) => {
+    if (isApiRateLimited(req.user!.id, "process-image", 5)) {
+      return res.status(429).json({ error: "Too many image processing requests. Please try again later." });
+    }
     try {
       const { propertyId, photoId, imageUrl, crop } = req.body;
       if (!propertyId || !photoId || !imageUrl) {

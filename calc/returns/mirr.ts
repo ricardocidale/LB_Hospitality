@@ -48,7 +48,7 @@ export function computeMIRR(input: MIRRInput): MIRROutput {
   const mirr = dPow(dDiv(fvPositive, Math.abs(pvNegative)), 1 / periods) - 1;
 
   return {
-    mirr: Number.isFinite(mirr) ? mirr : 0,
+    mirr: Number.isFinite(mirr) ? mirr : NaN,
     is_valid: Number.isFinite(mirr),
     warnings,
   };

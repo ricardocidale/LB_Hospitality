@@ -97,7 +97,8 @@ export function register(app: Express) {
         effective_rate: effectiveRate,
         base_rate: interest_rate_annual,
       });
-    } catch {
+    } catch (err) {
+      logger.error(`DSCR calculation failed: ${err instanceof Error ? err.message : err}`, "financing");
       res.status(500).json({ error: "DSCR calculation failed" });
     }
   });
@@ -144,7 +145,8 @@ export function register(app: Express) {
         effective_rate: effectiveRate,
         base_rate: interest_rate_annual,
       });
-    } catch {
+    } catch (err) {
+      logger.error(`Sensitivity analysis failed: ${err instanceof Error ? err.message : err}`, "financing");
       res.status(500).json({ error: "Sensitivity analysis failed" });
     }
   });
@@ -161,7 +163,8 @@ export function register(app: Express) {
         rounding_policy: DEFAULT_ROUNDING,
       });
       res.json(result);
-    } catch {
+    } catch (err) {
+      logger.error(`Debt yield calculation failed: ${err instanceof Error ? err.message : err}`, "financing");
       res.status(500).json({ error: "Debt yield calculation failed" });
     }
   });
@@ -178,7 +181,8 @@ export function register(app: Express) {
         rounding_policy: DEFAULT_ROUNDING,
       });
       res.json(result);
-    } catch {
+    } catch (err) {
+      logger.error(`Prepayment calculation failed: ${err instanceof Error ? err.message : err}`, "financing");
       res.status(500).json({ error: "Prepayment calculation failed" });
     }
   });

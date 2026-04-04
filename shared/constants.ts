@@ -144,7 +144,6 @@ export const DEFAULT_EXIT_CAP_RATE = 0.085;
 // This is the per-entity default for property-level income tax.
 // The management company has its own rate: DEFAULT_COMPANY_TAX_RATE.
 export const DEFAULT_PROPERTY_TAX_RATE = 0.25;
-/** @deprecated Use DEFAULT_PROPERTY_TAX_RATE — remove after full migration */
 export const DEFAULT_TAX_RATE = DEFAULT_PROPERTY_TAX_RATE;
 // Broker commission on property sale (% of sale price)
 export const DEFAULT_COMMISSION_RATE = 0.05;
@@ -240,7 +239,6 @@ export const DEFAULT_STABILIZATION_MONTHS = 36;
 // Each property can override with its own rate on the Property Edit screen.
 // Cascade: property.inflationRate → global.inflationRate → this value
 export const DEFAULT_PROPERTY_INFLATION_RATE = 0.03;
-/** @deprecated Use DEFAULT_PROPERTY_INFLATION_RATE — remove after full migration */
 export const DEFAULT_INFLATION_RATE = DEFAULT_PROPERTY_INFLATION_RATE;
 
 // Default inflation rate for management company overhead escalation.
@@ -251,7 +249,7 @@ export const DEFAULT_COMPANY_INFLATION_RATE = 0.03;
 // Annual escalation rate for fixed operating expenses (office lease,
 // professional services). Applied as compound growth each year.
 // Defaults to the system inflation rate when not explicitly overridden.
-export const DEFAULT_FIXED_COST_ESCALATION_RATE = DEFAULT_INFLATION_RATE;
+export const DEFAULT_FIXED_COST_ESCALATION_RATE = DEFAULT_PROPERTY_INFLATION_RATE;
 
 // Corporate income tax rate applied to the management company's net income.
 // Used to compute after-tax free cash flow at the company level.

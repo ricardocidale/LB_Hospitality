@@ -3,7 +3,8 @@ import { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
 import { YearlyCashFlowResult } from "@/lib/financial/loanCalculations";
 import { MonthlyFinancials } from "@/lib/financialEngine";
 import type { GlobalResponse } from "@/lib/api";
-export type { WeightedMetrics } from "@engine/types";
+import type { WeightedMetrics } from "@engine/types";
+export type { WeightedMetrics };
 
 export interface DashboardFinancials {
   allPropertyFinancials: { property: Property; financials: MonthlyFinancials[] }[];

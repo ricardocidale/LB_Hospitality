@@ -1,0 +1,10 @@
+{
+  "calc/**/*.ts": [
+    "eslint --max-warnings 0",
+    "tsx script/audit-deep.ts --staged"
+  ],
+  "engine/**/*.ts": [
+    "eslint --max-warnings 0",
+    "tsx script/audit-deep.ts --staged"
+  ]
+}

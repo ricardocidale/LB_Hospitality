@@ -14,10 +14,38 @@
  */
 import { execSync } from "child_process";
 
-const FINANCE_PATHS = [
-  "client/src/lib/financial",
-  "calc",
-];
+const isStaged = process.argv.includes("--staged");
+
+function getStagedFinanceFiles(): string[] {
+  try {
+    const out = execSync("git diff --cached --name-only --diff-filter=ACMR", {
+      encoding: "utf-8",
+      timeout: 10_000,
+    });
+    return out
+      .trim()
+      .split("\n")
+      .filter(Boolean)
+      .filter(f => (f.startsWith("calc/") || f.startsWith("engine/") || f.startsWith("client/src/lib/financial")) && f.endsWith(".ts") && !f.includes(".test.") && !f.includes(".spec."));
+  } catch {
+    return [];
+  }
+}
+
+const FINANCE_PATHS = isStaged
+  ? getStagedFinanceFiles()
+  : [
+      "client/src/lib/financial",
+      "calc",
+    ];
+
+if (isStaged && FINANCE_PATHS.length === 0) {
+  console.log("\n  Deep Financial Audit (staged mode)");
+  console.log("  " + "─".repeat(56));
+  console.log("  ✓ No staged financial files to audit");
+  console.log("");
+  process.exit(0);
+}
 
 const EXCLUDE_PATTERNS = ["*.test.*", "*.spec.*", "node_modules"];
 
@@ -100,7 +128,7 @@ const checks: Check[] = [
 ];
 
 console.log("");
-console.log("  Deep Financial Audit");
+console.log(`  Deep Financial Audit${isStaged ? " (staged)" : ""}`);
 console.log("  " + "─".repeat(56));
 
 let totalIssues = 0;

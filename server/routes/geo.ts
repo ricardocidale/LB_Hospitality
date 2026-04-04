@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { Country, State, City } from "country-state-city";
 import { requireAuth } from "../auth";
 import { storage } from "../storage";
+import { logger } from "../logger";
 
 export function register(app: Express) {
   app.get("/api/geo/countries", requireAuth, (_req, res) => {
@@ -88,7 +89,8 @@ export function register(app: Express) {
       });
 
       res.json(locations);
-    } catch {
+    } catch (err) {
+      logger.error(`Failed to build default locations: ${err instanceof Error ? err.message : err}`, "geo");
       res.status(500).json({ error: "Failed to build default locations" });
     }
   });

@@ -90,7 +90,8 @@ async function buildContextPrompt(userId?: number): Promise<string> {
     }
 
     return parts.length > 0 ? "\n\n" + parts.join("\n") : "";
-  } catch {
+  } catch (err) {
+    logger.warn(`Failed to build portfolio context: ${err instanceof Error ? err.message : err}`, "twilio");
     return "";
   }
 }

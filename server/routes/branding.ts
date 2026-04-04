@@ -3,6 +3,7 @@ import { storage } from "../storage";
 import { requireAuth, requireAdmin } from "../auth";
 import { insertLogoSchema, insertCompanySchema, insertUserGroupSchema, insertDesignThemeSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import { logger } from "../logger";
 import { fullName, logAndSendError } from "./helpers";
 import { z } from "zod";
 
@@ -36,7 +37,8 @@ export function register(app: Express) {
         themeName: theme?.name ?? null,
         themeColors: (theme?.colors as object[]) ?? [],
       });
-    } catch {
+    } catch (err) {
+      logger.warn(`Failed to load default theme: ${err instanceof Error ? err.message : err}`, "branding");
       res.json({ themeName: null, themeColors: [] });
     }
   });

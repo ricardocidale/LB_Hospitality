@@ -19,8 +19,7 @@ function verifyToolsAuth(req: Request, res: Response, next: NextFunction) {
       if (a.length === b.length && timingSafeEqual(a, b)) {
         return next();
       }
-    } catch {
-      // Fall through to 401
+    } catch (_authErr) {
     }
   }
   res.status(401).json({ error: "Unauthorized" });

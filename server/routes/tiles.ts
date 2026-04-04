@@ -1,5 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { requireAuth } from "../auth";
+import { logger } from "../logger";
 
 export function register(app: Express) {
   app.get("/api/tiles/osm/:z/:x/:y", requireAuth, async (req: Request, res: Response) => {
@@ -16,7 +17,8 @@ export function register(app: Express) {
       res.set("Cache-Control", "public, max-age=86400");
       const buf = Buffer.from(await resp.arrayBuffer());
       res.send(buf);
-    } catch {
+    } catch (err) {
+      logger.warn(`OSM tile fetch error ${z}/${x}/${y}: ${err instanceof Error ? err.message : err}`, "tiles");
       res.status(502).send("Tile fetch error");
     }
   });
@@ -35,7 +37,8 @@ export function register(app: Express) {
       res.set("Cache-Control", "public, max-age=86400");
       const buf = Buffer.from(await resp.arrayBuffer());
       res.send(buf);
-    } catch {
+    } catch (err) {
+      logger.warn(`Satellite tile fetch error ${z}/${x}/${y}: ${err instanceof Error ? err.message : err}`, "tiles");
       res.status(502).send("Tile fetch error");
     }
   });
@@ -52,7 +55,8 @@ export function register(app: Express) {
       res.set("Cache-Control", "public, max-age=86400");
       const buf = Buffer.from(await resp.arrayBuffer());
       res.send(buf);
-    } catch {
+    } catch (err) {
+      logger.warn(`Terrain tile fetch error ${z}/${x}/${y}: ${err instanceof Error ? err.message : err}`, "tiles");
       res.status(502).send("Tile fetch error");
     }
   });

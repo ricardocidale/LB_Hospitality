@@ -345,7 +345,7 @@ export function register(app: Express) {
       try {
         const jsonMatch = fullContent.match(/\{[\s\S]*\}/);
         parsed = JSON.parse(jsonMatch ? jsonMatch[0] : fullContent);
-      } catch {
+      } catch (_parseErr) {
         parsed = { rawResponse: fullContent };
       }
 

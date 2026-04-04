@@ -32,7 +32,6 @@ export function register(app: Express) {
 
   app.post("/api/verification/run", requireChecker, async (req, res) => {
     try {
-      const { clientResults } = req.body;
       const properties = await storage.getAllProperties(getAuthUser(req).id);
       const globalAssumptions = await storage.getGlobalAssumptions(getAuthUser(req).id);
 
@@ -43,7 +42,6 @@ export function register(app: Express) {
       const report = runVerificationWithEngine(
         properties,
         globalAssumptions,
-        clientResults
       );
 
       const run = await storage.createVerificationRun({

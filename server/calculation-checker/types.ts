@@ -20,20 +20,6 @@ export interface VerificationReport {
   };
 }
 
-export interface ClientPropertyMonthly {
-  revenueTotal: number;
-  revenueRooms: number;
-  noi: number;
-  anoi: number;
-  agop: number;
-  gop: number;
-  cashFlow: number;
-  feeBase: number;
-  feeIncentive: number;
-  workingCapitalChange?: number;
-  nolBalance?: number;
-}
-
 export interface YearMonth {
   year: number;
   month: number;

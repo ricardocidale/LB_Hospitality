@@ -51,7 +51,7 @@ export function useRunVerification(onSuccess?: (data: VerificationResult) => voi
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ clientResults: comprehensiveResults }),
+        body: JSON.stringify({}),
       });
       if (!serverRes.ok) {
         const ct = serverRes.headers.get("content-type") || "";
@@ -269,7 +269,7 @@ export function useRunSuites(
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ clientResults: fullResults }),
+          body: JSON.stringify({}),
         });
         if (serverRes.ok) {
           const sct = serverRes.headers.get("content-type") || "";

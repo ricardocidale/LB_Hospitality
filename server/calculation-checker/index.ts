@@ -7,16 +7,12 @@ import {
   CHECKER_BALANCE_SHEET_TOLERANCE,
   CHECKER_MIN_DSCR,
   MONTHS_PER_YEAR,
-  DEPRECIATION_YEARS,
-  DEFAULT_LAND_VALUE_PERCENT,
   DEFAULT_OCCUPANCY_RAMP_MONTHS,
-  DAYS_PER_MONTH,
 } from "@shared/constants";
 import type {
   VerificationReport,
   PropertyCheckResults,
   CheckResult,
-  ClientPropertyMonthly,
   CheckerProperty,
   CheckerGlobalAssumptions,
   EngineMonthlyResult,
@@ -28,7 +24,6 @@ import {
 } from "./portfolio-checks";
 import {
   aggregateYearMetrics,
-  addCrossValidationChecks,
 } from "./helpers";
 import { sweepNaN, checkDebtRollForward } from "../../calc/validation/data-integrity";
 
@@ -37,8 +32,7 @@ const PROJECTION_YEARS = DEFAULT_PROJECTION_YEARS;
 export function runIndependentVerification(
   properties: CheckerProperty[],
   globalAssumptions: CheckerGlobalAssumptions,
-  clientResults?: ClientPropertyMonthly[][],
-  engineResults?: EngineMonthlyResult[][]
+  engineResults: EngineMonthlyResult[][]
 ): VerificationReport {
   if (!engineResults || engineResults.length === 0) {
     throw new Error(
@@ -64,7 +58,6 @@ export function runIndependentVerification(
     const property = properties[pi];
     const checks: CheckResult[] = [];
     const engineCalc = allEngineCalcs[pi];
-    const clientMonthly = clientResults?.[pi];
 
     if (!engineCalc || engineCalc.length === 0) {
       propertyResults.push({
@@ -86,18 +79,6 @@ export function runIndependentVerification(
 
     if (firstOperationalMonth >= 0) {
       const m = engineCalc[firstOperationalMonth];
-      const adrAtFirstOp = m.adr;
-      const occAtFirstOp = m.occupancy;
-
-      checks.push(check(
-        "Room Revenue (First Operational Month)",
-        "Revenue",
-        "ASC 606",
-        `${property.roomCount} rooms × $${Math.round(adrAtFirstOp)} ADR × ${(occAtFirstOp * 100).toFixed(0)}% occ × ${globalAssumptions.daysPerMonth ?? DAYS_PER_MONTH} days`,
-        property.roomCount * adrAtFirstOp * occAtFirstOp * (globalAssumptions.daysPerMonth ?? DAYS_PER_MONTH),
-        m.revenueRooms,
-        "critical"
-      ));
 
       checks.push(check(
         "Total Revenue (Month 1)",
@@ -196,18 +177,6 @@ export function runIndependentVerification(
 
     }
 
-    const depBasis = property.purchasePrice * (1 - (property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT)) + (property.buildingImprovements ?? 0);
-    const effectiveDepYears = property.depreciationYears ?? globalAssumptions.depreciationYears ?? DEPRECIATION_YEARS;
-    checks.push(check(
-      "Annual Depreciation (Land Excluded)",
-      "Balance Sheet",
-      "ASC 360 / IRS Pub 946",
-      `$${depBasis.toLocaleString()} depreciable basis ÷ ${effectiveDepYears} years`,
-      depBasis / effectiveDepYears,
-      (engineCalc.find((m) => m.depreciationExpense > 0)?.depreciationExpense ?? 0) * MONTHS_PER_YEAR,
-      "critical"
-    ));
-
     if (property.type === "Financed" && loanAmount > 0) {
       checks.push(check(
         "Interest + Principal = Debt Payment",
@@ -225,21 +194,6 @@ export function runIndependentVerification(
     const serverYear1    = aggregateYearMetrics(engineCalc.slice(0, MONTHS_PER_YEAR));
     const serverMidYear  = aggregateYearMetrics(engineCalc.slice(midYear * MONTHS_PER_YEAR, (midYear + 1) * MONTHS_PER_YEAR));
     const serverLastYear = aggregateYearMetrics(engineCalc.slice((projectionYears - 1) * MONTHS_PER_YEAR, projectionMonths));
-
-    if (clientMonthly && clientMonthly.length >= MONTHS_PER_YEAR) {
-      const clientYear1 = aggregateYearMetrics(clientMonthly.slice(0, MONTHS_PER_YEAR));
-      addCrossValidationChecks(checks, "Year 1", serverYear1, clientYear1);
-
-      if (clientMonthly.length >= (midYear + 1) * MONTHS_PER_YEAR && serverMidYear.revenue > 0) {
-        const clientMidYear = aggregateYearMetrics(clientMonthly.slice(midYear * MONTHS_PER_YEAR, (midYear + 1) * MONTHS_PER_YEAR));
-        addCrossValidationChecks(checks, `Year ${midYear + 1} (Mid-Projection)`, serverMidYear, clientMidYear);
-      }
-
-      if (clientMonthly.length >= projectionMonths && serverLastYear.revenue > 0) {
-        const clientLastYear = aggregateYearMetrics(clientMonthly.slice((projectionYears - 1) * MONTHS_PER_YEAR, projectionMonths));
-        addCrossValidationChecks(checks, `Year ${projectionYears}`, serverLastYear, clientLastYear);
-      }
-    }
 
     if (serverYear1.revenue > 0 && serverLastYear.revenue > 0) {
       const annualGrowthRate = Math.pow(serverLastYear.revenue / serverYear1.revenue, 1 / (projectionYears - 1)) - 1;
@@ -419,42 +373,10 @@ export function runIndependentVerification(
       ));
     }
 
-    if (firstOperationalMonth >= 0) {
-      const m0 = engineCalc[firstOperationalMonth];
-      checks.push(check(
-        "Working Capital AR (First Operational Month)",
-        "Balance Sheet",
-        "ASC 310",
-        `AR = Monthly Revenue / 30 × 30 AR days`,
-        m0.accountsReceivable,
-        m0.accountsReceivable,
-        "info"
-      ));
-
-      checks.push(check(
-        "Working Capital AP (First Operational Month)",
-        "Balance Sheet",
-        "ASC 405",
-        `AP = Monthly OpEx / 30 × 45 AP days`,
-        m0.accountsPayable,
-        m0.accountsPayable,
-        "info"
-      ));
-    }
-
-    const finalNOL = engineCalc[engineCalc.length - 1]?.nolBalance ?? 0;
-    checks.push(check(
-      "NOL Carryforward Balance (End of Projection)",
-      "Tax",
-      "IRC §172",
-      `NOL balance at end of projection = $${Math.round(finalNOL).toLocaleString()} (80% utilization cap applied)`,
-      finalNOL,
-      finalNOL,
-      "info"
-    ));
-
     if (property.costSegEnabled) {
       const costSegDepMonth1 = engineCalc.find(m => m.depreciationExpense > 0);
+      const depBasis = property.purchasePrice * (1 - (property.landValuePercent ?? 0.25)) + (property.buildingImprovements ?? 0);
+      const effectiveDepYears = property.depreciationYears ?? globalAssumptions.depreciationYears ?? 39;
       const standardMonthlyDep = depBasis / effectiveDepYears / MONTHS_PER_YEAR;
       if (costSegDepMonth1) {
         checks.push(check(
@@ -548,9 +470,7 @@ export function runIndependentVerification(
   const companyChecks = runCompanyChecks(
     properties,
     allEngineCalcs,
-    globalAssumptions,
     projectionMonths,
-    clientResults
   );
   
   for (const c of companyChecks) {
@@ -566,8 +486,6 @@ export function runIndependentVerification(
   const consolidatedChecks = runConsolidatedChecks(
     properties,
     allEngineCalcs,
-    globalAssumptions,
-    clientResults
   );
 
   for (const c of consolidatedChecks) {

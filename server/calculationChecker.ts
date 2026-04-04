@@ -7,13 +7,12 @@ import { MONTHS_PER_YEAR } from "@shared/constants";
 import { runIndependentVerification } from "./calculation-checker";
 import type {
   VerificationReport,
-  ClientPropertyMonthly,
   EngineMonthlyResult,
   CheckerProperty,
   CheckerGlobalAssumptions,
 } from "./calculation-checker";
 
-export type { VerificationReport, ClientPropertyMonthly, EngineMonthlyResult };
+export type { VerificationReport, EngineMonthlyResult };
 export { runIndependentVerification };
 
 type PipelineMonth = ReturnType<typeof generatePropertyProForma>[number];
@@ -91,8 +90,7 @@ export function computeEngineResultsForChecker(
 export function runVerificationWithEngine(
   properties: CheckerProperty[],
   globalAssumptions: CheckerGlobalAssumptions,
-  clientResults?: ClientPropertyMonthly[][],
 ): VerificationReport {
   const engineResults = computeEngineResultsForChecker(properties, globalAssumptions);
-  return runIndependentVerification(properties, globalAssumptions, clientResults, engineResults);
+  return runIndependentVerification(properties, globalAssumptions, engineResults);
 }

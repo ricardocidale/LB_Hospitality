@@ -262,40 +262,31 @@ describe("Auditor Double-Down: server checker — UNQUALIFIED opinion", () => {
     expect(report.summary.totalChecks).toBeGreaterThan(15);
   });
 
-  it("server checker includes mid-projection waterfall checks when client data provided", () => {
+  it("server checker runs without clientResults parameter (consolidated Phase 6)", () => {
     const projYears = 6;
-    const monthly = generatePropertyProForma(CASH_PROPERTY, { ...GLOBAL, projectionYears: projYears });
-    const clientSlice = monthly.slice(0, projYears * 12);
     const report = runVerificationWithEngine(
       [CASH_PROPERTY],
       { ...GLOBAL, projectionYears: projYears },
-      [clientSlice as any],
     );
-    const allCheckNames = report.propertyResults[0].checks.map(c => c.metric);
-    const midProjectionChecks = allCheckNames.filter(n => n.includes("Mid-Projection"));
-    expect(midProjectionChecks.length).toBeGreaterThan(0);
+    expect(report.summary.auditOpinion).toBe("UNQUALIFIED");
+    expect(report.summary.totalChecks).toBeGreaterThan(10);
   });
 });
 
-describe("Auditor Double-Down: server checker — cross-engine waterfall (server vs client)", () => {
-  it("GOP/AGOP/ANOI cross-validation passes when client data matches server", () => {
-    const projYears = GLOBAL.projectionYears;
-    const monthly = generateMonthly(CASH_PROPERTY);
-    const clientSlice = monthly.slice(0, projYears * 12);
-
+describe("Auditor Double-Down: server checker — no cross-validation after Phase 6", () => {
+  it("checker produces no Cross-Validation category checks (removed in Phase 6)", () => {
     const report = runVerificationWithEngine(
       [CASH_PROPERTY],
       GLOBAL,
-      [clientSlice as any],
     );
 
-    const crossChecks = report.propertyResults[0].checks.filter(
-      c => c.category === "Cross-Validation"
-    );
-    expect(crossChecks.length).toBeGreaterThan(0);
-    for (const c of crossChecks) {
-      expect(c.passed).toBe(true);
-    }
+    const allChecks = [
+      ...report.propertyResults.flatMap(p => p.checks),
+      ...report.companyChecks,
+      ...report.consolidatedChecks,
+    ];
+    const crossChecks = allChecks.filter(c => c.category === "Cross-Validation");
+    expect(crossChecks).toHaveLength(0);
     expect(report.summary.auditOpinion).toBe("UNQUALIFIED");
   });
 });

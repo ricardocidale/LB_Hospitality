@@ -1,4 +1,4 @@
-/** Minimal shape shared by both IndependentMonthlyResult and ClientPropertyMonthly */
+/** Minimal shape for monthly P&L metrics used by IndependentMonthlyResult */
 export interface MonthlyMetrics {
   revenueTotal: number;
   gop: number;

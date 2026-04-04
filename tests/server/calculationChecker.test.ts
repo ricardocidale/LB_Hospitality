@@ -1,8 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { DEPRECIATION_YEARS } from "../../shared/constants.js";
 import { runVerificationWithEngine } from "../../server/calculationChecker.js";
-import type { VerificationReport, ClientPropertyMonthly } from "../../server/calculationChecker.js";
-import { generatePropertyProForma } from "../../client/src/lib/financial/property-engine.js";
+import type { VerificationReport } from "../../server/calculationChecker.js";
 
 function makeGlobal(overrides: Record<string, any> = {}) {
   return {
@@ -51,19 +50,6 @@ describe("calculationChecker — Full Equity property", () => {
     expect(report.propertiesChecked).toBe(1);
     expect(report.propertyResults).toHaveLength(1);
     expect(report.propertyResults[0].propertyName).toBe("Test Hotel");
-  });
-
-  it("verifies Room Revenue formula at first operational month", () => {
-    const report = runVerificationWithEngine(
-      [makeProperty()],
-      makeGlobal(),
-    );
-    const roomRevCheck = report.propertyResults[0].checks.find(
-      c => c.metric === "Room Revenue (First Operational Month)",
-    );
-    expect(roomRevCheck).toBeDefined();
-    expect(roomRevCheck!.passed).toBe(true);
-    expect(roomRevCheck!.expected).toBe(10 * 200 * 0.5 * 30.5);
   });
 
   it("verifies GOP and NOI identity checks pass", () => {
@@ -165,28 +151,13 @@ describe("calculationChecker — Financed property", () => {
 });
 
 describe("calculationChecker — audit opinion logic", () => {
-  it("returns ADVERSE when cross-validation fails (critical mismatch)", () => {
+  it("returns UNQUALIFIED when no clientResults cross-validation is needed", () => {
     const prop = makeProperty();
     const global = makeGlobal();
-    const fakeClient: ClientPropertyMonthly[][] = [
-      Array.from({ length: 24 }, () => ({
-        revenueTotal: 0,
-        revenueRooms: 0,
-        noi: 0,
-        gop: 0,
-        agop: 0,
-        anoi: 0,
-        cashFlow: 0,
-        feeBase: 0,
-        feeIncentive: 0,
-      })),
-    ];
+    const report = runVerificationWithEngine([prop], global);
 
-    const report = runVerificationWithEngine([prop], global, fakeClient);
-
-    expect(report.summary.criticalIssues).toBeGreaterThan(0);
-    expect(report.summary.auditOpinion).toBe("ADVERSE");
-    expect(report.summary.overallStatus).toBe("FAIL");
+    expect(report.summary.auditOpinion).toBe("UNQUALIFIED");
+    expect(report.summary.overallStatus).toBe("PASS");
   });
 
   it("returns QUALIFIED when only material issues exist", () => {
@@ -245,24 +216,6 @@ describe("calculationChecker — multi-property consolidated", () => {
 });
 
 describe("calculationChecker — company checks", () => {
-  it("verifies base and incentive fee rate checks pass", () => {
-    const report = runVerificationWithEngine(
-      [makeProperty()],
-      makeGlobal(),
-    );
-    const baseFeeCheck = report.companyChecks.find(
-      c => c.metric === "Base Fee Applied at Stated Rate",
-    );
-    expect(baseFeeCheck).toBeDefined();
-    expect(baseFeeCheck!.passed).toBe(true);
-
-    const incentiveCheck = report.companyChecks.find(
-      c => c.metric === "Incentive Fee Applied at Stated Rate",
-    );
-    expect(incentiveCheck).toBeDefined();
-    expect(incentiveCheck!.passed).toBe(true);
-  });
-
   it("verifies fee zero-sum check passes", () => {
     const report = runVerificationWithEngine(
       [makeProperty()],
@@ -273,23 +226,6 @@ describe("calculationChecker — company checks", () => {
     );
     expect(feeZeroSum).toBeDefined();
     expect(feeZeroSum!.passed).toBe(true);
-  });
-});
-
-describe("calculationChecker — depreciation", () => {
-  it("computes correct annual depreciation excluding land", () => {
-    const report = runVerificationWithEngine(
-      [makeProperty()],
-      makeGlobal(),
-    );
-    const depCheck = report.propertyResults[0].checks.find(
-      c => c.metric === "Annual Depreciation (Land Excluded)",
-    );
-    expect(depCheck).toBeDefined();
-    expect(depCheck!.passed).toBe(true);
-    const depreciableBasis = 1_000_000 * (1 - 0.25);
-    const expectedAnnual = depreciableBasis / DEPRECIATION_YEARS;
-    expect(depCheck!.expected).toBeCloseTo(expectedAnnual, 2);
   });
 });
 
@@ -322,5 +258,77 @@ describe("calculationChecker — new invariant checks", () => {
     );
     expect(rollForward).toBeDefined();
     expect(rollForward!.passed).toBe(true);
+  });
+});
+
+describe("calculationChecker — removed duplicated checks", () => {
+  it("does NOT contain duplicated formula-recomputation checks", () => {
+    const report = runVerificationWithEngine(
+      [makeProperty()],
+      makeGlobal(),
+    );
+    const allChecks = [
+      ...report.propertyResults.flatMap(p => p.checks),
+      ...report.companyChecks,
+      ...report.consolidatedChecks,
+    ];
+
+    const removedMetrics = [
+      "Room Revenue (First Operational Month)",
+      "Annual Depreciation (Land Excluded)",
+      "Base Fee Applied at Stated Rate",
+      "Incentive Fee Applied at Stated Rate",
+      "Working Capital AR (First Operational Month)",
+      "Working Capital AP (First Operational Month)",
+      "NOL Carryforward Balance (End of Projection)",
+    ];
+    for (const metric of removedMetrics) {
+      expect(allChecks.find(c => c.metric === metric)).toBeUndefined();
+    }
+  });
+
+  it("does NOT contain cross-validation checks", () => {
+    const report = runVerificationWithEngine(
+      [makeProperty()],
+      makeGlobal(),
+    );
+    const allChecks = [
+      ...report.propertyResults.flatMap(p => p.checks),
+      ...report.companyChecks,
+      ...report.consolidatedChecks,
+    ];
+
+    const crossValChecks = allChecks.filter(c =>
+      c.metric.includes("Server vs Client Engine") || c.category === "Cross-Validation"
+    );
+    expect(crossValChecks).toHaveLength(0);
+  });
+});
+
+describe("calculationChecker — boundary enforcement", () => {
+  it("checker modules do NOT import from @engine/ or client engine", async () => {
+    const fs = await import("fs");
+    const path = await import("path");
+    const checkerDir = path.resolve("server/calculation-checker");
+
+    function readAllTsFiles(dir: string): string[] {
+      const contents: string[] = [];
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          contents.push(...readAllTsFiles(fullPath));
+        } else if (entry.name.endsWith(".ts")) {
+          contents.push(fs.readFileSync(fullPath, "utf-8"));
+        }
+      }
+      return contents;
+    }
+
+    const allFiles = readAllTsFiles(checkerDir);
+    for (const content of allFiles) {
+      expect(content).not.toMatch(/@engine\//);
+      expect(content).not.toMatch(/from ["'].*client.*engine/);
+      expect(content).not.toMatch(/from ["'].*property-engine/);
+    }
   });
 });

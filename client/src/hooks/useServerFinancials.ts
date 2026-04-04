@@ -76,7 +76,7 @@ function mapToDashboardFinancials(
   const allPropertyYearlyIS: YearlyPropertyFinancials[][] = [];
 
   for (const prop of activeProperties) {
-    const key = String(prop.id);
+    const key = `property_${prop.id}`;
     const monthly = serverResult.perPropertyMonthly[key] ?? [];
     const yearlyIS = serverResult.perPropertyYearly[key] ?? [];
 
@@ -346,7 +346,7 @@ export function useServerCompanyFinancials(
   const perPropertyFinancials = (portfolioQuery.data && properties)
     ? activeProperties.map(prop => ({
         property: prop,
-        financials: portfolioQuery.data!.perPropertyMonthly[String(prop.id)] ?? [],
+        financials: portfolioQuery.data!.perPropertyMonthly[`property_${prop.id}`] ?? [],
       }))
     : [];
 

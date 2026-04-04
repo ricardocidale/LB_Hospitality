@@ -254,13 +254,13 @@ export class FinancialStorage {
       }
 
       if (savedFeeCategories) {
-        const feeCategoryValues: any[] = [];
+        const feeCategoryValues: (typeof propertyFeeCategories.$inferInsert)[] = [];
         for (const prop of insertedProperties) {
           const feeCats = savedFeeCategories[prop.name];
           if (feeCats && feeCats.length > 0) {
             for (const cat of feeCats) {
               const { id: _catId, propertyId: _propId, createdAt: _catCreated, ...catData } = cat;
-              feeCategoryValues.push({ ...catData, propertyId: prop.id });
+              feeCategoryValues.push({ ...catData, propertyId: prop.id } as typeof propertyFeeCategories.$inferInsert);
             }
           }
         }
@@ -268,25 +268,25 @@ export class FinancialStorage {
         if (feeCategoryValues.length > 0) {
           const propIds = insertedProperties.map(p => p.id);
           await tx.delete(propertyFeeCategories).where(inArray(propertyFeeCategories.propertyId, propIds));
-          await tx.insert(propertyFeeCategories).values(feeCategoryValues as any);
+          await tx.insert(propertyFeeCategories).values(feeCategoryValues);
         }
       }
 
       if (savedPropertyPhotos) {
-        const photoValues: any[] = [];
+        const photoValues: (typeof propertyPhotos.$inferInsert)[] = [];
         for (const prop of insertedProperties) {
           const photos = savedPropertyPhotos[prop.name];
           if (photos && photos.length > 0) {
             for (const photo of photos) {
               const { id: _photoId, propertyId: _propId, createdAt: _created, ...photoData } = photo;
-              photoValues.push({ ...photoData, propertyId: prop.id });
+              photoValues.push({ ...photoData, propertyId: prop.id } as typeof propertyPhotos.$inferInsert);
             }
           }
         }
         if (photoValues.length > 0) {
           const propIds = insertedProperties.map(p => p.id);
           await tx.delete(propertyPhotos).where(inArray(propertyPhotos.propertyId, propIds));
-          await tx.insert(propertyPhotos).values(photoValues as any);
+          await tx.insert(propertyPhotos).values(photoValues);
         }
       }
     });

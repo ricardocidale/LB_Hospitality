@@ -53,11 +53,11 @@ export function register(app: Express) {
         storage.getPhotosByProperties(propertyIds),
       ]);
 
-      const propertyFeeCategories: Record<string, any[]> = {};
-      const propertyPhotos: Record<string, any[]> = {};
+      const propertyFeeCategories: Record<string, Record<string, unknown>[]> = {};
+      const propertyPhotos: Record<string, Record<string, unknown>[]> = {};
       for (const p of properties) {
-        propertyFeeCategories[p.name] = feeCatsByPropId[p.id] || [];
-        propertyPhotos[p.name] = photosByPropId[p.id] || [];
+        propertyFeeCategories[p.name] = (feeCatsByPropId[p.id] || []) as Record<string, unknown>[];
+        propertyPhotos[p.name] = (photosByPropId[p.id] || []) as Record<string, unknown>[];
       }
 
       const liveAssumptions = await storage.getGlobalAssumptions(req.user!.id);
@@ -73,10 +73,10 @@ export function register(app: Express) {
         userId: req.user!.id,
         name: validation.data.name,
         description: validation.data.description,
-        globalAssumptions: assumptions as any,
-        properties: properties as any,
-        feeCategories: propertyFeeCategories as any,
-        propertyPhotos: propertyPhotos as any,
+        globalAssumptions: (assumptions || {}) as Record<string, unknown>,
+        properties: properties as unknown as Record<string, unknown>[],
+        feeCategories: propertyFeeCategories,
+        propertyPhotos: propertyPhotos,
         version: 1,
         baseSnapshotHash: diffResult.snapshotHash,
       });
@@ -129,10 +129,10 @@ export function register(app: Express) {
 
       await storage.loadScenario(
         req.user!.id,
-        scenario.globalAssumptions as any,
-        scenario.properties as any,
-        scenario.feeCategories as any,
-        (scenario as any).propertyPhotos as any
+        scenario.globalAssumptions as Record<string, unknown>,
+        scenario.properties as Record<string, unknown>[],
+        scenario.feeCategories as Record<string, Record<string, unknown>[]> | undefined,
+        scenario.propertyPhotos as Record<string, Record<string, unknown>[]> | undefined
       );
 
       logActivity(req, "load", "scenario", id, scenario.name);
@@ -231,9 +231,9 @@ export function register(app: Express) {
         userId: req.user!.id,
         name: data.name,
         description: data.description ?? null,
-        globalAssumptions: data.globalAssumptions as any,
-        properties: data.properties as any,
-        feeCategories: (data.feeCategories || {}) as any,
+        globalAssumptions: data.globalAssumptions as Record<string, unknown>,
+        properties: data.properties as Record<string, unknown>[],
+        feeCategories: (data.feeCategories || {}) as Record<string, Record<string, unknown>[]>,
       });
 
       logActivity(req, "import", "scenario", scenario.id, scenario.name);

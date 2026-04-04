@@ -76,7 +76,7 @@ export const insertVerificationRunSchema = z.object({
   failed: z.number(),
   auditOpinion: z.string(),
   overallStatus: z.string(),
-  results: z.any(),
+  results: z.record(z.unknown()),
 });
 
 export type VerificationRun = typeof verificationRuns.$inferSelect;

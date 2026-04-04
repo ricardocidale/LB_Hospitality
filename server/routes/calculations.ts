@@ -52,7 +52,7 @@ export function register(app: Express) {
         totalChecks: report.summary.totalChecks,
         auditOpinion: report.summary.auditOpinion,
         overallStatus: report.summary.overallStatus,
-        results: report as any,
+        results: report as Record<string, unknown>,
       });
 
       logActivity(req, "run-verification", "verification", run.id, `Audit ${run.id}: ${run.auditOpinion}`);
@@ -97,7 +97,16 @@ export function register(app: Express) {
 
       const openai = getOpenAIClient();
 
-      const results = latestRun.results as any;
+      interface VerificationCheck { passed?: boolean; metric?: string; gaapRef?: string; variancePct?: number; severity?: string }
+      interface PropertyResult { propertyName?: string; checks?: VerificationCheck[] }
+      interface VerificationResults {
+        summary?: { auditOpinion?: string; overallStatus?: string; totalChecks?: number; totalPassed?: number; totalFailed?: number; criticalIssues?: number; materialIssues?: number };
+        propertiesChecked?: number;
+        propertyResults?: PropertyResult[];
+        companyChecks?: VerificationCheck[];
+        consolidatedChecks?: VerificationCheck[];
+      }
+      const results = latestRun.results as VerificationResults;
       const summaryText = JSON.stringify({
         auditOpinion: results?.summary?.auditOpinion,
         overallStatus: results?.summary?.overallStatus,
@@ -108,15 +117,15 @@ export function register(app: Express) {
         materialIssues: results?.summary?.materialIssues,
         propertyCount: results?.propertiesChecked,
         failedChecks: results?.propertyResults
-          ?.flatMap((p: any) => p.checks?.filter((c: any) => !c.passed).map((c: any) => ({
+          ?.flatMap((p: PropertyResult) => p.checks?.filter((c: VerificationCheck) => !c.passed).map((c: VerificationCheck) => ({
             property: p.propertyName,
             metric: c.metric,
             gaapRef: c.gaapRef,
             variance: c.variancePct,
             severity: c.severity,
           })) ?? []) ?? [],
-        companyFailures: results?.companyChecks?.filter((c: any) => !c.passed) ?? [],
-        consolidatedFailures: results?.consolidatedChecks?.filter((c: any) => !c.passed) ?? [],
+        companyFailures: results?.companyChecks?.filter((c: VerificationCheck) => !c.passed) ?? [],
+        consolidatedFailures: results?.consolidatedChecks?.filter((c: VerificationCheck) => !c.passed) ?? [],
       }, null, 2);
 
       res.writeHead(200, {

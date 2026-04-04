@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { requireAuth, isApiRateLimited , getAuthUser } from "../auth";
 import { objectStorageClient, ObjectStorageService } from "../replit_integrations/object_storage";
-import { logActivity, logAndSendError, uploadRequestSchema, processImageSchema } from "./helpers";
+import { logActivity, logAndSendError, uploadRequestSchema, processImageSchema, bulkProcessPhotosSchema } from "./helpers";
 import { fromZodError } from "zod-validation-error";
 import { randomUUID } from "crypto";
 import { processImage, type CropRegion } from "../image/pipeline";
@@ -172,11 +172,16 @@ export function register(app: Express) {
         return res.status(403).json({ error: "Admin access required" });
       }
 
-      const { propertyId } = req.body;
+      const parsed = bulkProcessPhotosSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+
+      const { propertyId } = parsed.data;
 
       let photos;
       if (propertyId) {
-        photos = await storage.getPropertyPhotos(Number(propertyId));
+        photos = await storage.getPropertyPhotos(propertyId);
       } else {
         const allProperties = await storage.getAllProperties(user.id);
         // Bulk fetch all photos in a single query instead of N queries

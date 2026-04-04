@@ -4,7 +4,7 @@ import { OAuth2Client } from "google-auth-library";
 import { storage } from "../storage";
 import { requireAuth , getAuthUser } from "../auth";
 import { logger } from "../logger";
-import { driveFolderSchema } from "./helpers";
+import { driveFolderSchema, driveUploadBodySchema } from "./helpers";
 import { fromZodError } from "zod-validation-error";
 import { isEncryptionConfigured } from "../lib/token-encryption";
 import multer from "multer";
@@ -162,12 +162,16 @@ export function register(app: Express) {
         return res.status(400).json({ error: "No file provided" });
       }
 
-      const parentId = req.body.parentId;
+      const parsed = driveUploadBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+
       const fileMetadata: Record<string, unknown> = {
         name: file.originalname,
       };
-      if (parentId) {
-        fileMetadata.parents = [parentId];
+      if (parsed.data.parentId) {
+        fileMetadata.parents = [parsed.data.parentId];
       }
 
       const media = {

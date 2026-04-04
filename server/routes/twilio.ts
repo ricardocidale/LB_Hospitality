@@ -28,6 +28,7 @@ import { retrieveRelevantChunks, buildRAGContext } from "../ai/knowledge-base";
 import twilio from "twilio";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 import { UserRole } from "@shared/constants";
+import { twilioVoiceIncomingSchema, twilioSmsIncomingSchema } from "./helpers";
 
 /**
  * Middleware to validate Twilio webhook request signatures.
@@ -102,6 +103,9 @@ const MARCELA_ISOLATED = true as boolean;
 export function register(app: Express) {
 
   app.post("/api/twilio/voice/incoming", validateTwilioSignature, async (req, res) => {
+    const parsed = twilioVoiceIncomingSchema.safeParse(req.body);
+    const from = parsed.success ? parsed.data.From : "";
+
     // MARCELA ISOLATED — always return unavailable TwiML
     // To restore: remove this block. See .claude/plans/MARCELA-ISOLATION.md
     if (MARCELA_ISOLATED) {
@@ -129,7 +133,7 @@ export function register(app: Express) {
   <Say voice="Polly.Joanna">${greeting}</Say>
   <Connect>
     <Stream url="${wsProtocol}://${host}/api/twilio/voice/stream">
-      <Parameter name="callerNumber" value="${req.body?.From || ''}" />
+      <Parameter name="callerNumber" value="${from}" />
     </Stream>
   </Connect>
 </Response>`);
@@ -142,15 +146,16 @@ export function register(app: Express) {
 
   app.post("/api/twilio/sms/incoming", validateTwilioSignature, async (req, res) => {
     try {
+      const smsParsed = twilioSmsIncomingSchema.safeParse(req.body);
+      const from = smsParsed.success ? smsParsed.data.From : "";
+      const body = smsParsed.success ? smsParsed.data.Body : "";
+
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaSmsEnabled) {
         res.type("text/xml");
         res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>SMS is currently disabled. Please contact us through the web portal.</Message></Response>`);
         return;
       }
-
-      const from = req.body?.From || "";
-      const body = req.body?.Body || "";
 
       if (!body.trim()) {
         res.type("text/xml");

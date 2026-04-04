@@ -147,6 +147,26 @@ export const prospectiveNotesSchema = z.object({
   notes: z.string().max(5000).nullable(),
 });
 
+export const driveUploadBodySchema = z.object({
+  parentId: z.string().max(200).optional(),
+});
+
+export const twilioVoiceIncomingSchema = z.object({
+  From: z.string().max(50).optional().default(""),
+  To: z.string().max(50).optional(),
+  CallSid: z.string().max(100).optional(),
+});
+
+export const twilioSmsIncomingSchema = z.object({
+  From: z.string().max(50).optional().default(""),
+  Body: z.string().max(1600).optional().default(""),
+  MessageSid: z.string().max(100).optional(),
+});
+
+export const bulkProcessPhotosSchema = z.object({
+  propertyId: z.coerce.number().optional(),
+});
+
 export const icpGenerateSchema = z.object({
   promptBuilder: z.record(z.any()).optional(),
 });

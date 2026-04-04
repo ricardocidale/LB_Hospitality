@@ -206,6 +206,7 @@ export function registerFinanceRoutes(router: Router): void {
 
       res.setHeader("X-Finance-Engine-Version", result.engineVersion);
       res.setHeader("X-Finance-Output-Hash", result.outputHash);
+      if (result.cached) res.setHeader("X-Finance-Cache-Hit", "true");
 
       return sendSuperjson(res, result);
     } catch (err: unknown) {

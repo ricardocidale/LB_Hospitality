@@ -122,6 +122,7 @@ PRODUCTION_URL = "https://h-analysis.com"
 
 [userenv.shared]
 GOOGLE_CLIENT_ID = "565834167960-l2lj72aphqdmhmvm88j657d8ccg6r797.apps.googleusercontent.com"
+TOKEN_ENCRYPTION_KEY = "02c88af1720cfb52a423caa79c166ec65b02c1853fe63d944c6d2fed6267f7b4"
 
 [postMerge]
 path = "script/post-merge.sh"

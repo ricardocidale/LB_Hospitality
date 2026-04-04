@@ -364,10 +364,15 @@ describe("Schema & Data Model — Zod schema edge cases", () => {
 });
 
 describe("Schema & Data Model — partial unique index enforces soft-delete reuse", () => {
-  it("migration creates index with WHERE deleted_at IS NULL clause", () => {
-    const migrations = readFile("migrations/meta/_journal.json");
+  it("drizzle schema has no unconditional unique on (userId, name)", () => {
     const schemaFile = readFile("shared/schema/scenarios.ts");
     expect(schemaFile).not.toContain('unique("scenarios_user_id_name")');
+  });
+
+  it("system-unique migration enforces WHERE deleted_at IS NULL", () => {
+    const src = readFile("server/migrations/scenario-system-unique-001.ts");
+    expect(src).toContain("deleted_at");
+    expect(src).toContain("IS NULL");
   });
 
   it("softDeleteScenario nullifies name-guard by setting deletedAt", () => {

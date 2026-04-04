@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireChecker, requireAuth } from "../auth";
-import { runIndependentVerification } from "../calculationChecker";
+import { runVerificationWithEngine } from "../calculationChecker";
 import { logActivity, logAndSendError } from "./helpers";
 import * as calcSchemas from "../../calc/shared/schemas";
 import { computeDCF } from "../../calc/returns/dcf-npv";
@@ -39,7 +39,7 @@ export function register(app: Express) {
         return res.status(400).json({ error: "Global assumptions not found" });
       }
 
-      const report = runIndependentVerification(
+      const report = runVerificationWithEngine(
         properties,
         globalAssumptions,
         clientResults

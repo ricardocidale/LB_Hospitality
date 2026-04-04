@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { checkPropertyFormulas, checkMetricFormulas } from "../../client/src/lib/audits/formulaChecker";
 import { crossValidateFinancingCalculators } from "../../client/src/lib/audits/crossCalculatorValidation";
-import { runIndependentVerification } from "../../server/calculationChecker";
+import { runVerificationWithEngine } from "../../server/calculationChecker";
 import { generatePropertyProForma } from "../../client/src/lib/financial/property-engine";
 import { DEFAULT_PROPERTY_INFLATION_RATE } from "../../shared/constants";
 
@@ -236,7 +236,7 @@ describe("Auditor Double-Down: crossValidation — cash property (no debt)", () 
 
 describe("Auditor Double-Down: server checker — UNQUALIFIED opinion", () => {
   it("UNQUALIFIED for well-formed AllCash property (no client data)", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [CASH_PROPERTY],
       GLOBAL,
     );
@@ -246,7 +246,7 @@ describe("Auditor Double-Down: server checker — UNQUALIFIED opinion", () => {
   });
 
   it("UNQUALIFIED for well-formed Financed property (no client data)", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [FINANCED_PROPERTY],
       GLOBAL,
     );
@@ -255,7 +255,7 @@ describe("Auditor Double-Down: server checker — UNQUALIFIED opinion", () => {
   });
 
   it("total server checks exceed 15 for single property", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [CASH_PROPERTY],
       GLOBAL,
     );
@@ -266,7 +266,7 @@ describe("Auditor Double-Down: server checker — UNQUALIFIED opinion", () => {
     const projYears = 6;
     const monthly = generatePropertyProForma(CASH_PROPERTY, { ...GLOBAL, projectionYears: projYears });
     const clientSlice = monthly.slice(0, projYears * 12);
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [CASH_PROPERTY],
       { ...GLOBAL, projectionYears: projYears },
       [clientSlice as any],
@@ -283,7 +283,7 @@ describe("Auditor Double-Down: server checker — cross-engine waterfall (server
     const monthly = generateMonthly(CASH_PROPERTY);
     const clientSlice = monthly.slice(0, projYears * 12);
 
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [CASH_PROPERTY],
       GLOBAL,
       [clientSlice as any],

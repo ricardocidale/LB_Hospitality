@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { runIndependentVerification } from "../../server/calculationChecker.js";
+import { runVerificationWithEngine } from "../../server/calculationChecker.js";
 
 function makeGlobal() {
   return { modelStartDate: "2026-01-01", projectionYears: 2, inflationRate: 0.02, fixedCostEscalationRate: 0.02 };
@@ -27,7 +27,7 @@ function makeProperty() {
 
 describe("debug checker", () => {
   it("produces UNQUALIFIED opinion for well-formed property", () => {
-    const report = runIndependentVerification([makeProperty()], makeGlobal());
+    const report = runVerificationWithEngine([makeProperty()], makeGlobal());
     expect(report.summary.totalChecks).toBeGreaterThan(0);
     expect(report.summary.auditOpinion).toBe("UNQUALIFIED");
     expect(report.summary.criticalIssues).toBe(0);

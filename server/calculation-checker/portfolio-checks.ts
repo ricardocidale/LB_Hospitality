@@ -6,7 +6,7 @@ import {
   DEFAULT_SAFE_TRANCHE,
   MONTHS_PER_YEAR,
 } from "@shared/constants";
-import type { CheckResult, CheckerProperty, CheckerGlobalAssumptions, IndependentMonthlyResult, ClientPropertyMonthly } from "./types";
+import type { CheckResult, CheckerProperty, CheckerGlobalAssumptions, EngineMonthlyResult, ClientPropertyMonthly } from "./types";
 import { check } from "./gaap-checks";
 import {
   parseYearMonth,
@@ -18,7 +18,7 @@ import { sumServerPortfolioTotals, sumClientPortfolioTotals } from "./helpers";
 
 export function runCompanyChecks(
   properties: CheckerProperty[],
-  allIndependentCalcs: IndependentMonthlyResult[][],
+  allEngineCalcs: EngineMonthlyResult[][],
   globalAssumptions: CheckerGlobalAssumptions,
   projectionMonths: number,
   clientResults?: ClientPropertyMonthly[][]
@@ -27,14 +27,14 @@ export function runCompanyChecks(
   if (properties.length === 0) return companyChecks;
 
   const { revenue: serverTotalRevenue, feeBase: serverTotalFeeBase, feeIncentive: serverTotalFeeIncentive } =
-    sumServerPortfolioTotals(allIndependentCalcs);
+    sumServerPortfolioTotals(allEngineCalcs);
 
   let expectedBaseFee = 0;
   let expectedIncentiveFee = 0;
   for (let pi = 0; pi < properties.length; pi++) {
     const propBaseRate = properties[pi].baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
     const propIncRate = properties[pi].incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
-    for (const m of allIndependentCalcs[pi]) {
+    for (const m of allEngineCalcs[pi] ?? []) {
       expectedBaseFee += m.revenueTotal * propBaseRate;
       expectedIncentiveFee += (m.gop > 0 ? m.gop : 0) * propIncRate;
     }
@@ -57,6 +57,33 @@ export function runCompanyChecks(
     `Σ monthly incentive fees = Σ per-property (monthly positive GOP × property incentive rate)`,
     expectedIncentiveFee,
     serverTotalFeeIncentive,
+    "critical"
+  ));
+
+  let totalPropertyFeesPaid = 0;
+  for (const calc of allEngineCalcs) {
+    for (const m of calc ?? []) {
+      totalPropertyFeesPaid += m.feeBase + m.feeIncentive;
+    }
+  }
+
+  let companyFeesReceivable = 0;
+  for (let pi = 0; pi < properties.length; pi++) {
+    const propBaseRate = properties[pi].baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
+    const propIncRate = properties[pi].incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
+    for (const m of allEngineCalcs[pi] ?? []) {
+      companyFeesReceivable += m.revenueTotal * propBaseRate;
+      companyFeesReceivable += (m.gop > 0 ? m.gop : 0) * propIncRate;
+    }
+  }
+
+  companyChecks.push(check(
+    "Fee Zero-Sum (Intercompany Elimination)",
+    "Consolidated",
+    "ASC 810",
+    "Management fees paid by properties = fees receivable by management company",
+    companyFeesReceivable,
+    totalPropertyFeesPaid,
     "critical"
   ));
 
@@ -95,7 +122,6 @@ export function runCompanyChecks(
     ));
   }
 
-  // Management Company Negative Cash Balance check
   const modelStartYM = parseYearMonth(globalAssumptions.modelStartDate);
   const tranche1YM = globalAssumptions.safeTranche1Date
     ? parseYearMonth(globalAssumptions.safeTranche1Date)
@@ -117,8 +143,8 @@ export function runCompanyChecks(
 
     let monthlyFeeBase = 0;
     let monthlyFeeIncentive = 0;
-    for (const propCalc of allIndependentCalcs) {
-      if (cm < propCalc.length) {
+    for (const propCalc of allEngineCalcs) {
+      if (propCalc && cm < propCalc.length) {
         monthlyFeeBase += propCalc[cm].feeBase;
         monthlyFeeIncentive += propCalc[cm].feeIncentive;
       }
@@ -199,20 +225,20 @@ export function runCompanyChecks(
 
 export function runConsolidatedChecks(
   properties: CheckerProperty[],
-  allIndependentCalcs: IndependentMonthlyResult[][],
+  allEngineCalcs: EngineMonthlyResult[][],
   globalAssumptions: CheckerGlobalAssumptions,
   clientResults?: ClientPropertyMonthly[][]
 ): CheckResult[] {
   const consolidatedChecks: CheckResult[] = [];
   if (properties.length <= 1) return consolidatedChecks;
 
-  const actualYear1RoomRevenue = allIndependentCalcs.reduce(
-    (s, calc) => s + calc.slice(0, MONTHS_PER_YEAR).reduce((s2, m) => s2 + m.revenueRooms, 0), 0
+  const actualYear1RoomRevenue = allEngineCalcs.reduce(
+    (s, calc) => s + (calc ?? []).slice(0, MONTHS_PER_YEAR).reduce((s2, m) => s2 + m.revenueRooms, 0), 0
   );
 
   let directYear1RoomRevenue = 0;
   for (let pi = 0; pi < properties.length; pi++) {
-    const calc = allIndependentCalcs[pi];
+    const calc = allEngineCalcs[pi] ?? [];
     const opMonths = calc.slice(0, MONTHS_PER_YEAR).filter((m) => m.revenueRooms > 0);
     directYear1RoomRevenue += opMonths.reduce((s, m) => s + m.revenueRooms, 0);
   }
@@ -227,35 +253,8 @@ export function runConsolidatedChecks(
     "critical"
   ));
 
-  let totalPropertyFeesPaid = 0;
-  for (const calc of allIndependentCalcs) {
-    for (const m of calc) {
-      totalPropertyFeesPaid += m.feeBase + m.feeIncentive;
-    }
-  }
-
-  let companyFeesReceivable = 0;
-  for (let pi = 0; pi < properties.length; pi++) {
-    const propBaseRate = properties[pi].baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
-    const propIncRate = properties[pi].incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
-    for (const m of allIndependentCalcs[pi]) {
-      companyFeesReceivable += m.revenueTotal * propBaseRate;
-      companyFeesReceivable += (m.gop > 0 ? m.gop : 0) * propIncRate;
-    }
-  }
-
-  consolidatedChecks.push(check(
-    "Intercompany Fee Elimination",
-    "Consolidated",
-    "ASC 810",
-    "Management fees paid by properties = fees receivable by management company",
-    companyFeesReceivable,
-    totalPropertyFeesPaid,
-    "critical"
-  ));
-
   if (clientResults && clientResults.length === properties.length) {
-    const { revenue: serverPortfolioRevenue } = sumServerPortfolioTotals(allIndependentCalcs);
+    const { revenue: serverPortfolioRevenue } = sumServerPortfolioTotals(allEngineCalcs);
     const { revenue: clientPortfolioRevenue } = sumClientPortfolioTotals(clientResults);
 
     consolidatedChecks.push(check(

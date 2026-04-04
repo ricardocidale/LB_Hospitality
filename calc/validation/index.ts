@@ -26,3 +26,6 @@ export type { AssumptionConsistencyInput, AssumptionConsistencyOutput } from "./
 
 export { verifyExport } from "./export-verification.js";
 export type { ExportVerificationInput, ExportVerificationOutput } from "./export-verification.js";
+
+export { sweepNaN, checkFeeZeroSum, checkDebtRollForward } from "./data-integrity.js";
+export type { NaNSweepInput, NaNSweepOutput, FeeZeroSumInput, FeeZeroSumOutput, DebtRollForwardInput, DebtRollForwardOutput } from "./data-integrity.js";

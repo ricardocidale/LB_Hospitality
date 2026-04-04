@@ -1,6 +1,5 @@
 import type { Property, GlobalAssumptions } from "@shared/schema";
 
-// Import + re-export shared verification types — single source of truth
 import type { CheckResult, PropertyCheckResults } from "@shared/verification-types";
 export type { CheckResult, PropertyCheckResults };
 
@@ -31,16 +30,16 @@ export interface ClientPropertyMonthly {
   cashFlow: number;
   feeBase: number;
   feeIncentive: number;
-  workingCapitalChange: number;
-  nolBalance: number;
+  workingCapitalChange?: number;
+  nolBalance?: number;
 }
 
-export interface YearMonth { 
-  year: number; 
-  month: number; 
+export interface YearMonth {
+  year: number;
+  month: number;
 }
 
-export interface IndependentMonthlyResult {
+export interface EngineMonthlyResult {
   monthIndex: number;
   occupancy: number;
   adr: number;
@@ -55,12 +54,21 @@ export interface IndependentMonthlyResult {
   expenseFB: number;
   expenseEvents: number;
   expenseOther: number;
-  totalOperatingExpenses: number;
+  expenseMarketing: number;
+  expensePropertyOps: number;
+  expenseUtilitiesVar: number;
+  expenseAdmin: number;
+  expenseIT: number;
+  expenseUtilitiesFixed: number;
+  expenseInsurance: number;
+  expenseOtherCosts: number;
+  totalExpenses: number;
   gop: number;
   agop: number;
   feeBase: number;
   feeIncentive: number;
   expenseTaxes: number;
+  expenseFFE: number;
   noi: number;
   anoi: number;
   interestExpense: number;
@@ -76,13 +84,13 @@ export interface IndependentMonthlyResult {
   financingCashFlow: number;
   endingCash: number;
   cashShortfall: boolean;
-  expenseFFE: number;
-  totalExpenses: number;
   accountsReceivable: number;
   accountsPayable: number;
   workingCapitalChange: number;
   nolBalance: number;
 }
+
+export type IndependentMonthlyResult = EngineMonthlyResult;
 
 export type CheckerProperty = Property;
 export type CheckerGlobalAssumptions = GlobalAssumptions;

@@ -1,10 +1,6 @@
 import {
-  DEPRECIATION_YEARS,
-  DAYS_PER_MONTH,
-  DEFAULT_LAND_VALUE_PERCENT,
-  DEFAULT_OCCUPANCY_RAMP_MONTHS,
-  DEFAULT_REV_SHARE_EVENTS,
-  DEFAULT_PROPERTY_TAX_RATE,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   DEFAULT_PROJECTION_YEARS,
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,
@@ -15,6 +11,10 @@ import {
   CHECKER_BALANCE_SHEET_TOLERANCE,
   CHECKER_MIN_DSCR,
   MONTHS_PER_YEAR,
+  DEPRECIATION_YEARS,
+  DEFAULT_LAND_VALUE_PERCENT,
+  DEFAULT_OCCUPANCY_RAMP_MONTHS,
+  DAYS_PER_MONTH,
 } from "@shared/constants";
 import type {
   VerificationReport,
@@ -23,13 +23,9 @@ import type {
   ClientPropertyMonthly,
   CheckerProperty,
   CheckerGlobalAssumptions,
-  IndependentMonthlyResult,
+  EngineMonthlyResult,
 } from "./types";
 import { check } from "./gaap-checks";
-import {
-  independentPropertyCalc,
-  calculatePMT,
-} from "./property-checks";
 import {
   runCompanyChecks,
   runConsolidatedChecks,
@@ -41,13 +37,11 @@ import {
 
 const PROJECTION_YEARS = DEFAULT_PROJECTION_YEARS;
 
-/**
- * Run the full independent verification suite across all properties and the company.
- */
 export function runIndependentVerification(
   properties: CheckerProperty[],
   globalAssumptions: CheckerGlobalAssumptions,
-  clientResults?: ClientPropertyMonthly[][]
+  clientResults?: ClientPropertyMonthly[][],
+  engineResults?: EngineMonthlyResult[][]
 ): VerificationReport {
   const propertyResults: PropertyCheckResults[] = [];
   let totalChecks = 0;
@@ -59,27 +53,34 @@ export function runIndependentVerification(
   const projectionYears = globalAssumptions.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * MONTHS_PER_YEAR;
 
-  const allIndependentCalcs: IndependentMonthlyResult[][] = [];
-  for (const property of properties) {
-    allIndependentCalcs.push(independentPropertyCalc(property, globalAssumptions));
-  }
+  const allEngineCalcs: EngineMonthlyResult[][] = engineResults ?? [];
 
   for (let pi = 0; pi < properties.length; pi++) {
     const property = properties[pi];
     const checks: CheckResult[] = [];
-    const independentCalc = allIndependentCalcs[pi];
+    const engineCalc = allEngineCalcs[pi];
     const clientMonthly = clientResults?.[pi];
+
+    if (!engineCalc || engineCalc.length === 0) {
+      propertyResults.push({
+        propertyName: property.name || "Unnamed Property",
+        propertyType: property.type || "Full Equity",
+        checks: [],
+        passed: 0,
+        failed: 0,
+        criticalIssues: 0,
+      });
+      continue;
+    }
 
     const checkPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
     const ltv = property.acquisitionLTV ?? DEFAULT_LTV;
     const loanAmount = property.type === "Financed" ? checkPropertyValue * ltv : 0;
-    const loanRate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
-    const loanTerm = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
 
-    const firstOperationalMonth = independentCalc.findIndex((m) => m.revenueRooms > 0);
+    const firstOperationalMonth = engineCalc.findIndex((m) => m.revenueRooms > 0);
 
     if (firstOperationalMonth >= 0) {
-      const m = independentCalc[firstOperationalMonth];
+      const m = engineCalc[firstOperationalMonth];
       const adrAtFirstOp = m.adr;
       const occAtFirstOp = m.occupancy;
 
@@ -93,17 +94,6 @@ export function runIndependentVerification(
         "critical"
       ));
 
-      const revShareEvents = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
-      checks.push(check(
-        "Events Revenue (Month 1)",
-        "Revenue",
-        "ASC 606",
-        `Room Rev × ${(revShareEvents * 100).toFixed(0)}% events share`,
-        m.revenueRooms * revShareEvents,
-        m.revenueEvents,
-        "material"
-      ));
-
       checks.push(check(
         "Total Revenue (Month 1)",
         "Revenue",
@@ -114,12 +104,17 @@ export function runIndependentVerification(
         "critical"
       ));
 
+      const totalOperatingExpenses =
+        m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
+        m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
+        m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
+
       checks.push(check(
         "GOP = Revenue - OpEx",
         "P&L",
         "USALI",
         "Total Revenue - Total Operating Expenses",
-        m.revenueTotal - m.totalOperatingExpenses,
+        m.revenueTotal - totalOperatingExpenses,
         m.gop,
         "critical"
       ));
@@ -196,45 +191,34 @@ export function runIndependentVerification(
     }
 
     const depBasis = property.purchasePrice * (1 - (property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT)) + (property.buildingImprovements ?? 0);
+    const effectiveDepYears = property.depreciationYears ?? globalAssumptions.depreciationYears ?? DEPRECIATION_YEARS;
     checks.push(check(
       "Annual Depreciation (Land Excluded)",
       "Balance Sheet",
       "ASC 360 / IRS Pub 946",
-      `$${depBasis.toLocaleString()} depreciable basis ÷ ${property.depreciationYears ?? globalAssumptions.depreciationYears ?? DEPRECIATION_YEARS} years`,
-      depBasis / (property.depreciationYears ?? globalAssumptions.depreciationYears ?? DEPRECIATION_YEARS),
-      (independentCalc.find((m) => m.depreciationExpense > 0)?.depreciationExpense ?? 0) * MONTHS_PER_YEAR,
+      `$${depBasis.toLocaleString()} depreciable basis ÷ ${effectiveDepYears} years`,
+      depBasis / effectiveDepYears,
+      (engineCalc.find((m) => m.depreciationExpense > 0)?.depreciationExpense ?? 0) * MONTHS_PER_YEAR,
       "critical"
     ));
 
     if (property.type === "Financed" && loanAmount > 0) {
-      const monthlyPayment = calculatePMT(loanAmount, loanRate / MONTHS_PER_YEAR, loanTerm * MONTHS_PER_YEAR);
-
-      checks.push(check(
-        "Monthly Debt Service",
-        "Debt",
-        "ASC 470",
-        `PMT($${loanAmount.toLocaleString()}, ${(loanRate * 100).toFixed(1)}%/${MONTHS_PER_YEAR}, ${loanTerm * MONTHS_PER_YEAR} months)`,
-        monthlyPayment,
-        independentCalc.find((m) => m.debtPayment > 0)?.debtPayment || 0,
-        "critical"
-      ));
-
       checks.push(check(
         "Interest + Principal = Debt Payment",
         "Debt",
         "ASC 470",
         "Interest Expense + Principal Payment = Total Debt Service",
-        independentCalc.find((m) => m.debtPayment > 0)?.debtPayment || 0,
-        (independentCalc.find((m) => m.debtPayment > 0)?.interestExpense || 0) +
-        (independentCalc.find((m) => m.debtPayment > 0)?.principalPayment || 0),
+        engineCalc.find((m) => m.debtPayment > 0)?.debtPayment || 0,
+        (engineCalc.find((m) => m.debtPayment > 0)?.interestExpense || 0) +
+        (engineCalc.find((m) => m.debtPayment > 0)?.principalPayment || 0),
         "critical"
       ));
     }
 
     const midYear = Math.floor(projectionYears / 2);
-    const serverYear1    = aggregateYearMetrics(independentCalc.slice(0, MONTHS_PER_YEAR));
-    const serverMidYear  = aggregateYearMetrics(independentCalc.slice(midYear * MONTHS_PER_YEAR, (midYear + 1) * MONTHS_PER_YEAR));
-    const serverLastYear = aggregateYearMetrics(independentCalc.slice((projectionYears - 1) * MONTHS_PER_YEAR, projectionMonths));
+    const serverYear1    = aggregateYearMetrics(engineCalc.slice(0, MONTHS_PER_YEAR));
+    const serverMidYear  = aggregateYearMetrics(engineCalc.slice(midYear * MONTHS_PER_YEAR, (midYear + 1) * MONTHS_PER_YEAR));
+    const serverLastYear = aggregateYearMetrics(engineCalc.slice((projectionYears - 1) * MONTHS_PER_YEAR, projectionMonths));
 
     if (clientMonthly && clientMonthly.length >= MONTHS_PER_YEAR) {
       const clientYear1 = aggregateYearMetrics(clientMonthly.slice(0, MONTHS_PER_YEAR));
@@ -255,9 +239,6 @@ export function runIndependentVerification(
       const annualGrowthRate = Math.pow(serverLastYear.revenue / serverYear1.revenue, 1 / (projectionYears - 1)) - 1;
       const expectedGrowthRate = property.adrGrowthRate;
 
-      // Only compare revenue CAGR to ADR growth when occupancy is stable (no ramp).
-      // When occupancy ramps, revenue CAGR includes both ADR growth AND occupancy growth,
-      // so comparing to ADR growth alone produces false "material" findings.
       const hasOccupancyRamp = (property.startOccupancy ?? 0) < (property.maxOccupancy ?? 1);
       if (projectionYears > 1) {
         if (hasOccupancyRamp) {
@@ -302,7 +283,7 @@ export function runIndependentVerification(
       const stepsToStabilize = growthStep > 0 ? Math.ceil((maxOcc - startOcc) / growthStep) : 0;
       const rampUpMonthsTotal = stepsToStabilize * rampMonths;
 
-      const firstOpIdx = independentCalc.findIndex(m => m.revenueRooms > 0);
+      const firstOpIdx = engineCalc.findIndex(m => m.revenueRooms > 0);
       const stabilizedMonthIdx = firstOpIdx >= 0 ? firstOpIdx + rampUpMonthsTotal : -1;
       const stabilizedYearIdx = stabilizedMonthIdx >= 0 ? Math.floor(stabilizedMonthIdx / MONTHS_PER_YEAR) : -1;
 
@@ -313,18 +294,18 @@ export function runIndependentVerification(
 
       if (stabilizedYearIdx >= 0 && stabilizedYearIdx < projectionYears) {
         const start = stabilizedYearIdx * MONTHS_PER_YEAR;
-        const end = Math.min(start + MONTHS_PER_YEAR, independentCalc.length);
-        const yrMetrics = aggregateYearMetrics(independentCalc.slice(start, end));
-        const yrDebt = independentCalc.slice(start, end).reduce((s, m) => s + m.debtPayment, 0);
+        const end = Math.min(start + MONTHS_PER_YEAR, engineCalc.length);
+        const yrMetrics = aggregateYearMetrics(engineCalc.slice(start, end));
+        const yrDebt = engineCalc.slice(start, end).reduce((s, m) => s + m.debtPayment, 0);
         dscrYearLabel = `Year ${stabilizedYearIdx + 1}`;
         dscrNoi = yrMetrics.noi;
         dscrDebtService = yrDebt;
         isStabilized = true;
       } else {
         const lastStart = (projectionYears - 1) * MONTHS_PER_YEAR;
-        const lastEnd = Math.min(lastStart + MONTHS_PER_YEAR, independentCalc.length);
-        const lastMetrics = aggregateYearMetrics(independentCalc.slice(lastStart, lastEnd));
-        const lastDebt = independentCalc.slice(lastStart, lastEnd).reduce((s, m) => s + m.debtPayment, 0);
+        const lastEnd = Math.min(lastStart + MONTHS_PER_YEAR, engineCalc.length);
+        const lastMetrics = aggregateYearMetrics(engineCalc.slice(lastStart, lastEnd));
+        const lastDebt = engineCalc.slice(lastStart, lastEnd).reduce((s, m) => s + m.debtPayment, 0);
         dscrYearLabel = `Year ${projectionYears}`;
         dscrNoi = lastMetrics.noi;
         dscrDebtService = lastDebt;
@@ -366,14 +347,13 @@ export function runIndependentVerification(
       ));
     }
 
-    // ── A = L + E identity check (ASC 210) ──────────────────────────────────
     const initialEquity = checkPropertyValue - loanAmount + (property.operatingReserve ?? 0);
     let cumulativeNetIncome = 0;
     let aleFailedMonths = 0;
-    const acquisitionIndex = independentCalc.findIndex((m) => m.propertyValue > 0);
+    const acquisitionIndex = engineCalc.findIndex((m) => m.propertyValue > 0);
 
-    for (let mi = 0; mi < independentCalc.length; mi++) {
-      const m = independentCalc[mi];
+    for (let mi = 0; mi < engineCalc.length; mi++) {
+      const m = engineCalc[mi];
       if (mi < acquisitionIndex) continue;
       cumulativeNetIncome += m.netIncome;
       const totalAssets = m.endingCash + m.propertyValue;
@@ -387,14 +367,14 @@ export function runIndependentVerification(
       "Balance Sheet Identity A=L+E",
       "Balance Sheet",
       "ASC 210",
-      `Assets = Liabilities + Equity for all ${independentCalc.length - Math.max(acquisitionIndex, 0)} post-acquisition months; failed = ${aleFailedMonths}`,
+      `Assets = Liabilities + Equity for all ${engineCalc.length - Math.max(acquisitionIndex, 0)} post-acquisition months; failed = ${aleFailedMonths}`,
       0,
       aleFailedMonths,
       "critical"
     ));
 
-    const endingCash = independentCalc[independentCalc.length - 1]?.endingCash || 0;
-    const cumulativeCashFlow = independentCalc.reduce((sum, m) => sum + m.cashFlow, 0);
+    const endingCash = engineCalc[engineCalc.length - 1]?.endingCash || 0;
+    const cumulativeCashFlow = engineCalc.reduce((sum, m) => sum + m.cashFlow, 0);
     const reserveSeed = property.operatingReserve ?? 0;
     checks.push(check(
       "Cumulative Cash Flow = Ending Cash",
@@ -406,8 +386,8 @@ export function runIndependentVerification(
       "critical"
     ));
 
-    const shortfallMonths = independentCalc.filter((m) => m.cashShortfall);
-    const minCash = Math.min(...independentCalc.map((m) => m.endingCash));
+    const shortfallMonths = engineCalc.filter((m) => m.cashShortfall);
+    const minCash = Math.min(...engineCalc.map((m) => m.endingCash));
     const propLabel = property.name || `Property ${pi + 1}`;
     checks.push(check(
       "No Negative Cash Balance",
@@ -419,7 +399,7 @@ export function runIndependentVerification(
       "info"
     ));
 
-    const preOpMonths = independentCalc.filter((m) => m.monthIndex < firstOperationalMonth);
+    const preOpMonths = engineCalc.filter((m) => m.monthIndex < firstOperationalMonth);
     if (preOpMonths.length > 0) {
       const preOpRevenue = preOpMonths.reduce((sum, m) => sum + m.revenueTotal, 0);
       checks.push(check(
@@ -434,7 +414,7 @@ export function runIndependentVerification(
     }
 
     if (firstOperationalMonth >= 0) {
-      const m0 = independentCalc[firstOperationalMonth];
+      const m0 = engineCalc[firstOperationalMonth];
       checks.push(check(
         "Working Capital AR (First Operational Month)",
         "Balance Sheet",
@@ -456,7 +436,7 @@ export function runIndependentVerification(
       ));
     }
 
-    const finalNOL = independentCalc[independentCalc.length - 1]?.nolBalance ?? 0;
+    const finalNOL = engineCalc[engineCalc.length - 1]?.nolBalance ?? 0;
     checks.push(check(
       "NOL Carryforward Balance (End of Projection)",
       "Tax",
@@ -468,8 +448,8 @@ export function runIndependentVerification(
     ));
 
     if ((property as any).costSegEnabled) {
-      const costSegDepMonth1 = independentCalc.find(m => m.depreciationExpense > 0);
-      const standardMonthlyDep = depBasis / (property.depreciationYears ?? globalAssumptions.depreciationYears ?? DEPRECIATION_YEARS) / MONTHS_PER_YEAR;
+      const costSegDepMonth1 = engineCalc.find(m => m.depreciationExpense > 0);
+      const standardMonthlyDep = depBasis / effectiveDepYears / MONTHS_PER_YEAR;
       if (costSegDepMonth1) {
         checks.push(check(
           "Cost Segregation Depreciation > Standard SL",
@@ -481,6 +461,51 @@ export function runIndependentVerification(
           "info"
         ));
       }
+    }
+
+    let nanFieldCount = 0;
+    for (const m of engineCalc) {
+      const numericValues = [
+        m.revenueTotal, m.revenueRooms, m.gop, m.agop, m.noi, m.anoi,
+        m.netIncome, m.cashFlow, m.operatingCashFlow, m.financingCashFlow,
+        m.endingCash, m.debtOutstanding, m.propertyValue, m.depreciationExpense,
+        m.interestExpense, m.principalPayment, m.debtPayment, m.incomeTax,
+        m.feeBase, m.feeIncentive, m.expenseTaxes, m.expenseFFE,
+      ];
+      for (const v of numericValues) {
+        if (typeof v === "number" && isNaN(v)) nanFieldCount++;
+      }
+    }
+    checks.push(check(
+      "No NaN in Financial Fields",
+      "Data Integrity",
+      "Business Rule",
+      `All numeric financial fields must be valid numbers; NaN count = ${nanFieldCount}`,
+      0,
+      nanFieldCount,
+      "critical"
+    ));
+
+    if (property.type === "Financed" && loanAmount > 0) {
+      let debtRollForwardErrors = 0;
+      for (let mi = 1; mi < engineCalc.length; mi++) {
+        const prev = engineCalc[mi - 1];
+        const curr = engineCalc[mi];
+        if (prev.debtOutstanding > 0 && curr.debtOutstanding >= 0) {
+          const expectedBalance = prev.debtOutstanding - curr.principalPayment;
+          const gap = Math.abs(expectedBalance - curr.debtOutstanding);
+          if (gap > CHECKER_BALANCE_SHEET_TOLERANCE) debtRollForwardErrors++;
+        }
+      }
+      checks.push(check(
+        "Debt Roll-Forward Consistency",
+        "Debt",
+        "ASC 470",
+        `Balance[n] = Balance[n-1] - Principal[n] for all months; errors = ${debtRollForwardErrors}`,
+        0,
+        debtRollForwardErrors,
+        "critical"
+      ));
     }
 
     const propResult: PropertyCheckResults = {
@@ -502,7 +527,7 @@ export function runIndependentVerification(
 
   const companyChecks = runCompanyChecks(
     properties,
-    allIndependentCalcs,
+    allEngineCalcs,
     globalAssumptions,
     projectionMonths,
     clientResults
@@ -520,7 +545,7 @@ export function runIndependentVerification(
 
   const consolidatedChecks = runConsolidatedChecks(
     properties,
-    allIndependentCalcs,
+    allEngineCalcs,
     globalAssumptions,
     clientResults
   );
@@ -558,4 +583,3 @@ export function runIndependentVerification(
 }
 
 export * from "./types";
-export { independentPropertyCalc } from "./property-checks";

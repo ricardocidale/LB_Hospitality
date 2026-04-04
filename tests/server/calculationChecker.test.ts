@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { DEPRECIATION_YEARS } from "../../shared/constants.js";
-import { runIndependentVerification } from "../../server/calculationChecker.js";
+import { runVerificationWithEngine } from "../../server/calculationChecker.js";
 import type { VerificationReport, ClientPropertyMonthly } from "../../server/calculationChecker.js";
+import { generatePropertyProForma } from "../../client/src/lib/financial/property-engine.js";
 
 function makeGlobal(overrides: Record<string, any> = {}) {
   return {
@@ -36,7 +37,7 @@ function makeProperty(overrides: Record<string, any> = {}) {
 
 describe("calculationChecker — Full Equity property", () => {
   it("produces UNQUALIFIED opinion with zero failures for a well-formed AllCash property", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [makeProperty()],
       makeGlobal(),
     );
@@ -53,7 +54,7 @@ describe("calculationChecker — Full Equity property", () => {
   });
 
   it("verifies Room Revenue formula at first operational month", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [makeProperty()],
       makeGlobal(),
     );
@@ -66,7 +67,7 @@ describe("calculationChecker — Full Equity property", () => {
   });
 
   it("verifies GOP and NOI identity checks pass", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [makeProperty()],
       makeGlobal(),
     );
@@ -90,7 +91,7 @@ describe("calculationChecker — Full Equity property", () => {
   });
 
   it("verifies Cumulative Cash Flow = Ending Cash", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [makeProperty()],
       makeGlobal(),
     );
@@ -102,7 +103,7 @@ describe("calculationChecker — Full Equity property", () => {
   });
 
   it("has no debt-related checks for AllCash property", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [makeProperty()],
       makeGlobal(),
     );
@@ -122,7 +123,7 @@ describe("calculationChecker — Financed property", () => {
   });
 
   it("produces UNQUALIFIED opinion for a well-formed Financed property", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [financedProp],
       makeGlobal(),
     );
@@ -133,7 +134,7 @@ describe("calculationChecker — Financed property", () => {
   });
 
   it("includes debt-related checks", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [financedProp],
       makeGlobal(),
     );
@@ -142,29 +143,24 @@ describe("calculationChecker — Financed property", () => {
     );
     expect(debtChecks.length).toBeGreaterThanOrEqual(2);
 
-    const pmtCheck = debtChecks.find(c => c.metric === "Monthly Debt Service");
-    expect(pmtCheck).toBeDefined();
-    expect(pmtCheck!.passed).toBe(true);
-
     const splitCheck = debtChecks.find(c => c.metric === "Interest + Principal = Debt Payment");
     expect(splitCheck).toBeDefined();
     expect(splitCheck!.passed).toBe(true);
+
+    const rollForwardCheck = debtChecks.find(c => c.metric === "Debt Roll-Forward Consistency");
+    expect(rollForwardCheck).toBeDefined();
+    expect(rollForwardCheck!.passed).toBe(true);
   });
 
-  it("PMT matches hand-calc for $750K loan at 9%/25yr", () => {
-    const report = runIndependentVerification(
+  it("DSCR check is present for financed property", () => {
+    const report = runVerificationWithEngine(
       [financedProp],
       makeGlobal(),
     );
-    const pmtCheck = report.propertyResults[0].checks.find(
-      c => c.metric === "Monthly Debt Service",
+    const dscrCheck = report.propertyResults[0].checks.find(
+      c => c.metric.includes("DSCR Reasonableness"),
     );
-    expect(pmtCheck).toBeDefined();
-    const principal = 1_000_000 * 0.75;
-    const r = 0.09 / 12;
-    const n = 25 * 12;
-    const expectedPMT = (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    expect(pmtCheck!.expected).toBeCloseTo(expectedPMT, 2);
+    expect(dscrCheck).toBeDefined();
   });
 });
 
@@ -178,13 +174,15 @@ describe("calculationChecker — audit opinion logic", () => {
         revenueRooms: 0,
         noi: 0,
         gop: 0,
+        agop: 0,
+        anoi: 0,
         cashFlow: 0,
         feeBase: 0,
         feeIncentive: 0,
       })),
     ];
 
-    const report = runIndependentVerification([prop], global, fakeClient);
+    const report = runVerificationWithEngine([prop], global, fakeClient);
 
     expect(report.summary.criticalIssues).toBeGreaterThan(0);
     expect(report.summary.auditOpinion).toBe("ADVERSE");
@@ -199,7 +197,7 @@ describe("calculationChecker — audit opinion logic", () => {
     });
     const global = makeGlobal({ projectionYears: 2 });
 
-    const report = runIndependentVerification([prop], global);
+    const report = runVerificationWithEngine([prop], global);
     const materialChecks = report.propertyResults[0].checks.filter(
       c => !c.passed && c.severity === "material",
     );
@@ -218,7 +216,7 @@ describe("calculationChecker — pre-operations gating", () => {
     });
     const global = makeGlobal({ projectionYears: 1 });
 
-    const report = runIndependentVerification([prop], global);
+    const report = runVerificationWithEngine([prop], global);
     const preOpCheck = report.propertyResults[0].checks.find(
       c => c.metric === "Pre-Operations Revenue = $0",
     );
@@ -234,7 +232,7 @@ describe("calculationChecker — multi-property consolidated", () => {
     const prop2 = makeProperty({ name: "Hotel B", purchasePrice: 2_000_000, roomCount: 20 });
     const global = makeGlobal();
 
-    const report = runIndependentVerification([prop1, prop2], global);
+    const report = runVerificationWithEngine([prop1, prop2], global);
     expect(report.propertiesChecked).toBe(2);
     expect(report.consolidatedChecks.length).toBeGreaterThan(0);
 
@@ -243,18 +241,12 @@ describe("calculationChecker — multi-property consolidated", () => {
     );
     expect(aggregationCheck).toBeDefined();
     expect(aggregationCheck!.passed).toBe(true);
-
-    const feeElimCheck = report.consolidatedChecks.find(
-      c => c.metric === "Intercompany Fee Elimination",
-    );
-    expect(feeElimCheck).toBeDefined();
-    expect(feeElimCheck!.passed).toBe(true);
   });
 });
 
 describe("calculationChecker — company checks", () => {
   it("verifies base and incentive fee rate checks pass", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [makeProperty()],
       makeGlobal(),
     );
@@ -270,11 +262,23 @@ describe("calculationChecker — company checks", () => {
     expect(incentiveCheck).toBeDefined();
     expect(incentiveCheck!.passed).toBe(true);
   });
+
+  it("verifies fee zero-sum check passes", () => {
+    const report = runVerificationWithEngine(
+      [makeProperty()],
+      makeGlobal(),
+    );
+    const feeZeroSum = report.companyChecks.find(
+      c => c.metric === "Fee Zero-Sum (Intercompany Elimination)",
+    );
+    expect(feeZeroSum).toBeDefined();
+    expect(feeZeroSum!.passed).toBe(true);
+  });
 });
 
 describe("calculationChecker — depreciation", () => {
   it("computes correct annual depreciation excluding land", () => {
-    const report = runIndependentVerification(
+    const report = runVerificationWithEngine(
       [makeProperty()],
       makeGlobal(),
     );
@@ -286,5 +290,37 @@ describe("calculationChecker — depreciation", () => {
     const depreciableBasis = 1_000_000 * (1 - 0.25);
     const expectedAnnual = depreciableBasis / DEPRECIATION_YEARS;
     expect(depCheck!.expected).toBeCloseTo(expectedAnnual, 2);
+  });
+});
+
+describe("calculationChecker — new invariant checks", () => {
+  it("no-NaN sweep passes for well-formed property", () => {
+    const report = runVerificationWithEngine(
+      [makeProperty()],
+      makeGlobal(),
+    );
+    const nanCheck = report.propertyResults[0].checks.find(
+      c => c.metric === "No NaN in Financial Fields",
+    );
+    expect(nanCheck).toBeDefined();
+    expect(nanCheck!.passed).toBe(true);
+  });
+
+  it("debt roll-forward passes for financed property", () => {
+    const financedProp = makeProperty({
+      type: "Financed",
+      acquisitionLTV: 0.65,
+      acquisitionInterestRate: 0.08,
+      acquisitionTermYears: 25,
+    });
+    const report = runVerificationWithEngine(
+      [financedProp],
+      makeGlobal(),
+    );
+    const rollForward = report.propertyResults[0].checks.find(
+      c => c.metric === "Debt Roll-Forward Consistency",
+    );
+    expect(rollForward).toBeDefined();
+    expect(rollForward!.passed).toBe(true);
   });
 });

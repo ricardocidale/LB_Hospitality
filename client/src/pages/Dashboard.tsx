@@ -265,7 +265,7 @@ export default function Dashboard() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ entityType: "portfolio", format: "csv", reportScope: activeTab, version: "extended" }),
+          body: JSON.stringify({ entityType: "portfolio", format: "csv", reportScope: "all", version: "extended" }),
         });
         if (!res.ok) throw new Error("CSV export failed");
         const blob = await res.blob();
@@ -635,7 +635,7 @@ export default function Dashboard() {
             themeColors: branding?.themeColors?.map(c => ({ name: c.name, hexCode: c.hexCode, rank: c.rank, description: c.description })),
           } as PremiumExportPayload;
         } : undefined}
-        serverExportConfig={exportType !== "chart" ? { entityType: "portfolio", reportScope: activeTab as "overview" | "income" | "cashflow" | "balance" | "investment" } : undefined}
+        serverExportConfig={exportType !== "chart" ? { entityType: "portfolio", reportScope: (activeTab === "income" || activeTab === "cashflow") ? activeTab : "all" } : undefined}
       />
     </Layout>
   );

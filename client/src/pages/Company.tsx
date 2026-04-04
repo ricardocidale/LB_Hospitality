@@ -282,7 +282,7 @@ export default function Company() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ entityType: "company", format: "csv", reportScope: activeTab, version: "extended" }),
+                body: JSON.stringify({ entityType: "company", format: "csv", reportScope: "all", version: "extended" }),
               });
               if (!res.ok) throw new Error("CSV export failed");
               const blob = await res.blob();
@@ -353,7 +353,7 @@ export default function Company() {
             themeColors: brandingData?.themeColors?.map((c: any) => ({ name: c.name, hexCode: c.hexCode, rank: c.rank })),
           } as PremiumExportPayload;
         } : undefined}
-        serverExportConfig={exportType !== 'chart' ? { entityType: "company", reportScope: activeTab as "income" | "cashflow" | "balance" } : undefined}
+        serverExportConfig={exportType !== 'chart' ? { entityType: "company", reportScope: (activeTab === "income" || activeTab === "cashflow" || activeTab === "balance") ? activeTab : "all" } : undefined}
       />
       <div className="space-y-6">
         <CalcDetailsProvider show={global?.showCompanyCalculationDetails ?? true}>

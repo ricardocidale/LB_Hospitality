@@ -167,26 +167,7 @@ function mapToDashboardFinancials(
 }
 
 function stableGlobalHash(global: GlobalResponse): string {
-  const { debtAssumptions: d } = global;
-  return [
-    global.modelStartDate,
-    global.projectionYears,
-    global.inflationRate,
-    global.fixedCostEscalationRate,
-    global.marketingRate,
-    global.companyTaxRate,
-    global.exitCapRate,
-    global.salesCommissionRate,
-    global.commissionRate,
-    d?.interestRate,
-    d?.amortizationYears,
-    d?.acqLTV,
-    d?.refiLTV,
-    d?.refiClosingCostRate,
-    global.eventExpenseRate,
-    global.otherExpenseRate,
-    global.utilitiesVariableSplit,
-  ].join("|");
+  return String(global.updatedAt ?? JSON.stringify(global));
 }
 
 function buildQueryKey(properties: Property[] | undefined, global: GlobalResponse | undefined): unknown[] {

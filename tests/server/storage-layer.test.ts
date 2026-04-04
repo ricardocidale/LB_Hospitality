@@ -221,26 +221,24 @@ describe("Storage Layer — PhotoStorage", () => {
   });
 });
 
-describe("Storage Layer — loadScenario restores photos", () => {
+describe("Storage Layer — loadScenario photo decoupling", () => {
   const src = readStorageFile("financial.ts");
   const loadStart = src.indexOf("async loadScenario(");
   const loadEnd = src.indexOf("async getFeeCategoriesByProperty(");
   const loadBody = src.slice(loadStart, loadEnd);
 
-  it("loadScenario accepts savedPropertyPhotos parameter", () => {
-    expect(loadBody).toContain("savedPropertyPhotos");
+  it("loadScenario accepts savedPropertyPhotos parameter for backward compat", () => {
+    expect(loadBody).toContain("_savedPropertyPhotos");
   });
 
-  it("loadScenario restores photos keyed by property name", () => {
-    expect(loadBody).toContain("savedPropertyPhotos[prop.name]");
+  it("loadScenario does not insert or delete photos (decoupled)", () => {
+    expect(loadBody).not.toContain("tx.insert(propertyPhotos)");
+    expect(loadBody).not.toContain("tx.delete(propertyPhotos)");
   });
 
-  it("loadScenario inserts photo values in bulk", () => {
-    expect(loadBody).toContain("tx.insert(propertyPhotos)");
-  });
-
-  it("loadScenario cleans up old photos before inserting", () => {
-    expect(loadBody).toContain("tx.delete(propertyPhotos)");
+  it("loadScenario uses stableKey-based property matching", () => {
+    expect(loadBody).toContain("liveByStableKey");
+    expect(loadBody).toContain("snapshotStableKeys");
   });
 });
 

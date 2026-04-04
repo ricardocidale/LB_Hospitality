@@ -267,7 +267,7 @@ export class FinancialStorage {
    * (global assumptions + all properties + fee categories) with the snapshot
    * from the scenario. Runs in a transaction so partial loads can't occur.
    */
-  async loadScenario(userId: number, savedAssumptions: Record<string, unknown>, savedProperties: Array<Record<string, unknown>>, savedFeeCategories?: Record<string, Array<Record<string, unknown>>>, savedPropertyPhotos?: Record<string, Array<Record<string, unknown>>>): Promise<void> {
+  async loadScenario(userId: number, savedAssumptions: Record<string, unknown>, savedProperties: Array<Record<string, unknown>>, savedFeeCategories?: Record<string, Array<Record<string, unknown>>>, _savedPropertyPhotos?: Record<string, Array<Record<string, unknown>>>): Promise<void> {
     await db.transaction(async (tx) => {
       const { id: _gaId, createdAt: _gaCreated, updatedAt: _gaUpdated, userId: _gaUser, ...gaData } = savedAssumptions;
 
@@ -283,18 +283,46 @@ export class FinancialStorage {
         await tx.insert(globalAssumptions).values({ ...gaData, userId } as typeof globalAssumptions.$inferInsert);
       }
 
-      await tx.delete(properties).where(eq(properties.userId, userId));
+      const liveProps = await tx.select().from(properties).where(eq(properties.userId, userId));
+      const liveByStableKey = new Map(liveProps.filter(p => p.stableKey).map(p => [p.stableKey, p]));
 
-      const insertedProperties: Array<{ id: number; name: string }> = [];
+      const snapshotStableKeys = new Set<string>();
+      const resolvedProperties: Array<{ id: number; name: string }> = [];
+
       for (const prop of savedProperties) {
         const { id, createdAt, updatedAt, userId: _uid, ...propData } = prop;
-        const [inserted] = await tx.insert(properties).values({ ...propData, userId } as typeof properties.$inferInsert).returning();
-        insertedProperties.push({ id: inserted.id, name: prop.name as string });
+        const stableKey = prop.stableKey as string | undefined;
+
+        if (stableKey && liveByStableKey.has(stableKey)) {
+          const liveProp = liveByStableKey.get(stableKey)!;
+          snapshotStableKeys.add(stableKey);
+          await tx.update(properties).set({ ...propData, userId, updatedAt: new Date() } as any)
+            .where(eq(properties.id, liveProp.id));
+          resolvedProperties.push({ id: liveProp.id, name: prop.name as string });
+        } else {
+          const insertData = { ...propData, userId } as typeof properties.$inferInsert;
+          if (stableKey) {
+            (insertData as any).stableKey = stableKey;
+            snapshotStableKeys.add(stableKey);
+          }
+          const [inserted] = await tx.insert(properties).values(insertData).returning();
+          resolvedProperties.push({ id: inserted.id, name: prop.name as string });
+        }
+      }
+
+      for (const liveProp of liveProps) {
+        if (liveProp.stableKey && !snapshotStableKeys.has(liveProp.stableKey)) {
+          await tx.delete(properties).where(eq(properties.id, liveProp.id));
+        }
       }
 
       if (savedFeeCategories) {
+        const resolvedIds = resolvedProperties.map(p => p.id);
+        if (resolvedIds.length > 0) {
+          await tx.delete(propertyFeeCategories).where(inArray(propertyFeeCategories.propertyId, resolvedIds));
+        }
         const feeCategoryValues: (typeof propertyFeeCategories.$inferInsert)[] = [];
-        for (const prop of insertedProperties) {
+        for (const prop of resolvedProperties) {
           const feeCats = savedFeeCategories[prop.name];
           if (feeCats && feeCats.length > 0) {
             for (const cat of feeCats) {
@@ -303,29 +331,8 @@ export class FinancialStorage {
             }
           }
         }
-
         if (feeCategoryValues.length > 0) {
-          const propIds = insertedProperties.map(p => p.id);
-          await tx.delete(propertyFeeCategories).where(inArray(propertyFeeCategories.propertyId, propIds));
           await tx.insert(propertyFeeCategories).values(feeCategoryValues);
-        }
-      }
-
-      if (savedPropertyPhotos) {
-        const photoValues: (typeof propertyPhotos.$inferInsert)[] = [];
-        for (const prop of insertedProperties) {
-          const photos = savedPropertyPhotos[prop.name];
-          if (photos && photos.length > 0) {
-            for (const photo of photos) {
-              const { id: _photoId, propertyId: _propId, createdAt: _created, ...photoData } = photo;
-              photoValues.push({ ...photoData, propertyId: prop.id } as typeof propertyPhotos.$inferInsert);
-            }
-          }
-        }
-        if (photoValues.length > 0) {
-          const propIds = insertedProperties.map(p => p.id);
-          await tx.delete(propertyPhotos).where(inArray(propertyPhotos.propertyId, propIds));
-          await tx.insert(propertyPhotos).values(photoValues);
         }
       }
     });
@@ -428,6 +435,11 @@ export class FinancialStorage {
         lastOutputHash: scenarios.lastOutputHash,
         lastComputedAt: scenarios.lastComputedAt,
         lastEngineVersion: scenarios.lastEngineVersion,
+        kind: scenarios.kind,
+        isLocked: scenarios.isLocked,
+        deletedAt: scenarios.deletedAt,
+        deletedBy: scenarios.deletedBy,
+        purgeAfter: scenarios.purgeAfter,
         ownerEmail: users.email,
         ownerFirstName: users.firstName,
         ownerLastName: users.lastName,
@@ -456,6 +468,11 @@ export class FinancialStorage {
       lastOutputHash: r.lastOutputHash,
       lastComputedAt: r.lastComputedAt,
       lastEngineVersion: r.lastEngineVersion,
+      kind: r.kind,
+      isLocked: r.isLocked,
+      deletedAt: r.deletedAt,
+      deletedBy: r.deletedBy,
+      purgeAfter: r.purgeAfter,
       ownerEmail: r.ownerEmail,
       ownerName: [r.ownerFirstName, r.ownerLastName].filter(Boolean).join(" ") || null,
     }));

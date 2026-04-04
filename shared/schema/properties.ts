@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index, serial, unique, check, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index, serial, unique, check, primaryKey, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { companies, userGroups, type ResearchValueEntry } from "./core";
@@ -175,6 +175,8 @@ export const properties = pgTable("properties", {
 
   latitude: real("latitude"),
   longitude: real("longitude"),
+
+  stableKey: uuid("stable_key").notNull().defaultRandom().unique(),
 
   researchValues: jsonb("research_values").$type<Record<string, ResearchValueEntry>>(),
 

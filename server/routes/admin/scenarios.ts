@@ -8,8 +8,10 @@ import { updateScenarioSchema } from "@shared/schema";
 
 const createAdminScenarioSchema = z.object({
   userId: z.number(),
-  name: z.string().min(1).max(200),
+  name: z.string().min(1).max(60),
   description: z.string().max(1000).nullable().optional(),
+  kind: z.enum(["default", "manual", "autosave"]).optional(),
+  isLocked: z.boolean().optional(),
 });
 
 const accessGrantSchema = z.object({

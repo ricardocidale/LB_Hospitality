@@ -83,6 +83,7 @@ export interface ScenarioGlobalAssumptionsSnapshot {
 export interface ScenarioPropertySnapshot {
   id?: number;
   name: string;
+  stableKey?: string;
   startAdr?: number;
   adrGrowthRate?: number;
   occupancyRate?: number;

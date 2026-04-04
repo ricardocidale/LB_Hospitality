@@ -272,13 +272,13 @@ describe("createScenarioSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects name exceeding 200 characters", () => {
-    const result = createScenarioSchema.safeParse({ name: "x".repeat(201) });
+  it("rejects name exceeding 60 characters", () => {
+    const result = createScenarioSchema.safeParse({ name: "x".repeat(61) });
     expect(result.success).toBe(false);
   });
 
-  it("accepts name at exactly 200 characters", () => {
-    const result = createScenarioSchema.safeParse({ name: "x".repeat(200) });
+  it("accepts name at exactly 60 characters", () => {
+    const result = createScenarioSchema.safeParse({ name: "x".repeat(60) });
     expect(result.success).toBe(true);
   });
 });

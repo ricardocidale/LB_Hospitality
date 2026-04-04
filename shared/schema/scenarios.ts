@@ -1,4 +1,5 @@
-import { pgTable, text, integer, timestamp, jsonb, index, unique } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { pgTable, text, integer, timestamp, jsonb, index, unique, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { users } from "./auth";
@@ -40,11 +41,15 @@ export const scenarios = pgTable("scenarios", {
   lastOutputHash: text("last_output_hash"),
   lastComputedAt: timestamp("last_computed_at"),
   lastEngineVersion: text("last_engine_version"),
+  kind: text("kind").notNull().default("manual"),
+  isLocked: boolean("is_locked").notNull().default(false),
+  deletedAt: timestamp("deleted_at"),
+  deletedBy: integer("deleted_by"),
+  purgeAfter: timestamp("purge_after"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("scenarios_user_id_idx").on(table.userId),
-  unique("scenarios_user_id_name").on(table.userId, table.name),
 ]);
 
 // --- SCENARIO PROPERTY OVERRIDES TABLE ---
@@ -104,6 +109,8 @@ export const insertScenarioSchema = createInsertSchema(scenarios).pick({
   computeHash: true,
   version: true,
   baseSnapshotHash: true,
+  kind: true,
+  isLocked: true,
 });
 
 export const insertScenarioPropertyOverrideSchema = createInsertSchema(scenarioPropertyOverrides).pick({
@@ -116,7 +123,7 @@ export const insertScenarioPropertyOverrideSchema = createInsertSchema(scenarioP
 });
 
 export const updateScenarioSchema = z.object({
-  name: z.string().optional(),
+  name: z.string().min(1).max(60).optional(),
   description: z.string().nullable().optional(),
 });
 

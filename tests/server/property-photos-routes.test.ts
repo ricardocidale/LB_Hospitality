@@ -111,10 +111,10 @@ describe("Property Photos Routes — storage delegation", () => {
 });
 
 describe("Scenario Routes — photo snapshot compatibility", () => {
-  it("scenario save captures property photos", () => {
-    // Uses bulk method getPhotosByProperties (replaces N+1 getPropertyPhotos loop)
-    expect(scenariosSrc).toMatch(/getPhotosByProperties|getPropertyPhotos/);
-    expect(scenariosSrc).toContain("propertyPhotos");
+  it("scenario snapshots decouple photos from scenarios", () => {
+    const helpersSrc = fs.readFileSync(path.resolve(__dirname, "../../server/routes/scenario-helpers.ts"), "utf-8");
+    expect(helpersSrc).toContain("propertyPhotos");
+    expect(helpersSrc).not.toMatch(/getPhotosByProperties/);
   });
 
   it("scenario load passes propertyPhotos to loadScenario", () => {

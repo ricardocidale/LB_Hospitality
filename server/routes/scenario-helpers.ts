@@ -21,7 +21,7 @@ export function requireScenarioPermission(req: any, res: any, next: any) {
 }
 
 export const importScenarioSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().min(1).max(60),
   description: z.string().max(1000).nullable().optional(),
   globalAssumptions: z.record(z.unknown()),
   properties: z.array(z.record(z.unknown())),
@@ -88,16 +88,12 @@ export async function buildCreateSnapshotData(userId: number) {
   const properties = await storage.getAllProperties(userId);
 
   const propertyIds = properties.map(p => p.id);
-  const [feeCatsByPropId, photosByPropId] = await Promise.all([
-    storage.getFeeCategoriesByProperties(propertyIds),
-    storage.getPhotosByProperties(propertyIds),
-  ]);
+  const feeCatsByPropId = await storage.getFeeCategoriesByProperties(propertyIds);
 
   const propertyFeeCategories: Record<string, ScenarioFeeCategorySnapshot[]> = {};
   const propertyPhotos: Record<string, ScenarioPhotoSnapshot[]> = {};
   for (const p of properties) {
     propertyFeeCategories[p.name] = (feeCatsByPropId[p.id] || []) as ScenarioFeeCategorySnapshot[];
-    propertyPhotos[p.name] = (photosByPropId[p.id] || []) as ScenarioPhotoSnapshot[];
   }
 
   const liveAssumptions = await storage.getGlobalAssumptions(userId);
@@ -159,7 +155,6 @@ export function validateLoadSnapshot(
   const snapshotProps: ScenarioPropertySnapshot[] = scenario.properties || [];
   const snapshotPropNames = snapshotProps.map(p => p.name).filter(Boolean);
   const snapshotFeeCats = scenario.feeCategories;
-  const snapshotPhotos = scenario.propertyPhotos;
 
   if (snapshotProps.length === 0) {
     return { error: { status: 422, message: "Scenario snapshot contains no properties" }, snapshotProps, snapshotPropNames, orphanedFeeCategories: [], orphanedPhotos: [] };
@@ -173,11 +168,8 @@ export function validateLoadSnapshot(
   const orphanedFeeCategories = snapshotFeeCats
     ? Object.keys(snapshotFeeCats).filter(name => !snapshotPropNames.includes(name))
     : [];
-  const orphanedPhotos = snapshotPhotos
-    ? Object.keys(snapshotPhotos).filter(name => !snapshotPropNames.includes(name))
-    : [];
 
-  return { snapshotProps, snapshotPropNames, orphanedFeeCategories, orphanedPhotos };
+  return { snapshotProps, snapshotPropNames, orphanedFeeCategories, orphanedPhotos: [] };
 }
 
 export async function checkSharedPropertyAccess(

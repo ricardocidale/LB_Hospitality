@@ -257,7 +257,7 @@ export default function PropertyDetail() {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             credentials: "include",
-                            body: JSON.stringify({ entityType: "property", entityId: propertyId, format: "csv" }),
+                            body: JSON.stringify({ entityType: "property", entityId: propertyId, format: "csv", version: "extended" }),
                           });
                           if (!res.ok) throw new Error("CSV export failed");
                           const blob = await res.blob();

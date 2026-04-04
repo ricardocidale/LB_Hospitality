@@ -265,7 +265,7 @@ export default function Dashboard() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ entityType: "portfolio", format: "csv", reportScope: activeTab }),
+          body: JSON.stringify({ entityType: "portfolio", format: "csv", reportScope: activeTab, version: "extended" }),
         });
         if (!res.ok) throw new Error("CSV export failed");
         const blob = await res.blob();

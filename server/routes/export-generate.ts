@@ -45,7 +45,8 @@ export function register(app: Express) {
         return res.status(400).json({ error: "Invalid export request", details: parsed.error.flatten() });
       }
 
-      const { entityType, entityId, format, orientation, version, projectionYears, reportScope } = parsed.data;
+      const { entityType, entityId, format, orientation, projectionYears, reportScope } = parsed.data;
+      const version = format === "csv" ? "extended" as const : parsed.data.version;
       const userId = req.user?.id;
 
       if (!userId) {
@@ -101,12 +102,20 @@ export function register(app: Express) {
           themeColors = defaultTheme.colors as Array<{ name: string; hexCode: string; rank?: number; description?: string }>;
         }
 
+        const scopeLabel = reportScope === "all" ? "Financial Report"
+          : reportScope === "income" ? "Income Statement"
+          : reportScope === "cashflow" ? "Cash Flow Statement"
+          : reportScope === "balance" ? "Balance Sheet"
+          : reportScope === "overview" ? "Portfolio Overview"
+          : reportScope === "investment" ? "Investment Analysis"
+          : "Financial Report";
+
         const compileInput = {
           format,
           orientation,
           entityName,
           companyName,
-          statementType: exportData.statements[0]?.title || "Financial Report",
+          statementType: exportData.statements.length === 1 ? exportData.statements[0].title : scopeLabel,
           statements: exportData.statements,
           metrics: exportData.metrics,
           years: exportData.years,

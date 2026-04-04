@@ -282,7 +282,7 @@ export default function Company() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ entityType: "company", format: "csv", reportScope: activeTab }),
+                body: JSON.stringify({ entityType: "company", format: "csv", reportScope: activeTab, version: "extended" }),
               });
               if (!res.ok) throw new Error("CSV export failed");
               const blob = await res.blob();

@@ -336,6 +336,7 @@ export default function Company() {
             themeColors: brandingData?.themeColors?.map((c: any) => ({ name: c.name, hexCode: c.hexCode, rank: c.rank })),
           } as PremiumExportPayload;
         } : undefined}
+        serverExportConfig={exportType !== 'chart' ? { entityType: "company", reportScope: activeTab as "income" | "cashflow" | "balance" } : undefined}
       />
       <div className="space-y-6">
         <CalcDetailsProvider show={global?.showCompanyCalculationDetails ?? true}>

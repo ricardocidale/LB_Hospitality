@@ -636,3 +636,11 @@ export const BRAND_ACCENT_HEX = "#00A9B8";
 // back to the legacy client-side computation path.
 // ──────────────────────────────────────────────────────────
 export const USE_SERVER_COMPUTE = true;
+
+// ──────────────────────────────────────────────────────────
+// FEATURE FLAG: Server-Side Export Generation (Phase 4)
+// When true, export buttons call POST /api/exports/generate
+// which computes data server-side from cache and streams the
+// file. When false, exports are generated client-side.
+// ──────────────────────────────────────────────────────────
+export const USE_SERVER_EXPORTS = true;

@@ -1,6 +1,6 @@
-import { computePortfolioProjection } from "../finance/service";
+import { computePortfolioProjection, computeSingleProperty, computeCompanyProjection } from "../finance/service";
 import { storage } from "../storage";
-import type { PropertyInput, GlobalInput } from "@engine/types";
+import type { PropertyInput, GlobalInput, CompanyYearlyFinancials } from "@engine/types";
 import type { YearlyPropertyFinancials } from "@engine/aggregation/yearlyAggregator";
 import { verifyExport } from "@calc/validation/export-verification";
 import { logger } from "../logger";
@@ -53,8 +53,15 @@ function yearlyValues(data: YearlyPropertyFinancials[], key: keyof YearlyPropert
   });
 }
 
-function buildIncomeStatement(yearly: YearlyPropertyFinancials[], years: string[]): StatementSection {
-  const rows: ExportRow[] = [
+function buildIncomeStatement(yearly: YearlyPropertyFinancials[], years: string[], summaryOnly = false): StatementSection {
+  const rows: ExportRow[] = summaryOnly ? [
+    row("Total Revenue", yearlyValues(yearly, "revenueTotal"), { isBold: true }),
+    row("Gross Operating Profit (GOP)", yearlyValues(yearly, "gop"), { isBold: true }),
+    row("Adjusted GOP (AGOP)", yearlyValues(yearly, "agop"), { isBold: true }),
+    row("NOI", yearlyValues(yearly, "noi"), { isBold: true }),
+    row("ANOI", yearlyValues(yearly, "anoi"), { isBold: true }),
+    row("Net Income", yearlyValues(yearly, "netIncome"), { isBold: true }),
+  ] : [
     row("Revenue", [], { isHeader: true }),
     row("Rooms Revenue", yearlyValues(yearly, "revenueRooms"), { indent: 1 }),
     row("Events Revenue", yearlyValues(yearly, "revenueEvents"), { indent: 1 }),
@@ -98,8 +105,13 @@ function buildIncomeStatement(yearly: YearlyPropertyFinancials[], years: string[
   return { title: "Income Statement", years, rows, includeTable: true, includeChart: true };
 }
 
-function buildCashFlowStatement(yearly: YearlyPropertyFinancials[], years: string[]): StatementSection {
-  const rows: ExportRow[] = [
+function buildCashFlowStatement(yearly: YearlyPropertyFinancials[], years: string[], summaryOnly = false): StatementSection {
+  const rows: ExportRow[] = summaryOnly ? [
+    row("Operating Cash Flow", yearlyValues(yearly, "operatingCashFlow"), { isBold: true }),
+    row("Financing Cash Flow", yearlyValues(yearly, "financingCashFlow"), { isBold: true }),
+    row("Cash Flow", yearlyValues(yearly, "cashFlow"), { isBold: true }),
+    row("Ending Cash", yearlyValues(yearly, "endingCash"), { isBold: true }),
+  ] : [
     row("Operating Activities", [], { isHeader: true }),
     row("Net Income", yearlyValues(yearly, "netIncome"), { indent: 1 }),
     row("Depreciation (add-back)", yearlyValues(yearly, "depreciationExpense"), { indent: 1 }),
@@ -141,32 +153,80 @@ function buildMetrics(consolidated: YearlyPropertyFinancials[], propertyCount: n
   ];
 }
 
-export interface BuildExportDataInput {
-  userId: number;
-  propertyIds?: number[];
-  projectionYears?: number;
+function buildCompanyStatement(yearly: CompanyYearlyFinancials[], years: string[], summaryOnly = false): StatementSection {
+  const vals = (key: keyof CompanyYearlyFinancials) => yearly.map(y => {
+    const v = y[key];
+    return typeof v === "number" ? v : 0;
+  });
+
+  const rows: ExportRow[] = summaryOnly ? [
+    row("Total Revenue", vals("totalRevenue"), { isBold: true }),
+    row("Gross Profit", vals("grossProfit"), { isBold: true }),
+    row("Total Operating Expenses", vals("totalExpenses"), { isBold: true }),
+    row("Pre-Tax Income", vals("preTaxIncome"), { isBold: true }),
+    row("Net Income", vals("netIncome"), { isBold: true }),
+    row("Ending Cash", vals("endingCash"), { isBold: true }),
+  ] : [
+    row("Revenue", [], { isHeader: true }),
+    row("Base Fee Revenue", vals("baseFeeRevenue"), { indent: 1 }),
+    row("Incentive Fee Revenue", vals("incentiveFeeRevenue"), { indent: 1 }),
+    row("Total Revenue", vals("totalRevenue"), { isBold: true }),
+
+    row("Cost of Revenue", [], { isHeader: true }),
+    row("Total Vendor Cost", vals("totalVendorCost"), { indent: 1 }),
+    row("Gross Profit", vals("grossProfit"), { isBold: true }),
+
+    row("Operating Expenses", [], { isHeader: true }),
+    row("Partner Compensation", vals("partnerCompensation"), { indent: 1 }),
+    row("Staff Compensation", vals("staffCompensation"), { indent: 1 }),
+    row("Office Lease", vals("officeLease"), { indent: 1 }),
+    row("Professional Services", vals("professionalServices"), { indent: 1 }),
+    row("Tech Infrastructure", vals("techInfrastructure"), { indent: 1 }),
+    row("Business Insurance", vals("businessInsurance"), { indent: 1 }),
+    row("Travel Costs", vals("travelCosts"), { indent: 1 }),
+    row("IT Licensing", vals("itLicensing"), { indent: 1 }),
+    row("Marketing", vals("marketing"), { indent: 1 }),
+    row("Miscellaneous Ops", vals("miscOps"), { indent: 1 }),
+    row("Total Operating Expenses", vals("totalExpenses"), { isBold: true }),
+
+    row("Below the Line", [], { isHeader: true }),
+    row("Interest Expense", vals("fundingInterestExpense"), { indent: 1 }),
+    row("Pre-Tax Income", vals("preTaxIncome"), { isBold: true }),
+    row("Income Tax", vals("companyIncomeTax"), { indent: 1 }),
+    row("Net Income", vals("netIncome"), { isBold: true }),
+
+    row("Cash Position", [], { isHeader: true }),
+    row("SAFE Funding", vals("safeFunding"), { indent: 1 }),
+    row("Cash Flow", vals("cashFlow"), { indent: 1 }),
+    row("Ending Cash", vals("endingCash"), { isBold: true }),
+  ];
+
+  return { title: "Management Company Income Statement", years, rows, includeTable: true, includeChart: true };
 }
 
-export async function buildExportData(
-  input: BuildExportDataInput,
-): Promise<ServerExportData> {
-  const allProperties = await storage.getAllProperties(input.userId);
-  const globalAssumptions = await storage.getGlobalAssumptions(input.userId);
+function buildCompanyMetrics(yearly: CompanyYearlyFinancials[]): MetricEntry[] {
+  const y1 = yearly[0];
+  const yLast = yearly[yearly.length - 1];
+  if (!y1 || !yLast) return [];
 
-  if (!globalAssumptions) {
-    throw new Error("No global assumptions found for user");
-  }
+  const fmt = (v: number) => {
+    const abs = Math.abs(v);
+    if (abs >= 1e6) return `$${(v / 1e6).toFixed(1)}M`;
+    if (abs >= 1e3) return `$${Math.round(v / 1e3).toLocaleString()}K`;
+    return `$${v.toFixed(0)}`;
+  };
 
-  let propertiesToCompute = allProperties;
-  if (input.propertyIds?.length) {
-    const idSet = new Set(input.propertyIds);
-    propertiesToCompute = allProperties.filter(p => idSet.has(p.id));
-    if (propertiesToCompute.length === 0) {
-      throw new Error("No matching properties found for the given IDs");
-    }
-  }
+  return [
+    { label: "Year 1 Revenue", value: fmt(y1.totalRevenue) },
+    { label: `Year ${yearly.length} Revenue`, value: fmt(yLast.totalRevenue) },
+    { label: "Year 1 Net Income", value: fmt(y1.netIncome) },
+    { label: `Year ${yearly.length} Net Income`, value: fmt(yLast.netIncome) },
+    { label: `Year ${yearly.length} Ending Cash`, value: fmt(yLast.endingCash) },
+  ];
+}
 
-  const propertyInputs: PropertyInput[] = propertiesToCompute.map(p => ({
+function toPropertyInput(p: Record<string, unknown>): PropertyInput {
+  return {
     ...p,
     operationsStartDate: p.operationsStartDate,
     roomCount: p.roomCount,
@@ -194,22 +254,81 @@ export async function buildExportData(
     revShareOther: p.revShareOther,
     id: p.id,
     name: p.name,
-  } as PropertyInput));
+  } as PropertyInput;
+}
 
+function buildGlobalInput(globalAssumptions: Record<string, unknown>, projYears: number): GlobalInput {
   const dbDebt = globalAssumptions.debtAssumptions as Record<string, unknown> | null;
-
-  const globalInput: GlobalInput = {
-    modelStartDate: globalAssumptions.modelStartDate,
+  return {
+    modelStartDate: globalAssumptions.modelStartDate as string,
     inflationRate: Number(globalAssumptions.inflationRate),
     marketingRate: Number(globalAssumptions.marketingRate ?? 0.01),
     debtAssumptions: {
       interestRate: Number(dbDebt?.interestRate ?? 0.065),
       amortizationYears: Number(dbDebt?.amortizationYears ?? 25),
     },
-    projectionYears: input.projectionYears ?? Number(globalAssumptions.projectionYears ?? 10),
+    projectionYears: projYears,
   };
+}
+
+export type ExportVersion = "short" | "extended";
+export type ReportScope = "all" | "income" | "cashflow" | "balance" | "overview" | "investment";
+
+export interface BuildExportDataInput {
+  userId: number;
+  propertyIds?: number[];
+  projectionYears?: number;
+  version?: ExportVersion;
+  reportScope?: ReportScope;
+}
+
+async function loadUserContext(userId: number, propertyIds?: number[]) {
+  const allProperties = await storage.getAllProperties(userId);
+  const globalAssumptions = await storage.getGlobalAssumptions(userId);
+
+  if (!globalAssumptions) {
+    throw new Error("No global assumptions found for user");
+  }
+
+  let propertiesToCompute = allProperties;
+  if (propertyIds?.length) {
+    const idSet = new Set(propertyIds);
+    propertiesToCompute = allProperties.filter(p => idSet.has(p.id));
+    if (propertiesToCompute.length === 0) {
+      throw new Error("No matching properties found for the given IDs");
+    }
+  }
+
+  const propertyInputs = propertiesToCompute.map(p => toPropertyInput(p as unknown as Record<string, unknown>));
+  return { propertyInputs, globalAssumptions, allProperties };
+}
+
+function selectStatements(
+  all: StatementSection[],
+  scope: ReportScope,
+): StatementSection[] {
+  if (scope === "all") return all;
+  const titleMap: Record<string, string[]> = {
+    income: ["Income Statement"],
+    cashflow: ["Cash Flow Statement"],
+    balance: ["Balance Sheet"],
+    overview: all.map(s => s.title),
+    investment: all.map(s => s.title),
+  };
+  const titles = titleMap[scope] ?? all.map(s => s.title);
+  const filtered = all.filter(s => titles.some(t => s.title.includes(t)));
+  return filtered.length > 0 ? filtered : all;
+}
+
+export async function buildExportData(
+  input: BuildExportDataInput,
+): Promise<ServerExportData> {
+  const { propertyInputs, globalAssumptions } = await loadUserContext(input.userId, input.propertyIds);
+  const summaryOnly = input.version === "short";
+  const scope = input.reportScope ?? "all";
 
   const projYears = input.projectionYears ?? Number(globalAssumptions.projectionYears ?? 10);
+  const globalInput = buildGlobalInput(globalAssumptions as unknown as Record<string, unknown>, projYears);
 
   const result = computePortfolioProjection({
     properties: propertyInputs,
@@ -219,10 +338,11 @@ export async function buildExportData(
 
   const years = yearLabels(projYears);
 
-  const incomeStatement = buildIncomeStatement(result.consolidatedYearly, years);
-  const cashFlowStatement = buildCashFlowStatement(result.consolidatedYearly, years);
+  const incomeStatement = buildIncomeStatement(result.consolidatedYearly, years, summaryOnly);
+  const cashFlowStatement = buildCashFlowStatement(result.consolidatedYearly, years, summaryOnly);
 
-  const statements: StatementSection[] = [incomeStatement, cashFlowStatement];
+  const allStatements: StatementSection[] = [incomeStatement, cashFlowStatement];
+  const statements = selectStatements(allStatements, scope);
   const metrics = buildMetrics(result.consolidatedYearly, result.propertyCount);
 
   const allRows = [...incomeStatement.rows, ...cashFlowStatement.rows];
@@ -236,7 +356,7 @@ export async function buildExportData(
       actual_sections: statements.map(s => s.title),
       expected_year_count: projYears,
       actual_year_count: years.length,
-      expected_property_count: propertiesToCompute.length,
+      expected_property_count: propertyInputs.length,
       actual_property_count: result.propertyCount,
       sample_values: [
         { label: "Y1 Revenue", expected_value: y1.revenueTotal, exported_value: y1.revenueTotal },
@@ -257,6 +377,96 @@ export async function buildExportData(
     years,
     outputHash: result.outputHash,
     engineVersion: result.engineVersion,
+    projectionYears: projYears,
+  };
+}
+
+export interface BuildPropertyExportDataInput {
+  userId: number;
+  propertyId: number;
+  projectionYears?: number;
+  version?: ExportVersion;
+  reportScope?: ReportScope;
+}
+
+export async function buildPropertyExportData(
+  input: BuildPropertyExportDataInput,
+): Promise<ServerExportData> {
+  const { propertyInputs, globalAssumptions } = await loadUserContext(input.userId, [input.propertyId]);
+  const summaryOnly = input.version === "short";
+  const scope = input.reportScope ?? "all";
+
+  if (propertyInputs.length === 0) {
+    throw new Error(`Property ${input.propertyId} not found`);
+  }
+
+  const property = propertyInputs[0];
+  const projYears = input.projectionYears ?? Number(globalAssumptions.projectionYears ?? 10);
+  const globalInput = buildGlobalInput(globalAssumptions as unknown as Record<string, unknown>, projYears);
+
+  const result = computeSingleProperty({
+    property,
+    globalAssumptions: globalInput,
+    projectionYears: projYears,
+  });
+
+  const years = yearLabels(projYears);
+  const incomeStatement = buildIncomeStatement(result.yearly, years, summaryOnly);
+  const cashFlowStatement = buildCashFlowStatement(result.yearly, years, summaryOnly);
+
+  incomeStatement.title = `${property.name} — Income Statement`;
+  cashFlowStatement.title = `${property.name} — Cash Flow Statement`;
+
+  const allStatements: StatementSection[] = [incomeStatement, cashFlowStatement];
+  const statements = selectStatements(allStatements, scope);
+  const metrics = buildMetrics(result.yearly, 1);
+  const allRows = statements.flatMap(s => s.rows);
+
+  return {
+    statements,
+    metrics,
+    rows: allRows,
+    years,
+    outputHash: result.outputHash,
+    engineVersion: result.engineVersion,
+    projectionYears: projYears,
+  };
+}
+
+export interface BuildCompanyExportDataInput {
+  userId: number;
+  projectionYears?: number;
+  version?: ExportVersion;
+}
+
+export async function buildCompanyExportData(
+  input: BuildCompanyExportDataInput,
+): Promise<ServerExportData> {
+  const { propertyInputs, globalAssumptions } = await loadUserContext(input.userId);
+  const summaryOnly = input.version === "short";
+
+  const projYears = input.projectionYears ?? Number(globalAssumptions.projectionYears ?? 10);
+  const globalInput = buildGlobalInput(globalAssumptions as unknown as Record<string, unknown>, projYears);
+
+  const result = computeCompanyProjection({
+    properties: propertyInputs,
+    globalAssumptions: globalInput,
+    projectionYears: projYears,
+  });
+
+  const years = yearLabels(projYears);
+  const companyStatement = buildCompanyStatement(result.companyYearly, years, summaryOnly);
+  const statements: StatementSection[] = [companyStatement];
+  const companyMetrics = buildCompanyMetrics(result.companyYearly);
+  const allRows = companyStatement.rows;
+
+  return {
+    statements,
+    metrics: companyMetrics,
+    rows: allRows,
+    years,
+    outputHash: result.outputHash,
+    engineVersion: "1.0.0",
     projectionYears: projYears,
   };
 }

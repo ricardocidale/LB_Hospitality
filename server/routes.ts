@@ -22,6 +22,7 @@ import * as photoRoutes from "./routes/property-photos";
 import * as chatRoutes from "./routes/chat";
 import * as aiRoutes from "./routes/ai";
 import * as premiumExportRoutes from "./routes/premium-exports";
+import * as exportGenerateRoutes from "./routes/export-generate";
 import * as adminIntegrationRoutes from "./routes/admin-integrations";
 import * as geospatialRoutes from "./routes/geospatial";
 import * as notificationRoutes from "./routes/notifications";
@@ -58,6 +59,7 @@ export async function registerRoutes(
   chatRoutes.register(app);
   aiRoutes.register(app);
   premiumExportRoutes.register(app);
+  exportGenerateRoutes.register(app);
   adminIntegrationRoutes.register(app);
   geospatialRoutes.register(app);
   notificationRoutes.register(app);

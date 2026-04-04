@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, lazy, Suspense } from "react";
-import { DEPRECIATION_YEARS, USE_SERVER_COMPUTE } from "@shared/constants";
+import { DEPRECIATION_YEARS, USE_SERVER_COMPUTE, USE_SERVER_EXPORTS } from "@shared/constants";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { usePropertyPhotos } from "@/lib/api/property-photos";
@@ -203,6 +203,7 @@ export default function PropertyDetail() {
         getPremiumExportData={exportType !== 'chart' && property && yearlyDetails.length > 0
           ? (version: ExportVersion) => buildPremiumExportPayload(exportCtx, version)
           : undefined}
+        serverExportConfig={exportType !== 'chart' ? { entityType: "property", entityId: propertyId, reportScope: activeTab as "income" | "cashflow" | "balance" } : undefined}
       />
       <div className="space-y-6">
         <PropertyHeader
@@ -249,7 +250,24 @@ export default function PropertyDetail() {
                   actions={[
                     pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
                     excelAction(() => { setExportType('xlsx'); setExportDialogOpen(true); }),
-                    csvAction(() => requestSave(`${property.name} Financial Statements`, ".csv", (f) => exportAllStatementsCSV(exportCtx, f))),
+                    csvAction(() => {
+                      if (USE_SERVER_EXPORTS) {
+                        requestSave(`${property.name} Financial Statements`, ".csv", async (customFilename) => {
+                          const res = await fetch("/api/exports/generate", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "include",
+                            body: JSON.stringify({ entityType: "property", entityId: propertyId, format: "csv" }),
+                          });
+                          if (!res.ok) throw new Error("CSV export failed");
+                          const blob = await res.blob();
+                          const { saveFile } = await import("@/lib/exports/saveFile");
+                          await saveFile(blob, customFilename || `${property.name}_Financial_Statements.csv`);
+                        });
+                      } else {
+                        requestSave(`${property.name} Financial Statements`, ".csv", (f) => exportAllStatementsCSV(exportCtx, f));
+                      }
+                    }),
                     pptxAction(() => { setExportType('pptx'); setExportDialogOpen(true); }),
                     docxAction(() => { setExportType('docx'); setExportDialogOpen(true); }),
                     chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),

@@ -8,9 +8,17 @@ import { Loader2, Sparkles } from "@/components/icons/themed-icons";
 import { IconDownload } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { USE_SERVER_EXPORTS } from "@shared/constants";
 
 export type ExportVersion = "short" | "extended";
 export type PremiumFormat = "xlsx" | "pptx" | "pdf" | "docx";
+export type ServerExportFormat = "pdf" | "xlsx" | "pptx" | "docx" | "csv";
+
+export interface ServerExportConfig {
+  entityType: "portfolio" | "property" | "company";
+  entityId?: number;
+  reportScope?: "all" | "income" | "cashflow" | "balance" | "overview" | "investment";
+}
 
 const ORIENTATION_KEY = "export-orientation";
 const VERSION_KEY = "export-version";
@@ -51,6 +59,7 @@ interface ExportDialogProps {
   premiumFormat?: PremiumFormat;
   suggestedFilename?: string;
   fileExtension?: string;
+  serverExportConfig?: ServerExportConfig;
 }
 
 export interface PremiumExportPayload {
@@ -114,6 +123,55 @@ async function generatePremiumExport(
   } catch (err: any) {
     clearTimeout(clientTimeout);
     if (err?.name === "AbortError") {
+      throw new Error("Export timed out — the server took too long to respond. Please try again.");
+    }
+    throw err;
+  }
+  clearTimeout(clientTimeout);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.error || `Export failed (${response.status})`);
+  }
+
+  const blob = await response.blob();
+  const disposition = response.headers.get("Content-Disposition");
+  let serverFilename = `export.${format}`;
+  if (disposition) {
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    if (match) serverFilename = match[1];
+  }
+
+  return { blob, serverFilename };
+}
+
+async function generateServerExport(
+  config: ServerExportConfig,
+  format: ServerExportFormat,
+  orientation: "landscape" | "portrait",
+  version: ExportVersion,
+): Promise<{ blob: Blob; serverFilename: string }> {
+  const controller = new AbortController();
+  const clientTimeout = setTimeout(() => controller.abort(), 300_000);
+  let response;
+  try {
+    response = await fetch("/api/exports/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        entityType: config.entityType,
+        entityId: config.entityId,
+        format,
+        orientation,
+        version,
+        reportScope: config.reportScope,
+      }),
+      signal: controller.signal,
+    });
+  } catch (err: unknown) {
+    clearTimeout(clientTimeout);
+    if (err instanceof Error && err.name === "AbortError") {
       throw new Error("Export timed out — the server took too long to respond. Please try again.");
     }
     throw err;
@@ -273,7 +331,7 @@ function GeneratingAnimation() {
   );
 }
 
-export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, allowShort = true, allowExtended = true, premiumExportData, getPremiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf" }: ExportDialogProps) {
+export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, allowShort = true, allowExtended = true, premiumExportData, getPremiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf", serverExportConfig }: ExportDialogProps) {
   const [orientation, setOrientation] = useState<"landscape" | "portrait">(getStoredOrientation);
   const [version, setVersion] = useState<ExportVersion>(getStoredVersion);
   const [isPremium, setIsPremium] = useState(getStoredPremium);
@@ -325,14 +383,43 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
   const hasPremiumData = !!(getPremiumExportData || premiumExportData);
   const isGenerating = step === "generating";
 
+  const useServerPath = USE_SERVER_EXPORTS && !!serverExportConfig;
+
   const handleExport = async () => {
+    if (useServerPath) {
+      setStep("generating");
+      try {
+        const serverFormat = premiumFormat as ServerExportFormat;
+        const { blob, serverFilename } = await generateServerExport(serverExportConfig!, serverFormat, orientation, version);
+        setIsSaving(true);
+        try {
+          const { saveFile } = await import("@/lib/exports/saveFile");
+          await saveFile(blob, serverFilename);
+          toast({ title: "File saved", description: `${serverFilename} saved to your computer.` });
+        } catch (err: unknown) {
+          if (err instanceof Error && err.name === "AbortError") {
+            onClose();
+            return;
+          }
+          throw err;
+        }
+        onClose();
+      } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : "An unexpected error occurred. Please try again.";
+        console.error("[server-export] Client error:", errMsg);
+        toast({ title: "Export failed", description: errMsg, variant: "destructive" });
+        setStep("options");
+        setIsSaving(false);
+      }
+      return;
+    }
+
     const payload = await resolvePremiumPayload();
     if (isPremium && payload) {
       setStep("generating");
       try {
         const { blob, serverFilename } = await generatePremiumExport(premiumFormat, payload, orientation, version);
 
-        // Auto-save via native file picker or download
         setIsSaving(true);
         try {
           const { saveFile } = await import("@/lib/exports/saveFile");
@@ -340,7 +427,6 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
           toast({ title: "File saved", description: `${serverFilename} saved to your computer.` });
         } catch (err: any) {
           if (err?.name === "AbortError") {
-            // User cancelled the file picker — close silently
             onClose();
             return;
           }
@@ -370,7 +456,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
         {step === "options" && (
           <>
             <div className="py-4 space-y-5">
-              {hasPremiumData && (
+              {hasPremiumData && !useServerPath && (
                 <div className="flex items-center justify-between p-3 rounded-lg border border-primary/30" style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--accent) / 0.15))' }}>
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />

@@ -618,6 +618,7 @@ export default function Dashboard() {
             themeColors: branding?.themeColors?.map(c => ({ name: c.name, hexCode: c.hexCode, rank: c.rank, description: c.description })),
           } as PremiumExportPayload;
         } : undefined}
+        serverExportConfig={exportType !== "chart" ? { entityType: "portfolio", reportScope: activeTab as "overview" | "income" | "cashflow" | "balance" | "investment" } : undefined}
       />
     </Layout>
   );

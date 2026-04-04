@@ -28,7 +28,7 @@ import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/c
 import { loadExportConfig } from "@/lib/exportConfig";
 import { useQuery } from "@tanstack/react-query";
 import { useExportSave } from "@/hooks/useExportSave";
-import { UserRole, APP_BRAND_NAME, USE_SERVER_COMPUTE } from "@shared/constants";
+import { UserRole, APP_BRAND_NAME, USE_SERVER_COMPUTE, USE_SERVER_EXPORTS } from "@shared/constants";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -275,14 +275,31 @@ export default function Company() {
       actions={[
         pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
         excelAction(() => { setExportType('xlsx'); setExportDialogOpen(true); }),
-        csvAction(() => requestSave(`${companyName} Financial Statements`, ".csv", (f) =>
-          exportCompanyAllStatementsCSV(
-            getStatementData('income'),
-            getStatementData('cashflow'),
-            getStatementData('balance'),
-            companyName, f
-          )
-        )),
+        csvAction(() => {
+          if (USE_SERVER_EXPORTS) {
+            requestSave(`${companyName} Financial Statements`, ".csv", async (customFilename) => {
+              const res = await fetch("/api/exports/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ entityType: "company", format: "csv", reportScope: activeTab }),
+              });
+              if (!res.ok) throw new Error("CSV export failed");
+              const blob = await res.blob();
+              const { saveFile } = await import("@/lib/exports/saveFile");
+              await saveFile(blob, customFilename || `${companyName}_Financial_Statements.csv`);
+            });
+          } else {
+            requestSave(`${companyName} Financial Statements`, ".csv", (f) =>
+              exportCompanyAllStatementsCSV(
+                getStatementData('income'),
+                getStatementData('cashflow'),
+                getStatementData('balance'),
+                companyName, f
+              )
+            );
+          }
+        }),
         pptxAction(() => { setExportType('pptx'); setExportDialogOpen(true); }),
         docxAction(() => { setExportType('docx'); setExportDialogOpen(true); }),
         chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),

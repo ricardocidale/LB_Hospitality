@@ -30,7 +30,7 @@
  * All six export formats (PDF, Excel, CSV, PPTX, Chart PNG, Table PNG) are
  * available from the tab bar. Data generators live in dashboardExports.ts.
  */
-import { APP_BRAND_NAME } from "@shared/constants";
+import { APP_BRAND_NAME, USE_SERVER_EXPORTS } from "@shared/constants";
 import React, { useState, useRef, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useExportSave } from "@/hooks/useExportSave";
@@ -258,6 +258,23 @@ export default function Dashboard() {
 
   const handleExportCSV = useCallback(() => {
     if (!financials || !global || !properties) return;
+
+    if (USE_SERVER_EXPORTS) {
+      requestSave("Portfolio Financial Statements", ".csv", async (customFilename) => {
+        const res = await fetch("/api/exports/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ entityType: "portfolio", format: "csv", reportScope: activeTab }),
+        });
+        if (!res.ok) throw new Error("CSV export failed");
+        const blob = await res.blob();
+        const { saveFile } = await import("@/lib/exports/saveFile");
+        await saveFile(blob, customFilename || "Portfolio-Financial-Statements.csv");
+      });
+      return;
+    }
+
     const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
     const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
     const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);

@@ -69,7 +69,7 @@ export function register(app: Express) {
           const globals = await storage.getGlobalAssumptions(userId);
           companyName = (globals as Record<string, unknown>)?.companyName as string || "Financial Report";
         } else if (entityType === "company") {
-          exportData = await buildCompanyExportData({ userId, projectionYears, version });
+          exportData = await buildCompanyExportData({ userId, projectionYears, version, reportScope });
           const globals = await storage.getGlobalAssumptions(userId);
           companyName = (globals as Record<string, unknown>)?.companyName as string || "Management Company";
           entityName = companyName;

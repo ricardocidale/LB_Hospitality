@@ -204,6 +204,51 @@ function buildCompanyStatement(yearly: CompanyYearlyFinancials[], years: string[
   return { title: "Management Company Income Statement", years, rows, includeTable: true, includeChart: true };
 }
 
+function buildCompanyCashFlowStatement(yearly: CompanyYearlyFinancials[], years: string[], summaryOnly = false): StatementSection {
+  const vals = (key: keyof CompanyYearlyFinancials) => yearly.map(y => {
+    const v = y[key];
+    return typeof v === "number" ? v : 0;
+  });
+
+  const rows: ExportRow[] = summaryOnly ? [
+    row("Net Income", vals("netIncome"), { isBold: true }),
+    row("Cash Flow", vals("cashFlow"), { isBold: true }),
+    row("Ending Cash", vals("endingCash"), { isBold: true }),
+  ] : [
+    row("Operating Activities", [], { isHeader: true }),
+    row("Net Income", vals("netIncome"), { indent: 1 }),
+    row("SAFE Funding", vals("safeFunding"), { indent: 1 }),
+    row("Cash Flow", vals("cashFlow"), { isBold: true }),
+
+    row("Cash Position", [], { isHeader: true }),
+    row("Ending Cash", vals("endingCash"), { isBold: true }),
+  ];
+
+  return { title: "Management Company Cash Flow", years, rows, includeTable: true, includeChart: true };
+}
+
+function buildCompanyBalanceSheet(yearly: CompanyYearlyFinancials[], years: string[], summaryOnly = false): StatementSection {
+  const vals = (key: keyof CompanyYearlyFinancials) => yearly.map(y => {
+    const v = y[key];
+    return typeof v === "number" ? v : 0;
+  });
+
+  const rows: ExportRow[] = summaryOnly ? [
+    row("Ending Cash (Assets)", vals("endingCash"), { isBold: true }),
+    row("Net Income (Equity)", vals("netIncome"), { isBold: true }),
+  ] : [
+    row("Assets", [], { isHeader: true }),
+    row("Cash & Equivalents", vals("endingCash"), { indent: 1 }),
+    row("Total Assets", vals("endingCash"), { isBold: true }),
+
+    row("Equity", [], { isHeader: true }),
+    row("SAFE Funding (Cumulative)", vals("safeFunding"), { indent: 1 }),
+    row("Retained Earnings (Net Income)", vals("netIncome"), { indent: 1 }),
+  ];
+
+  return { title: "Management Company Balance Sheet", years, rows, includeTable: true };
+}
+
 function buildCompanyMetrics(yearly: CompanyYearlyFinancials[]): MetricEntry[] {
   const y1 = yearly[0];
   const yLast = yearly[yearly.length - 1];
@@ -307,16 +352,15 @@ function selectStatements(
   all: StatementSection[],
   scope: ReportScope,
 ): StatementSection[] {
-  if (scope === "all") return all;
-  const titleMap: Record<string, string[]> = {
-    income: ["Income Statement"],
-    cashflow: ["Cash Flow Statement"],
-    balance: ["Balance Sheet"],
-    overview: all.map(s => s.title),
-    investment: all.map(s => s.title),
+  if (scope === "all" || scope === "overview" || scope === "investment") return all;
+  const titleMap: Record<string, string> = {
+    income: "Income Statement",
+    cashflow: "Cash Flow",
+    balance: "Balance Sheet",
   };
-  const titles = titleMap[scope] ?? all.map(s => s.title);
-  const filtered = all.filter(s => titles.some(t => s.title.includes(t)));
+  const target = titleMap[scope];
+  if (!target) return all;
+  const filtered = all.filter(s => s.title.includes(target));
   return filtered.length > 0 ? filtered : all;
 }
 
@@ -437,6 +481,7 @@ export interface BuildCompanyExportDataInput {
   userId: number;
   projectionYears?: number;
   version?: ExportVersion;
+  reportScope?: ReportScope;
 }
 
 export async function buildCompanyExportData(
@@ -444,6 +489,7 @@ export async function buildCompanyExportData(
 ): Promise<ServerExportData> {
   const { propertyInputs, globalAssumptions } = await loadUserContext(input.userId);
   const summaryOnly = input.version === "short";
+  const scope = input.reportScope ?? "all";
 
   const projYears = input.projectionYears ?? Number(globalAssumptions.projectionYears ?? 10);
   const globalInput = buildGlobalInput(globalAssumptions as unknown as Record<string, unknown>, projYears);
@@ -455,10 +501,14 @@ export async function buildCompanyExportData(
   });
 
   const years = yearLabels(projYears);
-  const companyStatement = buildCompanyStatement(result.companyYearly, years, summaryOnly);
-  const statements: StatementSection[] = [companyStatement];
+  const companyIncomeStatement = buildCompanyStatement(result.companyYearly, years, summaryOnly);
+  const companyCashFlow = buildCompanyCashFlowStatement(result.companyYearly, years, summaryOnly);
+  const companyBalance = buildCompanyBalanceSheet(result.companyYearly, years, summaryOnly);
+
+  const allStatements: StatementSection[] = [companyIncomeStatement, companyCashFlow, companyBalance];
+  const statements = selectStatements(allStatements, scope);
   const companyMetrics = buildCompanyMetrics(result.companyYearly);
-  const allRows = companyStatement.rows;
+  const allRows = statements.flatMap(s => s.rows);
 
   return {
     statements,

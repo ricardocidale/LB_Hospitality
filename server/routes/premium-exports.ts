@@ -128,6 +128,7 @@ export function register(app: Express) {
       }
 
       const data = parsed.data;
+      let exportOutputHash: string | undefined;
 
       if (data.computeRef && !req.user?.id) {
         return res.status(401).json({ error: "Authentication required for server-recomputed exports" });
@@ -146,6 +147,7 @@ export function register(app: Express) {
         data.years = serverData.years;
         data.projectionYears = serverData.projectionYears;
 
+        exportOutputHash = serverData.outputHash;
         res.setHeader("X-Finance-Output-Hash", serverData.outputHash);
         res.setHeader("X-Finance-Engine-Version", serverData.engineVersion);
         logger.info(`[server-recompute] Server data ready: hash=${serverData.outputHash.slice(0, 16)}..., ${serverData.statements.length} statements`, "premium-export");
@@ -184,6 +186,7 @@ export function register(app: Express) {
         statementType: data.statementType,
         bytes: buffer.length,
         serverRecomputed: !!data.computeRef,
+        outputHash: exportOutputHash ?? null,
       });
 
       res.setHeader("Content-Type", contentType);

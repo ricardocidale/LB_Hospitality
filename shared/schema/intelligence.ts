@@ -55,7 +55,7 @@ export const prospectiveProperties = pgTable("prospective_properties", {
   imageUrl: text("image_url"),
   listingUrl: text("listing_url"),
   notes: text("notes"),
-  rawData: jsonb("raw_data").$type<Record<string, any>>(),
+  rawData: jsonb("raw_data").$type<Record<string, unknown>>(),
   savedAt: timestamp("saved_at").defaultNow().notNull(),
 }, (table) => [
   index("prospective_props_user_id_idx").on(table.userId),
@@ -80,7 +80,7 @@ export const insertProspectivePropertySchema = z.object({
   imageUrl: z.string().nullable().optional(),
   listingUrl: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
-  rawData: z.record(z.any()).nullable().optional(),
+  rawData: z.record(z.unknown()).nullable().optional(),
 });
 
 export type ProspectiveProperty = typeof prospectiveProperties.$inferSelect;

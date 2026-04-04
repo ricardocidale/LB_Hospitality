@@ -132,3 +132,57 @@ export interface VerificationRunResults {
   }>;
   [key: string]: unknown;
 }
+
+export interface StandardAcqPackage {
+  purchasePrice: number;
+  buildingImprovements: number;
+  preOpeningCosts: number;
+  operatingReserve: number;
+  monthsToOps: number;
+}
+
+export interface DebtAssumptions {
+  interestRate: number;
+  amortizationYears: number;
+  refiLTV: number;
+  refiClosingCostRate: number;
+  refiInterestRate?: number;
+  refiAmortizationYears?: number;
+  refiPeriodYears?: number;
+  acqLTV: number;
+  acqClosingCostRate: number;
+}
+
+export interface AssetDefinition {
+  minRooms: number;
+  maxRooms: number;
+  hasFB: boolean;
+  hasEvents: boolean;
+  hasWellness: boolean;
+  minAdr: number;
+  maxAdr: number;
+  level?: "budget" | "average" | "luxury";
+  eventLocations?: number;
+  maxEventCapacity?: number;
+  acreage?: number;
+  privacyLevel?: "low" | "moderate" | "high";
+  parkingSpaces?: number;
+  description: string;
+}
+
+export type ConsolidatedYearlyJson = unknown[];
+
+export interface NotificationLogMetadata {
+  alertRuleName?: string;
+  propertyName?: string;
+  metricValue?: number;
+  threshold?: number;
+  [key: string]: unknown;
+}
+
+export interface RawExtractionData {
+  pages?: Array<{ pageNumber: number; text?: string; fields?: Record<string, unknown> }>;
+  rawText?: string;
+  confidence?: number;
+  [key: string]: unknown;
+}

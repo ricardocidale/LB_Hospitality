@@ -209,7 +209,7 @@ async function buildContextPrompt(userId?: number): Promise<string> {
       parts.push(`- Base Management Fee: ${assumptions.baseManagementFee || 8.5}%`);
       parts.push(`- Incentive Management Fee: ${assumptions.incentiveManagementFee || 12}%`);
       if (assumptions.assetDefinition) {
-        const ad = assumptions.assetDefinition as Record<string, unknown>;
+        const ad = assumptions.assetDefinition;
         if (ad.level) parts.push(`- Tier: ${ad.level}`);
         if (ad.minRooms && ad.maxRooms) parts.push(`- Room Range: ${ad.minRooms}–${ad.maxRooms}`);
         if (ad.minAdr && ad.maxAdr) parts.push(`- ADR Range: $${ad.minAdr}–$${ad.maxAdr}`);

@@ -7,6 +7,7 @@ import { properties } from "./properties";
 import {
   DEFAULT_ALERT_COOLDOWN_MINUTES,
 } from "../constants";
+import type { NotificationLogMetadata, RawExtractionData } from "./types/jsonb-shapes";
 
 // --- NOTIFICATION EVENT TYPES ---
 export const NOTIFICATION_EVENT_TYPES = [
@@ -76,7 +77,7 @@ export const notificationLogs = pgTable("notification_logs", {
   subject: text("subject"),
   status: text("status").notNull().default("pending"),
   errorMessage: text("error_message"),
-  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  metadata: jsonb("metadata").$type<NotificationLogMetadata>(),
   alertRuleId: integer("alert_rule_id").references(() => alertRules.id, { onDelete: "set null" }),
   propertyId: integer("property_id").references(() => properties.id, { onDelete: "set null" }),
   retryCount: integer("retry_count").notNull().default(0),
@@ -97,7 +98,7 @@ export const insertNotificationLogSchema = z.object({
   subject: z.string().nullable().optional(),
   status: z.string().optional().default("pending"),
   errorMessage: z.string().nullable().optional(),
-  metadata: z.record(z.any()).nullable().optional(),
+  metadata: z.record(z.unknown()).nullable().optional(),
   alertRuleId: z.number().nullable().optional(),
   propertyId: z.number().nullable().optional(),
   retryCount: z.number().optional().default(0),
@@ -161,7 +162,7 @@ export const documentExtractions = pgTable("document_extractions", {
   objectPath: text("object_path").notNull(),
   documentType: text("document_type").notNull().default("general"),
   status: text("status").notNull().default("pending"),
-  rawExtractionData: jsonb("raw_extraction_data"),
+  rawExtractionData: jsonb("raw_extraction_data").$type<RawExtractionData>(),
   errorMessage: text("error_message"),
   processedAt: timestamp("processed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

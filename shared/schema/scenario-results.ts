@@ -2,6 +2,7 @@ import { pgTable, text, integer, timestamp, jsonb, index, unique } from "drizzle
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { scenarios } from "./scenarios";
+import type { ConsolidatedYearlyJson } from "./types/jsonb-shapes";
 
 export const scenarioResults = pgTable("scenario_results", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -9,7 +10,7 @@ export const scenarioResults = pgTable("scenario_results", {
   engineVersion: text("engine_version").notNull(),
   outputHash: text("output_hash").notNull(),
   inputsHash: text("inputs_hash").notNull(),
-  consolidatedYearlyJson: jsonb("consolidated_yearly_json").notNull(),
+  consolidatedYearlyJson: jsonb("consolidated_yearly_json").notNull().$type<ConsolidatedYearlyJson>(),
   auditOpinion: text("audit_opinion").notNull(),
   projectionYears: integer("projection_years").notNull(),
   propertyCount: integer("property_count").notNull(),

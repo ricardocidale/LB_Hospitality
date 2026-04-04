@@ -48,7 +48,7 @@ export const insertActivityLogSchema = z.object({
   entityType: z.string(),
   entityId: z.number().nullable().optional(),
   entityName: z.string().nullable().optional(),
-  metadata: z.any().nullable().optional(),
+  metadata: z.record(z.unknown()).nullable().optional(),
   ipAddress: z.string().nullable().optional(),
 });
 

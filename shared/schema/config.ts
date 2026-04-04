@@ -4,7 +4,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { logos } from "./core";
 import { users } from "./auth";
-import type { IcpConfig, ExportConfig } from "./types/jsonb-shapes";
+import type { IcpConfig, ExportConfig, StandardAcqPackage, DebtAssumptions, AssetDefinition } from "./types/jsonb-shapes";
 import {
   DEFAULT_SAFE_VALUATION_CAP,
   DEFAULT_SAFE_DISCOUNT_RATE,
@@ -170,8 +170,8 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // Portfolio — acquisition-side broker commission (applied during portfolio modeling)
   commissionRate: real("commission_rate").notNull().default(DEFAULT_COMMISSION_RATE),
   
-  standardAcqPackage: jsonb("standard_acq_package").notNull(),
-  debtAssumptions: jsonb("debt_assumptions").notNull(),
+  standardAcqPackage: jsonb("standard_acq_package").notNull().$type<StandardAcqPackage>(),
+  debtAssumptions: jsonb("debt_assumptions").notNull().$type<DebtAssumptions>(),
   
   
   // Tax Rate (for calculating after-tax company cash flow)
@@ -195,7 +195,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   exportConfig: jsonb("export_config").$type<ExportConfig>(),
 
   // Asset Definition
-  assetDefinition: jsonb("asset_definition").notNull().default({
+  assetDefinition: jsonb("asset_definition").notNull().$type<AssetDefinition>().default({
     minRooms: 10,
     maxRooms: 80,
     hasFB: true,
@@ -398,7 +398,7 @@ export const seedDefaults = pgTable("seed_defaults", {
   entityType: text("entity_type").notNull(),
   entityKey: text("entity_key").notNull(),
   fieldName: text("field_name").notNull(),
-  seedValue: jsonb("seed_value").notNull(),
+  seedValue: jsonb("seed_value").notNull().$type<unknown>(),
   appliedAt: timestamp("applied_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   unique("uq_seed_defaults_entity_field").on(table.entityType, table.entityKey, table.fieldName),

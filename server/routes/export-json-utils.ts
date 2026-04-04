@@ -1,3 +1,5 @@
+import { logger } from "../logger";
+
 export function repairTruncatedJson(str: string): string {
   let s = str.trim();
 
@@ -69,16 +71,18 @@ export function extractJsonFromText(text: string): string {
 
 export function aggressiveParse(raw: string): any {
   const jsonStr = extractJsonFromText(raw);
+  let lastErr: unknown;
 
-  try { return JSON.parse(jsonStr); } catch (_e1) { /* direct parse failed, try repair */ }
+  try { return JSON.parse(jsonStr); } catch (e) { lastErr = e; }
 
-  try { return JSON.parse(repairTruncatedJson(jsonStr)); } catch (_e2) { /* repair failed, try line-trimming */ }
+  try { return JSON.parse(repairTruncatedJson(jsonStr)); } catch (e) { lastErr = e; }
 
   const lines = jsonStr.split("\n");
   for (let drop = 1; drop <= Math.min(20, lines.length - 1); drop++) {
     const trimmed = lines.slice(0, lines.length - drop).join("\n");
-    try { return JSON.parse(repairTruncatedJson(trimmed)); } catch (_e3) { /* trim strategy failed, try next */ }
+    try { return JSON.parse(repairTruncatedJson(trimmed)); } catch (e) { lastErr = e; }
   }
 
+  logger.warn(`aggressiveParse exhausted all strategies (input length=${jsonStr.length}): ${lastErr instanceof Error ? lastErr.message : lastErr}`, "export-json");
   throw new Error("Could not parse AI response as JSON after all repair strategies");
 }

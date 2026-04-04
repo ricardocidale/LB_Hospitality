@@ -191,7 +191,7 @@ export default function PropertyMarketResearch() {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="market"><MarketTab content={content} /></TabsContent>
+              <TabsContent value="market"><MarketTab content={content} propertyLocation={property.location} /></TabsContent>
               <TabsContent value="revenue"><RevenueTab content={content} /></TabsContent>
               <TabsContent value="financial"><FinancialTab content={content} /></TabsContent>
               <TabsContent value="operating"><OperatingTab content={content} /></TabsContent>

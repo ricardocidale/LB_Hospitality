@@ -37,6 +37,7 @@ export function SearchResultCard({
   expandedImage,
   onToggleImage,
   onShowValue,
+  onShowDetail,
 }: {
   property: PropertyFinderResult;
   isSaved: boolean;
@@ -45,6 +46,7 @@ export function SearchResultCard({
   expandedImage: string | null;
   onToggleImage: (id: string) => void;
   onShowValue?: (id: string) => void;
+  onShowDetail?: (property: PropertyFinderResult) => void;
 }) {
   return (
     <div
@@ -141,6 +143,15 @@ export function SearchResultCard({
                 data-testid={`btn-value-history-${property.externalId}`}
               >
                 <IconTrendingUp className="w-3 h-3" /> Value
+              </button>
+            )}
+            {onShowDetail && (
+              <button
+                onClick={() => onShowDetail(property)}
+                className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
+                data-testid={`btn-details-${property.externalId}`}
+              >
+                Details
               </button>
             )}
           </div>

@@ -16,7 +16,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { Button } from "@/components/ui/button";
 import type { SavedProspectiveProperty } from "@/lib/api";
 import { Loader2, X } from "@/components/icons/themed-icons";
-import { IconExternalLink, IconBed, IconBath, IconRuler, IconTrees, IconMapPin, IconStickyNote, IconSave, IconTrash } from "@/components/icons";
+import { IconExternalLink, IconBed, IconBath, IconRuler, IconTrees, IconMapPin, IconStickyNote, IconSave, IconTrash, IconTrendingUp } from "@/components/icons";
 
 function PropertyTypeLabel(type: string | null): string {
   if (!type) return "";
@@ -40,6 +40,8 @@ export function FavoriteCard({
   onNotesChange,
   onSaveNotes,
   onCancelEditing,
+  onShowValue,
+  onShowDetail,
 }: {
   property: SavedProspectiveProperty;
   onRemove: (id: number) => void;
@@ -51,6 +53,8 @@ export function FavoriteCard({
   onNotesChange: (value: string) => void;
   onSaveNotes: (id: number) => void;
   onCancelEditing: () => void;
+  onShowValue?: (externalId: string) => void;
+  onShowDetail?: (property: SavedProspectiveProperty) => void;
 }) {
   return (
     <div
@@ -107,11 +111,31 @@ export function FavoriteCard({
         </div>
 
         <div className="flex items-center justify-between mt-3">
-          {property.propertyType ? (
-            <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-secondary border border-primary/20">
-              {PropertyTypeLabel(property.propertyType)}
-            </span>
-          ) : <span />}
+          <div className="flex items-center gap-2">
+            {property.propertyType ? (
+              <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-secondary border border-primary/20">
+                {PropertyTypeLabel(property.propertyType)}
+              </span>
+            ) : <span />}
+            {onShowValue && (
+              <button
+                onClick={() => onShowValue(property.externalId)}
+                className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors flex items-center gap-1"
+                data-testid={`btn-value-history-saved-${property.id}`}
+              >
+                <IconTrendingUp className="w-3 h-3" /> Value
+              </button>
+            )}
+            {onShowDetail && (
+              <button
+                onClick={() => onShowDetail(property)}
+                className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
+                data-testid={`btn-details-saved-${property.id}`}
+              >
+                Details
+              </button>
+            )}
+          </div>
           {property.listingUrl && (
             <a
               href={property.listingUrl}

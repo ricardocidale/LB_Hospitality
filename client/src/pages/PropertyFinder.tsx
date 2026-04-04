@@ -28,6 +28,7 @@ import {
   SavedSearchBar,
   MarketContextPanel,
   PropertyValueDrawer,
+  PropertyDetailDrawer,
   type SearchFormData,
 } from "@/components/property-finder";
 import { AnimatedPage } from "@/components/graphics/AnimatedPage";
@@ -50,6 +51,7 @@ export default function PropertyFinder() {
   const [editingNotesId, setEditingNotesId] = useState<number | null>(null);
   const [notesText, setNotesText] = useState("");
   const [valuePropertyId, setValuePropertyId] = useState<string | null>(null);
+  const [detailProperty, setDetailProperty] = useState<PropertyFinderResult | null>(null);
 
   const { data: searchData, isLoading: isSearching, error: searchError } = usePropertySearch(searchParams);
   const { data: favorites = [], isLoading: isFavoritesLoading } = useProspectiveFavorites();
@@ -309,6 +311,7 @@ export default function PropertyFinder() {
                       expandedImage={expandedImage}
                       onToggleImage={(id) => setExpandedImage(expandedImage === id ? null : id)}
                       onShowValue={(id) => setValuePropertyId(id)}
+                      onShowDetail={(p) => setDetailProperty(p)}
                     />
                   );
                 })}
@@ -369,6 +372,8 @@ export default function PropertyFinder() {
                   onNotesChange={setNotesText}
                   onSaveNotes={saveNotes}
                   onCancelEditing={() => setEditingNotesId(null)}
+                  onShowValue={(id) => setValuePropertyId(id)}
+                  onShowDetail={(p) => setDetailProperty(p)}
                 />
               ))}
             </div>
@@ -385,6 +390,13 @@ export default function PropertyFinder() {
             ?? "Property"
           }
           onClose={() => setValuePropertyId(null)}
+        />
+      )}
+
+      {detailProperty && (
+        <PropertyDetailDrawer
+          property={detailProperty}
+          onClose={() => setDetailProperty(null)}
         />
       )}
     </Layout>

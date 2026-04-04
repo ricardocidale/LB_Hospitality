@@ -1,9 +1,12 @@
 import { motion } from "framer-motion";
-import { IconTarget } from "@/components/icons";
+import { IconTarget, IconBuilding, IconStar } from "@/components/icons";
 import { MarketRateBenchmark } from "@/components/property-research/MarketRateBenchmark";
 import { ProvenanceBadge } from "@/components/property-research/ProvenanceBadge";
 import { SourceCitations } from "@/components/property-research/SourceCitations";
 import { PropertyStatus } from "@shared/constants";
+import { useMarketContext } from "@/lib/api";
+import { formatMoney } from "@/lib/financialEngine";
+import { Loader2 } from "@/components/icons/themed-icons";
 import {
   ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis,
   BarChart, Bar, XAxis, YAxis, Tooltip, AreaChart, Area,
@@ -14,10 +17,129 @@ import {
   ChartTooltip, MetricCard, EmptySection, CapRateGauge, BenchmarkBanner,
 } from "./research-chart-shared";
 
-export function MarketTab({ content }: { content: any }) {
+function HotelCompSection({ location }: { location: string }) {
+  const parts = location.split(",").map((s) => s.trim());
+  const city = parts[0] || location;
+  const state = parts[1];
+  const { data: ctx, isLoading, error } = useMarketContext(city, state);
+
+  if (isLoading) {
+    return (
+      <motion.div variants={fadeUp} className={`${card} p-6`}>
+        <h3 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
+          <IconBuilding className="w-5 h-5 text-primary" /> Hotel Comps
+        </h3>
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          <span className="ml-2 text-sm text-muted-foreground">Loading hotel comps for {city}…</span>
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (error) {
+    return (
+      <motion.div variants={fadeUp} className={`${card} p-6`}>
+        <h3 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
+          <IconBuilding className="w-5 h-5 text-primary" /> Hotel Comps
+        </h3>
+        <p className="text-sm text-muted-foreground" data-testid="hotel-comp-error">Unable to load hotel comp data for {city}. The market data service may be temporarily unavailable.</p>
+      </motion.div>
+    );
+  }
+
+  const snapshot = ctx?.hotelSnapshot;
+  const rates = ctx?.topHotelRates;
+  if (!snapshot && (!rates || rates.length === 0)) return null;
+
+  return (
+    <motion.div variants={fadeUp} className={`${card} p-6`}>
+      <h3 className="font-display text-lg font-semibold mb-1 flex items-center gap-2">
+        <IconBuilding className="w-5 h-5 text-primary" /> Hotel Comps — {snapshot?.location || city}
+      </h3>
+      <p className="text-xs text-muted-foreground mb-4">
+        Live rate data from {snapshot?.sampleSize ?? 0} hotels via Xotelo
+      </p>
+
+      {snapshot && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div className="bg-primary/5 rounded-xl p-3 border border-primary/10">
+            <p className="text-xs text-muted-foreground">Hotels Tracked</p>
+            <p className="text-lg font-bold text-foreground">{snapshot.sampleSize}</p>
+          </div>
+          <div className="bg-primary/5 rounded-xl p-3 border border-primary/10">
+            <p className="text-xs text-muted-foreground">Avg Low</p>
+            <p className="text-lg font-bold text-foreground">{snapshot.avgPriceMin != null ? formatMoney(snapshot.avgPriceMin) : "—"}</p>
+          </div>
+          <div className="bg-primary/5 rounded-xl p-3 border border-primary/10">
+            <p className="text-xs text-muted-foreground">Avg High</p>
+            <p className="text-lg font-bold text-foreground">{snapshot.avgPriceMax != null ? formatMoney(snapshot.avgPriceMax) : "—"}</p>
+          </div>
+          <div className="bg-primary/5 rounded-xl p-3 border border-primary/10">
+            <p className="text-xs text-muted-foreground">Top Hotels</p>
+            <p className="text-lg font-bold text-foreground">{snapshot.topHotels?.length ?? 0}</p>
+          </div>
+        </div>
+      )}
+
+      {snapshot?.topHotels && snapshot.topHotels.length > 0 && (
+        <div className="space-y-2 mb-5">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Top Rated Hotels</p>
+          {snapshot.topHotels.map((h, i) => (
+            <div key={i} className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/40 border border-border/50" data-testid={`hotel-comp-${i}`}>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-xs font-mono text-muted-foreground w-5 text-right">{i + 1}</span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{h.name}</p>
+                  <p className="text-xs text-muted-foreground">{h.type}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 flex-shrink-0">
+                {h.rating != null && (
+                  <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                    <IconStar className="w-3 h-3" /> {h.rating.toFixed(1)}
+                    {h.reviewCount != null && <span className="text-muted-foreground">({h.reviewCount.toLocaleString()})</span>}
+                  </span>
+                )}
+                <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                  {h.priceMin != null && h.priceMax != null
+                    ? `$${h.priceMin}–$${h.priceMax}`
+                    : h.priceMin != null ? `$${h.priceMin}+` : "—"}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {rates && rates.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Live OTA Rates (Tonight)</p>
+          {rates.map((hotel, i) => (
+            <div key={i} className="py-3 px-3 rounded-lg bg-muted/40 border border-border/50" data-testid={`hotel-rate-${i}`}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-foreground">{hotel.name}</p>
+                <span className="text-sm font-bold text-primary">{hotel.avgRate != null ? formatMoney(hotel.avgRate) : "—"} avg</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {hotel.rates.slice(0, 6).map((r, j) => (
+                  <span key={j} className="px-2 py-0.5 rounded-md text-xs bg-primary/8 border border-primary/15 text-foreground">
+                    {r.name}: ${r.rate}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+export function MarketTab({ content, propertyLocation }: { content: any; propertyLocation?: string }) {
   const mo = content?.marketOverview;
   const cs = content?.competitiveSet;
-  if (!mo && !cs) return <EmptySection />;
+  if (!mo && !cs && !propertyLocation) return <EmptySection />;
 
   const compRadar = cs?.competitors?.slice(0, 6).map((c: any) => ({
     subject: c.name?.slice(0, 14) || "Comp",
@@ -99,6 +221,8 @@ export function MarketTab({ content }: { content: any }) {
           <p className="text-sm text-muted-foreground leading-relaxed">{mo.positioning}</p>
         </motion.div>
       )}
+
+      {propertyLocation && <HotelCompSection location={propertyLocation} />}
     </motion.div>
   );
 }

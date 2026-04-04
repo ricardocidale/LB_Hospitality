@@ -19,3 +19,4 @@ export { SearchForm, type SearchFormData } from "./SearchForm";
 export { SavedSearchBar } from "./SavedSearchBar";
 export { MarketContextPanel } from "./MarketContextPanel";
 export { PropertyValueDrawer } from "./PropertyValueDrawer";
+export { PropertyDetailDrawer } from "./PropertyDetailDrawer";

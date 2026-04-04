@@ -25,6 +25,7 @@ import {
 import {
   aggregateYearMetrics,
 } from "./helpers";
+import { runFinancialIdentityChecks, runFundingGateChecks } from "./adapters";
 import { sweepNaN, checkDebtRollForward } from "../../calc/validation/data-integrity";
 
 const PROJECTION_YEARS = DEFAULT_PROJECTION_YEARS;
@@ -136,16 +137,6 @@ export function runIndependentVerification(
       ));
 
       checks.push(check(
-        "Net Income = ANOI - Interest - Depreciation - Tax",
-        "P&L",
-        "ASC 470 / ASC 360",
-        "ANOI - Interest - Depreciation - Income Tax",
-        m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax,
-        m.netIncome,
-        "critical"
-      ));
-
-      checks.push(check(
         "Cash Flow = ANOI - Debt Service - Tax",
         "Cash Flow",
         "ASC 230",
@@ -155,26 +146,15 @@ export function runIndependentVerification(
         "critical"
       ));
 
-      checks.push(check(
-        "Operating CF = NI + Depreciation",
-        "Cash Flow",
-        "ASC 230 (Indirect)",
-        "Net Income + Depreciation (non-cash add-back)",
-        m.netIncome + m.depreciationExpense,
-        m.operatingCashFlow,
-        "critical"
-      ));
-
-      checks.push(check(
-        "Financing CF = -Principal",
-        "Cash Flow",
-        "ASC 230",
-        "Negative of principal repayment (financing activity)",
-        -m.principalPayment,
-        m.financingCashFlow,
-        "material"
-      ));
-
+      const initialEquity = checkPropertyValue - loanAmount + (property.operatingReserve ?? 0);
+      let cumulativeNI = 0;
+      for (let ci = 0; ci <= firstOperationalMonth; ci++) {
+        cumulativeNI += engineCalc[ci].netIncome;
+      }
+      const identityChecks = runFinancialIdentityChecks(
+        m, m.propertyValue, m.debtOutstanding, initialEquity, cumulativeNI,
+      );
+      checks.push(...identityChecks);
     }
 
     if (property.type === "Financed" && loanAmount > 0) {
@@ -346,18 +326,8 @@ export function runIndependentVerification(
       "critical"
     ));
 
-    const shortfallMonths = engineCalc.filter((m) => m.cashShortfall);
-    const minCash = Math.min(...engineCalc.map((m) => m.endingCash));
-    const propLabel = property.name || `Property ${pi + 1}`;
-    checks.push(check(
-      "No Negative Cash Balance",
-      "Cash Flow",
-      "Business Rule",
-      `[${propLabel}] Cash balance must never go negative; min balance = $${Math.round(minCash).toLocaleString()}, shortfall months = ${shortfallMonths.length}`,
-      0,
-      shortfallMonths.length,
-      "info"
-    ));
+    const fundingGateChecks = runFundingGateChecks(property, engineCalc);
+    checks.push(...fundingGateChecks);
 
     const preOpMonths = engineCalc.filter((m) => m.monthIndex < firstOperationalMonth);
     if (preOpMonths.length > 0) {

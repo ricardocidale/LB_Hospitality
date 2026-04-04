@@ -261,6 +261,52 @@ describe("calculationChecker — new invariant checks", () => {
   });
 });
 
+describe("calculationChecker — calc/validation adapter integration", () => {
+  it("financial identity checks run via calc/validation/financial-identities adapter", () => {
+    const report = runVerificationWithEngine(
+      [makeProperty()],
+      makeGlobal(),
+    );
+    const allChecks = report.propertyResults[0].checks;
+    const identityChecks = allChecks.filter(c => c.category === "Financial Identity");
+    expect(identityChecks.length).toBeGreaterThanOrEqual(2);
+    for (const ic of identityChecks) {
+      expect(ic.passed).toBe(true);
+    }
+  });
+
+  it("funding gate checks run via calc/validation/funding-gates adapter", () => {
+    const report = runVerificationWithEngine(
+      [makeProperty()],
+      makeGlobal(),
+    );
+    const allChecks = report.propertyResults[0].checks;
+    const gateChecks = allChecks.filter(c => c.category === "Funding Gate");
+    expect(gateChecks.length).toBeGreaterThanOrEqual(1);
+    for (const gc of gateChecks) {
+      expect(gc.passed).toBe(true);
+    }
+  });
+
+  it("financed property includes debt-free-at-exit gate", () => {
+    const financedProp = makeProperty({
+      type: "Financed",
+      acquisitionLTV: 0.65,
+      acquisitionInterestRate: 0.08,
+      acquisitionTermYears: 25,
+    });
+    const report = runVerificationWithEngine(
+      [financedProp],
+      makeGlobal(),
+    );
+    const allChecks = report.propertyResults[0].checks;
+    const debtFreeGate = allChecks.find(
+      c => c.category === "Funding Gate" && c.metric === "Debt-Free at Exit"
+    );
+    expect(debtFreeGate).toBeDefined();
+  });
+});
+
 describe("calculationChecker — removed duplicated checks", () => {
   it("does NOT contain duplicated formula-recomputation checks", () => {
     const report = runVerificationWithEngine(

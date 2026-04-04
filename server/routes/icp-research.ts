@@ -5,6 +5,7 @@ import { logAndSendError } from "./helpers";
 import { getAnthropicClient, normalizeModelId } from "../ai/clients";
 import { DEFAULT_RESEARCH_MODEL } from "../ai/resolve-llm";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
+import { logger } from "../logger";
 
 interface IcpLocationCity {
   name: string;
@@ -345,7 +346,8 @@ export function register(app: Express) {
       try {
         const jsonMatch = fullContent.match(/\{[\s\S]*\}/);
         parsed = JSON.parse(jsonMatch ? jsonMatch[0] : fullContent);
-      } catch (_parseErr) {
+      } catch (parseErr) {
+        logger.warn(`ICP research JSON parse failed, using raw response: ${parseErr instanceof Error ? parseErr.message : parseErr}`, "icp-research");
         parsed = { rawResponse: fullContent };
       }
 

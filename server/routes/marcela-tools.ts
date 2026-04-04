@@ -1,4 +1,5 @@
 import { type Express, type Request, type Response, type NextFunction } from "express";
+import { logger } from "../logger";
 
 const MARCELA_TOOLS_SECRET = process.env.MARCELA_TOOLS_SECRET;
 if (!MARCELA_TOOLS_SECRET) {
@@ -19,7 +20,8 @@ function verifyToolsAuth(req: Request, res: Response, next: NextFunction) {
       if (a.length === b.length && timingSafeEqual(a, b)) {
         return next();
       }
-    } catch (_authErr) {
+    } catch (authErr) {
+      logger.warn(`Marcela tools auth token comparison failed: ${authErr instanceof Error ? authErr.message : authErr}`, "marcela-tools");
     }
   }
   res.status(401).json({ error: "Unauthorized" });

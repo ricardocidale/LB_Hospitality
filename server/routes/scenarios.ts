@@ -117,7 +117,10 @@ export function register(app: Express) {
       }
 
       logActivity(req, "create", "scenario", scenario.id, scenario.name);
-      res.status(201).json(scenario);
+      res.status(201).json({
+        ...scenario,
+        snapshotStatus: computedResults ? "computed" : "failed",
+      });
     } catch (error) {
       logAndSendError(res, "Failed to create scenario", error);
     }

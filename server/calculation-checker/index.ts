@@ -25,7 +25,7 @@ import {
 import {
   aggregateYearMetrics,
 } from "./helpers";
-import { runFinancialIdentityChecks, runFundingGateChecks } from "./adapters";
+import { runFinancialIdentityChecks, runFundingGateChecks, runScheduleReconcileChecks } from "./adapters";
 import { sweepNaN, checkDebtRollForward } from "../../calc/validation/data-integrity";
 
 const PROJECTION_YEARS = DEFAULT_PROJECTION_YEARS;
@@ -328,6 +328,9 @@ export function runIndependentVerification(
 
     const fundingGateChecks = runFundingGateChecks(property, engineCalc);
     checks.push(...fundingGateChecks);
+
+    const scheduleReconcileChecks = runScheduleReconcileChecks(property, engineCalc);
+    checks.push(...scheduleReconcileChecks);
 
     const preOpMonths = engineCalc.filter((m) => m.monthIndex < firstOperationalMonth);
     if (preOpMonths.length > 0) {

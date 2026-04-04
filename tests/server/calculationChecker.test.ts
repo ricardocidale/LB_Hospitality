@@ -351,6 +351,39 @@ describe("calculationChecker — removed duplicated checks", () => {
   });
 });
 
+describe("calculationChecker — schedule reconcile adapter", () => {
+  it("financed property includes schedule reconciliation check", () => {
+    const financedProp = makeProperty({
+      type: "Financed",
+      acquisitionLTV: 0.65,
+      acquisitionInterestRate: 0.065,
+      acquisitionTermYears: 25,
+    });
+    const report = runVerificationWithEngine(
+      [financedProp],
+      makeGlobal(),
+    );
+    const allChecks = report.propertyResults[0].checks;
+    const scheduleCheck = allChecks.find(
+      c => c.category === "Debt" && c.metric === "Amortization Schedule Reconciliation"
+    );
+    expect(scheduleCheck).toBeDefined();
+  });
+
+  it("all-cash property does NOT include schedule reconciliation", () => {
+    const cashProp = makeProperty({ type: "Cash" });
+    const report = runVerificationWithEngine(
+      [cashProp],
+      makeGlobal(),
+    );
+    const allChecks = report.propertyResults[0].checks;
+    const scheduleCheck = allChecks.find(
+      c => c.category === "Debt" && c.metric === "Amortization Schedule Reconciliation"
+    );
+    expect(scheduleCheck).toBeUndefined();
+  });
+});
+
 describe("calculationChecker — boundary enforcement", () => {
   it("checker modules do NOT import from @engine/ or client engine", async () => {
     const fs = await import("fs");

@@ -2,6 +2,9 @@ import type { CheckResult, CheckerProperty, EngineMonthlyResult } from "./types"
 import { check } from "./gaap-checks";
 import { validateFinancialIdentities } from "../../calc/validation/financial-identities";
 import { checkFundingGates } from "../../calc/validation/funding-gates";
+import { reconcileSchedule, type ScheduleEntry, type EngineEntry } from "../../calc/validation/schedule-reconcile";
+import { pmt } from "../../calc/shared/pmt";
+import { MONTHS_PER_YEAR } from "@shared/constants";
 
 const ROUNDING_POLICY = { precision: 2, bankers_rounding: false } as const;
 
@@ -75,4 +78,86 @@ export function runFundingGateChecks(
       severity === "info" ? "info" : severity,
     );
   });
+}
+
+export function runScheduleReconcileChecks(
+  property: CheckerProperty,
+  engineCalc: EngineMonthlyResult[],
+): CheckResult[] {
+  if (property.type !== "Financed") return [];
+
+  const purchasePrice = property.purchasePrice + (property.buildingImprovements ?? 0);
+  const ltv = property.acquisitionLTV ?? 0;
+  const loanAmount = purchasePrice * ltv;
+  const annualRate = property.acquisitionInterestRate ?? 0;
+  const termYears = property.acquisitionTermYears ?? 0;
+
+  if (loanAmount <= 0 || annualRate <= 0 || termYears <= 0) return [];
+
+  const monthlyRate = annualRate / MONTHS_PER_YEAR;
+  const totalPayments = termYears * MONTHS_PER_YEAR;
+  const monthlyPayment = pmt(loanAmount, monthlyRate, totalPayments);
+
+  const schedule: ScheduleEntry[] = [];
+  let balance = loanAmount;
+  const firstDebtMonth = engineCalc.findIndex(m => m.debtPayment > 0);
+  if (firstDebtMonth < 0) return [];
+
+  const monthsWithDebt = engineCalc.length - firstDebtMonth;
+  for (let i = 0; i < monthsWithDebt; i++) {
+    const interest = balance * monthlyRate;
+    const principal = monthlyPayment - interest;
+    balance = Math.max(0, balance - principal);
+    schedule.push({
+      month: firstDebtMonth + i,
+      expected_interest: interest,
+      expected_principal: principal,
+      expected_payment: monthlyPayment,
+      expected_ending_balance: balance,
+    });
+  }
+
+  const engineEntries: EngineEntry[] = engineCalc
+    .filter(m => m.debtPayment > 0)
+    .map(m => ({
+      month: m.monthIndex,
+      actual_interest: m.interestExpense,
+      actual_principal: m.principalPayment,
+      actual_payment: m.debtPayment,
+      actual_ending_balance: m.debtOutstanding,
+    }));
+
+  if (engineEntries.length === 0) return [];
+
+  const result = reconcileSchedule({
+    property_name: property.name || "Unnamed Property",
+    schedule,
+    engine_outputs: engineEntries,
+  });
+
+  const checks: CheckResult[] = [];
+
+  checks.push(check(
+    "Amortization Schedule Reconciliation",
+    "Debt",
+    "ASC 470",
+    `Independent amortization schedule vs engine: ${result.total_months_checked} months checked, ${result.months_with_variances} with variances, max balance drift $${result.max_balance_drift.toFixed(2)}`,
+    0,
+    result.months_with_variances,
+    result.all_reconciled ? "info" : "material"
+  ));
+
+  if (result.cumulative_interest_variance !== 0) {
+    checks.push(check(
+      "Cumulative Interest Variance",
+      "Debt",
+      "ASC 470",
+      `Cumulative interest difference between independent schedule and engine = $${result.cumulative_interest_variance.toFixed(2)}`,
+      0,
+      Math.abs(result.cumulative_interest_variance),
+      Math.abs(result.cumulative_interest_variance) > 1 ? "material" : "info"
+    ));
+  }
+
+  return checks;
 }

@@ -1,5 +1,5 @@
-import { generatePropertyProForma } from "@/lib/financial/property-engine";
-import type { PropertyInput, GlobalInput, MonthlyFinancials } from "@/lib/financial/types";
+import { generatePropertyProForma } from "@engine/property/property-engine";
+import type { PropertyInput, GlobalInput, MonthlyFinancials } from "@engine/types";
 
 export { generatePropertyProForma };
 export type { PropertyInput, GlobalInput, MonthlyFinancials };

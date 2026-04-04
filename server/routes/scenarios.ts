@@ -8,7 +8,7 @@ import { logActivity, logAndSendError, createScenarioSchema, MAX_SCENARIOS_PER_U
 import { computeFullDiff, reconstructScenarioProperties } from "../scenarios/diff-engine";
 import { computePortfolioProjection } from "../finance/service";
 import { stableHash } from "../scenarios/stable-json";
-import type { PropertyInput, GlobalInput } from "@/lib/financial/types";
+import type { PropertyInput, GlobalInput } from "@engine/types";
 import { logger } from "../logger";
 
 function requireScenarioPermission(req: any, res: any, next: any) {

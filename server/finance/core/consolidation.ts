@@ -1,3 +1,3 @@
-import { consolidateYearlyFinancials, computeWeightedMetrics } from "@/lib/financial/consolidation";
+import { consolidateYearlyFinancials, computeWeightedMetrics } from "@engine/aggregation/consolidation";
 
 export { consolidateYearlyFinancials, computeWeightedMetrics };

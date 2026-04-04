@@ -13,15 +13,21 @@ const SAFE_PATTERNS = [
 ];
 
 const FINANCE_ENGINE_FILES = [
-  "client/src/lib/financial/property-engine.ts",
-  "client/src/lib/financial/company-engine.ts",
-  "client/src/lib/financial/utils.ts",
-  "client/src/lib/financial/cashFlowAggregator.ts",
-  "client/src/lib/financial/yearlyAggregator.ts",
-  "client/src/lib/financial/equityCalculations.ts",
-  "client/src/lib/financial/loanCalculations.ts",
-  "client/src/lib/financial/cashFlowSections.ts",
-  "client/src/lib/financial/funding-predictor.ts",
+  "engine/property/property-engine.ts",
+  "engine/property/resolve-assumptions.ts",
+  "engine/property/refinance-pass.ts",
+  "engine/company/company-engine.ts",
+  "engine/company/analyzeCompanyCashPosition.ts",
+  "engine/helpers/utils.ts",
+  "engine/helpers/portfolio-helpers.ts",
+  "engine/aggregation/cashFlowAggregator.ts",
+  "engine/aggregation/yearlyAggregator.ts",
+  "engine/aggregation/consolidation.ts",
+  "engine/aggregation/cashFlowSections.ts",
+  "engine/debt/equityCalculations.ts",
+  "engine/debt/loanCalculations.ts",
+  "engine/debt/amortization.ts",
+  "engine/funding/funding-predictor.ts",
   "client/src/lib/audits/crossCalculatorValidation.ts",
 ];
 
@@ -65,11 +71,11 @@ const ALL_SCANNED_FILES = [
 ];
 
 const FILES_THAT_MUST_IMPORT_CONSTANTS = [
-  "client/src/lib/financial/property-engine.ts",
-  "client/src/lib/financial/company-engine.ts",
-  "client/src/lib/financial/cashFlowAggregator.ts",
-  "client/src/lib/financial/equityCalculations.ts",
-  "client/src/lib/financial/loanCalculations.ts",
+  "engine/property/property-engine.ts",
+  "engine/company/company-engine.ts",
+  "engine/aggregation/cashFlowAggregator.ts",
+  "engine/debt/equityCalculations.ts",
+  "engine/debt/loanCalculations.ts",
   "client/src/lib/audits/crossCalculatorValidation.ts",
   "client/src/lib/financialAuditor.ts",
   "client/src/lib/exports/checkerManualExport.ts",
@@ -580,11 +586,23 @@ describe("Hardcoded Value Detection", () => {
       const allLibFiles = fs.readdirSync(libDir)
         .filter((f) => f.endsWith(".ts") && !nonFinanceFiles.has(f));
 
-      const scannedBasenames = ALL_SCANNED_FILES
-        .filter((f) => f.startsWith("client/src/lib/") && !f.includes("/exports/"))
-        .map((f) => path.basename(f));
+      const scannedBasenames = [
+        ...ALL_SCANNED_FILES
+          .filter((f) => f.startsWith("client/src/lib/") && !f.includes("/exports/"))
+          .map((f) => path.basename(f)),
+        ...ALL_SCANNED_FILES
+          .filter((f) => f.startsWith("engine/"))
+          .map((f) => path.basename(f)),
+      ];
 
-      const unscanned = allLibFiles.filter((f) => !scannedBasenames.includes(f));
+      const financialShimDir = path.resolve("client/src/lib/financial");
+      const shimFiles = fs.existsSync(financialShimDir)
+        ? fs.readdirSync(financialShimDir).filter((f) => f.endsWith(".ts"))
+        : [];
+
+      const unscanned = allLibFiles.filter((f) =>
+        !scannedBasenames.includes(f) && !shimFiles.includes(f),
+      );
 
       if (unscanned.length > 0) {
         expect.fail(

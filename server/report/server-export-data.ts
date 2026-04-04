@@ -1,7 +1,7 @@
 import { computePortfolioProjection } from "../finance/service";
 import { storage } from "../storage";
-import type { PropertyInput, GlobalInput } from "@/lib/financial/types";
-import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
+import type { PropertyInput, GlobalInput } from "@engine/types";
+import type { YearlyPropertyFinancials } from "@engine/aggregation/yearlyAggregator";
 import { verifyExport } from "@calc/validation/export-verification";
 import { logger } from "../logger";
 

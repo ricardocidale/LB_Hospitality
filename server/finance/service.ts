@@ -3,8 +3,8 @@ import { aggregatePropertyByYear } from "./core/yearly-aggregator";
 import { consolidateYearlyFinancials } from "./core/consolidation";
 import { validateFinancialIdentities } from "@calc/validation/financial-identities";
 import { stableHash } from "../scenarios/stable-json";
-import type { PropertyInput, GlobalInput } from "@/lib/financial/types";
-import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
+import type { PropertyInput, GlobalInput } from "@engine/types";
+import type { YearlyPropertyFinancials } from "@engine/aggregation/yearlyAggregator";
 import type { PortfolioComputeResult } from "./core/types";
 import { MONTHS_PER_YEAR } from "@shared/constants";
 

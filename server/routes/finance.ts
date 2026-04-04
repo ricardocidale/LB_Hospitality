@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { computePortfolioProjection } from "../finance/service";
-import type { PropertyInput, GlobalInput } from "@/lib/financial/types";
+import type { PropertyInput, GlobalInput } from "@engine/types";
 
 const propertyInputSchema = z.object({
   operationsStartDate: z.string(),

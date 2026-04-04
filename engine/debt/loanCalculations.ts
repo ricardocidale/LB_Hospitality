@@ -252,7 +252,7 @@ export function calculateRefinanceParams(
   const refiTotalPayments = refiTermYears * MONTHS_PER_YEAR;
   
   const refiLTV = property.refinanceLTV ?? DEFAULT_REFI_LTV;
-  const stabilizedNOI = yearlyNOIData[refiYear] || 0;
+  const stabilizedNOI = yearlyNOIData[refiYear] ?? 0;
   const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
   const propertyValue = exitCapRate > 0 ? stabilizedNOI / exitCapRate : 0;
   const refiLoanAmount = propertyValue * refiLTV;

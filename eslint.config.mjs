@@ -33,6 +33,10 @@ export default [
           selector: "TSAsExpression[typeAnnotation.type='TSAnyKeyword']",
           message: "'as any' is banned in financial code. Use a specific type assertion instead.",
         },
+        {
+          selector: "LogicalExpression[operator='||'][right.type='Literal'][right.value=0]",
+          message: "'|| 0' is banned in financial code. Use assertFinite or explicit validation instead.",
+        },
       ],
       "no-restricted-globals": [
         "error",

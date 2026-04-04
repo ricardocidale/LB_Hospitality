@@ -196,7 +196,7 @@ export function generateCompanyProForma(
             let propServiceTotal = 0;
             for (const [catName, rawCatAmount] of Object.entries(catFees)) {
               const catAmount = assertFinite(rawCatAmount as number, `serviceFee[${catName}]`);
-              serviceFeeBreakdown.byCategory[catName] = (serviceFeeBreakdown.byCategory[catName] || 0) + catAmount;
+              serviceFeeBreakdown.byCategory[catName] = (serviceFeeBreakdown.byCategory[catName] ?? 0) + catAmount;
               if (!serviceFeeBreakdown.byCategoryByPropertyId[catName]) {
                 serviceFeeBreakdown.byCategoryByPropertyId[catName] = {};
               }
@@ -209,7 +209,7 @@ export function generateCompanyProForma(
             const propServiceFee = pf[m].revenueTotal * propBaseFeeRates[i];
             baseFeeRevenue += propServiceFee;
             serviceFeeBreakdown.byPropertyId[propId] = propServiceFee;
-            serviceFeeBreakdown.byCategory["Service Fee"] = (serviceFeeBreakdown.byCategory["Service Fee"] || 0) + propServiceFee;
+            serviceFeeBreakdown.byCategory["Service Fee"] = (serviceFeeBreakdown.byCategory["Service Fee"] ?? 0) + propServiceFee;
             if (!serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"]) {
               serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"] = {};
             }

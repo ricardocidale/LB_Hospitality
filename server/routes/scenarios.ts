@@ -42,18 +42,19 @@ export function register(app: Express) {
 
   app.post("/api/scenarios", requireManagementAccess, requireScenarioPermission, async (req, res) => {
     try {
+      const user = getAuthUser(req);
       const validation = createScenarioSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
 
-      const existing = await storage.getScenariosByUser(getAuthUser(req).id);
+      const existing = await storage.getScenariosByUser(user.id);
       if (existing.length >= MAX_SCENARIOS_PER_USER) {
         return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios allowed` });
       }
 
-      const assumptions = await storage.getGlobalAssumptions(getAuthUser(req).id);
-      const properties = await storage.getAllProperties(getAuthUser(req).id);
+      const assumptions = await storage.getGlobalAssumptions(user.id);
+      const properties = await storage.getAllProperties(user.id);
       
       const propertyIds = properties.map(p => p.id);
       const [feeCatsByPropId, photosByPropId] = await Promise.all([
@@ -68,8 +69,8 @@ export function register(app: Express) {
         propertyPhotos[p.name] = (photosByPropId[p.id] || []) as ScenarioPhotoSnapshot[];
       }
 
-      const liveAssumptions = await storage.getGlobalAssumptions(getAuthUser(req).id);
-      const liveProperties = await storage.getAllProperties(getAuthUser(req).id);
+      const liveAssumptions = await storage.getGlobalAssumptions(user.id);
+      const liveProperties = await storage.getAllProperties(user.id);
       const scenarioGA: ScenarioGlobalAssumptionsSnapshot = (assumptions || {}) as ScenarioGlobalAssumptionsSnapshot;
       const scenarioProps: ScenarioPropertySnapshot[] = (properties || []) as ScenarioPropertySnapshot[];
       const diffResult = computeFullDiff(
@@ -105,7 +106,7 @@ export function register(app: Express) {
       }
 
       const scenario = await storage.createScenario({
-        userId: getAuthUser(req).id,
+        userId: user.id,
         name: validation.data.name,
         description: validation.data.description,
         globalAssumptions: scenarioGA,
@@ -156,13 +157,14 @@ export function register(app: Express) {
 
   app.post("/api/scenarios/:id/load", requireManagementAccess, async (req, res) => {
     try {
+      const user = getAuthUser(req);
       const id = Number(req.params.id);
       const scenario = await storage.getScenario(id);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
 
-      const isOwner = scenario.userId === getAuthUser(req).id;
+      const isOwner = scenario.userId === user.id;
       if (!isOwner) {
-        const shared = await storage.getScenariosSharedWithUser(getAuthUser(req).id);
+        const shared = await storage.getScenariosSharedWithUser(user.id);
         const hasAccess = shared.some(s => s.id === id);
         if (!hasAccess) return res.status(403).json({ error: "Access denied" });
       }
@@ -187,11 +189,11 @@ export function register(app: Express) {
           .filter((pid): pid is number => typeof pid === "number");
 
         if (snapshotPropertyIds.length > 0) {
-          const requesterProperties = await storage.getAllProperties(getAuthUser(req).id);
+          const requesterProperties = await storage.getAllProperties(user.id);
           const requesterPropertyIds = new Set(requesterProperties.map(p => p.id));
           const unauthorizedIds = snapshotPropertyIds.filter(pid => !requesterPropertyIds.has(pid));
           if (unauthorizedIds.length > 0) {
-            logger.warn(`[scenario-load] Scenario ${id}: user ${getAuthUser(req).id} lacks access to ${unauthorizedIds.length} property ID(s): ${unauthorizedIds.join(", ")}`, "scenarios");
+            logger.warn(`[scenario-load] Scenario ${id}: user ${user.id} lacks access to ${unauthorizedIds.length} property ID(s): ${unauthorizedIds.join(", ")}`, "scenarios");
             return res.status(403).json({
               error: "Scenario contains properties you do not have access to",
             });
@@ -214,7 +216,7 @@ export function register(app: Express) {
       }
 
       await storage.loadScenario(
-        getAuthUser(req).id,
+        user.id,
         scenario.globalAssumptions,
         snapshotProps,
         snapshotFeeCats ?? undefined,
@@ -315,14 +317,15 @@ export function register(app: Express) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
 
-      const existing = await storage.getScenariosByUser(getAuthUser(req).id);
+      const user = getAuthUser(req);
+      const existing = await storage.getScenariosByUser(user.id);
       if (existing.length >= MAX_SCENARIOS_PER_USER) {
         return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios allowed` });
       }
 
       const data = validation.data;
       const scenario = await storage.createScenario({
-        userId: getAuthUser(req).id,
+        userId: user.id,
         name: data.name,
         description: data.description ?? null,
         globalAssumptions: data.globalAssumptions as ScenarioGlobalAssumptionsSnapshot,

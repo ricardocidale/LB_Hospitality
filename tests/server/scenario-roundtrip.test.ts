@@ -255,7 +255,7 @@ describe("Scenario Save/Load Code Path Verification", () => {
   });
 
   it("scenario load route validates property access for non-owner users", () => {
-    expect(routesSrc).toContain("getAllProperties(getAuthUser(req).id)");
+    expect(routesSrc).toContain("getAllProperties(user.id)");
     expect(routesSrc).toContain("requesterPropertyIds");
     expect(routesSrc).toContain("unauthorizedIds");
     expect(routesSrc).toContain('"Scenario contains properties you do not have access to"');

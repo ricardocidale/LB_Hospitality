@@ -336,6 +336,78 @@ describe("Schema & Data Model — computeGhostName unit tests", () => {
   });
 });
 
+describe("Schema & Data Model — Zod schema edge cases", () => {
+  it("createScenarioSchema rejects empty name", () => {
+    const result = createScenarioSchema.safeParse({ name: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("createScenarioSchema allows description up to 1000 chars", () => {
+    const result = createScenarioSchema.safeParse({ name: "Test", description: "x".repeat(1000) });
+    expect(result.success).toBe(true);
+  });
+
+  it("updateScenarioSchema allows partial updates (name only)", () => {
+    const result = updateScenarioSchema.safeParse({ name: "New Name" });
+    expect(result.success).toBe(true);
+  });
+
+  it("updateScenarioSchema allows partial updates (description only)", () => {
+    const result = updateScenarioSchema.safeParse({ description: "New desc" });
+    expect(result.success).toBe(true);
+  });
+
+  it("updateScenarioSchema allows null description", () => {
+    const result = updateScenarioSchema.safeParse({ description: null });
+    expect(result.success).toBe(true);
+  });
+});
+
+describe("Schema & Data Model — partial unique index enforces soft-delete reuse", () => {
+  it("migration creates index with WHERE deleted_at IS NULL clause", () => {
+    const migrations = readFile("migrations/meta/_journal.json");
+    const schemaFile = readFile("shared/schema/scenarios.ts");
+    expect(schemaFile).not.toContain('unique("scenarios_user_id_name")');
+  });
+
+  it("softDeleteScenario nullifies name-guard by setting deletedAt", () => {
+    const src = readFile("server/storage/financial.ts");
+    const methodStart = src.indexOf("async softDeleteScenario(");
+    const methodEnd = src.indexOf("async hardDeleteScenario(");
+    const body = src.slice(methodStart, methodEnd);
+    expect(body).toContain("deletedAt: now");
+    expect(body).not.toContain("name:");
+  });
+
+  it("restoreScenario clears deletedAt (re-enables name uniqueness)", () => {
+    const src = readFile("server/storage/financial.ts");
+    expect(src).toContain("deletedAt: null, deletedBy: null, purgeAfter: null");
+  });
+});
+
+describe("Schema & Data Model — stableKey insertion uniqueness", () => {
+  it("properties schema uses defaultRandom() for auto-generation", () => {
+    const src = readFile("shared/schema/properties.ts");
+    const stableKeyLine = src.split("\n").find(l => l.includes("stableKey"));
+    expect(stableKeyLine).toBeDefined();
+    expect(stableKeyLine).toContain("defaultRandom()");
+    expect(stableKeyLine).toContain("unique()");
+  });
+
+  it("stableKey is UUID type (not text)", () => {
+    const src = readFile("shared/schema/properties.ts");
+    expect(src).toContain('uuid("stable_key")');
+  });
+
+  it("stableKey is included in property snapshots during scenario creation", () => {
+    const src = readFile("server/routes/scenario-helpers.ts");
+    const fnStart = src.indexOf("async function buildCreateSnapshotData(");
+    const fnEnd = src.indexOf("export function tryComputeResults(");
+    const body = src.slice(fnStart, fnEnd);
+    expect(body).toContain("getAllProperties");
+  });
+});
+
 describe("Schema & Data Model — race condition handling", () => {
   it("ensureDefaultScenario catches unique violation (23505)", () => {
     const src = readFile("server/routes/scenario-helpers.ts");

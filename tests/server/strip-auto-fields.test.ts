@@ -119,7 +119,7 @@ describe("Storage Layer — all update methods use stripAutoFields", () => {
 
     it("updateScenario uses stripAutoFields", () => {
       const methodStart = src.indexOf("async updateScenario(");
-      const methodEnd = src.indexOf("async deleteScenario(");
+      const methodEnd = src.indexOf("async updateScenarioComputedResults(");
       const body = src.slice(methodStart, methodEnd);
       expect(body).toContain("stripAutoFields(");
     });

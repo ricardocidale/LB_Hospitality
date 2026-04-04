@@ -629,7 +629,7 @@ export class FinancialStorage {
   }
 
   async getScenarioCountByUser(userId: number): Promise<number> {
-    const result = await db.select().from(scenarios).where(eq(scenarios.userId, userId));
+    const result = await db.select().from(scenarios).where(and(eq(scenarios.userId, userId), isNull(scenarios.deletedAt)));
     return result.length;
   }
 

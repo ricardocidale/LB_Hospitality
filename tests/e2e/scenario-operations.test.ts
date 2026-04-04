@@ -184,21 +184,20 @@ describe.skipIf(!process.env.E2E)("E2E Scenario Operations", () => {
     expect(found).toBeUndefined();
   });
 
-  // ── Edge case: Cannot delete the default scenario ────────────────
-  it("Cannot delete the Development scenario", async () => {
+  it("Cannot delete a locked scenario (returns 403)", async () => {
     const res = await authedFetch("/api/scenarios", sessionCookie);
     const scenarios = await res.json();
-    const devScenario = scenarios.find((s: any) => s.name === "Development");
+    const lockedScenario = scenarios.find((s: any) => s.isLocked);
 
-    if (devScenario) {
+    if (lockedScenario) {
       const deleteRes = await authedFetch(
-        `/api/scenarios/${devScenario.id}`,
+        `/api/scenarios/${lockedScenario.id}`,
         sessionCookie,
         { method: "DELETE" },
       );
-      expect(deleteRes.status).toBe(400);
+      expect(deleteRes.status).toBe(403);
       const body = await deleteRes.json();
-      expect(body.error).toContain("cannot be deleted");
+      expect(body.error).toContain("locked");
     }
   });
 });

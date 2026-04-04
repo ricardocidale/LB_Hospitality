@@ -88,14 +88,19 @@ describe("Storage Layer — FinancialStorage (Scenarios)", () => {
   });
 
   it("updateScenario sets updatedAt on every update", () => {
-    // Look specifically in the updateScenario method
     const methodStart = src.indexOf("async updateScenario(");
-    const methodEnd = src.indexOf("async deleteScenario(");
+    const methodEnd = src.indexOf("async updateScenarioComputedResults(");
     const methodBody = src.slice(methodStart, methodEnd);
     expect(methodBody).toContain("updatedAt: new Date()");
   });
 
-  it("deleteScenario uses eq on id", () => {
+  it("softDeleteScenario sets deletedAt and purgeAfter", () => {
+    expect(src).toContain("async softDeleteScenario(");
+    expect(src).toContain("deletedAt: now");
+    expect(src).toContain("purgeAfter: purge");
+  });
+
+  it("hardDeleteScenario uses eq on id", () => {
     expect(src).toContain("db.delete(scenarios).where(eq(scenarios.id, id))");
   });
 });

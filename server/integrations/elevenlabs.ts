@@ -1,6 +1,7 @@
 import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
 import WebSocket from 'ws';
 import { BaseIntegrationService, type IntegrationHealth } from './base';
+import { logger } from '../logger';
 
 let connectionSettings: any;
 
@@ -57,9 +58,9 @@ async function getCredentials() {
       if (connectionSettings?.settings?.api_key) {
         return connectionSettings.settings.api_key;
       }
-      console.info('[ElevenLabs] Replit connector found but no api_key in settings');
+      logger.info('Replit connector found but no api_key in settings', 'elevenlabs');
     } catch (err) {
-      console.info('[ElevenLabs] Replit connector unavailable, falling back to env var');
+      logger.info('Replit connector unavailable, falling back to env var', 'elevenlabs');
     }
   }
 
@@ -263,12 +264,12 @@ export async function getSignedUrl(agentId: string): Promise<string> {
   const response = await fetch(url, { headers: { 'xi-api-key': apiKey } });
   if (!response.ok) {
     const text = await response.text();
-    console.error(`[ElevenLabs] Signed URL request failed (${response.status}) for agent ${agentId}:`, text);
+    logger.error(`Signed URL request failed (${response.status}) for agent ${agentId}: ${text}`, "elevenlabs");
     throw new Error(`ElevenLabs signed URL error (${response.status}): ${text}`);
   }
   const data = await response.json() as { signed_url: string };
   if (!data.signed_url) {
-    console.error('[ElevenLabs] API returned success but no signed_url in response:', JSON.stringify(data));
+    logger.error(`API returned success but no signed_url in response: ${JSON.stringify(data)}`, "elevenlabs");
     throw new Error('ElevenLabs returned empty signed URL');
   }
   return data.signed_url;

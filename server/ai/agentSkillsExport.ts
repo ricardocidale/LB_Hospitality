@@ -1,4 +1,5 @@
 import { type ThemeColorMap, resolveThemeColors } from "../theme-resolver";
+import { logger } from "../logger";
 
 const AGENT_SKILLS_DEFAULTS: ThemeColorMap = {
   navy: "1A2332",
@@ -30,7 +31,7 @@ export interface AgentSkillsResult {
 export async function generateWithAgentSkills(
   _options: AgentSkillsExportOptions
 ): Promise<AgentSkillsResult> {
-  console.warn(`[agent-skills] Agent Skills beta APIs are not available via the current AI proxy. Falling back to template pipeline.`);
+  logger.warn("Agent Skills beta APIs are not available via the current AI proxy. Falling back to template pipeline.", "agent-skills");
   throw new Error("Agent Skills beta APIs not supported by current AI proxy");
 }
 

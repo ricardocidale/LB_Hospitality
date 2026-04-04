@@ -7,6 +7,7 @@
  */
 
 import { EXTERNAL_API_TIMEOUT_MS } from "../constants";
+import { logger } from "../logger";
 
 interface WebSearchResult {
   title: string;
@@ -39,7 +40,7 @@ export async function webSearch(
     );
 
     if (!response.ok) {
-      console.warn(`Web search failed (${response.status}): ${response.statusText}`);
+      logger.warn(`Web search failed (${response.status}): ${response.statusText}`, "web-search");
       return [];
     }
 
@@ -50,7 +51,7 @@ export async function webSearch(
       snippet: item.snippet,
     }));
   } catch (error) {
-    console.warn("Web search error:", error);
+    logger.warn(`Web search error: ${error instanceof Error ? error.message : error}`, "web-search");
     return [];
   }
 }

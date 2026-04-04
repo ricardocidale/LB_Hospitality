@@ -1,6 +1,7 @@
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { SpeechToTextChunkResponseModel } from "@elevenlabs/elevenlabs-js/api/types/SpeechToTextChunkResponseModel";
 import { getElevenLabsApiKey } from "./integrations/elevenlabs";
+import { logger } from "./logger";
 
 export interface TranscriptionResult {
   text?: string;
@@ -45,7 +46,7 @@ export async function transcribeAudio({
 
     return { text: rawText, transcriptionTime };
   } catch (error) {
-    console.error("Transcription error:", error);
+    logger.error(`Transcription error: ${error instanceof Error ? error.message : error}`, "transcribe");
     return {
       error:
         error instanceof Error ? error.message : "Failed to transcribe audio",

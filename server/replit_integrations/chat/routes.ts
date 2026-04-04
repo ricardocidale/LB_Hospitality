@@ -5,6 +5,7 @@ import { requireAuth } from "../../auth";
 import { storage } from "../../storage";
 import { UserRole } from "@shared/constants";
 import { DEFAULT_OPENAI_MODEL } from "../../ai/resolve-llm";
+import { logger } from "../../logger";
 import {
   transcribeAudio,
   createElevenLabsStreamingTTS,
@@ -293,7 +294,7 @@ async function buildContextPrompt(userId?: number): Promise<string> {
 
     return parts.length > 0 ? "\n\n" + parts.join("\n") : "";
   } catch (error) {
-    console.error("Error building context prompt:", error);
+    logger.error(`Error building context prompt: ${error instanceof Error ? error.message : error}`, "chat");
     return "";
   }
 }
@@ -304,7 +305,7 @@ async function getUserRole(userId?: number): Promise<string> {
     const user = await storage.getUserById(userId);
     return user?.role || UserRole.USER;
   } catch (error) {
-    console.error("Error getting user role:", error);
+    logger.error(`Error getting user role: ${error instanceof Error ? error.message : error}`, "chat");
     return UserRole.USER;
   }
 }
@@ -322,7 +323,7 @@ export function registerChatRoutes(app: Express): void {
       const convos = await chatStorage.getAllConversationsForUser(req.user!.id);
       res.json(convos);
     } catch (error) {
-      console.error("Error fetching conversations:", error);
+      logger.error(`Error fetching conversations: ${error instanceof Error ? error.message : error}`, "chat");
       res.status(500).json({ error: "Failed to fetch conversations" });
     }
   });
@@ -337,7 +338,7 @@ export function registerChatRoutes(app: Express): void {
       const messages = await chatStorage.getMessagesByConversation(id);
       res.json({ ...conversation, messages });
     } catch (error) {
-      console.error("Error fetching conversation:", error);
+      logger.error(`Error fetching conversation: ${error instanceof Error ? error.message : error}`, "chat");
       res.status(500).json({ error: "Failed to fetch conversation" });
     }
   });
@@ -348,7 +349,7 @@ export function registerChatRoutes(app: Express): void {
       const conversation = await chatStorage.createConversation(title || "New Chat", "web", req.user!.id);
       res.status(201).json(conversation);
     } catch (error) {
-      console.error("Error creating conversation:", error);
+      logger.error(`Error creating conversation: ${error instanceof Error ? error.message : error}`, "chat");
       res.status(500).json({ error: "Failed to create conversation" });
     }
   });
@@ -362,7 +363,7 @@ export function registerChatRoutes(app: Express): void {
       }
       res.status(204).send();
     } catch (error) {
-      console.error("Error deleting conversation:", error);
+      logger.error(`Error deleting conversation: ${error instanceof Error ? error.message : error}`, "chat");
       res.status(500).json({ error: "Failed to delete conversation" });
     }
   });
@@ -429,7 +430,7 @@ export function registerChatRoutes(app: Express): void {
       res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
       res.end();
     } catch (error) {
-      console.error("Error sending message:", error);
+      logger.error(`Error sending message: ${error instanceof Error ? error.message : error}`, "chat");
       if (res.headersSent) {
         res.write(`data: ${JSON.stringify({ error: "Failed to get AI response" })}\n\n`);
         res.end();
@@ -524,7 +525,7 @@ export function registerChatRoutes(app: Express): void {
           }
         );
       } catch (ttsError) {
-        console.error("ElevenLabs TTS connection failed, falling back to text-only:", ttsError);
+        logger.error(`ElevenLabs TTS connection failed, falling back to text-only: ${ttsError instanceof Error ? ttsError.message : ttsError}`, "chat");
       }
 
       for await (const chunk of llmStream) {
@@ -550,7 +551,7 @@ export function registerChatRoutes(app: Express): void {
       res.write(`data: ${JSON.stringify({ type: "done", transcript: fullResponse })}\n\n`);
       res.end();
     } catch (error) {
-      console.error("Error processing voice message:", error);
+      logger.error(`Error processing voice message: ${error instanceof Error ? error.message : error}`, "chat");
       if (res.headersSent) {
         res.write(`data: ${JSON.stringify({ type: "error", error: "Failed to process voice message" })}\n\n`);
         res.end();
@@ -569,7 +570,7 @@ export function registerChatRoutes(app: Express): void {
       const phoneNumber = await getTwilioFromPhoneNumber();
       res.json({ enabled: true, phoneNumber });
     } catch (error) {
-      console.error("Error fetching Twilio phone number:", error);
+      logger.error(`Error fetching Twilio phone number: ${error instanceof Error ? error.message : error}`, "chat");
       res.json({ enabled: false, phoneNumber: null });
     }
   });

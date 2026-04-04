@@ -3,6 +3,11 @@ import { pool } from "../db";
 import { getCacheStatus } from "../finance/cache";
 import { logger } from "../logger";
 
+interface HealthCheck {
+  status: "ok" | "error" | "degraded";
+  [key: string]: unknown;
+}
+
 const router = Router();
 const startedAt = Date.now();
 
@@ -13,15 +18,23 @@ router.get("/api/health/live", (_req: Request, res: Response) => {
 router.get("/api/health/ready", async (_req: Request, res: Response) => {
   try {
     await pool.query("SELECT 1");
-    res.json({ status: "ready", db: "connected" });
+    const migrationResult = await pool.query(
+      "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'properties') AS ready"
+    );
+    const migrationsReady = migrationResult.rows[0]?.ready === true;
+    if (!migrationsReady) {
+      res.status(503).json({ status: "not_ready", db: "connected", migrations: "pending" });
+      return;
+    }
+    res.json({ status: "ready", db: "connected", migrations: "complete" });
   } catch (err) {
     logger.error(`Readiness check failed: ${err instanceof Error ? err.message : err}`, "health");
-    res.status(503).json({ status: "not_ready", db: "disconnected" });
+    res.status(503).json({ status: "not_ready", db: "disconnected", migrations: "unknown" });
   }
 });
 
 router.get("/api/health/deep", async (_req: Request, res: Response) => {
-  const checks: Record<string, unknown> = {};
+  const checks: Record<string, HealthCheck> = {};
 
   try {
     const result = await pool.query("SELECT NOW() AS server_time");
@@ -52,7 +65,20 @@ router.get("/api/health/deep", async (_req: Request, res: Response) => {
     nodeVersion: process.version,
   };
 
-  const allOk = Object.values(checks).every((c: any) => c.status === "ok");
+  try {
+    const extChecks: Record<string, string> = {};
+    if (process.env.RESEND_API_KEY) extChecks.resend = "configured";
+    if (process.env.ELEVENLABS_API_KEY || process.env.ELEVENLABS_CONNECTION_ID) extChecks.elevenlabs = "configured";
+    if (process.env.GOOGLE_MAPS_API_KEY) extChecks.googleMaps = "configured";
+    checks.externalServices = {
+      status: Object.keys(extChecks).length > 0 ? "ok" : "degraded",
+      services: extChecks,
+    };
+  } catch {
+    checks.externalServices = { status: "degraded", services: {} };
+  }
+
+  const allOk = Object.values(checks).every((c: HealthCheck) => c.status === "ok");
   res.status(allOk ? 200 : 503).json({ status: allOk ? "healthy" : "degraded", checks });
 });
 

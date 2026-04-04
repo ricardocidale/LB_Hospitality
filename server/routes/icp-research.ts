@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, isApiRateLimited , getAuthUser } from "../auth";
-import { logAndSendError } from "./helpers";
+import { logActivity, logAndSendError } from "./helpers";
 import { getAnthropicClient, normalizeModelId } from "../ai/clients";
 import { DEFAULT_RESEARCH_MODEL } from "../ai/resolve-llm";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
@@ -393,6 +393,7 @@ export function register(app: Express) {
 
       const updatedIcpConfig = { ...icpConfig, _research: report, _researchMarkdown: markdown };
       await storage.patchGlobalAssumptions(ga.id, { icpConfig: updatedIcpConfig });
+      logActivity(req, "generate", "icp_research", ga.id, "ICP Research Report");
 
       const inTok = Math.round(prompt.length / 4);
       const outTok = Math.round(fullContent.length / 4);

@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "../db";
+import { log } from "../logger";
 
 interface DuplicateFk {
   table: string;
@@ -47,20 +48,20 @@ export async function runDbHygiene001() {
             sql.raw(`ALTER TABLE "${table}" DROP CONSTRAINT "${drop}"`)
           );
           totalDropped++;
-          console.info(`[INFO] ${TAG}: dropped duplicate FK ${drop} (keeper: ${keep})`);
+          log(`Dropped duplicate FK ${drop} (keeper: ${keep})`, TAG);
         } else if (names.has(drop) && !names.has(keep)) {
-          console.info(`[INFO] ${TAG}: skipping ${drop} — keeper ${keep} not found`);
+          log(`Skipping ${drop} — keeper ${keep} not found`, TAG);
         }
       } catch (err: any) {
         if (!err.message?.includes("does not exist")) {
-          console.warn(`[WARN] ${TAG}: failed to drop ${drop}: ${err.message}`);
+          log(`Failed to drop ${drop}: ${err.message}`, TAG, "warn");
         }
       }
     }
 
-    console.info(`[INFO] ${TAG}: FK phase complete — dropped ${totalDropped} duplicate FK(s)`);
+    log(`FK phase complete — dropped ${totalDropped} duplicate FK(s)`, TAG);
   } catch (error: any) {
-    console.error(`[ERROR] ${TAG} FK phase failed:`, error.message);
+    log(`FK phase failed: ${error.message}`, TAG, "error");
   }
 }
 
@@ -83,11 +84,11 @@ export async function cleanOrphanedLogos() {
     `);
     const orphanCount = result.rowCount ?? 0;
     if (orphanCount > 0) {
-      console.info(`[INFO] ${TAG}: removed ${orphanCount} orphaned logo rows`);
+      log(`Removed ${orphanCount} orphaned logo rows`, TAG);
     } else {
-      console.info(`[INFO] ${TAG}: no orphaned logos found`);
+      log("No orphaned logos found", TAG);
     }
   } catch (error: any) {
-    console.error(`[ERROR] ${TAG} logo cleanup failed:`, error.message);
+    log(`Logo cleanup failed: ${error.message}`, TAG, "error");
   }
 }

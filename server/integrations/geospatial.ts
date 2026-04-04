@@ -2,6 +2,7 @@ import { db } from "../db";
 import { properties } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { BaseIntegrationService, type IntegrationHealth } from "./base";
+import { logger } from "../logger";
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || "";
 
@@ -224,7 +225,7 @@ class GeospatialIntegration extends BaseIntegrationService {
 
       return coords;
     } catch (error) {
-      console.error("Geocode and update error:", error);
+      logger.error(`Geocode and update error: ${error instanceof Error ? error.message : error}`, "geospatial");
       return null;
     }
   }

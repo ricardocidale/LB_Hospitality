@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync, existsSync } from "fs";
 import { join } from "path";
 import type Anthropic from "@anthropic-ai/sdk";
+import { logger } from "../logger";
 
 export const RESEARCH_SKILLS_DIR = join(process.cwd(), ".claude", "skills", "research");
 
@@ -84,7 +85,7 @@ export function loadToolDefinitions(): Anthropic.Tool[] {
         } else if (entry.name.endsWith(".json")) {
           const content = JSON.parse(readFileSync(fullPath, "utf-8"));
           if (seen.has(content.name)) {
-            console.warn(`Duplicate tool definition skipped: ${content.name} in ${fullPath}`);
+            logger.warn(`Duplicate tool definition skipped: ${content.name} in ${fullPath}`, "research-resources");
             continue;
           }
           seen.add(content.name);
@@ -94,7 +95,7 @@ export function loadToolDefinitions(): Anthropic.Tool[] {
           const schema = content.input_schema;
           if (!schema.type) schema.type = "object";
           if (schema.properties && (typeof schema.properties !== "object" || Array.isArray(schema.properties))) {
-            console.warn(`Skipping tool with invalid properties: ${content.name} in ${fullPath}`);
+            logger.warn(`Skipping tool with invalid properties: ${content.name} in ${fullPath}`, "research-resources");
             continue;
           }
           tools.push({
@@ -131,6 +132,6 @@ export function validateSkillFolders(): void {
   }
 
   if (missing.length > 0) {
-    console.error(`Missing research skill folders: ${missing.join(", ")}`);
+    logger.error(`Missing research skill folders: ${missing.join(", ")}`, "research-resources");
   }
 }

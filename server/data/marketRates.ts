@@ -14,6 +14,7 @@ import { marketRates, type MarketRate } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { EXTERNAL_API_TIMEOUT_MS } from "../constants";
 import { FRED_BASE_URL } from "../services/FREDService";
+import { logger } from "../logger";
 
 interface FredObservation {
   date: string;
@@ -42,7 +43,7 @@ export async function fetchFredRate(seriesId: string): Promise<{ value: number; 
     });
 
     if (!response.ok) {
-      console.warn(`FRED fetch failed for ${seriesId}: ${response.status}`);
+      logger.warn(`FRED fetch failed for ${seriesId}: ${response.status}`, "market-rates");
       return null;
     }
 
@@ -52,7 +53,7 @@ export async function fetchFredRate(seriesId: string): Promise<{ value: number; 
 
     return { value: parseFloat(obs.value), date: obs.date };
   } catch (error) {
-    console.warn(`FRED fetch error for ${seriesId}:`, error);
+    logger.warn(`FRED fetch error for ${seriesId}: ${error instanceof Error ? error.message : error}`, "market-rates");
     return null;
   }
 }
@@ -78,7 +79,7 @@ export async function fetchFrankfurterRate(targetCurrency: string): Promise<{ va
 
     if (!response.ok) {
       if (!frankfurterWarned.has(targetCurrency)) {
-        console.warn(`Frankfurter fetch failed for ${targetCurrency}: ${response.status} (suppressing further warnings)`);
+        logger.warn(`Frankfurter fetch failed for ${targetCurrency}: ${response.status} (suppressing further warnings)`, "market-rates");
         frankfurterWarned.add(targetCurrency);
       }
       return null;
@@ -92,7 +93,7 @@ export async function fetchFrankfurterRate(targetCurrency: string): Promise<{ va
     return { value: rate, date: data.date };
   } catch (error) {
     if (!frankfurterWarned.has(targetCurrency)) {
-      console.warn(`Frankfurter fetch error for ${targetCurrency}:`, error);
+      logger.warn(`Frankfurter fetch error for ${targetCurrency}: ${error instanceof Error ? error.message : error}`, "market-rates");
       frankfurterWarned.add(targetCurrency);
     }
     return null;

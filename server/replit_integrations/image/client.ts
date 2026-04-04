@@ -2,6 +2,7 @@ import fs from "node:fs";
 import OpenAI, { toFile } from "openai";
 import { getGeminiClient } from "../../ai/clients";
 import { Buffer } from "node:buffer";
+import { logger } from "../../logger";
 
 export const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -39,7 +40,7 @@ export async function generateImageBuffer(
     }
     throw new Error("No image data in Nano Banana response");
   } catch (err) {
-    console.warn("Nano Banana image generation failed, falling back to OpenAI:", (err as Error).message);
+    logger.warn(`Nano Banana image generation failed, falling back to OpenAI: ${(err as Error).message}`, "image-gen");
   }
 
   const response = await openai.images.generate({

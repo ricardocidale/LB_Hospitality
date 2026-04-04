@@ -50,6 +50,6 @@ export async function fixLegacyOwnership(): Promise<void> {
       }
     }
   } catch (err) {
-    console.error("[ERROR] [fix-shared-ownership] Migration failed (non-fatal):", err);
+    log(`Migration failed (non-fatal): ${err instanceof Error ? err.message : err}`, "fix-shared-ownership", "error");
   }
 }

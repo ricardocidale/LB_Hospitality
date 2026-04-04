@@ -17,7 +17,7 @@ export function getBaseUrl(): string {
 
 const TOOLS_SECRET = process.env.MARCELA_TOOLS_SECRET || "";
 if (!TOOLS_SECRET) {
-  console.warn("[marcela-agent-config] MARCELA_TOOLS_SECRET env var not set — agent tool calls will be rejected");
+  logger.warn("MARCELA_TOOLS_SECRET env var not set — agent tool calls will be rejected", "marcela-agent-config");
 }
 
 export function buildClientTools() {

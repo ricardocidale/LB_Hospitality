@@ -7,6 +7,7 @@
  */
 import { executeComputationTool } from "../../calc/dispatch.js";
 import type { Property } from "../../shared/schema/index.js";
+import { logger } from "../logger";
 
 export function buildPropertyContext(properties: Property[]): string {
   return properties.map((p) => {
@@ -33,7 +34,7 @@ export function buildPropertyContext(properties: Property[]): string {
         metrics = JSON.parse(metricsJson);
       }
     } catch (e) {
-      console.error(`[buildPropertyContext] Failed to compute metrics for ${p.name}:`, e);
+      logger.error(`Failed to compute metrics for ${p.name}: ${e instanceof Error ? e.message : e}`, "buildPropertyContext");
     }
     const totalInvestment = (p.purchasePrice ?? 0) + (p.buildingImprovements ?? 0) + (p.preOpeningCosts ?? 0) + (p.operatingReserve ?? 0);
     return [

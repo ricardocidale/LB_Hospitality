@@ -256,6 +256,9 @@ export function register(app: Express) {
           }
 
           if (parsed.rawResponse && type === "property") {
+            // Property-only: unparseable AI output is skipped because it could lead to
+            // invalid researchValues on property records. Company/global raw responses
+            // are still stored — they have no property value application path.
             logger.warn(`Skipping market_research storage for property ${propertyId} — AI returned unparseable response`, "research");
           } else {
             await storage.upsertMarketResearch({

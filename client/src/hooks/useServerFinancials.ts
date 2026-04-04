@@ -112,10 +112,10 @@ function mapToDashboardFinancials(
     totalProjectionCashFlow += yearData.cashFlow;
   }
 
-  const getPropertyAcquisitionYear = (prop: any): number =>
+  const getPropertyAcquisitionYear = (prop: Property): number =>
     acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);
 
-  const getPropertyInvestment = (prop: any): number =>
+  const getPropertyInvestment = (prop: Property): number =>
     propertyEquityInvested(prop);
 
   const getEquityInvestmentForYear = (yearIndex: number): number =>

@@ -114,10 +114,10 @@ function useClientPortfolioFinancials(
       totalProjectionCashFlow += yearData.cashFlow;
     }
 
-    const getPropertyAcquisitionYear = (prop: any): number =>
+    const getPropertyAcquisitionYear = (prop: Property): number =>
       acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);
 
-    const getPropertyInvestment = (prop: any): number =>
+    const getPropertyInvestment = (prop: Property): number =>
       propertyEquityInvested(prop);
 
     const activeProps = properties?.filter(p => p.isActive !== false) ?? [];
@@ -185,7 +185,10 @@ export function usePortfolioFinancials(
   properties: Property[] | undefined,
   global: GlobalResponse | undefined
 ): PortfolioFinancialsResult {
-  const serverResult = useServerFinancials(properties, global);
+  const serverResult = useServerFinancials(
+    USE_SERVER_COMPUTE ? properties : undefined,
+    USE_SERVER_COMPUTE ? global : undefined,
+  );
   const clientResult = useClientPortfolioFinancials(
     USE_SERVER_COMPUTE ? undefined : properties,
     USE_SERVER_COMPUTE ? undefined : global,

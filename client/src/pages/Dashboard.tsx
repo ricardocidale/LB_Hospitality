@@ -94,8 +94,10 @@ export default function Dashboard() {
     staleTime: 5 * 60_000,
   });
 
+  const activeProperties = properties?.filter(p => p.isActive !== false) ?? [];
+  const hasActiveProperties = activeProperties.length > 0;
   const propertiesLoadingState = propertiesLoading || globalLoading || financialsLoading;
-  const propertiesErrorState = propertiesError || globalError || financialsError || !properties || !global || !financials;
+  const propertiesErrorState = propertiesError || globalError || financialsError || !properties || !global || (hasActiveProperties && !financials);
 
   const getExportData = useCallback((version?: ExportVersion) => {
     if (!financials || !properties || !global) return null;
@@ -312,10 +314,20 @@ export default function Dashboard() {
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
           <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">
-            {!properties || !global || !financials
+            {!properties || !global
               ? "No data available. Please check the database."
               : "Failed to load dashboard data. Please try refreshing the page."}
           </p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!financials) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+          <p className="text-muted-foreground" data-testid="text-no-active-properties">No active properties in the portfolio. Activate at least one property to see financial data.</p>
         </div>
       </Layout>
     );

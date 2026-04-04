@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 988 source files, ~161K lines, 3,599 tests across 156 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 995 source files, ~163K lines, 3,625 tests across 160 test files. Hosted on Replit.
 
 > **Marcela ISOLATED** — Voice agent + ElevenLabs + Twilio phone all gated behind `MARCELA_ISOLATED` flag. Config preserved, zero network calls. Rebecca sole active agent. See `.claude/plans/MARCELA-ISOLATION.md` for full restoration guide.
 
@@ -54,7 +54,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,599 tests, 583 golden tests, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,625 tests, 583 golden tests, verification commands |
 | Testing (8 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database/SKILL.md` | Dev/prod databases, Drizzle ORM, migrations, sync |
@@ -103,7 +103,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (3,599 Tests, 156 Files)
+## Testing & Proof System (3,625 Tests, 160 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -113,9 +113,15 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 3,599 tests, 156 files) · `npm run verify` (8-phase GAAP) · `npm run health` (tsc+tests+verify+doc harmony)
+**Commands**: `npm test` (all 3,625 tests, 160 files) · `npm run verify` (8-phase GAAP) · `npm run health` (tsc+tests+verify+doc harmony)
 
 ---
+
+## Recent Changes (April 4, 2026)
+
+- **Deep Re-Audit & Final Quality Gate** (Task #268) — 4 new audit test files in `tests/audit/`: data-flow integrity (engine pipeline trace, floating-point drift, deterministic hashing), cache invalidation (hit/miss/clear correctness), scenario save/load (roundtrip hash, consolidation, property-order invariance), endpoint security (auth coverage, rate limiting, Zod validation grep). All 26 audit tests pass.
+- **Zod Validation + Rate Limiting** (Task #266) — All unprotected POST/PUT/PATCH handlers now use Zod schema validation. `marketRatePatchSchema` uses `z.coerce.number` for backward compat. Rate limiting on compute-heavy endpoints.
+- **ESLint CI + Pre-Commit Hooks** (Task #267) — ESLint flat config (`eslint.config.mjs`) scoped to `calc/` and `engine/` bans `Math.pow`, `|| 0`, `as any`, bare `any`, `safeNum`. Husky pre-commit hooks + lint-staged. `.github/workflows/ci.yml` for PR enforcement.
 
 ## Recent Changes (April 3, 2026)
 
@@ -237,7 +243,7 @@ Old individual `server/migrations/*.ts` files have been superseded by this conso
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify + doc harmony (~60s)
-npm run test:summary   # All 3,599 tests, 156 files (~35s)
+npm run test:summary   # All 3,625 tests, 160 files (~35s)
 npm run verify:summary # 8-phase financial verification (~20s)
 npm run lint:summary   # TypeScript check only (<10s)
 npm run stats          # File/line/test counts (<5s, no vitest)

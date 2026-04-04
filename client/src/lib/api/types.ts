@@ -281,3 +281,18 @@ export interface MarketContextResponse {
   } | null;
   fetchedAt: string;
 }
+
+export interface PropertyValueEstimate {
+  date: string;
+  estimate: number;
+  source: string;
+}
+
+export interface PropertyValueHistory {
+  propertyId: string;
+  currentEstimate: number | null;
+  estimates: PropertyValueEstimate[];
+  appreciation12mo: number | null;
+  appreciation24mo: number | null;
+  fetchedAt: string;
+}

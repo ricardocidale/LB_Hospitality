@@ -16,7 +16,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { Button } from "@/components/ui/button";
 import type { PropertyFinderResult } from "@/lib/api";
 import { Loader2 } from "@/components/icons/themed-icons";
-import { IconHeart, IconExternalLink, IconBed, IconBath, IconRuler, IconTrees, IconMapPin, IconImage } from "@/components/icons";
+import { IconHeart, IconExternalLink, IconBed, IconBath, IconRuler, IconTrees, IconMapPin, IconImage, IconTrendingUp } from "@/components/icons";
 
 function PropertyTypeLabel(type: string | null): string {
   if (!type) return "";
@@ -36,6 +36,7 @@ export function SearchResultCard({
   onToggleFavorite,
   expandedImage,
   onToggleImage,
+  onShowValue,
 }: {
   property: PropertyFinderResult;
   isSaved: boolean;
@@ -43,6 +44,7 @@ export function SearchResultCard({
   onToggleFavorite: () => void;
   expandedImage: string | null;
   onToggleImage: (id: string) => void;
+  onShowValue?: (id: string) => void;
 }) {
   return (
     <div
@@ -126,11 +128,22 @@ export function SearchResultCard({
         </div>
 
         <div className="flex items-center justify-between mt-3">
-          {property.propertyType ? (
-            <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-secondary border border-primary/20">
-              {PropertyTypeLabel(property.propertyType)}
-            </span>
-          ) : <span />}
+          <div className="flex items-center gap-2">
+            {property.propertyType ? (
+              <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-secondary border border-primary/20">
+                {PropertyTypeLabel(property.propertyType)}
+              </span>
+            ) : <span />}
+            {onShowValue && (
+              <button
+                onClick={() => onShowValue(property.externalId)}
+                className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors flex items-center gap-1"
+                data-testid={`btn-value-history-${property.externalId}`}
+              >
+                <IconTrendingUp className="w-3 h-3" /> Value
+              </button>
+            )}
+          </div>
           {property.listingUrl && (
             <a
               href={property.listingUrl}

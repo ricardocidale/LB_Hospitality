@@ -6,7 +6,8 @@ import {
   SavedProspectiveProperty,
   PropertyFinderResult,
   SavedSearch,
-  MarketContextResponse
+  MarketContextResponse,
+  PropertyValueHistory,
 } from "./types";
 import { invalidateAllFinancialQueries } from "./properties";
 
@@ -190,6 +191,23 @@ export function useMarketContext(location: string | null, state?: string) {
     queryFn: () => fetchMarketContext(location!, state),
     enabled: !!location,
     staleTime: 15 * 60 * 1000,
+    retry: false,
+  });
+}
+
+async function fetchPropertyValue(propertyId: string): Promise<PropertyValueHistory | null> {
+  const res = await fetch(`/api/property-finder/property-value?property_id=${encodeURIComponent(propertyId)}`);
+  if (!res.ok) throw new Error("Failed to fetch property value history");
+  const data = await res.json();
+  return data.history ?? null;
+}
+
+export function usePropertyValue(propertyId: string | null) {
+  return useQuery({
+    queryKey: ["propertyValue", propertyId],
+    queryFn: () => fetchPropertyValue(propertyId!),
+    enabled: !!propertyId,
+    staleTime: 60 * 60 * 1000,
     retry: false,
   });
 }

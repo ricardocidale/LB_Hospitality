@@ -27,6 +27,7 @@ import {
   SearchForm,
   SavedSearchBar,
   MarketContextPanel,
+  PropertyValueDrawer,
   type SearchFormData,
 } from "@/components/property-finder";
 import { AnimatedPage } from "@/components/graphics/AnimatedPage";
@@ -48,6 +49,7 @@ export default function PropertyFinder() {
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
   const [editingNotesId, setEditingNotesId] = useState<number | null>(null);
   const [notesText, setNotesText] = useState("");
+  const [valuePropertyId, setValuePropertyId] = useState<string | null>(null);
 
   const { data: searchData, isLoading: isSearching, error: searchError } = usePropertySearch(searchParams);
   const { data: favorites = [], isLoading: isFavoritesLoading } = useProspectiveFavorites();
@@ -306,6 +308,7 @@ export default function PropertyFinder() {
                       onToggleFavorite={isSaved && savedProp ? () => handleRemove(savedProp.id) : () => handleSave(property)}
                       expandedImage={expandedImage}
                       onToggleImage={(id) => setExpandedImage(expandedImage === id ? null : id)}
+                      onShowValue={(id) => setValuePropertyId(id)}
                     />
                   );
                 })}
@@ -372,6 +375,18 @@ export default function PropertyFinder() {
           )}
         </div>
       </div>
+
+      {valuePropertyId && (
+        <PropertyValueDrawer
+          propertyId={valuePropertyId}
+          address={
+            searchData?.results.find((r) => r.externalId === valuePropertyId)?.address
+            ?? favorites.find((f) => f.externalId === valuePropertyId)?.address
+            ?? "Property"
+          }
+          onClose={() => setValuePropertyId(null)}
+        />
+      )}
     </Layout>
     </AnimatedPage>
   );

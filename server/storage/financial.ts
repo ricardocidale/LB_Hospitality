@@ -4,6 +4,58 @@ import { eq, desc, isNull, inArray, or, sql, and } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
 import { computeFullDiff, reconstructScenarioProperties, type PropertyDiff } from "../scenarios/diff-engine";
 import { stableEquals } from "../scenarios/stable-json";
+import { USE_STABLE_SCENARIO_LOAD } from "@shared/constants";
+
+async function stableLoadProperties(tx: any, userId: number, savedProperties: Array<Record<string, unknown>>): Promise<Array<{ id: number; name: string }>> {
+  const liveProps: Array<{ id: number; stableKey: string | null; [k: string]: unknown }> = await tx.select().from(properties).where(eq(properties.userId, userId));
+  const liveByStableKey = new Map(liveProps.filter(p => p.stableKey).map(p => [p.stableKey, p]));
+
+  const snapshotStableKeys = new Set<string>();
+  const resolvedProperties: Array<{ id: number; name: string }> = [];
+
+  for (const prop of savedProperties) {
+    const { id, createdAt, updatedAt, userId: _uid, ...propData } = prop;
+    const stableKey = prop.stableKey as string | undefined;
+
+    if (stableKey && liveByStableKey.has(stableKey)) {
+      const liveProp = liveByStableKey.get(stableKey)!;
+      snapshotStableKeys.add(stableKey);
+      await tx.update(properties).set({ ...propData, userId, updatedAt: new Date() } as any)
+        .where(eq(properties.id, liveProp.id));
+      resolvedProperties.push({ id: liveProp.id, name: prop.name as string });
+    } else {
+      const insertData = { ...propData, userId } as typeof properties.$inferInsert;
+      if (stableKey) {
+        (insertData as any).stableKey = stableKey;
+        snapshotStableKeys.add(stableKey);
+      }
+      const [inserted] = await tx.insert(properties).values(insertData).returning();
+      resolvedProperties.push({ id: inserted.id, name: prop.name as string });
+    }
+  }
+
+  for (const liveProp of liveProps) {
+    if (liveProp.stableKey && !snapshotStableKeys.has(liveProp.stableKey)) {
+      await tx.delete(properties).where(eq(properties.id, liveProp.id));
+    }
+  }
+
+  return resolvedProperties;
+}
+
+async function destructiveLoadProperties(tx: any, userId: number, savedProperties: Array<Record<string, unknown>>): Promise<Array<{ id: number; name: string }>> {
+  await tx.delete(properties).where(eq(properties.userId, userId));
+
+  const resolvedProperties: Array<{ id: number; name: string }> = [];
+  for (const prop of savedProperties) {
+    const { id, createdAt, updatedAt, userId: _uid, ...propData } = prop;
+    const insertData = { ...propData, userId } as typeof properties.$inferInsert;
+    const [inserted] = await tx.insert(properties).values(insertData).returning();
+    resolvedProperties.push({ id: inserted.id, name: prop.name as string });
+  }
+
+  return resolvedProperties;
+}
 
 export class FinancialStorage {
   async getGlobalAssumptions(userId?: number): Promise<GlobalAssumptions | undefined> {
@@ -336,6 +388,17 @@ export class FinancialStorage {
    * Restore a saved scenario by replacing the user's current working data
    * (global assumptions + all properties + fee categories) with the snapshot
    * from the scenario. Runs in a transaction so partial loads can't occur.
+   *
+   * When USE_STABLE_SCENARIO_LOAD is true (default), uses non-destructive
+   * stableKey-based upsert: matches properties by stableKey, updates in place
+   * (preserving property IDs and photo FK references), inserts new properties,
+   * and deletes only orphaned properties not in the snapshot.
+   *
+   * When USE_STABLE_SCENARIO_LOAD is false, falls back to the legacy
+   * destructive path: deletes all user properties and recreates from snapshot.
+   *
+   * Photos are never touched in either path — they remain attached to their
+   * property via property_id, which is stable across loads.
    */
   async loadScenario(userId: number, savedAssumptions: Record<string, unknown>, savedProperties: Array<Record<string, unknown>>, savedFeeCategories?: Record<string, Array<Record<string, unknown>>>, _savedPropertyPhotos?: Record<string, Array<Record<string, unknown>>>): Promise<void> {
     await db.transaction(async (tx) => {
@@ -353,37 +416,12 @@ export class FinancialStorage {
         await tx.insert(globalAssumptions).values({ ...gaData, userId } as typeof globalAssumptions.$inferInsert);
       }
 
-      const liveProps = await tx.select().from(properties).where(eq(properties.userId, userId));
-      const liveByStableKey = new Map(liveProps.filter(p => p.stableKey).map(p => [p.stableKey, p]));
+      let resolvedProperties: Array<{ id: number; name: string }>;
 
-      const snapshotStableKeys = new Set<string>();
-      const resolvedProperties: Array<{ id: number; name: string }> = [];
-
-      for (const prop of savedProperties) {
-        const { id, createdAt, updatedAt, userId: _uid, ...propData } = prop;
-        const stableKey = prop.stableKey as string | undefined;
-
-        if (stableKey && liveByStableKey.has(stableKey)) {
-          const liveProp = liveByStableKey.get(stableKey)!;
-          snapshotStableKeys.add(stableKey);
-          await tx.update(properties).set({ ...propData, userId, updatedAt: new Date() } as any)
-            .where(eq(properties.id, liveProp.id));
-          resolvedProperties.push({ id: liveProp.id, name: prop.name as string });
-        } else {
-          const insertData = { ...propData, userId } as typeof properties.$inferInsert;
-          if (stableKey) {
-            (insertData as any).stableKey = stableKey;
-            snapshotStableKeys.add(stableKey);
-          }
-          const [inserted] = await tx.insert(properties).values(insertData).returning();
-          resolvedProperties.push({ id: inserted.id, name: prop.name as string });
-        }
-      }
-
-      for (const liveProp of liveProps) {
-        if (liveProp.stableKey && !snapshotStableKeys.has(liveProp.stableKey)) {
-          await tx.delete(properties).where(eq(properties.id, liveProp.id));
-        }
+      if (USE_STABLE_SCENARIO_LOAD) {
+        resolvedProperties = await stableLoadProperties(tx, userId, savedProperties);
+      } else {
+        resolvedProperties = await destructiveLoadProperties(tx, userId, savedProperties);
       }
 
       if (savedFeeCategories) {

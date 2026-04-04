@@ -334,6 +334,17 @@ export const DEFAULT_MARCELA_CASCADE_TIMEOUT = 5;
 
 export const DEFAULT_MAX_STALENESS_HOURS = 24;
 
+// ──────────────────────────────────────────────────────────
+// SCENARIO LOAD STRATEGY
+// When true (default), loadScenario uses stableKey-based upsert:
+//   - Matches snapshot properties to live properties by stableKey
+//   - Updates matched properties in place (preserving property IDs and photos)
+//   - Inserts new snapshot properties that don't exist in live data
+//   - Deletes orphaned live properties not in the snapshot
+// When false, falls back to destructive delete-all-and-recreate behavior.
+// ──────────────────────────────────────────────────────────
+export const USE_STABLE_SCENARIO_LOAD = true;
+
 export const DEFAULT_ALERT_COOLDOWN_MINUTES = 1440;
 
 // ──────────────────────────────────────────────────────────

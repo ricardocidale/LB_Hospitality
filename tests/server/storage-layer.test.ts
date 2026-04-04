@@ -108,10 +108,15 @@ describe("Storage Layer — FinancialStorage (Scenarios)", () => {
 describe("Storage Layer — loadScenario integrity", () => {
   const src = readStorageFile("financial.ts");
 
-  // Extract loadScenario method body
   const loadStart = src.indexOf("async loadScenario(");
-  const loadEnd = src.indexOf("async getFeeCategoriesByProperty(");
+  const loadEnd = src.indexOf("/** Fetch all fee categories");
   const loadBody = src.slice(loadStart, loadEnd);
+
+  const stableStart = src.indexOf("async function stableLoadProperties(");
+  const destructiveStart = src.indexOf("async function destructiveLoadProperties(");
+  const stableBody = src.slice(stableStart, destructiveStart);
+  const classStart = src.indexOf("export class FinancialStorage");
+  const destructiveBody = src.slice(destructiveStart, classStart);
 
   it("runs inside a transaction", () => {
     expect(loadBody).toContain("db.transaction(");
@@ -122,15 +127,30 @@ describe("Storage Layer — loadScenario integrity", () => {
     expect(loadBody).not.toContain("isNull(globalAssumptions.userId)");
   });
 
-  it("deletes existing user-owned properties before restoring (tenant isolation)", () => {
-    expect(loadBody).toContain("eq(properties.userId, userId)");
-    expect(loadBody).toContain("tx.delete(properties)");
-    expect(loadBody).not.toContain("isNull(properties.userId)");
+  it("branches on USE_STABLE_SCENARIO_LOAD feature flag", () => {
+    expect(loadBody).toContain("USE_STABLE_SCENARIO_LOAD");
+    expect(loadBody).toContain("stableLoadProperties");
+    expect(loadBody).toContain("destructiveLoadProperties");
   });
 
-  it("inserts restored properties scoped to caller userId (tenant isolation)", () => {
-    expect(loadBody).not.toContain("userId: null");
-    expect(loadBody).toContain("tx.insert(properties)");
+  it("stable path matches by stableKey and updates in place", () => {
+    expect(stableBody).toContain("liveByStableKey");
+    expect(stableBody).toContain("tx.update(properties)");
+    expect(stableBody).toContain("eq(properties.id, liveProp.id)");
+  });
+
+  it("stable path inserts new properties not matched by stableKey", () => {
+    expect(stableBody).toContain("tx.insert(properties)");
+  });
+
+  it("stable path deletes only orphaned live properties", () => {
+    expect(stableBody).toContain("snapshotStableKeys.has(liveProp.stableKey)");
+    expect(stableBody).toContain("tx.delete(properties)");
+  });
+
+  it("destructive fallback deletes all user properties then inserts", () => {
+    expect(destructiveBody).toContain("tx.delete(properties).where(eq(properties.userId, userId))");
+    expect(destructiveBody).toContain("tx.insert(properties)");
   });
 
   it("restores fee categories keyed by property name", () => {
@@ -146,7 +166,7 @@ describe("Storage Layer — loadScenario integrity", () => {
   });
 
   it("strips id/createdAt/updatedAt/userId from restored properties", () => {
-    expect(loadBody).toContain("id, createdAt, updatedAt, userId: _uid");
+    expect(stableBody).toContain("id, createdAt, updatedAt, userId: _uid");
   });
 });
 
@@ -229,21 +249,24 @@ describe("Storage Layer — PhotoStorage", () => {
 describe("Storage Layer — loadScenario photo decoupling", () => {
   const src = readStorageFile("financial.ts");
   const loadStart = src.indexOf("async loadScenario(");
-  const loadEnd = src.indexOf("async getFeeCategoriesByProperty(");
+  const loadEnd = src.indexOf("/** Fetch all fee categories");
   const loadBody = src.slice(loadStart, loadEnd);
 
   it("loadScenario accepts savedPropertyPhotos parameter for backward compat", () => {
     expect(loadBody).toContain("_savedPropertyPhotos");
   });
 
-  it("loadScenario does not insert or delete photos (decoupled)", () => {
+  it("neither stable nor destructive path inserts or deletes photos", () => {
     expect(loadBody).not.toContain("tx.insert(propertyPhotos)");
     expect(loadBody).not.toContain("tx.delete(propertyPhotos)");
   });
 
-  it("loadScenario uses stableKey-based property matching", () => {
-    expect(loadBody).toContain("liveByStableKey");
-    expect(loadBody).toContain("snapshotStableKeys");
+  it("stable path uses stableKey-based property matching", () => {
+    const stableStart = src.indexOf("async function stableLoadProperties(");
+    const stableEnd = src.indexOf("async function destructiveLoadProperties(");
+    const stableBody = src.slice(stableStart, stableEnd);
+    expect(stableBody).toContain("liveByStableKey");
+    expect(stableBody).toContain("snapshotStableKeys");
   });
 });
 

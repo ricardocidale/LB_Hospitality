@@ -28,7 +28,7 @@ This project is a business simulation portal for Hospitality Business Group, mod
 The application features a React 18 frontend built with TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, and framer-motion. The backend is an Express 5 application utilizing Drizzle ORM and PostgreSQL.
 
 **Core Design Principles & Features:**
--   **Financial Accuracy & Compliance:** Highest priority, enforced by a comprehensive proof system (3,829 tests across 167 files), GAAP verification, and USALI 12th Edition compliance for property-level Income and Cash Flow Statements. The Balance Sheet Identity (A = L + E) must hold within $1.
+-   **Financial Accuracy & Compliance:** Highest priority, enforced by a comprehensive proof system (3,872 tests across 168 files), GAAP verification, and USALI 12th Edition compliance for property-level Income and Cash Flow Statements. The Balance Sheet Identity (A = L + E) must hold within $1.
 -   **Precision Hardening:** `calc/shared/decimal.ts` provides `decimal.js`-backed arithmetic (`dSum`/`dMul`/`dDiv`/`dRound`/`dPow`) to eliminate floating-point drift in financial accumulations. `assertFinite` replaces silent NaN→0 coercion with fail-fast validation. Full codebase coverage: zero `Math.pow` remaining in financial code (replaced with `dPow` in MIRR, DSCR, hold-vs-sell, prepayment, capex-reserve, refinance sizing, debt-capacity, ADR projection, amortization, property-engine, company-engine, resolve-assumptions). Zero `safeNum` remaining (replaced with `assertFinite`). Verified by 15 `fast-check` property-based tests (10K+ random inputs).
 -   **Modular Skill-Based Architecture:** Domain knowledge and context management are handled through a skill-based system located in `.claude/skills/`.
 -   **Theming & UI/UX:** A robust theme engine provides consistent UI with 5 presets (default: Tuscan Olive Grove). All UI components are theme-compliant. Specific UI patterns (e.g., GlassButton, PageHeader, ExportMenu) and consistent button labels ("Save") are enforced. Every financial line item includes an `InfoTooltip`.
@@ -68,7 +68,7 @@ The application features a React 18 frontend built with TypeScript, Wouter, TanS
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,829 tests across 167 files, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,872 tests across 168 files, verification commands |
 | Finance (22 skills) | `.claude/skills/finance/` | IS, CF, BS, IRR, DCF, fee categories |
 | Research (23 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate |
 | UI (45 skills) | `.claude/skills/ui/` | Graphics, animation, navigation |
@@ -107,7 +107,7 @@ The application features a React 18 frontend built with TypeScript, Wouter, TanS
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify + doc harmony (~60s)
-npm run test:summary   # All 3,829 tests, 167 files (~35s)
+npm run test:summary   # All 3,872 tests, 168 files (~35s)
 npm run verify:summary # 8-phase financial verification (~20s)
 npm run lint:summary   # TypeScript check only (<10s)
 npm run stats          # File/line/test counts (<5s)

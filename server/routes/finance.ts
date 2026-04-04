@@ -3,7 +3,7 @@ import { z } from "zod";
 import superjson from "superjson";
 import { computePortfolioProjection, computeSingleProperty, computeCompanyProjection } from "../finance/service";
 import { getCacheStatus, invalidateComputeCache, resetCacheStats } from "../finance/cache";
-import { requireAuth, requireAdmin } from "../auth";
+import { requireAuth, requireAdmin, isApiRateLimited, getAuthUser } from "../auth";
 import { logger } from "../logger";
 import type { PropertyInput, GlobalInput } from "@engine/types";
 
@@ -111,6 +111,9 @@ function sendSuperjson(res: Response, data: unknown): void {
 export function registerFinanceRoutes(router: Router): void {
   router.post("/api/finance/compute", requireAuth, async (req: Request, res: Response) => {
     try {
+      if (isApiRateLimited(getAuthUser(req).id, "finance-compute", 10)) {
+        return res.status(429).json({ error: "Rate limit exceeded. Please wait before computing again." });
+      }
       const validation = computeRequestSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({

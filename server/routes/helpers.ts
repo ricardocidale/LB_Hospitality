@@ -109,6 +109,62 @@ export const researchGenerateSchema = z.object({
 
 export const VALID_RESEARCH_TYPES = ["property", "company", "global"] as const;
 
+export const researchQuestionCreateSchema = z.object({
+  question: z.string().min(1, "Question is required").max(1000),
+});
+
+export const researchQuestionPatchSchema = z.object({
+  question: z.string().min(1, "Question is required").max(1000),
+});
+
+export const geocodeSchema = z.object({
+  address: z.string().min(1, "Address is required").max(500),
+});
+
+export const marketRatePatchSchema = z.object({
+  value: z.number({ required_error: "value is required" }),
+  manualNote: z.string().max(500).nullish(),
+});
+
+export const marketIntelligenceGatherSchema = z.object({
+  location: z.string().min(1).max(300),
+  state: z.string().max(50).optional(),
+  propertyType: z.string().max(100).optional(),
+  propertyClass: z.string().max(50).optional(),
+  chainScale: z.string().max(100).optional(),
+});
+
+export const driveFolderSchema = z.object({
+  name: z.string().min(1, "Folder name is required").max(255),
+  parentId: z.string().max(200).optional(),
+});
+
+export const icpGenerateSchema = z.object({
+  promptBuilder: z.record(z.any()).optional(),
+});
+
+export const uploadRequestSchema = z.object({
+  name: z.string().min(1, "name is required").max(500),
+  size: z.number().optional(),
+  contentType: z.string().max(200).optional(),
+  entityType: z.string().max(100).optional(),
+  entityId: z.number().optional(),
+});
+
+export const processImageSchema = z.object({
+  propertyId: z.number({ required_error: "propertyId is required" }),
+  photoId: z.number({ required_error: "photoId is required" }),
+  imageUrl: z.string().min(1, "imageUrl is required"),
+  crop: z.object({
+    x: z.number().optional(),
+    y: z.number().optional(),
+    left: z.number().optional(),
+    top: z.number().optional(),
+    width: z.number(),
+    height: z.number(),
+  }).optional(),
+});
+
 // ────────────────────────────────────────────────────────────
 // PARAMETER PARSING
 // ────────────────────────────────────────────────────────────

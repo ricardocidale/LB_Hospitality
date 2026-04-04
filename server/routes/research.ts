@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireAdmin, isApiRateLimited, checkPropertyAccess , getAuthUser } from "../auth";
-import { researchGenerateSchema, logActivity, logAndSendError } from "./helpers";
+import { researchGenerateSchema, researchQuestionCreateSchema, researchQuestionPatchSchema, logActivity, logAndSendError } from "./helpers";
 import { fromZodError } from "zod-validation-error";
 import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../ai/aiResearch";
 import { validateResearchValues } from "../../calc/research/validate-research";
@@ -232,7 +232,7 @@ export function register(app: Express) {
                   logger.warn(`Research validation for property ${propertyId}: ${validated.summary.warned} warnings, ${validated.summary.failed} failures`, "research");
                 }
               } else {
-                await storage.updateProperty(propertyId, { researchValues });
+                logger.warn(`Skipping unvalidated researchValues storage for property ${propertyId} — property not found`, "research");
               }
             }
           }
@@ -319,9 +319,9 @@ export function register(app: Express) {
 
   app.post("/api/research-questions", requireAdmin, async (req, res) => {
     try {
-      const { question } = req.body;
-      if (!question) return res.status(400).json({ error: "Question required" });
-      const q = await storage.createResearchQuestion({ question });
+      const validation = researchQuestionCreateSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const q = await storage.createResearchQuestion({ question: validation.data.question });
       res.status(201).json(q);
     } catch (error) {
       logAndSendError(res, "Failed to create research question", error);
@@ -330,8 +330,9 @@ export function register(app: Express) {
 
   app.patch("/api/research-questions/:id", requireAdmin, async (req, res) => {
     try {
-      const { question } = req.body;
-      const q = await storage.updateResearchQuestion(Number(req.params.id), question);
+      const validation = researchQuestionPatchSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const q = await storage.updateResearchQuestion(Number(req.params.id), validation.data.question);
       res.json(q);
     } catch (error) {
       logAndSendError(res, "Failed to update research question", error);

@@ -4,6 +4,8 @@ import { OAuth2Client } from "google-auth-library";
 import { storage } from "../storage";
 import { requireAuth , getAuthUser } from "../auth";
 import { logger } from "../logger";
+import { driveFolderSchema } from "./helpers";
+import { fromZodError } from "zod-validation-error";
 import { isEncryptionConfigured } from "../lib/token-encryption";
 import multer from "multer";
 import { Readable } from "stream";
@@ -122,10 +124,11 @@ export function register(app: Express) {
         return res.status(401).json({ error: "Google Drive not connected" });
       }
 
-      const { name, parentId } = req.body;
-      if (!name || typeof name !== "string") {
-        return res.status(400).json({ error: "Folder name is required" });
+      const validation = driveFolderSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
+      const { name, parentId } = validation.data;
 
       const fileMetadata: Record<string, unknown> = {
         name,

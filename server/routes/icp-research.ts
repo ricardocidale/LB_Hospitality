@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, isApiRateLimited , getAuthUser } from "../auth";
-import { logActivity, logAndSendError } from "./helpers";
+import { logActivity, logAndSendError, icpGenerateSchema } from "./helpers";
+import { fromZodError } from "zod-validation-error";
 import { getAnthropicClient, normalizeModelId } from "../ai/clients";
 import { DEFAULT_RESEARCH_MODEL } from "../ai/resolve-llm";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
@@ -271,6 +272,9 @@ export function register(app: Express) {
         return res.status(429).json({ error: "Rate limit exceeded. Please wait a minute." });
       }
 
+      const bodyValidation = icpGenerateSchema.safeParse(req.body);
+      if (!bodyValidation.success) return res.status(400).json({ error: fromZodError(bodyValidation.error).message });
+
       const ga = await storage.getGlobalAssumptions(getAuthUser(req).id);
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
 
@@ -281,7 +285,7 @@ export function register(app: Express) {
       const model = normalizeModelId(researchCfg.companyLlm?.primaryLlm || researchCfg.preferredLlm || ga.preferredLlm || DEFAULT_RESEARCH_MODEL);
       const secondaryModel = researchCfg.companyLlm?.llmMode === "dual" && researchCfg.companyLlm.secondaryLlm ? normalizeModelId(researchCfg.companyLlm.secondaryLlm) : undefined;
 
-      const promptBuilder = (req.body?.promptBuilder || icpConfig._promptBuilder || {}) as PromptBuilderConfig;
+      const promptBuilder = (bodyValidation.data.promptBuilder || icpConfig._promptBuilder || {}) as PromptBuilderConfig;
 
       const anthropic = getAnthropicClient();
 

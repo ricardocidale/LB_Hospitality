@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { requireAuth, isApiRateLimited , getAuthUser } from "../auth";
 import { objectStorageClient, ObjectStorageService } from "../replit_integrations/object_storage";
-import { logActivity, logAndSendError } from "./helpers";
+import { logActivity, logAndSendError, uploadRequestSchema, processImageSchema } from "./helpers";
+import { fromZodError } from "zod-validation-error";
 import { randomUUID } from "crypto";
 import { processImage, type CropRegion } from "../image/pipeline";
 import { storage } from "../storage";
@@ -23,10 +24,11 @@ const IMAGE_PROCESSABLE_TYPES = [
 export function register(app: Express) {
   app.post("/api/uploads/request-url", requireAuth, async (req, res) => {
     try {
-      const { name, size, contentType, entityType, entityId } = req.body;
-      if (!name) {
-        return res.status(400).json({ error: "Missing required field: name" });
+      const validation = uploadRequestSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
+      const { name, size, contentType, entityType, entityId } = validation.data;
 
       const objectStorageService = sharedObjectStorageService;
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -104,10 +106,11 @@ export function register(app: Express) {
       return res.status(429).json({ error: "Too many image processing requests. Please try again later." });
     }
     try {
-      const { propertyId, photoId, imageUrl, crop } = req.body;
-      if (!propertyId || !photoId || !imageUrl) {
-        return res.status(400).json({ error: "Missing required fields: propertyId, photoId, imageUrl" });
+      const validation = processImageSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
+      const { propertyId, photoId, imageUrl, crop } = validation.data;
 
       if (!imageUrl.startsWith("/objects/")) {
         return res.status(400).json({ error: "Only object storage paths are allowed" });
@@ -134,8 +137,8 @@ export function register(app: Express) {
       }
 
       const cropRegion: CropRegion | undefined = crop ? {
-        left: crop.x ?? crop.left,
-        top: crop.y ?? crop.top,
+        left: crop.x ?? crop.left ?? 0,
+        top: crop.y ?? crop.top ?? 0,
         width: crop.width,
         height: crop.height,
       } : undefined;

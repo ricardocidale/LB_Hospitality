@@ -1,6 +1,7 @@
 import type { Express } from "express";
-import { requireAuth, requireManagementAccess } from "../auth";
-import { logAndSendError } from "./helpers";
+import { requireAuth, requireManagementAccess, isApiRateLimited, getAuthUser } from "../auth";
+import { geocodeSchema, logAndSendError } from "./helpers";
+import { fromZodError } from "zod-validation-error";
 import {
   geocodeAddress,
   placesAutocomplete,
@@ -14,12 +15,15 @@ import {
 export function register(app: Express) {
   app.post("/api/geocode", requireAuth, async (req, res) => {
     try {
-      const { address } = req.body;
-      if (!address || typeof address !== "string") {
-        return res.status(400).json({ error: "Address is required" });
+      if (isApiRateLimited(getAuthUser(req).id, "geocode", 20)) {
+        return res.status(429).json({ error: "Rate limit exceeded. Please wait before geocoding again." });
+      }
+      const validation = geocodeSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
 
-      const coords = await geocodeAddress(address);
+      const coords = await geocodeAddress(validation.data.address);
       if (!coords) {
         return res.status(404).json({ error: "Could not geocode address" });
       }

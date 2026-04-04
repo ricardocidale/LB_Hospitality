@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import superjson from "superjson";
-import { computePortfolioProjection, computeSingleProperty } from "../finance/service";
+import { computePortfolioProjection, computeSingleProperty, computeCompanyProjection } from "../finance/service";
 import { getCacheStatus, invalidateComputeCache, resetCacheStats } from "../finance/cache";
 import { requireAuth, requireAdmin } from "../auth";
 import type { PropertyInput, GlobalInput } from "@engine/types";
@@ -179,6 +179,38 @@ export function registerFinanceRoutes(router: Router): void {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Property computation failed";
       console.error("[finance/property] Error:", message);
+      return res.status(500).json({ error: message });
+    }
+  });
+
+  router.post("/api/finance/company", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const validation = computeRequestSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({
+          error: "Invalid input",
+          details: validation.error.issues.map(i => ({
+            path: i.path.join("."),
+            message: i.message,
+          })),
+        });
+      }
+
+      const { properties, globalAssumptions, projectionYears } = validation.data;
+
+      const result = computeCompanyProjection({
+        properties: properties as PropertyInput[],
+        globalAssumptions: globalAssumptions as GlobalInput,
+        projectionYears,
+      });
+
+      res.setHeader("X-Finance-Engine-Version", result.engineVersion);
+      res.setHeader("X-Finance-Output-Hash", result.outputHash);
+
+      return sendSuperjson(res, result);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Company computation failed";
+      console.error("[finance/company] Error:", message);
       return res.status(500).json({ error: message });
     }
   });

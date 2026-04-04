@@ -3,10 +3,11 @@ import { aggregatePropertyByYear } from "./core/yearly-aggregator";
 import { consolidateYearlyFinancials } from "./core/consolidation";
 import { validateFinancialIdentities } from "@calc/validation/financial-identities";
 import { stableHash } from "../scenarios/stable-json";
-import type { PropertyInput, GlobalInput, MonthlyFinancials } from "@engine/types";
+import type { PropertyInput, GlobalInput, MonthlyFinancials, CompanyMonthlyFinancials } from "@engine/types";
 import type { YearlyPropertyFinancials } from "@engine/aggregation/yearlyAggregator";
 import type { PortfolioComputeResult, SinglePropertyComputeResult } from "./core/types";
 import { MONTHS_PER_YEAR } from "@shared/constants";
+import { generateCompanyProForma } from "@engine/company/company-engine";
 import {
   computeCacheKey,
   getCachedResult,
@@ -27,6 +28,21 @@ export interface ComputeSinglePropertyInput {
   property: PropertyInput;
   globalAssumptions: GlobalInput;
   projectionYears?: number;
+}
+
+export interface ComputeCompanyInput {
+  properties: PropertyInput[];
+  globalAssumptions: GlobalInput;
+  projectionYears?: number;
+}
+
+export interface CompanyComputeResult {
+  engineVersion: string;
+  computedAt: string;
+  companyMonthly: CompanyMonthlyFinancials[];
+  outputHash: string;
+  projectionYears: number;
+  cached?: boolean;
 }
 
 function uniquePropertyKey(property: PropertyInput, index: number): string {
@@ -123,7 +139,14 @@ export function computePortfolioProjection(
 
   const validationSummary = runValidation(allPropertyYearlyArrays);
 
-  const outputPayload = { perPropertyYearly, consolidatedYearly };
+  let companyMonthly: CompanyMonthlyFinancials[] | undefined;
+  try {
+    companyMonthly = generateCompanyProForma(input.properties, input.globalAssumptions, months);
+  } catch {
+    companyMonthly = undefined;
+  }
+
+  const outputPayload = { perPropertyYearly, consolidatedYearly, companyMonthly };
   const outputHash = stableHash(outputPayload);
 
   const result: PortfolioComputeResult = {
@@ -132,6 +155,7 @@ export function computePortfolioProjection(
     perPropertyYearly,
     perPropertyMonthly,
     consolidatedYearly,
+    companyMonthly,
     outputHash,
     propertyCount: input.properties.length,
     projectionYears,
@@ -196,4 +220,27 @@ export function computeSingleProperty(
   setCachedResult(cacheKey, portfolioResult);
 
   return result;
+}
+
+export function computeCompanyProjection(
+  input: ComputeCompanyInput,
+): CompanyComputeResult {
+  const projectionYears = input.projectionYears ?? PROJECTION_YEARS_DEFAULT;
+  const months = projectionYears * MONTHS_PER_YEAR;
+
+  const companyMonthly = generateCompanyProForma(
+    input.properties,
+    input.globalAssumptions,
+    months,
+  );
+
+  const outputHash = stableHash({ companyMonthly });
+
+  return {
+    engineVersion: ENGINE_VERSION,
+    computedAt: new Date().toISOString(),
+    companyMonthly,
+    outputHash,
+    projectionYears,
+  };
 }

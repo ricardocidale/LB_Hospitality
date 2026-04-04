@@ -8,6 +8,7 @@ import {
   resetCacheStats,
 } from "../../server/finance/cache";
 import type { PortfolioComputeResult } from "../../server/finance/core/types";
+import { computePortfolioProjection, computeSingleProperty } from "../../server/finance/service";
 
 function makeMockResult(overrides?: Partial<PortfolioComputeResult>): PortfolioComputeResult {
   return {
@@ -165,6 +166,128 @@ describe("Finance Compute Cache", () => {
 
       invalidateComputeCache();
       expect(getCachedResult(key)).toBeNull();
+    });
+  });
+
+  describe("integration: real compute through service", () => {
+    const testProperty = {
+      id: 1,
+      name: "Test Hotel",
+      operationsStartDate: "2025-01-01",
+      roomCount: 100,
+      startAdr: 150,
+      adrGrowthRate: 0.03,
+      startOccupancy: 0.6,
+      maxOccupancy: 0.85,
+      occupancyRampMonths: 12,
+      occupancyGrowthStep: 0.02,
+      purchasePrice: 10_000_000,
+      type: "hotel",
+      costRateRooms: 0.25,
+      costRateFB: 0.35,
+      costRateAdmin: 0.08,
+      costRateMarketing: 0.05,
+      costRatePropertyOps: 0.04,
+      costRateUtilities: 0.04,
+      costRateTaxes: 0.03,
+      costRateIT: 0.02,
+      costRateFFE: 0.03,
+      costRateOther: 0.01,
+      costRateInsurance: 0.02,
+      revShareEvents: 0.05,
+      revShareFB: 0.10,
+      revShareOther: 0.05,
+    };
+
+    const testGlobal = {
+      modelStartDate: "2025-01-01",
+      inflationRate: 0.03,
+      marketingRate: 0.05,
+      debtAssumptions: {
+        interestRate: 0.065,
+        amortizationYears: 25,
+      },
+    };
+
+    it("portfolio compute returns valid result with correct structure", () => {
+      const result = computePortfolioProjection({
+        properties: [testProperty],
+        globalAssumptions: testGlobal,
+        projectionYears: 3,
+      });
+
+      expect(result.engineVersion).toBe("1.0.0");
+      expect(result.propertyCount).toBe(1);
+      expect(result.projectionYears).toBe(3);
+      expect(result.outputHash).toBeTruthy();
+      expect(result.validationSummary.opinion).toBe("UNQUALIFIED");
+      expect(Object.keys(result.perPropertyYearly)).toHaveLength(1);
+      expect(Object.keys(result.perPropertyMonthly)).toHaveLength(1);
+      expect(result.consolidatedYearly).toHaveLength(3);
+      expect(result.cached).toBeUndefined();
+    });
+
+    it("identical input returns cached result on second call", () => {
+      const input = {
+        properties: [testProperty],
+        globalAssumptions: testGlobal,
+        projectionYears: 3,
+      };
+
+      const result1 = computePortfolioProjection(input);
+      expect(result1.cached).toBeUndefined();
+
+      const result2 = computePortfolioProjection(input);
+      expect(result2.cached).toBe(true);
+      expect(result2.outputHash).toBe(result1.outputHash);
+    });
+
+    it("invalidateComputeCache forces recomputation", () => {
+      const input = {
+        properties: [testProperty],
+        globalAssumptions: testGlobal,
+        projectionYears: 3,
+      };
+
+      computePortfolioProjection(input);
+      const status1 = getCacheStatus();
+      expect(status1.size).toBeGreaterThan(0);
+
+      invalidateComputeCache();
+      expect(getCacheStatus().size).toBe(0);
+
+      const result = computePortfolioProjection(input);
+      expect(result.cached).toBeUndefined();
+    });
+
+    it("single property compute returns valid structure", () => {
+      const result = computeSingleProperty({
+        property: testProperty,
+        globalAssumptions: testGlobal,
+        projectionYears: 3,
+      });
+
+      expect(result.engineVersion).toBe("1.0.0");
+      expect(result.projectionYears).toBe(3);
+      expect(result.monthly).toHaveLength(36);
+      expect(result.yearly).toHaveLength(3);
+      expect(result.validationSummary.opinion).toBe("UNQUALIFIED");
+    });
+
+    it("different inputs produce different output hashes", () => {
+      const result1 = computePortfolioProjection({
+        properties: [testProperty],
+        globalAssumptions: testGlobal,
+        projectionYears: 3,
+      });
+
+      const result2 = computePortfolioProjection({
+        properties: [{ ...testProperty, startAdr: 200 }],
+        globalAssumptions: testGlobal,
+        projectionYears: 3,
+      });
+
+      expect(result1.outputHash).not.toBe(result2.outputHash);
     });
   });
 });

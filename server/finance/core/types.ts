@@ -6,12 +6,15 @@ export type { YearlyCashFlowResult } from "@engine/debt/loanCalculations";
 type YearlyPropertyFinancialsImport = import("@engine/aggregation/yearlyAggregator").YearlyPropertyFinancials;
 type MonthlyFinancialsImport = import("@engine/types").MonthlyFinancials;
 
+type CompanyMonthlyFinancialsImport = import("@engine/types").CompanyMonthlyFinancials;
+
 export interface PortfolioComputeResult {
   engineVersion: string;
   computedAt: string;
   perPropertyYearly: Record<string, YearlyPropertyFinancialsImport[]>;
   perPropertyMonthly: Record<string, MonthlyFinancialsImport[]>;
   consolidatedYearly: YearlyPropertyFinancialsImport[];
+  companyMonthly?: CompanyMonthlyFinancialsImport[];
   outputHash: string;
   propertyCount: number;
   projectionYears: number;

@@ -10,93 +10,10 @@ import { processNotificationEvent, evaluateAlertRules } from "../notifications/e
 import { createEvent } from "../notifications/events";
 import { UserRole } from "@shared/constants";
 import { invalidateComputeCache } from "../finance/cache";
-import {
-  DEFAULT_EXIT_CAP_RATE,
-  DEFAULT_PROPERTY_TAX_RATE,
-  DEFAULT_COMMISSION_RATE,
-  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
-  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
-  DEFAULT_COST_RATE_ROOMS,
-  DEFAULT_COST_RATE_FB,
-  DEFAULT_COST_RATE_ADMIN,
-  DEFAULT_COST_RATE_MARKETING,
-  DEFAULT_COST_RATE_PROPERTY_OPS,
-  DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_TAXES,
-  DEFAULT_COST_RATE_IT,
-  DEFAULT_COST_RATE_FFE,
-  DEFAULT_COST_RATE_OTHER,
-  DEFAULT_COST_RATE_INSURANCE,
-  DEFAULT_REV_SHARE_EVENTS,
-  DEFAULT_REV_SHARE_FB,
-  DEFAULT_REV_SHARE_OTHER,
-  DEFAULT_START_ADR,
-  DEFAULT_ADR_GROWTH_RATE,
-  DEFAULT_START_OCCUPANCY,
-  DEFAULT_MAX_OCCUPANCY,
-  DEFAULT_OCCUPANCY_RAMP_MONTHS,
-  DEFAULT_ROOM_COUNT,
-  DEFAULT_CATERING_BOOST_PCT,
-  DEFAULT_LAND_VALUE_PERCENT,
-  DEFAULT_LTV,
-  DEFAULT_INTEREST_RATE,
-  DEFAULT_TERM_YEARS,
-  SEED_DEBT_ASSUMPTIONS,
-} from "@shared/constants";
-
-interface DebtAssumptions {
-  acqLTV?: number;
-  refiLTV?: number;
-  interestRate?: number;
-  amortizationYears?: number;
-  acqClosingCostRate?: number;
-  refiClosingCostRate?: number;
-}
+import { buildPropertyDefaultsFromRegistry } from "@shared/field-registry";
 
 export function buildPropertyDefaultsFromGlobal(ga?: GlobalAssumptions): Record<string, unknown> {
-  const debt = (ga?.debtAssumptions as DebtAssumptions) ?? {};
-  return {
-    exitCapRate: ga?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE,
-    taxRate: ga?.defaultPropertyTaxRate ?? DEFAULT_PROPERTY_TAX_RATE,
-    dispositionCommission: ga?.salesCommissionRate ?? DEFAULT_COMMISSION_RATE,
-    baseManagementFeeRate: ga?.baseManagementFee ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE,
-    incentiveManagementFeeRate: ga?.incentiveManagementFee ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
-
-    startAdr: ga?.defaultStartAdr ?? DEFAULT_START_ADR,
-    adrGrowthRate: ga?.defaultAdrGrowthRate ?? DEFAULT_ADR_GROWTH_RATE,
-    startOccupancy: ga?.defaultStartOccupancy ?? DEFAULT_START_OCCUPANCY,
-    maxOccupancy: ga?.defaultMaxOccupancy ?? DEFAULT_MAX_OCCUPANCY,
-    occupancyRampMonths: ga?.defaultOccupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS,
-    roomCount: ga?.defaultRoomCount ?? DEFAULT_ROOM_COUNT,
-    cateringBoostPercent: ga?.defaultCateringBoostPct ?? DEFAULT_CATERING_BOOST_PCT,
-
-    costRateRooms: ga?.defaultCostRateRooms ?? DEFAULT_COST_RATE_ROOMS,
-    costRateFB: ga?.defaultCostRateFb ?? DEFAULT_COST_RATE_FB,
-    costRateAdmin: ga?.defaultCostRateAdmin ?? DEFAULT_COST_RATE_ADMIN,
-    costRateMarketing: ga?.defaultCostRateMarketing ?? DEFAULT_COST_RATE_MARKETING,
-    costRatePropertyOps: ga?.defaultCostRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS,
-    costRateUtilities: ga?.defaultCostRateUtilities ?? DEFAULT_COST_RATE_UTILITIES,
-    costRateTaxes: ga?.defaultCostRateTaxes ?? DEFAULT_COST_RATE_TAXES,
-    costRateIT: ga?.defaultCostRateIt ?? DEFAULT_COST_RATE_IT,
-    costRateFFE: ga?.defaultCostRateFfe ?? DEFAULT_COST_RATE_FFE,
-    costRateOther: ga?.defaultCostRateOther ?? DEFAULT_COST_RATE_OTHER,
-    costRateInsurance: ga?.defaultCostRateInsurance ?? DEFAULT_COST_RATE_INSURANCE,
-
-    revShareEvents: ga?.defaultRevShareEvents ?? DEFAULT_REV_SHARE_EVENTS,
-    revShareFB: ga?.defaultRevShareFb ?? DEFAULT_REV_SHARE_FB,
-    revShareOther: ga?.defaultRevShareOther ?? DEFAULT_REV_SHARE_OTHER,
-
-    landValuePercent: ga?.defaultLandValuePercent ?? DEFAULT_LAND_VALUE_PERCENT,
-
-    acquisitionLTV: debt.acqLTV ?? DEFAULT_LTV,
-    acquisitionInterestRate: debt.interestRate ?? DEFAULT_INTEREST_RATE,
-    acquisitionTermYears: debt.amortizationYears ?? DEFAULT_TERM_YEARS,
-    acquisitionClosingCostRate: debt.acqClosingCostRate ?? SEED_DEBT_ASSUMPTIONS.acqClosingCostRate,
-    refinanceLTV: debt.refiLTV ?? DEFAULT_LTV,
-    refinanceInterestRate: debt.interestRate ?? DEFAULT_INTEREST_RATE,
-    refinanceTermYears: debt.amortizationYears ?? DEFAULT_TERM_YEARS,
-    refinanceClosingCostRate: debt.refiClosingCostRate ?? SEED_DEBT_ASSUMPTIONS.refiClosingCostRate,
-  };
+  return buildPropertyDefaultsFromRegistry(ga as unknown as Record<string, unknown>);
 }
 
 export function register(app: Express) {

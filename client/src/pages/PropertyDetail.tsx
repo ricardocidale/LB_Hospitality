@@ -203,7 +203,7 @@ export default function PropertyDetail() {
         getPremiumExportData={exportType !== 'chart' && property && yearlyDetails.length > 0
           ? (version: ExportVersion) => buildPremiumExportPayload(exportCtx, version)
           : undefined}
-        serverExportConfig={exportType !== 'chart' && ["income", "cashflow", "balance"].includes(activeTab) ? { entityType: "property", entityId: propertyId, reportScope: activeTab as "income" | "cashflow" | "balance" } : undefined}
+        serverExportConfig={exportType !== 'chart' && (activeTab === "income" || activeTab === "cashflow") ? { entityType: "property", entityId: propertyId, reportScope: activeTab } : undefined}
       />
       <div className="space-y-6">
         <PropertyHeader

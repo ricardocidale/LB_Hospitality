@@ -143,6 +143,11 @@ export const icpGenerateSchema = z.object({
   promptBuilder: z.record(z.any()).optional(),
 });
 
+export const icpExportSchema = z.object({
+  format: z.enum(["pdf", "docx"]),
+  orientation: z.enum(["portrait", "landscape"]).optional(),
+});
+
 export const uploadRequestSchema = z.object({
   name: z.string().min(1, "name is required").max(500),
   size: z.number().optional(),

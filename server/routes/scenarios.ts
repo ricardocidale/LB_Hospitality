@@ -338,7 +338,7 @@ export function register(app: Express) {
 
       const overrides = await storage.getPropertyOverrides(id);
       const liveProperties = await storage.getAllProperties(scenario.userId);
-      res.json(buildPreviewData(overrides as any, liveProperties as any, scenario as any));
+      res.json(buildPreviewData(overrides, liveProperties as Array<Record<string, unknown>>, scenario));
     } catch (error) {
       logAndSendError(res, "Failed to preview scenario", error);
     }

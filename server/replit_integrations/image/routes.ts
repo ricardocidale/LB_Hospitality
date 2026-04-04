@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { openai, generateImageBuffer, getGeminiClient } from "./client";
-import { requireAuth, isApiRateLimited } from "../../auth";
+import { requireAuth, isApiRateLimited, getAuthUser } from "../../auth";
 import { ObjectStorageService } from "../object_storage";
 import { replicateService, getAvailableStyles, type ReplicateStyleKey } from "../../integrations/replicate";
 import { z } from "zod";
@@ -30,7 +30,7 @@ const generatePropertyImageSchema = z.object({
 export function registerImageRoutes(app: Express): void {
   app.post("/api/generate-image", requireAuth, async (req: Request, res: Response) => {
     try {
-      if (isApiRateLimited(req.user!.id, "generate-image", 5)) {
+      if (isApiRateLimited(getAuthUser(req).id, "generate-image", 5)) {
         return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
       }
 
@@ -73,7 +73,7 @@ export function registerImageRoutes(app: Express): void {
 
   app.post("/api/generate-property-image", requireAuth, async (req: Request, res: Response) => {
     try {
-      if (isApiRateLimited(req.user!.id, "generate-image", 5)) {
+      if (isApiRateLimited(getAuthUser(req).id, "generate-image", 5)) {
         return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
       }
 
@@ -140,7 +140,7 @@ export function registerImageRoutes(app: Express): void {
 
   app.post("/api/enhance-logo-prompt", requireAuth, async (req: Request, res: Response) => {
     try {
-      if (isApiRateLimited(req.user!.id, "enhance-prompt", 10)) {
+      if (isApiRateLimited(getAuthUser(req).id, "enhance-prompt", 10)) {
         return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
       }
 

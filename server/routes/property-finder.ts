@@ -133,7 +133,7 @@ const XOTELO_LOCATION_KEYS: Record<string, string> = {
   "stowe, vt": "g57622",
 };
 
-function findXoteloKey(location: string): { key: string; label: string } | null {
+export function findXoteloKey(location: string): { key: string; label: string } | null {
   const lower = location.toLowerCase().trim();
   const direct = XOTELO_LOCATION_KEYS[lower];
   if (direct) return { key: direct, label: location };

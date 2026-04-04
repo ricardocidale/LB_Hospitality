@@ -1,7 +1,7 @@
 import express, { type Express, type Request, type Response } from "express";
 import OpenAI from "openai";
 import { chatStorage } from "./storage";
-import { requireAuth } from "../../auth";
+import { requireAuth, getAuthUser } from "../../auth";
 import { storage } from "../../storage";
 import { UserRole } from "@shared/constants";
 import { DEFAULT_OPENAI_MODEL } from "../../ai/resolve-llm";
@@ -320,7 +320,7 @@ function buildSystemPrompt(isVoice: boolean, isAdmin: boolean): string {
 export function registerChatRoutes(app: Express): void {
   app.get("/api/conversations", requireAuth, async (req: Request, res: Response) => {
     try {
-      const convos = await chatStorage.getAllConversationsForUser(req.user!.id);
+      const convos = await chatStorage.getAllConversationsForUser(getAuthUser(req).id);
       res.json(convos);
     } catch (error) {
       logger.error(`Error fetching conversations: ${error instanceof Error ? error.message : error}`, "chat");
@@ -331,7 +331,7 @@ export function registerChatRoutes(app: Express): void {
   app.get("/api/conversations/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id as string);
-      const conversation = await chatStorage.getConversationForUser(id, req.user!.id);
+      const conversation = await chatStorage.getConversationForUser(id, getAuthUser(req).id);
       if (!conversation) {
         return res.status(404).json({ error: "Conversation not found" });
       }
@@ -346,7 +346,7 @@ export function registerChatRoutes(app: Express): void {
   app.post("/api/conversations", requireAuth, async (req: Request, res: Response) => {
     try {
       const { title } = req.body;
-      const conversation = await chatStorage.createConversation(title || "New Chat", "web", req.user!.id);
+      const conversation = await chatStorage.createConversation(title || "New Chat", "web", getAuthUser(req).id);
       res.status(201).json(conversation);
     } catch (error) {
       logger.error(`Error creating conversation: ${error instanceof Error ? error.message : error}`, "chat");
@@ -357,7 +357,7 @@ export function registerChatRoutes(app: Express): void {
   app.delete("/api/conversations/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id as string);
-      const deleted = await chatStorage.deleteConversationForUser(id, req.user!.id);
+      const deleted = await chatStorage.deleteConversationForUser(id, getAuthUser(req).id);
       if (!deleted) {
         return res.status(404).json({ error: "Conversation not found" });
       }
@@ -377,7 +377,7 @@ export function registerChatRoutes(app: Express): void {
         return res.status(400).json({ error: "Message content is required" });
       }
 
-      const userId = req.user!.id;
+      const userId = getAuthUser(req).id;
       const conversation = await chatStorage.getConversationForUser(conversationId, userId);
       if (!conversation) {
         return res.status(404).json({ error: "Conversation not found" });
@@ -456,7 +456,7 @@ export function registerChatRoutes(app: Express): void {
         chunkSchedule: [120, 160, 250, 290],
       };
 
-      const userId = req.user!.id;
+      const userId = getAuthUser(req).id;
       const conversation = await chatStorage.getConversationForUser(conversationId, userId);
       if (!conversation) {
         return res.status(404).json({ error: "Conversation not found" });

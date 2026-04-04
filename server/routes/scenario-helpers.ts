@@ -204,7 +204,7 @@ export async function checkSharedPropertyAccess(
 export function buildPreviewData(
   overrides: Array<{ propertyId: number | null; propertyName: string; changeType: string; overrides: unknown; basePropertySnapshot: unknown }>,
   liveProperties: Array<Record<string, unknown>>,
-  scenario: { id: number; name: string; description: string | null; globalAssumptions: any; properties: any; feeCategories: any; version: number | null }
+  scenario: { id: number; name: string; description: string | null; globalAssumptions: unknown; properties: unknown; feeCategories: unknown; version: number | null }
 ) {
   const propertyDiffs = overrides.map(o => ({
     propertyId: o.propertyId ?? null,

@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireAuth, requireManagementAccess, isApiRateLimited, checkPropertyAccess } from "../auth";
+import { requireAuth, requireManagementAccess, isApiRateLimited, checkPropertyAccess , getAuthUser } from "../auth";
 import { storage } from "../storage";
 import { logActivity, logAndSendError } from "./helpers";
 import { DocumentAIService } from "../integrations/document-ai";
@@ -30,7 +30,7 @@ export function register(app: Express) {
   app.post("/api/documents/extract", requireManagementAccess, async (req, res) => {
     try {
       // Rate limit: max 3 document extractions per minute per user
-      if (isApiRateLimited(req.user!.id, "document-extract", 3)) {
+      if (isApiRateLimited(getAuthUser(req).id, "document-extract", 3)) {
         return res.status(429).json({ error: "Rate limit exceeded. Please wait before extracting another document." });
       }
 
@@ -83,7 +83,7 @@ export function register(app: Express) {
 
       const extraction = await storage.createDocumentExtraction({
         propertyId,
-        userId: req.user!.id,
+        userId: getAuthUser(req).id,
         fileName,
         fileContentType: contentType,
         objectPath,
@@ -155,7 +155,7 @@ export function register(app: Express) {
       if (isNaN(propertyId)) {
         return res.status(400).json({ error: "Invalid property ID" });
       }
-      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+      if (!(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
 
@@ -175,7 +175,7 @@ export function register(app: Express) {
 
       const extraction = await storage.getDocumentExtraction(extractionId);
       if (!extraction) return res.status(404).json({ error: "Extraction not found" });
-      if (!await checkPropertyAccess(req.user!, extraction.propertyId)) {
+      if (!await checkPropertyAccess(getAuthUser(req), extraction.propertyId)) {
         return res.status(403).json({ error: "Access denied" });
       }
 
@@ -203,7 +203,7 @@ export function register(app: Express) {
       const updated = await storage.updateExtractionFieldStatus(fieldId, status);
 
       const ownerExtraction = await storage.getDocumentExtraction(updated.extractionId);
-      if (ownerExtraction && !await checkPropertyAccess(req.user!, ownerExtraction.propertyId)) {
+      if (ownerExtraction && !await checkPropertyAccess(getAuthUser(req), ownerExtraction.propertyId)) {
         return res.status(403).json({ error: "Access denied" });
       }
 
@@ -257,7 +257,7 @@ export function register(app: Express) {
 
       const extraction = await storage.getDocumentExtraction(extractionId);
       if (!extraction) return res.status(404).json({ error: "Extraction not found" });
-      if (!await checkPropertyAccess(req.user!, extraction.propertyId)) {
+      if (!await checkPropertyAccess(getAuthUser(req), extraction.propertyId)) {
         return res.status(403).json({ error: "Access denied" });
       }
 
@@ -328,7 +328,7 @@ export function register(app: Express) {
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
-      if (!(await checkPropertyAccess(req.user!, data.propertyId))) {
+      if (!(await checkPropertyAccess(getAuthUser(req), data.propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
 
@@ -337,7 +337,7 @@ export function register(app: Express) {
         return res.status(500).json({ error: "Global assumptions not found" });
       }
 
-      const senderName = [req.user!.firstName, req.user!.lastName].filter(Boolean).join(" ") || req.user!.email;
+      const senderName = [getAuthUser(req).firstName, getAuthUser(req).lastName].filter(Boolean).join(" ") || getAuthUser(req).email;
 
       const rendered = renderTemplate(
         data.templateId,

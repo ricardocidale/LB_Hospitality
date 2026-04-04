@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireManagementAccess, checkPropertyAccess } from "../auth";
+import { requireAuth, requireManagementAccess, checkPropertyAccess , getAuthUser } from "../auth";
 import { insertPropertySchema, updatePropertySchema, updateFeeCategorySchema, type GlobalAssumptions } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
@@ -110,8 +110,8 @@ export function register(app: Express) {
 
   app.get("/api/properties", requireAuth, async (req, res) => {
     try {
-      let props = await storage.getAllProperties(req.user!.id);
-      const user = req.user!;
+      let props = await storage.getAllProperties(getAuthUser(req).id);
+      const user = getAuthUser(req);
       if (user.role !== UserRole.ADMIN && user.userGroupId) {
         const allowedIds = await storage.getGroupPropertyIds(user.userGroupId);
         if (allowedIds.length > 0) {
@@ -138,7 +138,7 @@ export function register(app: Express) {
   app.get("/api/user-groups/:id/properties", requireAuth, async (req, res) => {
     try {
       const groupId = Number(req.params.id);
-      const user = req.user!;
+      const user = getAuthUser(req);
       if (user.role !== UserRole.ADMIN && user.userGroupId !== groupId) {
         return res.status(403).json({ error: "Access denied" });
       }
@@ -173,7 +173,7 @@ export function register(app: Express) {
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
-      const user = req.user!;
+      const user = getAuthUser(req);
       if (user.role !== UserRole.ADMIN && user.userGroupId) {
         const allowedIds = await storage.getGroupPropertyIds(user.userGroupId);
         if (allowedIds.length > 0 && !allowedIds.includes(property.id)) {
@@ -246,7 +246,7 @@ export function register(app: Express) {
   app.patch("/api/properties/:id", requireManagementAccess, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
-      const hasAccess = await checkPropertyAccess(req.user!, propertyId);
+      const hasAccess = await checkPropertyAccess(getAuthUser(req), propertyId);
       if (!hasAccess) {
         return res.status(403).json({ error: "Access denied" });
       }
@@ -285,7 +285,7 @@ export function register(app: Express) {
   app.delete("/api/properties/:id", requireManagementAccess, async (req, res) => {
     try {
       const id = Number(req.params.id);
-      const hasAccess = await checkPropertyAccess(req.user!, id);
+      const hasAccess = await checkPropertyAccess(getAuthUser(req), id);
       if (!hasAccess) {
         return res.status(403).json({ error: "Access denied" });
       }
@@ -307,7 +307,7 @@ export function register(app: Express) {
   app.post("/api/properties/:id/seed-research", requireManagementAccess, async (req, res) => {
     try {
       const id = Number(req.params.id);
-      const hasAccess = await checkPropertyAccess(req.user!, id);
+      const hasAccess = await checkPropertyAccess(getAuthUser(req), id);
       if (!hasAccess) {
         return res.status(403).json({ error: "Access denied" });
       }
@@ -340,7 +340,7 @@ export function register(app: Express) {
   app.get("/api/properties/:id/fee-categories", requireAuth, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
-      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+      if (!(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
       const categories = await storage.getFeeCategoriesByProperty(propertyId);
@@ -361,7 +361,7 @@ export function register(app: Express) {
   app.put("/api/properties/:id/fee-categories", requireAuth, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
-      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+      if (!(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
       const parsed = feeCategoryBatchSchema.safeParse(req.body);

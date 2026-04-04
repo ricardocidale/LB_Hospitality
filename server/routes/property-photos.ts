@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireManagementAccess, checkPropertyAccess } from "../auth";
+import { requireAuth, requireManagementAccess, checkPropertyAccess , getAuthUser } from "../auth";
 import { insertPropertyPhotoSchema, updatePropertyPhotoSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { logAndSendError } from "./helpers";
@@ -12,7 +12,7 @@ export function register(app: Express) {
   app.get("/api/properties/:id/photos", requireAuth, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
-      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+      if (!(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
       const photos = await storage.getPropertyPhotos(propertyId);
@@ -26,7 +26,7 @@ export function register(app: Express) {
   app.post("/api/properties/:id/photos", requireManagementAccess, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
-      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+      if (!(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
       const property = await storage.getProperty(propertyId);
@@ -65,7 +65,7 @@ export function register(app: Express) {
   app.patch("/api/properties/:id/photos/:photoId", requireManagementAccess, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
-      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+      if (!(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
       const photoId = Number(req.params.photoId);
@@ -86,7 +86,7 @@ export function register(app: Express) {
   app.delete("/api/properties/:id/photos/:photoId", requireManagementAccess, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
-      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+      if (!(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
       const photoId = Number(req.params.photoId);
@@ -101,7 +101,7 @@ export function register(app: Express) {
   app.post("/api/properties/:id/photos/:photoId/set-hero", requireManagementAccess, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
-      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+      if (!(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
       const photoId = Number(req.params.photoId);
@@ -116,7 +116,7 @@ export function register(app: Express) {
   app.put("/api/properties/:id/photos/reorder", requireManagementAccess, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
-      if (!(await checkPropertyAccess(req.user!, propertyId))) {
+      if (!(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
       const schema = z.object({ orderedIds: z.array(z.number()) });

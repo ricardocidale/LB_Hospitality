@@ -4,6 +4,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { logos } from "./core";
 import { users } from "./auth";
+import type { IcpConfig, ExportConfig } from "./types/jsonb-shapes";
 import {
   DEFAULT_SAFE_VALUATION_CAP,
   DEFAULT_SAFE_DISCOUNT_RATE,
@@ -189,10 +190,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   utilitiesVariableSplit: real("utilities_variable_split").notNull().default(DEFAULT_UTILITIES_VARIABLE_SPLIT),
   
   // ICP Configuration — structured numeric/toggle parameters for Ideal Customer Profile
-  icpConfig: jsonb("icp_config").$type<Record<string, any>>(),
+  icpConfig: jsonb("icp_config").$type<IcpConfig>(),
 
-  // Export Configuration — admin-controlled toggles for PDF/Excel/CSV/PPTX content sections
-  exportConfig: jsonb("export_config").$type<Record<string, any>>(),
+  exportConfig: jsonb("export_config").$type<ExportConfig>(),
 
   // Asset Definition
   assetDefinition: jsonb("asset_definition").notNull().default({

@@ -1,6 +1,6 @@
 import { type Express, type Request, type Response } from "express";
 import { getGeminiClient, getPerplexityClient } from "../ai/clients";
-import { requireAuth } from "../auth";
+import { requireAuth , getAuthUser } from "../auth";
 import { aiRateLimit } from "../middleware/rate-limit";
 import { storage } from "../storage";
 import { buildPropertyContext } from "../ai/buildPropertyContext.js";
@@ -49,7 +49,7 @@ export function register(app: Express) {
       }
       const { message, history } = parsed.data;
 
-      const userId = req.user!.id;
+      const userId = getAuthUser(req).id;
 
       const global = await storage.getGlobalAssumptions(userId);
       if (!(global as any)?.rebeccaEnabled) {

@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, isApiRateLimited } from "../auth";
+import { requireAuth, isApiRateLimited , getAuthUser } from "../auth";
 import { logAndSendError } from "./helpers";
 import { getAnthropicClient, normalizeModelId } from "../ai/clients";
 import { DEFAULT_RESEARCH_MODEL } from "../ai/resolve-llm";
@@ -48,7 +48,7 @@ interface PromptBuilderConfig {
 }
 
 function buildIcpResearchPrompt(
-  icpConfig: Record<string, any>,
+  icpConfig: Record<string, unknown>,
   assetDescription: string,
   propertyLabel: string,
   promptBuilder?: PromptBuilderConfig,
@@ -267,14 +267,14 @@ function buildMarkdownFromReport(report: IcpResearchReport, propertyLabel: strin
 export function register(app: Express) {
   app.post("/api/research/icp/generate", requireAuth, async (req, res) => {
     try {
-      if (isApiRateLimited(req.user!.id, "icp-research", 3)) {
+      if (isApiRateLimited(getAuthUser(req).id, "icp-research", 3)) {
         return res.status(429).json({ error: "Rate limit exceeded. Please wait a minute." });
       }
 
-      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      const ga = await storage.getGlobalAssumptions(getAuthUser(req).id);
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
 
-      const icpConfig = (ga.icpConfig as Record<string, any>) || {};
+      const icpConfig = ga.icpConfig || {};
       const assetDescription = ga.assetDescription || "";
       const propertyLabel = ga.propertyLabel || "Hotel";
       const researchCfg = (ga.researchConfig as import("@shared/schema").ResearchConfig) ?? {};
@@ -296,7 +296,7 @@ export function register(app: Express) {
         try {
           const companies = await storage.getAllCompanies();
           const mgmtCompany = companies.find((c: any) => c.type === "management");
-          const props = await storage.getAllProperties(req.user!.id);
+          const props = await storage.getAllProperties(getAuthUser(req).id);
           const managedProps = mgmtCompany
             ? props.filter((p: any) => p.companyId === mgmtCompany.id)
             : props;
@@ -409,9 +409,9 @@ export function register(app: Express) {
 
   app.get("/api/research/icp", requireAuth, async (req, res) => {
     try {
-      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      const ga = await storage.getGlobalAssumptions(getAuthUser(req).id);
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
-      const icpConfig = (ga.icpConfig as Record<string, any>) || {};
+      const icpConfig = ga.icpConfig || {};
       res.json(icpConfig._research || null);
     } catch (error) {
       logAndSendError(res, "Failed to fetch ICP research", error);
@@ -425,10 +425,10 @@ export function register(app: Express) {
         return res.status(400).json({ error: "Format must be pdf or docx" });
       }
 
-      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      const ga = await storage.getGlobalAssumptions(getAuthUser(req).id);
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
 
-      const icpConfig = (ga.icpConfig as Record<string, any>) || {};
+      const icpConfig = ga.icpConfig || {};
       const report = icpConfig._research as IcpResearchReport | undefined;
       if (!report) return res.status(404).json({ error: "No ICP research report found. Generate one first." });
 

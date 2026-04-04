@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireManagementAccess, requireAdmin } from "../auth";
+import { requireAuth, requireManagementAccess, requireAdmin , getAuthUser } from "../auth";
 import { insertGlobalAssumptionsSchema, updateServiceTemplateSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { logActivity, logAndSendError, parseParamId } from "./helpers";
@@ -22,7 +22,7 @@ export function register(app: Express) {
 
   app.get("/api/global-assumptions", requireAuth, async (req, res) => {
     try {
-      const assumptions = await storage.getGlobalAssumptions(req.user!.id);
+      const assumptions = await storage.getGlobalAssumptions(getAuthUser(req).id);
       res.json(assumptions);
     } catch (error) {
       logAndSendError(res, "Failed to fetch global assumptions", error);
@@ -44,7 +44,7 @@ export function register(app: Express) {
         const error = fromZodError(validation.error);
         return res.status(400).json({ error: error.message });
       }
-      const current = await storage.getGlobalAssumptions(req.user!.id);
+      const current = await storage.getGlobalAssumptions(getAuthUser(req).id);
       if (!current) {
         return res.status(404).json({ error: "Global assumptions not found" });
       }
@@ -65,7 +65,7 @@ export function register(app: Express) {
 
   app.put("/api/global-assumptions", requireAdmin, async (req, res) => {
     try {
-      const current = await storage.getGlobalAssumptions(req.user!.id);
+      const current = await storage.getGlobalAssumptions(getAuthUser(req).id);
       const merged = { ...(current ?? {}), ...req.body };
       delete merged.id;
       delete merged.createdAt;
@@ -78,7 +78,7 @@ export function register(app: Express) {
         return res.status(400).json({ error: error.message });
       }
       
-      const assumptions = await storage.upsertGlobalAssumptions(validation.data, req.user!.id);
+      const assumptions = await storage.upsertGlobalAssumptions(validation.data, getAuthUser(req).id);
       invalidateComputeCache();
       logActivity(req, "update", "global_assumptions", assumptions.id, "System Settings");
       res.json(assumptions);
@@ -89,7 +89,7 @@ export function register(app: Express) {
 
   app.get("/api/appearance-defaults", requireAuth, async (req, res) => {
     try {
-      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      const ga = await storage.getGlobalAssumptions(getAuthUser(req).id);
       res.json({
         defaultColorMode: ga?.defaultColorMode ?? null,
         defaultBgAnimation: ga?.defaultBgAnimation ?? null,
@@ -106,7 +106,7 @@ export function register(app: Express) {
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      const current = await storage.getGlobalAssumptions(req.user!.id);
+      const current = await storage.getGlobalAssumptions(getAuthUser(req).id);
       if (!current) {
         return res.status(404).json({ error: "Global assumptions not found" });
       }

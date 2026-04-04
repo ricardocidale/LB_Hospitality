@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireAuth, isApiRateLimited } from "../auth";
+import { requireAuth, isApiRateLimited , getAuthUser } from "../auth";
 import { objectStorageClient, ObjectStorageService } from "../replit_integrations/object_storage";
 import { logActivity, logAndSendError } from "./helpers";
 import { randomUUID } from "crypto";
@@ -46,7 +46,7 @@ export function register(app: Express) {
   app.post("/api/uploads/direct", requireAuth, async (req, res) => {
     try {
       // Rate limit: max 10 uploads per minute per user
-      if (isApiRateLimited(req.user!.id, "upload", 10)) {
+      if (isApiRateLimited(getAuthUser(req).id, "upload", 10)) {
         return res.status(429).json({ error: "Upload rate limit exceeded. Please wait before uploading again." });
       }
 
@@ -99,7 +99,7 @@ export function register(app: Express) {
   });
 
   app.post("/api/uploads/process-image", requireAuth, async (req, res) => {
-    if (isApiRateLimited(req.user!.id, "process-image", 5)) {
+    if (isApiRateLimited(getAuthUser(req).id, "process-image", 5)) {
       return res.status(429).json({ error: "Too many image processing requests. Please try again later." });
     }
     try {

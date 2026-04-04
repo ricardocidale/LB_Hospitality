@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireManagementAccess, requireAuth } from "../auth";
+import { requireManagementAccess, requireAuth , getAuthUser } from "../auth";
 import { updateScenarioSchema } from "@shared/schema";
 import type { ComputedResultsSnapshot } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
@@ -24,8 +24,8 @@ function requireScenarioPermission(req: any, res: any, next: any) {
 export function register(app: Express) {
   app.get("/api/scenarios", requireAuth, async (req, res) => {
     try {
-      const owned = await storage.getScenariosByUser(req.user!.id);
-      const shared = await storage.getScenariosSharedWithUser(req.user!.id);
+      const owned = await storage.getScenariosByUser(getAuthUser(req).id);
+      const shared = await storage.getScenariosSharedWithUser(getAuthUser(req).id);
 
       const ownedWithAccess = owned.map(s => ({ ...s, accessType: "owned" as const, sharedByUserId: null, sharedByName: null }));
       res.json([...ownedWithAccess, ...shared]);
@@ -41,13 +41,13 @@ export function register(app: Express) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
 
-      const existing = await storage.getScenariosByUser(req.user!.id);
+      const existing = await storage.getScenariosByUser(getAuthUser(req).id);
       if (existing.length >= MAX_SCENARIOS_PER_USER) {
         return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios allowed` });
       }
 
-      const assumptions = await storage.getGlobalAssumptions(req.user!.id);
-      const properties = await storage.getAllProperties(req.user!.id);
+      const assumptions = await storage.getGlobalAssumptions(getAuthUser(req).id);
+      const properties = await storage.getAllProperties(getAuthUser(req).id);
       
       const propertyIds = properties.map(p => p.id);
       const [feeCatsByPropId, photosByPropId] = await Promise.all([
@@ -62,8 +62,8 @@ export function register(app: Express) {
         propertyPhotos[p.name] = (photosByPropId[p.id] || []) as Record<string, unknown>[];
       }
 
-      const liveAssumptions = await storage.getGlobalAssumptions(req.user!.id);
-      const liveProperties = await storage.getAllProperties(req.user!.id);
+      const liveAssumptions = await storage.getGlobalAssumptions(getAuthUser(req).id);
+      const liveProperties = await storage.getAllProperties(getAuthUser(req).id);
       const diffResult = computeFullDiff(
         (liveAssumptions || {}) as Record<string, unknown>,
         (liveProperties || []) as Array<Record<string, unknown>>,
@@ -99,7 +99,7 @@ export function register(app: Express) {
       }
 
       const scenario = await storage.createScenario({
-        userId: req.user!.id,
+        userId: getAuthUser(req).id,
         name: validation.data.name,
         description: validation.data.description,
         globalAssumptions: (assumptions || {}) as Record<string, unknown>,
@@ -131,7 +131,7 @@ export function register(app: Express) {
       const id = Number(req.params.id);
       const existing = await storage.getScenario(id);
       if (!existing) return res.status(404).json({ error: "Scenario not found" });
-      if (existing.userId !== req.user!.id) return res.status(403).json({ error: "Access denied" });
+      if (existing.userId !== getAuthUser(req).id) return res.status(403).json({ error: "Access denied" });
 
       const validation = updateScenarioSchema.safeParse(req.body);
       if (!validation.success) {
@@ -154,9 +154,9 @@ export function register(app: Express) {
       const scenario = await storage.getScenario(id);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
 
-      const isOwner = scenario.userId === req.user!.id;
+      const isOwner = scenario.userId === getAuthUser(req).id;
       if (!isOwner) {
-        const shared = await storage.getScenariosSharedWithUser(req.user!.id);
+        const shared = await storage.getScenariosSharedWithUser(getAuthUser(req).id);
         const hasAccess = shared.some(s => s.id === id);
         if (!hasAccess) return res.status(403).json({ error: "Access denied" });
       }
@@ -181,11 +181,11 @@ export function register(app: Express) {
           .filter((pid): pid is number => typeof pid === "number");
 
         if (snapshotPropertyIds.length > 0) {
-          const requesterProperties = await storage.getAllProperties(req.user!.id);
+          const requesterProperties = await storage.getAllProperties(getAuthUser(req).id);
           const requesterPropertyIds = new Set(requesterProperties.map(p => p.id));
           const unauthorizedIds = snapshotPropertyIds.filter(pid => !requesterPropertyIds.has(pid));
           if (unauthorizedIds.length > 0) {
-            logger.warn(`[scenario-load] Scenario ${id}: user ${req.user!.id} lacks access to ${unauthorizedIds.length} property ID(s): ${unauthorizedIds.join(", ")}`, "scenarios");
+            logger.warn(`[scenario-load] Scenario ${id}: user ${getAuthUser(req).id} lacks access to ${unauthorizedIds.length} property ID(s): ${unauthorizedIds.join(", ")}`, "scenarios");
             return res.status(403).json({
               error: "Scenario contains properties you do not have access to",
             });
@@ -208,7 +208,7 @@ export function register(app: Express) {
       }
 
       await storage.loadScenario(
-        req.user!.id,
+        getAuthUser(req).id,
         scenario.globalAssumptions as Record<string, unknown>,
         snapshotProps,
         snapshotFeeCats,
@@ -235,7 +235,7 @@ export function register(app: Express) {
       const id = Number(req.params.id);
       const scenario = await storage.getScenario(id);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
-      if (scenario.userId !== req.user!.id) return res.status(403).json({ error: "Access denied" });
+      if (scenario.userId !== getAuthUser(req).id) return res.status(403).json({ error: "Access denied" });
 
       if (scenario.name === "Development") {
         return res.status(400).json({ error: "The default Development scenario cannot be deleted" });
@@ -254,14 +254,14 @@ export function register(app: Express) {
       const id = Number(req.params.id);
       const scenario = await storage.getScenario(id);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
-      if (scenario.userId !== req.user!.id) return res.status(403).json({ error: "Access denied" });
+      if (scenario.userId !== getAuthUser(req).id) return res.status(403).json({ error: "Access denied" });
 
-      const existing = await storage.getScenariosByUser(req.user!.id);
+      const existing = await storage.getScenariosByUser(getAuthUser(req).id);
       if (existing.length >= MAX_SCENARIOS_PER_USER) {
         return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios allowed` });
       }
 
-      const cloned = await storage.cloneScenario(id, req.user!.id);
+      const cloned = await storage.cloneScenario(id, getAuthUser(req).id);
       logActivity(req, "clone", "scenario", cloned.id, cloned.name);
       res.status(201).json(cloned);
     } catch (error) {
@@ -274,7 +274,7 @@ export function register(app: Express) {
       const id = Number(req.params.id);
       const scenario = await storage.getScenario(id);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
-      if (scenario.userId !== req.user!.id) return res.status(403).json({ error: "Access denied" });
+      if (scenario.userId !== getAuthUser(req).id) return res.status(403).json({ error: "Access denied" });
 
       const exportData: Record<string, unknown> = {
         name: scenario.name,
@@ -309,14 +309,14 @@ export function register(app: Express) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
 
-      const existing = await storage.getScenariosByUser(req.user!.id);
+      const existing = await storage.getScenariosByUser(getAuthUser(req).id);
       if (existing.length >= MAX_SCENARIOS_PER_USER) {
         return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios allowed` });
       }
 
       const data = validation.data;
       const scenario = await storage.createScenario({
-        userId: req.user!.id,
+        userId: getAuthUser(req).id,
         name: data.name,
         description: data.description ?? null,
         globalAssumptions: data.globalAssumptions as Record<string, unknown>,
@@ -340,7 +340,7 @@ export function register(app: Express) {
         storage.getScenario(id2),
       ]);
       if (!s1 || !s2) return res.status(404).json({ error: "Scenario not found" });
-      if (s1.userId !== req.user!.id || s2.userId !== req.user!.id) {
+      if (s1.userId !== getAuthUser(req).id || s2.userId !== getAuthUser(req).id) {
         return res.status(403).json({ error: "Access denied" });
       }
 
@@ -366,7 +366,7 @@ export function register(app: Express) {
 
       const { recipientEmail, mode, scenarioId } = validation.data;
 
-      if (recipientEmail === req.user!.email) {
+      if (recipientEmail === getAuthUser(req).email) {
         return res.status(400).json({ error: "You cannot share scenarios with yourself" });
       }
 
@@ -381,13 +381,13 @@ export function register(app: Express) {
         }
         const scenario = await storage.getScenario(scenarioId);
         if (!scenario) return res.status(404).json({ error: "Scenario not found" });
-        if (scenario.userId !== req.user!.id) return res.status(403).json({ error: "You can only share your own scenarios" });
+        if (scenario.userId !== getAuthUser(req).id) return res.status(403).json({ error: "You can only share your own scenarios" });
 
-        const share = await storage.shareScenarioWithUser(scenarioId, recipient.id, req.user!.id);
+        const share = await storage.shareScenarioWithUser(scenarioId, recipient.id, getAuthUser(req).id);
         logActivity(req, "share", "scenario", scenarioId, scenario.name);
         res.status(201).json({ shares: share ? [share] : [], recipientName: fullName(recipient) || recipient.email });
       } else {
-        const shares = await storage.shareAllScenariosWithUser(req.user!.id, recipient.id);
+        const shares = await storage.shareAllScenariosWithUser(getAuthUser(req).id, recipient.id);
         logActivity(req, "share_all", "scenario", null, `All scenarios to ${recipient.email}`);
         res.status(201).json({ shares, recipientName: fullName(recipient) || recipient.email });
       }
@@ -402,9 +402,9 @@ export function register(app: Express) {
       const scenario = await storage.getScenario(id);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
 
-      const isOwner = scenario.userId === req.user!.id;
+      const isOwner = scenario.userId === getAuthUser(req).id;
       if (!isOwner) {
-        const shared = await storage.getScenariosSharedWithUser(req.user!.id);
+        const shared = await storage.getScenariosSharedWithUser(getAuthUser(req).id);
         const hasAccess = shared.some(s => s.id === id);
         if (!hasAccess) return res.status(403).json({ error: "Access denied" });
       }
@@ -462,9 +462,9 @@ export function register(app: Express) {
       const field = req.query.field as string;
       if (!field) return res.status(400).json({ error: "field query parameter is required" });
 
-      const results = await storage.getPropertyOverridesForField(req.user!.id, field);
+      const results = await storage.getPropertyOverridesForField(getAuthUser(req).id, field);
 
-      const userScenarios = await storage.getScenariosByUser(req.user!.id);
+      const userScenarios = await storage.getScenariosByUser(getAuthUser(req).id);
       const scenarioBaseValues: Array<{
         scenarioId: number;
         scenarioName: string;
@@ -552,7 +552,7 @@ export function register(app: Express) {
       const scenario = await storage.getScenario(scenarioId);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
 
-      if (scenario.userId !== req.user!.id) {
+      if (scenario.userId !== getAuthUser(req).id) {
         return res.status(403).json({ error: "Only the scenario owner can trigger recompute" });
       }
 
@@ -590,7 +590,7 @@ export function register(app: Express) {
         auditOpinion: computeResult.validationSummary.opinion,
         projectionYears: computeResult.projectionYears,
         propertyCount: computeResult.propertyCount,
-        computedBy: req.user!.id,
+        computedBy: getAuthUser(req).id,
       });
 
       const updatedSnapshot: ComputedResultsSnapshot = {
@@ -632,7 +632,7 @@ export function register(app: Express) {
       const scenario = await storage.getScenario(scenarioId);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
 
-      const hasAccess = await checkScenarioAccess(scenarioId, req.user!.id, scenario);
+      const hasAccess = await checkScenarioAccess(scenarioId, getAuthUser(req).id, scenario);
       if (!hasAccess) return res.status(403).json({ error: "Access denied" });
 
       const result = await storage.getLatestScenarioResult(scenarioId);
@@ -653,7 +653,7 @@ export function register(app: Express) {
       const scenario = await storage.getScenario(scenarioId);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
 
-      const hasAccess = await checkScenarioAccess(scenarioId, req.user!.id, scenario);
+      const hasAccess = await checkScenarioAccess(scenarioId, getAuthUser(req).id, scenario);
       if (!hasAccess) return res.status(403).json({ error: "Access denied" });
 
       const stored = await storage.getLatestScenarioResult(scenarioId);

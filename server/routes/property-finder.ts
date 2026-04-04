@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth } from "../auth";
+import { requireAuth , getAuthUser } from "../auth";
 import { insertProspectivePropertySchema, insertSavedSearchSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { logActivity, logAndSendError } from "./helpers";
@@ -15,7 +15,7 @@ export function register(app: Express) {
 
   app.get("/api/property-finder/prospective", requireAuth, async (req, res) => {
     try {
-      const properties = await storage.getProspectiveProperties(req.user!.id);
+      const properties = await storage.getProspectiveProperties(getAuthUser(req).id);
       res.json(properties);
     } catch (error) {
       logAndSendError(res, "Failed to fetch prospective properties", error);
@@ -31,7 +31,7 @@ export function register(app: Express) {
 
       const property = await storage.addProspectiveProperty({
         ...validation.data,
-        userId: req.user!.id,
+        userId: getAuthUser(req).id,
       });
 
       logActivity(req, "favorite", "prospective_property", property.id, property.address);
@@ -43,7 +43,7 @@ export function register(app: Express) {
 
   app.delete("/api/property-finder/prospective/:id", requireAuth, async (req, res) => {
     try {
-      await storage.deleteProspectiveProperty(Number(req.params.id), req.user!.id);
+      await storage.deleteProspectiveProperty(Number(req.params.id), getAuthUser(req).id);
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to delete prospective property", error);
@@ -55,7 +55,7 @@ export function register(app: Express) {
       const { notes } = req.body;
       const property = await storage.updateProspectivePropertyNotes(
         Number(req.params.id),
-        req.user!.id,
+        getAuthUser(req).id,
         notes as string
       );
       if (!property) return res.status(404).json({ error: "Property not found" });
@@ -76,7 +76,7 @@ export function register(app: Express) {
 
   app.get("/api/property-finder/saved-searches", requireAuth, async (req, res) => {
     try {
-      const searches = await storage.getSavedSearches(req.user!.id);
+      const searches = await storage.getSavedSearches(getAuthUser(req).id);
       res.json(searches);
     } catch (error) {
       logAndSendError(res, "Failed to fetch saved searches", error);
@@ -92,7 +92,7 @@ export function register(app: Express) {
 
       const search = await storage.addSavedSearch({
         ...validation.data,
-        userId: req.user!.id,
+        userId: getAuthUser(req).id,
       });
 
       logActivity(req, "save-search", "saved_search", search.id, search.name);
@@ -104,7 +104,7 @@ export function register(app: Express) {
 
   app.delete("/api/property-finder/saved-searches/:id", requireAuth, async (req, res) => {
     try {
-      await storage.deleteSavedSearch(Number(req.params.id), req.user!.id);
+      await storage.deleteSavedSearch(Number(req.params.id), getAuthUser(req).id);
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to delete saved search", error);

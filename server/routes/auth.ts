@@ -10,7 +10,8 @@ import {
   getSessionExpiryDate, 
   setSessionCookie, 
   clearSessionCookie,
-  hashPassword
+  hashPassword,
+  getAuthUser
 } from "../auth";
 import { loginSchema, userResponse, fullName, logAndSendError } from "./helpers";
 import { z } from "zod";
@@ -129,7 +130,7 @@ export function register(app: Express) {
   });
 
   app.get("/api/auth/me", requireAuth, async (req, res) => {
-    const u = req.user!;
+    const u = getAuthUser(req);
     let companyName: string | null = null;
     if (u.companyId) {
       const comp = await storage.getCompany(u.companyId);
@@ -169,13 +170,13 @@ export function register(app: Express) {
         const protectedEmails = seedUsersConfig.users
           .filter(u => u.role === UserRole.ADMIN || u.role === UserRole.CHECKER)
           .map(u => u.email.toLowerCase());
-        if (protectedEmails.includes(req.user!.email.toLowerCase())) {
+        if (protectedEmails.includes(getAuthUser(req).email.toLowerCase())) {
           return res.status(403).json({ error: "System account emails cannot be changed" });
         }
         const newEmail = sanitizeEmail(validation.data.email);
-        if (newEmail !== req.user!.email) {
+        if (newEmail !== getAuthUser(req).email) {
           const existingUser = await storage.getUserByEmail(newEmail);
-          if (existingUser && existingUser.id !== req.user!.id) {
+          if (existingUser && existingUser.id !== getAuthUser(req).id) {
             return res.status(400).json({ error: "Email already in use" });
           }
           updates.email = newEmail;
@@ -184,7 +185,7 @@ export function register(app: Express) {
       if (validation.data.company !== undefined) updates.company = validation.data.company.trim();
       if (validation.data.title !== undefined) updates.title = validation.data.title.trim();
       
-      const user = await storage.updateUserProfile(req.user!.id, updates);
+      const user = await storage.updateUserProfile(getAuthUser(req).id, updates);
       res.json(userResponse(user));
     } catch (error) {
       logAndSendError(res, "Failed to update profile", error);
@@ -204,7 +205,7 @@ export function register(app: Express) {
         return res.status(400).json({ error: error.message });
       }
 
-      const user = await storage.getUserById(req.user!.id);
+      const user = await storage.getUserById(getAuthUser(req).id);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -219,7 +220,7 @@ export function register(app: Express) {
       }
 
       const newPasswordHash = await hashPassword(validation.data.newPassword);
-      await storage.updateUserPassword(req.user!.id, newPasswordHash);
+      await storage.updateUserPassword(getAuthUser(req).id, newPasswordHash);
       
       res.json({ success: true });
     } catch (error) {
@@ -234,7 +235,7 @@ export function register(app: Express) {
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      await storage.updateUserHideTourPrompt(req.user!.id, validation.data.hide);
+      await storage.updateUserHideTourPrompt(getAuthUser(req).id, validation.data.hide);
       res.json({ hideTourPrompt: validation.data.hide });
     } catch (error) {
       logAndSendError(res, "Failed to update preference", error);
@@ -252,7 +253,7 @@ export function register(app: Express) {
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      const user = await storage.updateUserAppearance(req.user!.id, {
+      const user = await storage.updateUserAppearance(getAuthUser(req).id, {
         colorMode: validation.data.colorMode,
         bgAnimation: validation.data.bgAnimation,
         fontPreference: validation.data.fontPreference,
@@ -276,7 +277,7 @@ export function register(app: Express) {
           return res.status(404).json({ error: "Theme not found" });
         }
       }
-      const user = await storage.updateUserSelectedTheme(req.user!.id, validation.data.themeId);
+      const user = await storage.updateUserSelectedTheme(getAuthUser(req).id, validation.data.themeId);
       res.json({ selectedThemeId: user.selectedThemeId });
     } catch (error) {
       logAndSendError(res, "Failed to update theme preference", error);

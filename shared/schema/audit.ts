@@ -2,6 +2,7 @@ import { pgTable, text, integer, timestamp, jsonb, index, serial } from "drizzle
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { users } from "./auth";
+import type { ActivityLogMetadata, VerificationRunResults } from "./types/jsonb-shapes";
 
 export const loginLogs = pgTable("login_logs", {
   id: serial("id").primaryKey(),
@@ -32,7 +33,7 @@ export const activityLogs = pgTable("activity_logs", {
   entityType: text("entity_type").notNull(),
   entityId: integer("entity_id"),
   entityName: text("entity_name"),
-  metadata: jsonb("metadata"),
+  metadata: jsonb("metadata").$type<ActivityLogMetadata>(),
   ipAddress: text("ip_address"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
@@ -62,7 +63,7 @@ export const verificationRuns = pgTable("verification_runs", {
   failed: integer("failed").notNull(),
   auditOpinion: text("audit_opinion").notNull(),
   overallStatus: text("overall_status").notNull(),
-  results: jsonb("results").notNull(),
+  results: jsonb("results").notNull().$type<VerificationRunResults>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
   index("verification_runs_user_id_idx").on(table.userId),

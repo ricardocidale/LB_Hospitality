@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
-import { requireAdmin, requireAuth, requireChecker, isApiRateLimited } from "../../auth";
+import { requireAdmin, requireAuth, requireChecker, isApiRateLimited , getAuthUser } from "../../auth";
 import { runFillOnlySync, runSmartSync } from "../../syncHelpers";
 import { logAndSendError, logActivity } from "../helpers";
 import { readFile } from "fs/promises";
@@ -120,7 +120,7 @@ export function registerToolRoutes(app: Express) {
 
   app.get("/api/admin/sync-status", requireAdmin, async (req, res) => {
     try {
-      const properties = await storage.getAllProperties(req.user!.id);
+      const properties = await storage.getAllProperties(getAuthUser(req).id);
       const status = properties.map((p: any) => ({
         id: p.id,
         name: p.name,
@@ -211,7 +211,7 @@ export function registerToolRoutes(app: Express) {
 
   app.post("/api/admin/golden-test-run", requireAdmin, async (req, res) => {
     try {
-      if (isApiRateLimited(req.user!.id, "golden-test-run", 1)) {
+      if (isApiRateLimited(getAuthUser(req).id, "golden-test-run", 1)) {
         return res.status(429).json({ error: "Golden tests rate-limited to 1 run per minute" });
       }
       logActivity(req, "run-golden-tests", "verification");

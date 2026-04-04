@@ -3,7 +3,6 @@ import { z } from "zod";
 import { storage } from "../../storage";
 import { requireAdmin } from "../../auth";
 import { logAndSendError } from "../helpers";
-import type { InsertGlobalAssumptions } from "@shared/schema";
 
 const categoryFormatSchema = {
   allowLandscape: z.boolean(),
@@ -134,7 +133,7 @@ export function registerExportConfigRoutes(app: Express) {
         statements: { ...current.statements, ...(incoming.statements ?? {}) },
         analysis: { ...current.analysis, ...(incoming.analysis ?? {}) },
       };
-      await storage.upsertGlobalAssumptions({ exportConfig: merged } as unknown as InsertGlobalAssumptions);
+      await storage.patchGlobalAssumptions(ga.id, { exportConfig: merged });
       res.json(merged);
     } catch (error) {
       logAndSendError(res, "Failed to save export config", error);

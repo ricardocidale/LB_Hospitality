@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 import { storage } from "../storage";
-import { requireAuth } from "../auth";
+import { requireAuth , getAuthUser } from "../auth";
 import { logger } from "../logger";
 import { isEncryptionConfigured } from "../lib/token-encryption";
 import multer from "multer";
@@ -72,7 +72,7 @@ export function register(app: Express) {
 
   app.get("/api/drive/status", requireAuth, async (req, res) => {
     try {
-      const user = await storage.getUserById(req.user!.id);
+      const user = await storage.getUserById(getAuthUser(req).id);
       res.json({
         connected: user?.googleDriveConnected ?? false,
         email: user?.email,
@@ -85,7 +85,7 @@ export function register(app: Express) {
 
   app.post("/api/drive/disconnect", requireAuth, async (req, res) => {
     try {
-      await storage.clearUserGoogleDriveTokens(req.user!.id);
+      await storage.clearUserGoogleDriveTokens(getAuthUser(req).id);
       res.json({ success: true });
     } catch (error) {
       logger.error(`Drive disconnect error: ${error instanceof Error ? error.message : error}`, "drive");
@@ -95,7 +95,7 @@ export function register(app: Express) {
 
   app.get("/api/drive/files", requireAuth, async (req, res) => {
     try {
-      const drive = await getAuthedDriveClient(req.user!.id);
+      const drive = await getAuthedDriveClient(getAuthUser(req).id);
       if (!drive) {
         return res.status(401).json({ error: "Google Drive not connected. Please connect your Drive first." });
       }
@@ -117,7 +117,7 @@ export function register(app: Express) {
 
   app.post("/api/drive/folders", requireAuth, async (req, res) => {
     try {
-      const drive = await getAuthedDriveClient(req.user!.id);
+      const drive = await getAuthedDriveClient(getAuthUser(req).id);
       if (!drive) {
         return res.status(401).json({ error: "Google Drive not connected" });
       }
@@ -149,7 +149,7 @@ export function register(app: Express) {
 
   app.post("/api/drive/upload", requireAuth, upload.single("file"), async (req, res) => {
     try {
-      const drive = await getAuthedDriveClient(req.user!.id);
+      const drive = await getAuthedDriveClient(getAuthUser(req).id);
       if (!drive) {
         return res.status(401).json({ error: "Google Drive not connected" });
       }

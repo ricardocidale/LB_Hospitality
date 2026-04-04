@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
-import { requireAdmin, requireAuth, isApiRateLimited } from "../../auth";
+import { requireAdmin, requireAuth, isApiRateLimited , getAuthUser } from "../../auth";
 import { type InsertGlobalAssumptions } from "@shared/schema";
 import {
   logAndSendError, logActivity, parseParamId,
@@ -35,7 +35,7 @@ export function registerMarcelaRoutes(app: Express) {
     // MARCELA ISOLATED — return 503
     if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
-      if (isApiRateLimited(req.user!.id, "kb-rebuild", 1)) {
+      if (isApiRateLimited(getAuthUser(req).id, "kb-rebuild", 1)) {
         return res.status(429).json({ error: "Knowledge base rebuild is rate-limited to 1 per minute" });
       }
       const { sources } = req.body;

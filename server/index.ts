@@ -310,6 +310,12 @@ async function runSchemaMigrations() {
     await runScenarioOverrides001();
     await markMigrationApplied("scenario_overrides_001");
   }
+
+  if (!(await isMigrationApplied("property_notnull_001"))) {
+    const { runPropertyNotNullMigration } = await import("./migrations/property-notnull-001");
+    await runPropertyNotNullMigration();
+    await markMigrationApplied("property_notnull_001");
+  }
 }
 
 async function runSeeds() {

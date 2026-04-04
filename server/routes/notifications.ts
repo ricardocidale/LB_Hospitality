@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireAuth, requireAdmin } from "../auth";
+import { requireAuth, requireAdmin , getAuthUser } from "../auth";
 import { logAndSendError } from "./helpers";
 import { insertAlertRuleSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
@@ -98,7 +98,7 @@ export function register(app: Express) {
   // --- Notification Preferences (per-user) ---
   app.get("/api/notifications/preferences", requireAuth, async (req, res) => {
     try {
-      const prefs = await storage.getNotificationPreferences(req.user!.id);
+      const prefs = await storage.getNotificationPreferences(getAuthUser(req).id);
       res.json(prefs);
     } catch (error) {
       logAndSendError(res, "Failed to fetch notification preferences", error);
@@ -116,7 +116,7 @@ export function register(app: Express) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
       const { eventType, channel, enabled } = validation.data;
-      await storage.upsertNotificationPreference(req.user!.id, eventType, channel, enabled);
+      await storage.upsertNotificationPreference(getAuthUser(req).id, eventType, channel, enabled);
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to update notification preference", error);

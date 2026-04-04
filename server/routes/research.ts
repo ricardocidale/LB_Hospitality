@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireAdmin, isApiRateLimited, checkPropertyAccess } from "../auth";
+import { requireAuth, requireAdmin, isApiRateLimited, checkPropertyAccess , getAuthUser } from "../auth";
 import { researchGenerateSchema, logActivity, logAndSendError } from "./helpers";
 import { fromZodError } from "zod-validation-error";
 import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../ai/aiResearch";
@@ -25,10 +25,10 @@ export function register(app: Express) {
   // Research status summary — used by the Research Hub page
   app.get("/api/research/status", requireAuth, async (req, res) => {
     try {
-      const allResearch = await storage.getAllMarketResearch(req.user!.id);
-      const allProperties = await storage.getAllProperties(req.user!.id);
+      const allResearch = await storage.getAllMarketResearch(getAuthUser(req).id);
+      const allProperties = await storage.getAllProperties(getAuthUser(req).id);
 
-      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      const ga = await storage.getGlobalAssumptions(getAuthUser(req).id);
       const researchConfig = (ga?.researchConfig as ResearchConfig) ?? {};
 
       const getStatus = (updatedAt: Date | null | undefined, type: 'property' | 'company' | 'global'): "fresh" | "stale" | "missing" => {
@@ -79,12 +79,12 @@ export function register(app: Express) {
   app.get("/api/market-research", requireAuth, async (req, res) => {
     try {
       const { type, propertyId } = req.query;
-      if (propertyId && !(await checkPropertyAccess(req.user!, Number(propertyId)))) {
+      if (propertyId && !(await checkPropertyAccess(getAuthUser(req), Number(propertyId)))) {
         return res.status(403).json({ error: "Access denied" });
       }
       const research = await storage.getMarketResearch(
         type as string,
-        req.user!.id,
+        getAuthUser(req).id,
         propertyId ? Number(propertyId) : undefined
       );
       res.json(research || null);
@@ -96,12 +96,12 @@ export function register(app: Express) {
   app.get("/api/research/property", requireAuth, async (req, res) => {
     try {
       const { propertyId } = req.query;
-      if (propertyId && !(await checkPropertyAccess(req.user!, Number(propertyId)))) {
+      if (propertyId && !(await checkPropertyAccess(getAuthUser(req), Number(propertyId)))) {
         return res.status(403).json({ error: "Access denied" });
       }
       const research = await storage.getMarketResearch(
         "property",
-        req.user!.id,
+        getAuthUser(req).id,
         propertyId ? Number(propertyId) : undefined
       );
       res.json(research || null);
@@ -119,15 +119,15 @@ export function register(app: Express) {
 
       const { type, propertyId, propertyContext, assetDefinition, researchVariables } = validation.data;
 
-      if (propertyId && !(await checkPropertyAccess(req.user!, propertyId))) {
+      if (propertyId && !(await checkPropertyAccess(getAuthUser(req), propertyId))) {
         return res.status(403).json({ error: "Access denied" });
       }
 
-      if (isApiRateLimited(req.user!.id, "market-research", 5)) {
+      if (isApiRateLimited(getAuthUser(req).id, "market-research", 5)) {
         return res.status(429).json({ error: "Rate limit exceeded. Please wait a minute." });
       }
 
-      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      const ga = await storage.getGlobalAssumptions(getAuthUser(req).id);
       
       // Resolve admin-configured event config for this research type
       const researchConfig = (ga?.researchConfig as ResearchConfig) ?? {};
@@ -249,7 +249,7 @@ export function register(app: Express) {
           }
 
           await storage.upsertMarketResearch({
-            userId: req.user!.id,
+            userId: getAuthUser(req).id,
             propertyId,
             type,
             title: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} Research`,
@@ -280,7 +280,7 @@ export function register(app: Express) {
 
   app.get("/api/research/last-full-refresh", requireAuth, async (req, res) => {
     try {
-      const lastRefresh = await storage.getLastFullResearchRefresh(req.user!.id);
+      const lastRefresh = await storage.getLastFullResearchRefresh(getAuthUser(req).id);
       res.json({ lastRefresh: lastRefresh?.toISOString() ?? null });
     } catch (error) {
       logAndSendError(res, "Failed to fetch last full research refresh", error);
@@ -289,7 +289,7 @@ export function register(app: Express) {
 
   app.post("/api/research/mark-full-refresh", requireAuth, async (req, res) => {
     try {
-      await storage.markFullResearchRefresh(req.user!.id);
+      await storage.markFullResearchRefresh(getAuthUser(req).id);
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to mark full research refresh", error);
@@ -298,7 +298,7 @@ export function register(app: Express) {
 
   app.get("/api/research/refresh-config", requireAuth, async (req, res) => {
     try {
-      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      const ga = await storage.getGlobalAssumptions(getAuthUser(req).id);
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
       res.json((ga.researchConfig as ResearchConfig) ?? {});
     } catch (error) {

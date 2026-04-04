@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
-import { requireAdmin } from "../../auth";
+import { requireAdmin , getAuthUser } from "../../auth";
 import { logAndSendError, logActivity, parseParamId } from "../helpers";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -144,7 +144,7 @@ export function registerAdminScenarioRoutes(app: Express) {
         if (!targetCompany) return res.status(404).json({ error: "Target company not found" });
       }
 
-      const share = await storage.addScenarioAccess(id, targetType, targetId, req.user!.id);
+      const share = await storage.addScenarioAccess(id, targetType, targetId, getAuthUser(req).id);
 
       logActivity(req, "admin-grant-scenario-access", "scenario", id, existing.name, { targetType, targetId });
       res.status(201).json(share);

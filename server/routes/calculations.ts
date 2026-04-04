@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireChecker, requireAuth } from "../auth";
+import { requireChecker, requireAuth , getAuthUser } from "../auth";
 import { runVerificationWithEngine } from "../calculationChecker";
 import { logActivity, logAndSendError } from "./helpers";
 import * as calcSchemas from "../../calc/shared/schemas";
@@ -32,8 +32,8 @@ export function register(app: Express) {
   app.post("/api/verification/run", requireChecker, async (req, res) => {
     try {
       const { clientResults } = req.body;
-      const properties = await storage.getAllProperties(req.user!.id);
-      const globalAssumptions = await storage.getGlobalAssumptions(req.user!.id);
+      const properties = await storage.getAllProperties(getAuthUser(req).id);
+      const globalAssumptions = await storage.getGlobalAssumptions(getAuthUser(req).id);
 
       if (!globalAssumptions) {
         return res.status(400).json({ error: "Global assumptions not found" });
@@ -46,7 +46,7 @@ export function register(app: Express) {
       );
 
       const run = await storage.createVerificationRun({
-        userId: req.user!.id,
+        userId: getAuthUser(req).id,
         passed: report.summary.totalPassed,
         failed: report.summary.totalFailed,
         totalChecks: report.summary.totalChecks,
@@ -92,7 +92,7 @@ export function register(app: Express) {
         return res.status(404).json({ error: "Verification run not found" });
       }
 
-      const globalAssumptions = await storage.getGlobalAssumptions(req.user!.id);
+      const globalAssumptions = await storage.getGlobalAssumptions(getAuthUser(req).id);
       const llmModel = globalAssumptions?.marcelaLlmModel || DEFAULT_OPENAI_MODEL;
 
       const openai = getOpenAIClient();

@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireAdmin } from "../auth";
+import { requireAuth, requireAdmin , getAuthUser } from "../auth";
 import { insertLogoSchema, insertCompanySchema, insertUserGroupSchema, insertDesignThemeSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { logger } from "../logger";
@@ -45,7 +45,7 @@ export function register(app: Express) {
 
   app.get("/api/branding", requireAuth, async (req, res) => {
     try {
-      const u = req.user!;
+      const u = getAuthUser(req);
       let companyName = "Hospitality Business Group";
       let logoUrl: string | null = null;
       let userName = fullName(u) || u.email;
@@ -80,7 +80,7 @@ export function register(app: Express) {
 
   app.get("/api/my-branding", requireAuth, async (req, res) => {
     try {
-      const u = req.user!;
+      const u = getAuthUser(req);
       let logoUrl: string | null = null;
       let themeName: string | null = null;
       let themeColors: object[] | null = null;

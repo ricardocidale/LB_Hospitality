@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
-import { requireAdmin, validatePassword } from "../../auth";
+import { requireAdmin, validatePassword , getAuthUser } from "../../auth";
 import { userResponse, createUserSchema, logAndSendError, logActivity, parseParamId } from "../helpers";
 import { fromZodError } from "zod-validation-error";
 import { hashPassword } from "../../auth";
@@ -87,7 +87,7 @@ export function registerUserRoutes(app: Express) {
         if (!roleResult.success) {
           return res.status(400).json({ error: `Invalid role. Must be one of: ${VALID_USER_ROLES.join(", ")}` });
         }
-        if (id === req.user!.id) {
+        if (id === getAuthUser(req).id) {
           return res.status(400).json({ error: "You cannot change your own role" });
         }
       }
@@ -128,7 +128,7 @@ export function registerUserRoutes(app: Express) {
       const id = parseParamId(req.params.id, res, "user ID");
       if (id === null) return;
 
-      if (id === req.user!.id) {
+      if (id === getAuthUser(req).id) {
         return res.status(400).json({ error: "You cannot change your own role" });
       }
 
@@ -144,7 +144,7 @@ export function registerUserRoutes(app: Express) {
     try {
       const id = parseParamId(req.params.id, res, "user ID");
       if (id === null) return;
-      if (id === req.user!.id) {
+      if (id === getAuthUser(req).id) {
         return res.status(400).json({ error: "You cannot delete yourself" });
       }
 

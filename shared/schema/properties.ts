@@ -151,23 +151,23 @@ export const properties = pgTable("properties", {
   incentiveManagementFeeRate: real("incentive_management_fee_rate").notNull().default(DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE),
 
   // Working capital
-  arDays: integer("ar_days").default(DEFAULT_AR_DAYS),
-  apDays: integer("ap_days").default(DEFAULT_AP_DAYS),
+  arDays: integer("ar_days").notNull().default(DEFAULT_AR_DAYS),
+  apDays: integer("ap_days").notNull().default(DEFAULT_AP_DAYS),
 
   // MIRR
-  reinvestmentRate: real("reinvestment_rate").default(DEFAULT_REINVESTMENT_RATE),
+  reinvestmentRate: real("reinvestment_rate").notNull().default(DEFAULT_REINVESTMENT_RATE),
 
   // Day-count convention
-  dayCountConvention: text("day_count_convention").default('30/360'),
+  dayCountConvention: text("day_count_convention").notNull().default('30/360'),
 
   // Escalation method
-  escalationMethod: text("escalation_method").default('annual'),
+  escalationMethod: text("escalation_method").notNull().default('annual'),
 
   // Cost segregation
-  costSegEnabled: boolean("cost_seg_enabled").default(false),
-  costSeg5yrPct: real("cost_seg_5yr_pct").default(DEFAULT_COST_SEG_5YR_PCT),
-  costSeg7yrPct: real("cost_seg_7yr_pct").default(DEFAULT_COST_SEG_7YR_PCT),
-  costSeg15yrPct: real("cost_seg_15yr_pct").default(DEFAULT_COST_SEG_15YR_PCT),
+  costSegEnabled: boolean("cost_seg_enabled").notNull().default(false),
+  costSeg5yrPct: real("cost_seg_5yr_pct").notNull().default(DEFAULT_COST_SEG_5YR_PCT),
+  costSeg7yrPct: real("cost_seg_7yr_pct").notNull().default(DEFAULT_COST_SEG_7YR_PCT),
+  costSeg15yrPct: real("cost_seg_15yr_pct").notNull().default(DEFAULT_COST_SEG_15YR_PCT),
 
   depreciationYears: real("depreciation_years"),
 

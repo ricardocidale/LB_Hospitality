@@ -4,6 +4,7 @@ import { z } from "zod";
 import { users } from "./auth";
 import { properties } from "./properties";
 import { DEFAULT_MAX_STALENESS_HOURS } from "../constants";
+import type { MarketResearchContent, PromptConditions } from "./types/jsonb-shapes";
 
 export const marketResearch = pgTable("market_research", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -11,8 +12,8 @@ export const marketResearch = pgTable("market_research", {
   type: text("type").notNull(),
   propertyId: integer("property_id").references(() => properties.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
-  content: jsonb("content").notNull().$type<Record<string, any>>(),
-  promptConditions: jsonb("prompt_conditions").$type<Record<string, any>>(),
+  content: jsonb("content").notNull().$type<MarketResearchContent>(),
+  promptConditions: jsonb("prompt_conditions").$type<PromptConditions>(),
   llmModel: text("llm_model"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

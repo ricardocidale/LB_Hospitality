@@ -2,7 +2,7 @@ import { type Express } from "express";
 import { z } from "zod";
 import { getOpenAIClient, getAnthropicClient, getGeminiClient as getGeminiSingleton } from "../../ai/clients";
 import { storage } from "../../storage";
-import { requireAdmin, isApiRateLimited } from "../../auth";
+import { requireAdmin, isApiRateLimited , getAuthUser } from "../../auth";
 import { type InsertGlobalAssumptions, type ResearchConfig, type ContextLlmConfig, type AiModelEntry } from "@shared/schema";
 import { logAndSendError, logActivity } from "../helpers";
 
@@ -287,7 +287,7 @@ export function registerResearchConfigRoutes(app: Express) {
 
   app.post("/api/admin/ai-models/refresh", requireAdmin, async (req, res) => {
     try {
-      if (isApiRateLimited(req.user!.id, "ai-models-refresh", 1)) {
+      if (isApiRateLimited(getAuthUser(req).id, "ai-models-refresh", 1)) {
         return res.status(429).json({ error: "Model refresh rate-limited to 1 per minute" });
       }
       const [openai, anthropic, google, xai, deepseek, meta] = await Promise.all([

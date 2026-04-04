@@ -366,6 +366,15 @@ export function getSessionExpiryDate(): Date {
   return new Date(Date.now() + SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000);
 }
 
+export function getAuthUser(req: Request): Express.User {
+  if (!req.user) {
+    const err = new Error("Authentication required") as Error & { status: number };
+    err.status = 401;
+    throw err;
+  }
+  return req.user;
+}
+
 export async function checkPropertyAccess(
   user: Express.User,
   propertyId: number
@@ -404,8 +413,8 @@ async function createDefaultScenarioForUser(userId: number, userName: string) {
         userId,
         name: "Development",
         description: "Default development scenario with initial assumptions",
-        globalAssumptions: globalAssumptions as any,
-        properties: properties as any,
+        globalAssumptions: globalAssumptions as Record<string, unknown>,
+        properties: properties as unknown as Record<string, unknown>[],
       });
       logger.info(`Default "Development" scenario created for ${userName}`, "auth");
     }

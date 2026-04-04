@@ -139,6 +139,14 @@ export const driveFolderSchema = z.object({
   parentId: z.string().max(200).optional(),
 });
 
+export const adminLoginSchema = z.object({
+  password: z.string().min(1, "Password is required"),
+});
+
+export const prospectiveNotesSchema = z.object({
+  notes: z.string().max(5000).nullable(),
+});
+
 export const icpGenerateSchema = z.object({
   promptBuilder: z.record(z.any()).optional(),
 });

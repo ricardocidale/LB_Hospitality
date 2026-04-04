@@ -13,7 +13,7 @@ import {
   hashPassword,
   getAuthUser
 } from "../auth";
-import { loginSchema, userResponse, fullName, logAndSendError } from "./helpers";
+import { loginSchema, adminLoginSchema, userResponse, fullName, logAndSendError } from "./helpers";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { UserRole } from "@shared/constants";
@@ -78,12 +78,12 @@ export function register(app: Express) {
       if (!adminSeed) {
         return res.status(401).json({ error: "No admin user configured" });
       }
-      const { password } = req.body || {};
-      if (!password) {
+      const validation = adminLoginSchema.safeParse(req.body);
+      if (!validation.success) {
         return res.status(401).json({ error: "Password required" });
       }
       const clientIp = req.ip || req.socket.remoteAddress || "unknown";
-      await handleCredentialLogin(adminSeed.email, password, clientIp, res);
+      await handleCredentialLogin(adminSeed.email, validation.data.password, clientIp, res);
     } catch (error) {
       logAndSendError(res, "Admin login failed", error);
     }

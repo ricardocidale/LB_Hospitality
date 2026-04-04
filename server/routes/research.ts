@@ -255,13 +255,17 @@ export function register(app: Express) {
             };
           }
 
-          await storage.upsertMarketResearch({
-            userId: getAuthUser(req).id,
-            propertyId,
-            type,
-            title: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} Research`,
-            content: parsed,
-          });
+          if (parsed.rawResponse && type === "property") {
+            logger.warn(`Skipping market_research storage for property ${propertyId} — AI returned unparseable response`, "research");
+          } else {
+            await storage.upsertMarketResearch({
+              userId: getAuthUser(req).id,
+              propertyId,
+              type,
+              title: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} Research`,
+              content: parsed,
+            });
+          }
 
           logActivity(req, "generate", "market_research", propertyId, type);
 

@@ -3,7 +3,7 @@ import { storage } from "../storage";
 import { requireAuth , getAuthUser } from "../auth";
 import { insertProspectivePropertySchema, insertSavedSearchSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { logActivity, logAndSendError } from "./helpers";
+import { logActivity, logAndSendError, prospectiveNotesSchema } from "./helpers";
 import { z } from "zod";
 import { logger } from "../logger";
 import { aiRateLimit } from "../middleware/rate-limit";
@@ -219,11 +219,14 @@ export function register(app: Express) {
 
   app.patch("/api/property-finder/prospective/:id/notes", requireAuth, async (req, res) => {
     try {
-      const { notes } = req.body;
+      const parsed = prospectiveNotesSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
       const property = await storage.updateProspectivePropertyNotes(
         Number(req.params.id),
         getAuthUser(req).id,
-        notes as string
+        parsed.data.notes ?? ""
       );
       if (!property) return res.status(404).json({ error: "Property not found" });
       res.json(property);

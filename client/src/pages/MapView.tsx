@@ -35,6 +35,8 @@ export default function MapView() {
   const moveEndHandlerRef = useRef<(() => void) | null>(null);
   const flyToHandlerRef = useRef<((id: number) => void) | null>(null);
   const styleTransitionRef = useRef(0);
+  const selectedIdRef = useRef<number | null>(null);
+  selectedIdRef.current = selectedId;
 
   const geoProperties: GeoProperty[] = useMemo(() =>
     properties
@@ -294,7 +296,7 @@ export default function MapView() {
         }
       }
 
-      updateMarkers(selectedId);
+      updateMarkers(selectedIdRef.current);
     };
 
     if (!map.loaded()) {
@@ -313,7 +315,7 @@ export default function MapView() {
       styleTransitionRef.current++;
       map.off("style.load", onStyleLoad);
     };
-  }, [globeMode, satelliteMode]);
+  }, [globeMode, satelliteMode, terrain3d, updateMarkers]);
 
   useEffect(() => {
     if (tourActive) return;
@@ -427,7 +429,7 @@ export default function MapView() {
 
   return (
     <AnimatedPage>
-    <div data-testid="map-view" className="space-y-4">
+    <div data-testid="map-view" className="flex flex-col h-[calc(100vh-4rem)] px-4 pt-4 pb-2">
       <style>{MAP_CSS}</style>
 
       <MapToolbar
@@ -450,9 +452,9 @@ export default function MapView() {
         fitAll={fitAll}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <div className="lg:col-span-3">
-          <div className="rounded-xl border border-primary/20 overflow-hidden shadow-xl bg-muted relative" style={{ height: "600px" }}>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-4 flex-1 min-h-0">
+        <div className="lg:col-span-3 min-h-0">
+          <div className="rounded-xl border border-primary/20 overflow-hidden shadow-xl bg-muted relative h-full">
             {geoProperties.length === 0 && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
                 <IconBuilding2 className="w-12 h-12 text-muted-foreground/30" />

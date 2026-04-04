@@ -21,7 +21,7 @@ export function MapPropertySidebar({
   colorMode, tourActive, tourIndex, onFlyTo,
 }: MapPropertySidebarProps) {
   return (
-    <div className="lg:col-span-1 space-y-2 max-h-[600px] overflow-y-auto pr-1">
+    <div className="lg:col-span-1 space-y-2 overflow-y-auto pr-1">
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1 mb-1">
         Properties ({geoProperties.length})
       </div>

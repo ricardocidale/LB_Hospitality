@@ -1,5 +1,7 @@
 import { IconMountain, IconGlobe, IconMap, IconPlay, IconPause, IconNavigation } from "@/components/icons";
+import { ArrowLeft } from "@/components/icons/themed-icons";
 import { Button } from "@/components/ui/button";
+import { useLocation } from "wouter";
 import type { GeoProperty, ColorMode } from "@/lib/map-utils";
 
 export const MAP_CSS = `
@@ -55,16 +57,31 @@ export function MapToolbar({
   tourActive, tourPaused, tourIndex,
   startTour, stopTour, toggleTourPause, fitAll,
 }: MapToolbarProps) {
+  const [, navigate] = useLocation();
+
   return (
     <>
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground" data-testid="map-view-title">
-            Portfolio Map
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {geoProperties.length} {geoProperties.length === 1 ? "property" : "properties"} across {countryCount} {countryCount === 1 ? "country" : "countries"}
-          </p>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/")}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+            data-testid="button-back-dashboard"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Dashboard
+          </Button>
+          <div className="w-px h-6 bg-border" />
+          <div>
+            <h1 className="text-2xl font-display font-bold text-foreground" data-testid="map-view-title">
+              Portfolio Map
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {geoProperties.length} {geoProperties.length === 1 ? "property" : "properties"} across {countryCount} {countryCount === 1 ? "country" : "countries"}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Button variant={colorMode === "performance" ? "default" : "outline"} size="sm" onClick={() => setColorMode(colorMode === "performance" ? "market" : "performance")} className="flex items-center gap-1.5 text-xs" data-testid="button-color-mode">

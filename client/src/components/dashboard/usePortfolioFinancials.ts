@@ -1,6 +1,8 @@
 import { useMemo, useRef } from "react";
 import { Property } from "@shared/schema";
 import type { GlobalResponse } from "@/lib/api";
+import { USE_SERVER_COMPUTE } from "@shared/constants";
+import { useServerFinancials } from "@/hooks/useServerFinancials";
 import { 
   generatePropertyProForma, 
   getFiscalYearForModelYear 
@@ -36,7 +38,7 @@ interface CachedPropertyResult {
   updatedAtMs: number;
 }
 
-export function usePortfolioFinancials(
+function useClientPortfolioFinancials(
   properties: Property[] | undefined,
   global: GlobalResponse | undefined
 ): DashboardFinancials | null {
@@ -54,7 +56,6 @@ export function usePortfolioFinancials(
     }
     const cache = cacheRef.current;
     const newCache = new Map<number, CachedPropertyResult>();
-    // Only include active properties in all calculations
     const activeProperties = properties.filter(p => p.isActive !== false);
     const result: CachedPropertyResult[] = activeProperties.map(p => {
       const cached = cache.get(p.id);
@@ -171,4 +172,32 @@ export function usePortfolioFinancials(
     totalRooms,
     ...stats
   };
+}
+
+export interface PortfolioFinancialsResult {
+  financials: DashboardFinancials | null;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+}
+
+export function usePortfolioFinancials(
+  properties: Property[] | undefined,
+  global: GlobalResponse | undefined
+): PortfolioFinancialsResult {
+  const serverResult = useServerFinancials(properties, global);
+  const clientResult = useClientPortfolioFinancials(
+    USE_SERVER_COMPUTE ? undefined : properties,
+    USE_SERVER_COMPUTE ? undefined : global,
+  );
+
+  if (USE_SERVER_COMPUTE) {
+    return {
+      financials: serverResult.data,
+      isLoading: serverResult.isLoading,
+      isError: serverResult.isError,
+      error: serverResult.error,
+    };
+  }
+  return { financials: clientResult, isLoading: false, isError: false, error: null };
 }

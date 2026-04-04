@@ -87,15 +87,15 @@ export default function Dashboard() {
   const [exportType, setExportType] = useState<"pdf" | "xlsx" | "pptx" | "docx" | "chart">("pdf");
   const { requestSave, SaveDialog } = useExportSave();
 
-  const financials = usePortfolioFinancials(properties, global);
+  const { financials, isLoading: financialsLoading, isError: financialsError } = usePortfolioFinancials(properties, global);
   const { data: branding } = useQuery<{ themeColors: Array<{ rank: number; name: string; hexCode: string; description?: string }> | null }>({
     queryKey: ["my-branding"],
     queryFn: async () => { const res = await fetch("/api/my-branding", { credentials: "include" }); return res.json(); },
     staleTime: 5 * 60_000,
   });
 
-  const propertiesLoadingState = propertiesLoading || globalLoading;
-  const propertiesErrorState = propertiesError || globalError || !properties || !global || !financials;
+  const propertiesLoadingState = propertiesLoading || globalLoading || financialsLoading;
+  const propertiesErrorState = propertiesError || globalError || financialsError || !properties || !global || !financials;
 
   const getExportData = useCallback((version?: ExportVersion) => {
     if (!financials || !properties || !global) return null;

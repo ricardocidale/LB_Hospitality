@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, lazy, Suspense } from "react";
-import { DEPRECIATION_YEARS } from "@shared/constants";
+import { DEPRECIATION_YEARS, USE_SERVER_COMPUTE } from "@shared/constants";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { usePropertyPhotos } from "@/lib/api/property-photos";
@@ -39,6 +39,7 @@ import {
   handleExport,
   buildPremiumExportPayload,
 } from "@/lib/exports/propertyDetailExports";
+import { fetchSinglePropertyCompute } from "@/hooks/useServerFinancials";
 
 export default function PropertyDetail() {
   const [, params] = useRoute("/property/:id");
@@ -73,10 +74,25 @@ export default function PropertyDetail() {
   const projectionMonths = projectionYears * MONTHS_PER_YEAR;
   const fiscalYearStartMonth = global?.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => global ? getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex) : 2026 + yearIndex;
-  const financials = useMemo(
-    () => (property && global) ? generatePropertyProForma(property, global, projectionMonths) : [],
+
+  const serverPropertyQueryKey = ["server-property-financials", propertyId, property?.updatedAt,
+    global ? [global.projectionYears, global.modelStartDate, global.inflationRate,
+    global.debtAssumptions?.interestRate, global.debtAssumptions?.amortizationYears].join("|") : ""];
+
+  const { data: serverFinancials, isLoading: serverFinancialsLoading } = useQuery({
+    queryKey: serverPropertyQueryKey,
+    queryFn: () => fetchSinglePropertyCompute(property!, global!),
+    enabled: USE_SERVER_COMPUTE && !!property && !!global,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+  });
+
+  const clientFinancials = useMemo(
+    () => (!USE_SERVER_COMPUTE && property && global) ? generatePropertyProForma(property, global, projectionMonths) : [],
     [property, global, projectionMonths]
   );
+
+  const financials = USE_SERVER_COMPUTE ? (serverFinancials?.monthly ?? []) : clientFinancials;
 
   const yearlyChartData = useMemo(() => {
     const data = [];
@@ -128,7 +144,7 @@ export default function PropertyDetail() {
     });
   }, [property, global, yearlyChartData, cashFlowDataMemo]);
 
-  if (propertyLoading || globalLoading) {
+  if (propertyLoading || globalLoading || (USE_SERVER_COMPUTE && serverFinancialsLoading)) {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">

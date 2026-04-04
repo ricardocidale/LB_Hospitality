@@ -130,7 +130,7 @@ export default function ExecutiveSummary() {
   const { properties } = useStore();
   const { data: apiProperties } = useProperties();
   const { data: global } = useGlobalAssumptions();
-  const financials = usePortfolioFinancials(apiProperties, global);
+  const { financials } = usePortfolioFinancials(apiProperties, global);
   const pageRef = useRef<HTMLDivElement>(null);
   const { requestSave, SaveDialog } = useExportSave();
   const chartRef = useRef<HTMLDivElement>(null);

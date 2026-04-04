@@ -627,3 +627,12 @@ export const DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-4-5";
 export const APP_BRAND_NAME = "H+ Analytics";
 export const BRAND_ACCENT_PREFIX = "H+";
 export const BRAND_ACCENT_HEX = "#00A9B8";
+
+// ──────────────────────────────────────────────────────────
+// SERVER-SIDE COMPUTE FEATURE FLAG
+// When true, the dashboard and property detail pages fetch
+// pre-computed financials from /api/finance/* instead of
+// running the engine in the browser.  Set to false to fall
+// back to the legacy client-side computation path.
+// ──────────────────────────────────────────────────────────
+export const USE_SERVER_COMPUTE = true;

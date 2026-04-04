@@ -53,9 +53,10 @@ function grepServer(pattern: string): string[] {
       { encoding: "utf-8", timeout: 10_000 }
     );
     return out.trim().split("\n").filter(Boolean);
-  } catch (e: any) {
-    if (e.status === 1) return [];
-    throw new Error(`grep command failed (exit ${e.status}): ${e.message}`);
+  } catch (e: unknown) {
+    const err = e as { status?: number; message?: string };
+    if (err.status === 1) return [];
+    throw new Error(`grep command failed (exit ${err.status}): ${err.message}`);
   }
 }
 

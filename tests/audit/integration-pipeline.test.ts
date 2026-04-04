@@ -253,10 +253,11 @@ describe("Export Data Shape Contract Verification", () => {
     ];
 
     for (const year of result.yearly) {
+      const record = year as unknown as Record<string, unknown>;
       for (const field of requiredFields) {
         expect(year).toHaveProperty(field);
-        expect(typeof (year as any)[field]).toBe("number");
-        expect(Number.isFinite((year as any)[field])).toBe(true);
+        expect(typeof record[field]).toBe("number");
+        expect(Number.isFinite(record[field] as number)).toBe(true);
       }
     }
   });
@@ -275,10 +276,11 @@ describe("Export Data Shape Contract Verification", () => {
     ];
 
     for (const year of result.yearly) {
+      const record = year as unknown as Record<string, unknown>;
       for (const field of requiredFields) {
         expect(year).toHaveProperty(field);
-        expect(typeof (year as any)[field]).toBe("number");
-        expect(Number.isFinite((year as any)[field])).toBe(true);
+        expect(typeof record[field]).toBe("number");
+        expect(Number.isFinite(record[field] as number)).toBe(true);
       }
     }
   });

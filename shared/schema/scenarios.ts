@@ -5,6 +5,16 @@ import { users } from "./auth";
 import { userGroups, companies } from "./core";
 import { properties } from "./properties";
 
+export interface ComputedResultsSnapshot {
+  engineVersion: string;
+  computedAt: string;
+  outputHash: string;
+  projectionYears: number;
+  propertyCount: number;
+  auditOpinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE";
+  consolidatedYearly: unknown[];
+}
+
 export const scenarios = pgTable("scenarios", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -15,6 +25,8 @@ export const scenarios = pgTable("scenarios", {
   scenarioImages: jsonb("scenario_images").$type<Record<string, unknown>>(),
   feeCategories: jsonb("fee_categories").$type<Record<string, Record<string, unknown>[]>>(),
   propertyPhotos: jsonb("property_photos").$type<Record<string, Record<string, unknown>[]>>(),
+  computedResults: jsonb("computed_results").$type<ComputedResultsSnapshot | null>(),
+  computeHash: text("compute_hash"),
   version: integer("version").notNull().default(1),
   baseSnapshotHash: text("base_snapshot_hash"),
   lastOutputHash: text("last_output_hash"),
@@ -47,8 +59,8 @@ export const scenarioPropertyOverrides = pgTable("scenario_property_overrides", 
   propertyId: integer("property_id").references(() => properties.id, { onDelete: "set null" }),
   propertyName: text("property_name").notNull(),
   changeType: text("change_type").notNull().default("modified"),
-  overrides: jsonb("overrides").notNull().default({}),
-  basePropertySnapshot: jsonb("base_property_snapshot"),
+  overrides: jsonb("overrides").notNull().default({}).$type<Record<string, unknown>>(),
+  basePropertySnapshot: jsonb("base_property_snapshot").$type<Record<string, unknown> | null>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
   index("spo_scenario_id_idx").on(table.scenarioId),
@@ -80,6 +92,8 @@ export const insertScenarioSchema = createInsertSchema(scenarios).pick({
   scenarioImages: true,
   feeCategories: true,
   propertyPhotos: true,
+  computedResults: true,
+  computeHash: true,
   version: true,
   baseSnapshotHash: true,
 });

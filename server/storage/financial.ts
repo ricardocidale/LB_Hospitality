@@ -138,6 +138,12 @@ export class FinancialStorage {
     return scenario || undefined;
   }
 
+  async updateScenarioComputedResults(scenarioId: number, computedResults: import("@shared/schema").ComputedResultsSnapshot, computeHash: string): Promise<void> {
+    await db.update(scenarios)
+      .set({ computedResults, computeHash, updatedAt: new Date() })
+      .where(eq(scenarios.id, scenarioId));
+  }
+
   /** Delete a scenario. The "Base" scenario is protected by the route handler, not here. */
   async deleteScenario(id: number): Promise<void> {
     await db.delete(scenarios).where(eq(scenarios.id, id));
@@ -177,6 +183,11 @@ export class FinancialStorage {
     scenario2: { id: number; name: string };
     assumptionDiffs: Array<{ field: string; scenario1: unknown; scenario2: unknown }>;
     propertyDiffs: Array<{ name: string; status: "added" | "removed" | "changed"; changes?: Array<{ field: string; scenario1: unknown; scenario2: unknown }> }>;
+    financialComparison: {
+      hashMatch: boolean;
+      scenario1: { outputHash: string | null; engineVersion: string | null; auditOpinion: string | null; propertyCount: number | null } | null;
+      scenario2: { outputHash: string | null; engineVersion: string | null; auditOpinion: string | null; propertyCount: number | null } | null;
+    } | null;
   } {
     const SKIP_FIELDS = new Set(["id", "createdAt", "updatedAt", "userId"]);
     const ga1 = (s1.globalAssumptions || {}) as Record<string, unknown>;
@@ -215,11 +226,39 @@ export class FinancialStorage {
       if (changes.length > 0) propertyDiffs.push({ name, status: "changed", changes });
     }
 
+    const cr1 = s1.computedResults as { outputHash?: string; engineVersion?: string; projectionYears?: number; propertyCount?: number; auditOpinion?: string; consolidatedYearly?: unknown[] } | null;
+    const cr2 = s2.computedResults as { outputHash?: string; engineVersion?: string; projectionYears?: number; propertyCount?: number; auditOpinion?: string; consolidatedYearly?: unknown[] } | null;
+
+    let financialComparison: {
+      hashMatch: boolean;
+      scenario1: { outputHash: string | null; engineVersion: string | null; auditOpinion: string | null; propertyCount: number | null } | null;
+      scenario2: { outputHash: string | null; engineVersion: string | null; auditOpinion: string | null; propertyCount: number | null } | null;
+    } | null = null;
+
+    if (cr1 || cr2) {
+      financialComparison = {
+        hashMatch: !!(cr1?.outputHash && cr2?.outputHash && cr1.outputHash === cr2.outputHash),
+        scenario1: cr1 ? {
+          outputHash: cr1.outputHash ?? null,
+          engineVersion: cr1.engineVersion ?? null,
+          auditOpinion: cr1.auditOpinion ?? null,
+          propertyCount: cr1.propertyCount ?? null,
+        } : null,
+        scenario2: cr2 ? {
+          outputHash: cr2.outputHash ?? null,
+          engineVersion: cr2.engineVersion ?? null,
+          auditOpinion: cr2.auditOpinion ?? null,
+          propertyCount: cr2.propertyCount ?? null,
+        } : null,
+      };
+    }
+
     return {
       scenario1: { id: s1.id, name: s1.name },
       scenario2: { id: s2.id, name: s2.name },
       assumptionDiffs,
       propertyDiffs,
+      financialComparison,
     };
   }
 
@@ -380,6 +419,8 @@ export class FinancialStorage {
         scenarioImages: scenarios.scenarioImages,
         feeCategories: scenarios.feeCategories,
         propertyPhotos: scenarios.propertyPhotos,
+        computedResults: scenarios.computedResults,
+        computeHash: scenarios.computeHash,
         version: scenarios.version,
         baseSnapshotHash: scenarios.baseSnapshotHash,
         createdAt: scenarios.createdAt,
@@ -406,6 +447,8 @@ export class FinancialStorage {
       scenarioImages: r.scenarioImages,
       feeCategories: r.feeCategories,
       propertyPhotos: r.propertyPhotos,
+      computedResults: r.computedResults,
+      computeHash: r.computeHash,
       version: r.version,
       baseSnapshotHash: r.baseSnapshotHash,
       createdAt: r.createdAt,

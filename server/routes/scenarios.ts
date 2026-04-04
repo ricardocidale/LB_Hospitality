@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { storage } from "../storage";
 import { requireManagementAccess, requireAuth } from "../auth";
 import { updateScenarioSchema } from "@shared/schema";
+import type { ComputedResultsSnapshot } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 import { logActivity, logAndSendError, createScenarioSchema, MAX_SCENARIOS_PER_USER, fullName } from "./helpers";
@@ -70,6 +71,33 @@ export function register(app: Express) {
         (properties || []) as Array<Record<string, unknown>>
       );
 
+      let computedResults: ComputedResultsSnapshot | null = null;
+      let computeHash: string | null = null;
+      try {
+        const scenarioGA = (assumptions || {}) as Record<string, unknown>;
+        const scenarioProps = (properties || []) as Array<Record<string, unknown>>;
+        const { propertyInputs, globalInput, projYears } = extractScenarioComputeInputs(
+          { globalAssumptions: scenarioGA, properties: scenarioProps }
+        );
+        const computeResult = computePortfolioProjection({
+          properties: propertyInputs,
+          globalAssumptions: globalInput,
+          projectionYears: projYears,
+        });
+        computedResults = {
+          engineVersion: computeResult.engineVersion,
+          computedAt: computeResult.computedAt,
+          outputHash: computeResult.outputHash,
+          projectionYears: computeResult.projectionYears,
+          propertyCount: computeResult.propertyCount,
+          auditOpinion: computeResult.validationSummary.opinion,
+          consolidatedYearly: computeResult.consolidatedYearly,
+        };
+        computeHash = computeResult.outputHash;
+      } catch (computeErr) {
+        logger.warn(`[scenario] Failed to compute results on save: ${computeErr}`, "scenarios");
+      }
+
       const scenario = await storage.createScenario({
         userId: req.user!.id,
         name: validation.data.name,
@@ -78,6 +106,8 @@ export function register(app: Express) {
         properties: properties as unknown as Record<string, unknown>[],
         feeCategories: propertyFeeCategories,
         propertyPhotos: propertyPhotos,
+        computedResults,
+        computeHash,
         version: 1,
         baseSnapshotHash: diffResult.snapshotHash,
       });
@@ -128,17 +158,52 @@ export function register(app: Express) {
         if (!hasAccess) return res.status(403).json({ error: "Access denied" });
       }
 
+      const snapshotProps = (scenario.properties || []) as Array<Record<string, unknown>>;
+      const snapshotPropNames = snapshotProps.map(p => p.name as string).filter(Boolean);
+      const snapshotFeeCats = scenario.feeCategories as Record<string, Record<string, unknown>[]> | undefined;
+      const snapshotPhotos = scenario.propertyPhotos as Record<string, Record<string, unknown>[]> | undefined;
+
+      const orphanedFeeCategories = snapshotFeeCats
+        ? Object.keys(snapshotFeeCats).filter(name => !snapshotPropNames.includes(name))
+        : [];
+      const orphanedPhotos = snapshotPhotos
+        ? Object.keys(snapshotPhotos).filter(name => !snapshotPropNames.includes(name))
+        : [];
+
+      if (orphanedFeeCategories.length > 0) {
+        logger.warn(`[scenario-load] Scenario ${id}: fee categories reference missing properties: ${orphanedFeeCategories.join(", ")}`, "scenarios");
+      }
+      if (orphanedPhotos.length > 0) {
+        logger.warn(`[scenario-load] Scenario ${id}: photos reference missing properties: ${orphanedPhotos.join(", ")}`, "scenarios");
+      }
+
+      if (snapshotProps.length === 0) {
+        return res.status(422).json({ error: "Scenario snapshot contains no properties" });
+      }
+
+      const invalidProps = snapshotProps.filter(p => !p.name || typeof p.name !== "string");
+      if (invalidProps.length > 0) {
+        return res.status(422).json({ error: `Scenario snapshot contains ${invalidProps.length} property(ies) without a valid name` });
+      }
+
       await storage.loadScenario(
         req.user!.id,
         scenario.globalAssumptions as Record<string, unknown>,
-        scenario.properties as Record<string, unknown>[],
-        scenario.feeCategories as Record<string, Record<string, unknown>[]> | undefined,
-        scenario.propertyPhotos as Record<string, Record<string, unknown>[]> | undefined
+        snapshotProps,
+        snapshotFeeCats,
+        snapshotPhotos
       );
 
       invalidateComputeCache();
       logActivity(req, "load", "scenario", id, scenario.name);
-      res.json({ success: true });
+      res.json({
+        success: true,
+        propertyCount: snapshotProps.length,
+        warnings: [
+          ...orphanedFeeCategories.map(name => `Fee categories for "${name}" have no matching property`),
+          ...orphanedPhotos.map(name => `Photos for "${name}" have no matching property`),
+        ].filter(w => w.length > 0),
+      });
     } catch (error) {
       logAndSendError(res, "Failed to load scenario", error);
     }
@@ -506,6 +571,17 @@ export function register(app: Express) {
         propertyCount: computeResult.propertyCount,
         computedBy: req.user!.id,
       });
+
+      const updatedSnapshot: ComputedResultsSnapshot = {
+        engineVersion: computeResult.engineVersion,
+        computedAt: computeResult.computedAt,
+        outputHash: computeResult.outputHash,
+        projectionYears: computeResult.projectionYears,
+        propertyCount: computeResult.propertyCount,
+        auditOpinion: computeResult.validationSummary.opinion,
+        consolidatedYearly: computeResult.consolidatedYearly,
+      };
+      await storage.updateScenarioComputedResults(scenarioId, updatedSnapshot, computeResult.outputHash);
 
       logger.info(`[recompute] Scenario ${scenarioId}: hash=${computeResult.outputHash.slice(0, 16)}..., opinion=${computeResult.validationSummary.opinion}, drift=${driftStatus}`, "scenario-results");
 

@@ -330,6 +330,12 @@ async function runSchemaMigrations() {
     await runPropertyNotNullMigration();
     await markMigrationApplied("property_notnull_001");
   }
+
+  if (!(await isMigrationApplied("scenario_system_unique_001"))) {
+    const { runScenarioSystemUnique001 } = await import("./migrations/scenario-system-unique-001");
+    await runScenarioSystemUnique001();
+    await markMigrationApplied("scenario_system_unique_001");
+  }
 }
 
 async function runSeeds() {

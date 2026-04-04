@@ -98,25 +98,33 @@ export async function ensureDefaultScenario(userId: number): Promise<void> {
   const { scenarioGA, scenarioProps, propertyFeeCategories, propertyPhotos, diffResult } = await buildCreateSnapshotData(userId);
   const { computedResults, computeHash } = tryComputeResults(scenarioGA, scenarioProps);
 
-  const scenario = await storage.createScenario({
-    userId,
-    name,
-    description: "Automatically created baseline scenario",
-    globalAssumptions: scenarioGA,
-    properties: scenarioProps,
-    feeCategories: propertyFeeCategories,
-    propertyPhotos,
-    computedResults,
-    computeHash,
-    kind: "default",
-    isLocked: true,
-  });
+  try {
+    const scenario = await storage.createScenario({
+      userId,
+      name,
+      description: "Automatically created baseline scenario",
+      globalAssumptions: scenarioGA,
+      properties: scenarioProps,
+      feeCategories: propertyFeeCategories,
+      propertyPhotos,
+      computedResults,
+      computeHash,
+      kind: "default",
+      isLocked: true,
+    });
 
-  if (diffResult.propertyDiffs.length > 0) {
-    await storage.writePropertyOverrides(scenario.id, diffResult.propertyDiffs);
+    if (diffResult.propertyDiffs.length > 0) {
+      await storage.writePropertyOverrides(scenario.id, diffResult.propertyDiffs);
+    }
+
+    logger.info(`Created default scenario "${name}" (id=${scenario.id}) for userId=${userId}`, "scenario");
+  } catch (err: any) {
+    if (err?.code === "23505") {
+      logger.info(`Default scenario already exists for userId=${userId} (concurrent creation)`, "scenario");
+      return;
+    }
+    throw err;
   }
-
-  logger.info(`Created default scenario "${name}" (id=${scenario.id}) for userId=${userId}`, "scenario");
 }
 
 export function computeGhostName(manualCount: number, user: { firstName?: string | null; lastName?: string | null; email: string }): string {

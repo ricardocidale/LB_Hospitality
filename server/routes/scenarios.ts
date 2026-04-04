@@ -71,18 +71,37 @@ export function register(app: Express) {
         const li = (user.lastName || "")[0]?.toUpperCase() || "";
         const initials = (fi + li) || user.email.split("@")[0].slice(0, 2).toUpperCase();
 
-        const scenario = await storage.createScenario({
-          userId: user.id,
-          name: `${initials} Auto-Save`,
-          globalAssumptions: scenarioGA,
-          properties: scenarioProps,
-          feeCategories: propertyFeeCategories,
-          propertyPhotos,
-          computedResults,
-          computeHash,
-          kind: "autosave",
-        });
-        res.json({ success: true, scenario });
+        try {
+          const scenario = await storage.createScenario({
+            userId: user.id,
+            name: `${initials} Auto-Save`,
+            globalAssumptions: scenarioGA,
+            properties: scenarioProps,
+            feeCategories: propertyFeeCategories,
+            propertyPhotos,
+            computedResults,
+            computeHash,
+            kind: "autosave",
+          });
+          res.json({ success: true, scenario });
+        } catch (createErr: any) {
+          if (createErr?.code === "23505") {
+            const raced = await storage.getAutoSaveScenario(user.id);
+            if (raced) {
+              const updated = await storage.updateScenarioSnapshot(raced.id, {
+                globalAssumptions: scenarioGA,
+                properties: scenarioProps,
+                feeCategories: propertyFeeCategories,
+                propertyPhotos,
+                computedResults,
+                computeHash,
+              });
+              res.json({ success: true, scenario: updated });
+              return;
+            }
+          }
+          throw createErr;
+        }
       }
     } catch (error) {
       logAndSendError(res, "Failed to auto-save scenario", error);

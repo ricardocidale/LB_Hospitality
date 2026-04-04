@@ -5,6 +5,7 @@ import { insertGlobalAssumptionsSchema, updateServiceTemplateSchema } from "@sha
 import { fromZodError } from "zod-validation-error";
 import { logActivity, logAndSendError, parseParamId } from "./helpers";
 import { z } from "zod";
+import { invalidateComputeCache } from "../finance/cache";
 
 const appearanceDefaultsSchema = z.object({
   defaultColorMode: z.enum(["light", "auto", "dark"]).nullable().optional(),
@@ -78,6 +79,7 @@ export function register(app: Express) {
       }
       
       const assumptions = await storage.upsertGlobalAssumptions(validation.data, req.user!.id);
+      invalidateComputeCache();
       logActivity(req, "update", "global_assumptions", assumptions.id, "System Settings");
       res.json(assumptions);
     } catch (error) {

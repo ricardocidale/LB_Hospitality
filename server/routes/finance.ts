@@ -1,6 +1,9 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
-import { computePortfolioProjection } from "../finance/service";
+import superjson from "superjson";
+import { computePortfolioProjection, computeSingleProperty } from "../finance/service";
+import { getCacheStatus, invalidateComputeCache, resetCacheStats } from "../finance/cache";
+import { requireAuth, requireAdmin } from "../auth";
 import type { PropertyInput, GlobalInput } from "@engine/types";
 
 const propertyInputSchema = z.object({
@@ -92,8 +95,20 @@ const computeRequestSchema = z.object({
   projectionYears: z.number().int().positive().max(30).optional(),
 });
 
+const singlePropertyComputeSchema = z.object({
+  property: propertyInputSchema,
+  globalAssumptions: globalInputSchema,
+  projectionYears: z.number().int().positive().max(30).optional(),
+});
+
+function sendSuperjson(res: Response, data: unknown): void {
+  const serialized = superjson.serialize(data);
+  res.setHeader("X-Superjson", "true");
+  res.json(serialized);
+}
+
 export function registerFinanceRoutes(router: Router): void {
-  router.post("/api/finance/compute", async (req: Request, res: Response) => {
+  router.post("/api/finance/compute", requireAuth, async (req: Request, res: Response) => {
     try {
       const validation = computeRequestSchema.safeParse(req.body);
       if (!validation.success) {
@@ -116,8 +131,9 @@ export function registerFinanceRoutes(router: Router): void {
 
       res.setHeader("X-Finance-Engine-Version", result.engineVersion);
       res.setHeader("X-Finance-Output-Hash", result.outputHash);
+      if (result.cached) res.setHeader("X-Finance-Cache-Hit", "true");
 
-      return res.json(result);
+      return sendSuperjson(res, result);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Server computation failed";
       console.error("[finance/compute] Error:", message);
@@ -125,11 +141,68 @@ export function registerFinanceRoutes(router: Router): void {
     }
   });
 
+  router.post("/api/finance/property/:id", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const routeId = Number(req.params.id);
+      if (!Number.isFinite(routeId) || routeId <= 0) {
+        return res.status(400).json({ error: "Invalid property ID in route" });
+      }
+
+      const validation = singlePropertyComputeSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({
+          error: "Invalid input",
+          details: validation.error.issues.map(i => ({
+            path: i.path.join("."),
+            message: i.message,
+          })),
+        });
+      }
+
+      const { property, globalAssumptions, projectionYears } = validation.data;
+
+      if (property.id !== undefined && property.id !== routeId) {
+        return res.status(400).json({ error: "Property ID in body does not match route" });
+      }
+
+      const result = computeSingleProperty({
+        property: property as PropertyInput,
+        globalAssumptions: globalAssumptions as GlobalInput,
+        projectionYears,
+      });
+
+      res.setHeader("X-Finance-Engine-Version", result.engineVersion);
+      res.setHeader("X-Finance-Output-Hash", result.outputHash);
+      if (result.cached) res.setHeader("X-Finance-Cache-Hit", "true");
+
+      return sendSuperjson(res, result);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Property computation failed";
+      console.error("[finance/property] Error:", message);
+      return res.status(500).json({ error: message });
+    }
+  });
+
+  router.get("/api/finance/cache-status", requireAuth, async (_req: Request, res: Response) => {
+    return res.json(getCacheStatus());
+  });
+
+  router.post("/api/finance/invalidate", requireAdmin, async (_req: Request, res: Response) => {
+    invalidateComputeCache();
+    resetCacheStats();
+    return res.json({ success: true, message: "Compute cache invalidated" });
+  });
+
   router.get("/api/finance/health", (_req: Request, res: Response) => {
+    const cacheInfo = getCacheStatus();
     return res.json({
       status: "ok",
       engineVersion: "1.0.0",
-      capabilities: ["portfolio-projection", "identity-validation"],
+      capabilities: ["portfolio-projection", "single-property", "identity-validation", "lru-cache"],
+      cache: {
+        entries: cacheInfo.size,
+        hitRate: cacheInfo.hitRate,
+      },
     });
   });
 }

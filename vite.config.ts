@@ -31,6 +31,7 @@ export default defineConfig({
       "@domain": path.resolve(import.meta.dirname, "domain"),
       "@analytics": path.resolve(import.meta.dirname, "analytics"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      "@engine": path.resolve(import.meta.dirname, "engine"),
     },
     dedupe: ["react", "react-dom"],
   },
@@ -63,6 +64,16 @@ export default defineConfig({
     allowedHosts: true,
     fs: {
       strict: true,
+      allow: [
+        path.resolve(import.meta.dirname, "client"),
+        path.resolve(import.meta.dirname, "engine"),
+        path.resolve(import.meta.dirname, "shared"),
+        path.resolve(import.meta.dirname, "calc"),
+        path.resolve(import.meta.dirname, "domain"),
+        path.resolve(import.meta.dirname, "analytics"),
+        path.resolve(import.meta.dirname, "attached_assets"),
+        path.resolve(import.meta.dirname, "node_modules"),
+      ],
       deny: ["**/.*"],
     },
     watch: {

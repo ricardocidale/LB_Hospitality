@@ -3,10 +3,15 @@ import { aggregatePropertyByYear } from "./core/yearly-aggregator";
 import { consolidateYearlyFinancials } from "./core/consolidation";
 import { validateFinancialIdentities } from "@calc/validation/financial-identities";
 import { stableHash } from "../scenarios/stable-json";
-import type { PropertyInput, GlobalInput } from "@engine/types";
+import type { PropertyInput, GlobalInput, MonthlyFinancials } from "@engine/types";
 import type { YearlyPropertyFinancials } from "@engine/aggregation/yearlyAggregator";
-import type { PortfolioComputeResult } from "./core/types";
+import type { PortfolioComputeResult, SinglePropertyComputeResult } from "./core/types";
 import { MONTHS_PER_YEAR } from "@shared/constants";
+import {
+  computeCacheKey,
+  getCachedResult,
+  setCachedResult,
+} from "./cache";
 
 const ENGINE_VERSION = "1.0.0";
 const PROJECTION_YEARS_DEFAULT = 10;
@@ -18,33 +23,19 @@ export interface ComputePortfolioInput {
   projectionYears?: number;
 }
 
+export interface ComputeSinglePropertyInput {
+  property: PropertyInput;
+  globalAssumptions: GlobalInput;
+  projectionYears?: number;
+}
+
 function uniquePropertyKey(property: PropertyInput, index: number): string {
   if (property.id != null) return `property_${property.id}`;
   const name = property.name ?? `Property_${index + 1}`;
   return `${name}__idx${index}`;
 }
 
-export function computePortfolioProjection(
-  input: ComputePortfolioInput,
-): PortfolioComputeResult {
-  const projectionYears = input.projectionYears ?? PROJECTION_YEARS_DEFAULT;
-  const months = projectionYears * MONTHS_PER_YEAR;
-
-  const perPropertyYearly: Record<string, YearlyPropertyFinancials[]> = {};
-
-  for (let i = 0; i < input.properties.length; i++) {
-    const property = input.properties[i];
-    const key = uniquePropertyKey(property, i);
-
-    const monthly = generatePropertyProForma(property, input.globalAssumptions, months);
-    const yearly = aggregatePropertyByYear(monthly, projectionYears);
-
-    perPropertyYearly[key] = yearly;
-  }
-
-  const allPropertyYearlyArrays = Object.values(perPropertyYearly);
-  const consolidatedYearly = consolidateYearlyFinancials(allPropertyYearlyArrays, projectionYears);
-
+function runValidation(allPropertyYearlyArrays: YearlyPropertyFinancials[][]) {
   let totalChecks = 0;
   let passedChecks = 0;
   let failedChecks = 0;
@@ -98,22 +89,111 @@ export function computePortfolioProjection(
     }
   }
 
+  return { opinion: worstOpinion, identityChecks: totalChecks, passed: passedChecks, failed: failedChecks };
+}
+
+export function computePortfolioProjection(
+  input: ComputePortfolioInput,
+): PortfolioComputeResult {
+  const cacheKey = computeCacheKey(input);
+  const cached = getCachedResult(cacheKey);
+  if (cached) {
+    return { ...cached, cached: true };
+  }
+
+  const projectionYears = input.projectionYears ?? PROJECTION_YEARS_DEFAULT;
+  const months = projectionYears * MONTHS_PER_YEAR;
+
+  const perPropertyYearly: Record<string, YearlyPropertyFinancials[]> = {};
+  const perPropertyMonthly: Record<string, MonthlyFinancials[]> = {};
+
+  for (let i = 0; i < input.properties.length; i++) {
+    const property = input.properties[i];
+    const key = uniquePropertyKey(property, i);
+
+    const monthly = generatePropertyProForma(property, input.globalAssumptions, months);
+    const yearly = aggregatePropertyByYear(monthly, projectionYears);
+
+    perPropertyMonthly[key] = monthly;
+    perPropertyYearly[key] = yearly;
+  }
+
+  const allPropertyYearlyArrays = Object.values(perPropertyYearly);
+  const consolidatedYearly = consolidateYearlyFinancials(allPropertyYearlyArrays, projectionYears);
+
+  const validationSummary = runValidation(allPropertyYearlyArrays);
+
   const outputPayload = { perPropertyYearly, consolidatedYearly };
   const outputHash = stableHash(outputPayload);
 
-  return {
+  const result: PortfolioComputeResult = {
     engineVersion: ENGINE_VERSION,
     computedAt: new Date().toISOString(),
     perPropertyYearly,
+    perPropertyMonthly,
     consolidatedYearly,
     outputHash,
     propertyCount: input.properties.length,
     projectionYears,
-    validationSummary: {
-      opinion: worstOpinion,
-      identityChecks: totalChecks,
-      passed: passedChecks,
-      failed: failedChecks,
-    },
+    validationSummary,
   };
+
+  setCachedResult(cacheKey, result);
+  return result;
+}
+
+export function computeSingleProperty(
+  input: ComputeSinglePropertyInput,
+): SinglePropertyComputeResult {
+  const cacheKey = computeCacheKey({ type: "single-property", ...input });
+  const cached = getCachedResult(cacheKey);
+  if (cached) {
+    const key = Object.keys(cached.perPropertyYearly)[0];
+    return {
+      engineVersion: cached.engineVersion,
+      computedAt: cached.computedAt,
+      monthly: cached.perPropertyMonthly[key] ?? [],
+      yearly: cached.perPropertyYearly[key] ?? [],
+      outputHash: cached.outputHash,
+      projectionYears: cached.projectionYears,
+      cached: true,
+      validationSummary: cached.validationSummary,
+    };
+  }
+
+  const projectionYears = input.projectionYears ?? PROJECTION_YEARS_DEFAULT;
+  const months = projectionYears * MONTHS_PER_YEAR;
+
+  const monthly = generatePropertyProForma(input.property, input.globalAssumptions, months);
+  const yearly = aggregatePropertyByYear(monthly, projectionYears);
+
+  const validationSummary = runValidation([yearly]);
+
+  const outputHash = stableHash({ yearly });
+
+  const result: SinglePropertyComputeResult = {
+    engineVersion: ENGINE_VERSION,
+    computedAt: new Date().toISOString(),
+    monthly,
+    yearly,
+    outputHash,
+    projectionYears,
+    validationSummary,
+  };
+
+  const key = uniquePropertyKey(input.property, 0);
+  const portfolioResult: PortfolioComputeResult = {
+    engineVersion: ENGINE_VERSION,
+    computedAt: result.computedAt,
+    perPropertyYearly: { [key]: yearly },
+    perPropertyMonthly: { [key]: monthly },
+    consolidatedYearly: yearly,
+    outputHash: result.outputHash,
+    propertyCount: 1,
+    projectionYears,
+    validationSummary,
+  };
+  setCachedResult(cacheKey, portfolioResult);
+
+  return result;
 }

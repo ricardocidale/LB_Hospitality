@@ -3,14 +3,19 @@ export type { YearlyPropertyFinancials } from "@engine/aggregation/yearlyAggrega
 export type { PropertyEngineContext } from "@engine/property/resolve-assumptions";
 export type { YearlyCashFlowResult } from "@engine/debt/loanCalculations";
 
+type YearlyPropertyFinancialsImport = import("@engine/aggregation/yearlyAggregator").YearlyPropertyFinancials;
+type MonthlyFinancialsImport = import("@engine/types").MonthlyFinancials;
+
 export interface PortfolioComputeResult {
   engineVersion: string;
   computedAt: string;
   perPropertyYearly: Record<string, YearlyPropertyFinancialsImport[]>;
+  perPropertyMonthly: Record<string, MonthlyFinancialsImport[]>;
   consolidatedYearly: YearlyPropertyFinancialsImport[];
   outputHash: string;
   propertyCount: number;
   projectionYears: number;
+  cached?: boolean;
   validationSummary: {
     opinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE";
     identityChecks: number;
@@ -19,4 +24,18 @@ export interface PortfolioComputeResult {
   };
 }
 
-type YearlyPropertyFinancialsImport = import("@engine/aggregation/yearlyAggregator").YearlyPropertyFinancials;
+export interface SinglePropertyComputeResult {
+  engineVersion: string;
+  computedAt: string;
+  monthly: MonthlyFinancialsImport[];
+  yearly: YearlyPropertyFinancialsImport[];
+  outputHash: string;
+  projectionYears: number;
+  cached?: boolean;
+  validationSummary: {
+    opinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE";
+    identityChecks: number;
+    passed: number;
+    failed: number;
+  };
+}

@@ -9,6 +9,7 @@ import { generateLocationAwareResearchValues } from "../data/researchSeeds";
 import { processNotificationEvent, evaluateAlertRules } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
 import { UserRole } from "@shared/constants";
+import { invalidateComputeCache } from "../finance/cache";
 import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_PROPERTY_TAX_RATE,
@@ -226,6 +227,7 @@ export function register(app: Express) {
         });
       }
 
+      invalidateComputeCache();
       logActivity(req, "create", "property", property.id, property.name);
 
       processNotificationEvent(createEvent("PROPERTY_IMPORTED", {
@@ -259,7 +261,8 @@ export function register(app: Express) {
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
-      
+
+      invalidateComputeCache();
       logActivity(req, "update", "property", property.id, property.name, { updates: req.body });
 
       if (property) {
@@ -293,6 +296,7 @@ export function register(app: Express) {
       }
       
       await storage.deleteProperty(id);
+      invalidateComputeCache();
       logActivity(req, "delete", "property", id, property.name);
       res.json({ success: true });
     } catch (error) {
@@ -386,6 +390,7 @@ export function register(app: Express) {
           }
         })
       )).filter(Boolean);
+      invalidateComputeCache();
       logActivity(req, "update", "fee-categories", propertyId);
       res.json(results);
     } catch (error) {

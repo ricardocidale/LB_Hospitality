@@ -10,6 +10,7 @@ import { computePortfolioProjection } from "../finance/service";
 import { stableHash } from "../scenarios/stable-json";
 import type { PropertyInput, GlobalInput } from "@engine/types";
 import { logger } from "../logger";
+import { invalidateComputeCache } from "../finance/cache";
 
 function requireScenarioPermission(req: any, res: any, next: any) {
   if (!req.user) return res.status(401).json({ error: "Authentication required" });
@@ -135,6 +136,7 @@ export function register(app: Express) {
         scenario.propertyPhotos as Record<string, Record<string, unknown>[]> | undefined
       );
 
+      invalidateComputeCache();
       logActivity(req, "load", "scenario", id, scenario.name);
       res.json({ success: true });
     } catch (error) {

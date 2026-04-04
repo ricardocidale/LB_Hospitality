@@ -49,12 +49,13 @@ const GLOBAL: GlobalInput = {
 function grepServer(pattern: string): string[] {
   try {
     const out = execSync(
-      `rg -n '${pattern}' server/ --glob '*.ts' -g '!*.test.*' 2>/dev/null`,
+      `rg -n -e ${JSON.stringify(pattern)} server/ --glob '*.ts' -g '!*.test.*' 2>/dev/null`,
       { encoding: "utf-8", timeout: 10_000 }
     );
     return out.trim().split("\n").filter(Boolean);
-  } catch {
-    return [];
+  } catch (e: any) {
+    if (e.status === 1) return [];
+    throw new Error(`grep command failed (exit ${e.status}): ${e.message}`);
   }
 }
 

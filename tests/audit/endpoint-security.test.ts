@@ -1,15 +1,18 @@
 import { describe, it, expect } from "vitest";
 import { execSync } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
 
-function grepServer(pattern: string, path = "server/"): string[] {
+function grepServer(pattern: string, searchPath = "server/"): string[] {
   try {
     const out = execSync(
-      `rg -n '${pattern}' ${path} --glob '*.ts' -g '!*.test.*' 2>/dev/null`,
+      `rg -n -e ${JSON.stringify(pattern)} ${searchPath} --glob '*.ts' -g '!*.test.*' 2>/dev/null`,
       { encoding: "utf-8", timeout: 10_000 }
     );
     return out.trim().split("\n").filter(Boolean);
-  } catch {
-    return [];
+  } catch (e: any) {
+    if (e.status === 1) return [];
+    throw new Error(`grep command failed (exit ${e.status}): ${e.message}`);
   }
 }
 
@@ -17,15 +20,27 @@ function grepRoutes(pattern: string): string[] {
   return grepServer(pattern, "server/routes/");
 }
 
-function grepMultiline(pattern: string, path = "server/routes/"): string {
-  try {
-    return execSync(
-      `rg -U '${pattern}' ${path} --glob '*.ts' -g '!*.test.*' 2>/dev/null`,
-      { encoding: "utf-8", timeout: 10_000 }
-    );
-  } catch {
-    return "";
+function readFileLines(filePath: string): string[] {
+  if (!fs.existsSync(filePath)) return [];
+  return fs.readFileSync(filePath, "utf-8").split("\n");
+}
+
+function scanFilesForPattern(dir: string, regex: RegExp, ext = ".ts"): string[] {
+  const results: string[] = [];
+  function walk(d: string) {
+    for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
+      const full = path.join(d, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith(ext) && !entry.name.includes(".test.")) {
+        const lines = fs.readFileSync(full, "utf-8").split("\n");
+        for (let i = 0; i < lines.length; i++) {
+          if (regex.test(lines[i])) results.push(`${full}:${i + 1}:${lines[i]}`);
+        }
+      }
+    }
   }
+  walk(dir);
+  return results;
 }
 
 describe("Endpoint Security Audit — Auth Middleware", () => {
@@ -150,7 +165,8 @@ describe("Endpoint Security Audit — Code Quality", () => {
   });
 
   it("no hardcoded secrets or API keys in server source", () => {
-    const hardcoded = grepServer("(sk-|api_key|secret_key)\\s*=\\s*['\"]");
+    const secretPattern = /(sk-|api_key|secret_key)\s*=\s*["']/;
+    const hardcoded = scanFilesForPattern("server", secretPattern);
     const violations = hardcoded.filter(
       l => !l.includes(".test.") && !l.includes("example") && !l.includes("placeholder")
     );

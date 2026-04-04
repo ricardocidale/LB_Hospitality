@@ -17,6 +17,8 @@ function makeMockResult(overrides?: Partial<PortfolioComputeResult>): PortfolioC
     perPropertyYearly: {},
     perPropertyMonthly: {},
     consolidatedYearly: [],
+    companyMonthly: [],
+    companyYearly: [],
     outputHash: "mock-hash-" + Math.random().toString(36).slice(2),
     propertyCount: 1,
     projectionYears: 10,
@@ -224,6 +226,13 @@ describe("Finance Compute Cache", () => {
       expect(Object.keys(result.perPropertyYearly)).toHaveLength(1);
       expect(Object.keys(result.perPropertyMonthly)).toHaveLength(1);
       expect(result.consolidatedYearly).toHaveLength(3);
+      expect(result.companyMonthly).toBeDefined();
+      expect(result.companyMonthly!.length).toBe(36);
+      expect(result.companyYearly).toBeDefined();
+      expect(result.companyYearly!.length).toBe(3);
+      expect(result.companyYearly![0]).toHaveProperty("totalRevenue");
+      expect(result.companyYearly![0]).toHaveProperty("netIncome");
+      expect(result.companyYearly![0]).toHaveProperty("endingCash");
       expect(result.cached).toBeUndefined();
     });
 

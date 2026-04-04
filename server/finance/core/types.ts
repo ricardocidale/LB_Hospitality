@@ -7,6 +7,7 @@ type YearlyPropertyFinancialsImport = import("@engine/aggregation/yearlyAggregat
 type MonthlyFinancialsImport = import("@engine/types").MonthlyFinancials;
 
 type CompanyMonthlyFinancialsImport = import("@engine/types").CompanyMonthlyFinancials;
+type CompanyYearlyFinancialsImport = import("@engine/types").CompanyYearlyFinancials;
 
 export interface PortfolioComputeResult {
   engineVersion: string;
@@ -15,6 +16,7 @@ export interface PortfolioComputeResult {
   perPropertyMonthly: Record<string, MonthlyFinancialsImport[]>;
   consolidatedYearly: YearlyPropertyFinancialsImport[];
   companyMonthly?: CompanyMonthlyFinancialsImport[];
+  companyYearly?: CompanyYearlyFinancialsImport[];
   outputHash: string;
   propertyCount: number;
   projectionYears: number;

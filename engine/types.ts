@@ -290,6 +290,33 @@ export interface CompanyMonthlyFinancials {
   netCashFlow?: number;
 }
 
+export interface CompanyYearlyFinancials {
+  year: number;
+  baseFeeRevenue: number;
+  incentiveFeeRevenue: number;
+  totalRevenue: number;
+  totalVendorCost: number;
+  grossProfit: number;
+  partnerCompensation: number;
+  staffCompensation: number;
+  officeLease: number;
+  professionalServices: number;
+  techInfrastructure: number;
+  businessInsurance: number;
+  travelCosts: number;
+  itLicensing: number;
+  marketing: number;
+  miscOps: number;
+  totalExpenses: number;
+  fundingInterestExpense: number;
+  preTaxIncome: number;
+  companyIncomeTax: number;
+  netIncome: number;
+  safeFunding: number;
+  cashFlow: number;
+  endingCash: number;
+}
+
 export interface FundingTranche {
   index: number;
   amount: number;

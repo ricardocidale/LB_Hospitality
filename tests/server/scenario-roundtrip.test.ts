@@ -87,7 +87,7 @@ describe("Scenario Computed Results Roundtrip", () => {
     expect(snapshot.computedAt).toBeTruthy();
   });
 
-  it("snapshot survives JSON serialization roundtrip", () => {
+  it("snapshot survives JSON serialization roundtrip (simulating DB store/load)", () => {
     const result = computePortfolioProjection({
       properties: [TEST_PROPERTY],
       globalAssumptions: TEST_GLOBAL,
@@ -155,5 +155,79 @@ describe("Scenario Computed Results Roundtrip", () => {
     expect(typeof year1.netIncome).toBe("number");
     expect(typeof year1.revenueTotal).toBe("number");
     expect(typeof year1.operatingCashFlow).toBe("number");
+  });
+
+  it("save→store→load→recompute roundtrip preserves financial integrity", () => {
+    const result = computePortfolioProjection({
+      properties: [TEST_PROPERTY],
+      globalAssumptions: TEST_GLOBAL,
+      projectionYears: 5,
+    });
+
+    const snapshot: ComputedResultsSnapshot = {
+      engineVersion: result.engineVersion,
+      computedAt: result.computedAt,
+      outputHash: result.outputHash,
+      projectionYears: result.projectionYears,
+      propertyCount: result.propertyCount,
+      auditOpinion: result.validationSummary.opinion,
+      consolidatedYearly: result.consolidatedYearly,
+    };
+
+    const dbStored = JSON.stringify(snapshot);
+    const dbLoaded = JSON.parse(dbStored) as ComputedResultsSnapshot;
+
+    const recomputeResult = computePortfolioProjection({
+      properties: [TEST_PROPERTY],
+      globalAssumptions: TEST_GLOBAL,
+      projectionYears: 5,
+    });
+
+    expect(recomputeResult.outputHash).toBe(dbLoaded.outputHash);
+    expect(recomputeResult.engineVersion).toBe(dbLoaded.engineVersion);
+    expect(recomputeResult.validationSummary.opinion).toBe(dbLoaded.auditOpinion);
+    expect(recomputeResult.propertyCount).toBe(dbLoaded.propertyCount);
+    expect(recomputeResult.consolidatedYearly).toHaveLength(dbLoaded.consolidatedYearly.length);
+
+    for (let i = 0; i < dbLoaded.consolidatedYearly.length; i++) {
+      const stored = dbLoaded.consolidatedYearly[i];
+      const fresh = recomputeResult.consolidatedYearly[i];
+      expect(fresh.revenueTotal).toBe(stored.revenueTotal);
+      expect(fresh.noi).toBe(stored.noi);
+      expect(fresh.netIncome).toBe(stored.netIncome);
+      expect(fresh.operatingCashFlow).toBe(stored.operatingCashFlow);
+    }
+  });
+
+  it("stored snapshot detects stale results when inputs change", () => {
+    const originalResult = computePortfolioProjection({
+      properties: [TEST_PROPERTY],
+      globalAssumptions: TEST_GLOBAL,
+      projectionYears: 3,
+    });
+
+    const storedSnapshot: ComputedResultsSnapshot = {
+      engineVersion: originalResult.engineVersion,
+      computedAt: originalResult.computedAt,
+      outputHash: originalResult.outputHash,
+      projectionYears: originalResult.projectionYears,
+      propertyCount: originalResult.propertyCount,
+      auditOpinion: originalResult.validationSummary.opinion,
+      consolidatedYearly: originalResult.consolidatedYearly,
+    };
+
+    const dbRoundtripped = JSON.parse(JSON.stringify(storedSnapshot)) as ComputedResultsSnapshot;
+
+    const modifiedProperty = { ...TEST_PROPERTY, startAdr: 250, roomCount: 150 };
+    const changedResult = computePortfolioProjection({
+      properties: [modifiedProperty],
+      globalAssumptions: TEST_GLOBAL,
+      projectionYears: 3,
+    });
+
+    expect(changedResult.outputHash).not.toBe(dbRoundtripped.outputHash);
+
+    const hashMatch = changedResult.outputHash === dbRoundtripped.outputHash;
+    expect(hashMatch).toBe(false);
   });
 });

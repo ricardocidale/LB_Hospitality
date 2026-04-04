@@ -163,6 +163,31 @@ export function register(app: Express) {
       const snapshotFeeCats = scenario.feeCategories as Record<string, Record<string, unknown>[]> | undefined;
       const snapshotPhotos = scenario.propertyPhotos as Record<string, Record<string, unknown>[]> | undefined;
 
+      if (snapshotProps.length === 0) {
+        return res.status(422).json({ error: "Scenario snapshot contains no properties" });
+      }
+
+      const invalidProps = snapshotProps.filter(p => !p.name || typeof p.name !== "string");
+      if (invalidProps.length > 0) {
+        return res.status(422).json({ error: `Scenario snapshot contains ${invalidProps.length} property(ies) without a valid name` });
+      }
+
+      const snapshotPropertyIds = snapshotProps
+        .map(p => p.id as number | undefined)
+        .filter((id): id is number => typeof id === "number");
+
+      if (snapshotPropertyIds.length > 0) {
+        const ownerProperties = await storage.getAllProperties(scenario.userId);
+        const ownerPropertyIds = new Set(ownerProperties.map(p => p.id));
+        const unauthorizedIds = snapshotPropertyIds.filter(pid => !ownerPropertyIds.has(pid));
+        if (unauthorizedIds.length > 0 && !isOwner) {
+          logger.warn(`[scenario-load] Scenario ${id}: ${unauthorizedIds.length} property IDs in snapshot not owned by scenario owner ${scenario.userId}`, "scenarios");
+          return res.status(403).json({
+            error: "Scenario contains properties you do not have access to",
+          });
+        }
+      }
+
       const orphanedFeeCategories = snapshotFeeCats
         ? Object.keys(snapshotFeeCats).filter(name => !snapshotPropNames.includes(name))
         : [];
@@ -175,15 +200,6 @@ export function register(app: Express) {
       }
       if (orphanedPhotos.length > 0) {
         logger.warn(`[scenario-load] Scenario ${id}: photos reference missing properties: ${orphanedPhotos.join(", ")}`, "scenarios");
-      }
-
-      if (snapshotProps.length === 0) {
-        return res.status(422).json({ error: "Scenario snapshot contains no properties" });
-      }
-
-      const invalidProps = snapshotProps.filter(p => !p.name || typeof p.name !== "string");
-      if (invalidProps.length > 0) {
-        return res.status(422).json({ error: `Scenario snapshot contains ${invalidProps.length} property(ies) without a valid name` });
       }
 
       await storage.loadScenario(

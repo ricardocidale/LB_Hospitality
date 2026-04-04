@@ -7,6 +7,17 @@ import { logActivity, logAndSendError } from "./helpers";
 import { z } from "zod";
 import { getOpenAIClient } from "../ai/clients";
 import { logger } from "../logger";
+import { aiRateLimit } from "../middleware/rate-limit";
+
+const searchQuerySchema = z.object({
+  location: z.string().min(1).max(200),
+  priceMin: z.coerce.number().min(0).optional(),
+  priceMax: z.coerce.number().min(0).optional(),
+  bedsMin: z.coerce.number().int().min(0).optional(),
+  lotSizeMin: z.coerce.number().min(0).optional(),
+  propertyType: z.string().max(50).optional(),
+  offset: z.coerce.number().int().min(0).default(0),
+});
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -67,15 +78,16 @@ export function register(app: Express) {
     }
   });
 
-  app.get("/api/property-finder/search", requireAuth, async (req, res) => {
-    try {
-      const { location, priceMin, priceMax, bedsMin, lotSizeMin, propertyType, offset } = req.query as Record<string, string | undefined>;
+  const searchLimiter = aiRateLimit(10, 60_000);
 
-      if (!location?.trim()) {
-        return res.status(400).json({ error: "Location is required", results: [], total: 0, offset: 0 });
+  app.get("/api/property-finder/search", requireAuth, searchLimiter, async (req, res) => {
+    try {
+      const parsed = searchQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid search parameters", results: [], total: 0, offset: 0 });
       }
 
-      const pageOffset = parseInt(offset || "0", 10);
+      const { location, priceMin, priceMax, bedsMin, lotSizeMin, propertyType, offset: pageOffset } = parsed.data;
 
       const filters: string[] = [];
       if (priceMin) filters.push(`minimum price $${Number(priceMin).toLocaleString()}`);
@@ -132,9 +144,9 @@ Make listings realistic for the location's market. Vary prices, sizes, and lot s
         return res.status(500).json({ error: "No response from search service", results: [], total: 0, offset: 0 });
       }
 
-      const parsed = JSON.parse(content);
-      const results = Array.isArray(parsed.results) ? parsed.results : [];
-      const total = typeof parsed.total === "number" ? parsed.total : results.length;
+      const aiResponse = JSON.parse(content);
+      const results = Array.isArray(aiResponse.results) ? aiResponse.results : [];
+      const total = typeof aiResponse.total === "number" ? aiResponse.total : results.length;
 
       logger.info(`[property-finder] Search for "${location}" returned ${results.length} results (total: ${total})`);
 

@@ -5,6 +5,11 @@ import type { DataPoint } from "../../shared/market-intelligence";
 const BASE_URL = "https://data.xotelo.com/api";
 const CACHE_TTL_SECONDS = 4 * 60 * 60;
 
+interface XoteloApiResponse {
+  error?: string | Record<string, unknown>;
+  result?: Record<string, unknown>;
+}
+
 export interface XoteloRate {
   code: string;
   name: string;
@@ -93,12 +98,12 @@ export class XoteloService extends BaseIntegrationService {
             "x-rapidapi-host": "xotelo-hotel-prices.p.rapidapi.com",
           },
         });
-        const data = await response.json() as any;
+        const data: XoteloApiResponse = await response.json();
         if (data.error) {
           this.warn(`Search error: ${JSON.stringify(data.error)}`);
           return [];
         }
-        return (data.result?.list ?? []) as XoteloSearchResult[];
+        return (Array.isArray(data.result?.list) ? data.result.list : []) as XoteloSearchResult[];
       }
     );
   }
@@ -122,18 +127,18 @@ export class XoteloService extends BaseIntegrationService {
         });
         const url = `${BASE_URL}/rates?${params}`;
         const response = await this.fetchWithTimeout(url);
-        const data = await response.json() as any;
+        const data: XoteloApiResponse = await response.json();
         if (data.error) {
           this.warn(`Rates error for ${hotelKey}: ${data.error}`);
           return null;
         }
-        const rates: XoteloRate[] = data.result?.rates ?? [];
+        const rates: XoteloRate[] = (Array.isArray(data.result?.rates) ? data.result.rates : []) as XoteloRate[];
         const values = rates.map((r) => r.rate).filter((r) => r > 0);
         return {
           hotelName: hotelKey,
           hotelKey,
-          checkIn: data.result?.chk_in ?? checkIn,
-          checkOut: data.result?.chk_out ?? checkOut,
+          checkIn: (typeof data.result?.chk_in === "string" ? data.result.chk_in : checkIn),
+          checkOut: (typeof data.result?.chk_out === "string" ? data.result.chk_out : checkOut),
           rates,
           avgRate: values.length ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : null,
           minRate: values.length ? Math.min(...values) : null,
@@ -163,12 +168,12 @@ export class XoteloService extends BaseIntegrationService {
         });
         const url = `${BASE_URL}/list?${params}`;
         const response = await this.fetchWithTimeout(url);
-        const data = await response.json() as any;
+        const data: XoteloApiResponse = await response.json();
         if (data.error) {
           this.warn(`List error for ${locationKey}: ${data.error}`);
           return [];
         }
-        return (data.result?.list ?? []) as XoteloHotelListItem[];
+        return (Array.isArray(data.result?.list) ? data.result.list : []) as XoteloHotelListItem[];
       }
     );
   }

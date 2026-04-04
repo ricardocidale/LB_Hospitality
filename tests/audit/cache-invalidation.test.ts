@@ -171,3 +171,66 @@ describe("Cache Invalidation Mutation Path Coverage", () => {
     }
   });
 });
+
+describe("Cache Consistency Under Repeated Access Patterns", () => {
+  beforeEach(() => {
+    invalidateComputeCache();
+    resetCacheStats();
+  });
+
+  it("repeated computes with same inputs return identical results across 4 calls", () => {
+    const input = { property: PROPERTY, globalAssumptions: GLOBAL, projectionYears: 10 };
+    const results = [
+      computeSingleProperty(input),
+      computeSingleProperty(input),
+      computeSingleProperty(input),
+      computeSingleProperty(input),
+    ];
+
+    const firstRevenue = results[0].yearly[0].revenueTotal;
+    const firstNoi = results[0].yearly[0].noi;
+    for (const r of results) {
+      expect(r.yearly[0].revenueTotal).toBe(firstRevenue);
+      expect(r.yearly[0].noi).toBe(firstNoi);
+    }
+    expect(results[1].cached).toBe(true);
+    expect(results[3].cached).toBe(true);
+  });
+
+  it("different inputs produce distinct cache entries", () => {
+    const inputA = { property: PROPERTY, globalAssumptions: GLOBAL, projectionYears: 10 };
+    const inputB = { property: { ...PROPERTY, startAdr: 200 }, globalAssumptions: GLOBAL, projectionYears: 10 };
+    const rA = computeSingleProperty(inputA);
+    const rB = computeSingleProperty(inputB);
+
+    expect(rA.yearly[0].revenueTotal).not.toBe(rB.yearly[0].revenueTotal);
+    expect(rA.outputHash).not.toBe(rB.outputHash);
+  });
+
+  it("invalidation then recompute produces fresh (non-cached) result", () => {
+    const input = { property: PROPERTY, globalAssumptions: GLOBAL, projectionYears: 10 };
+    const r1 = computeSingleProperty(input);
+    expect(r1.cached).toBeFalsy();
+
+    invalidateComputeCache();
+    const r2 = computeSingleProperty(input);
+    expect(r2.cached).toBeFalsy();
+    expect(r2.yearly[0].revenueTotal).toBe(r1.yearly[0].revenueTotal);
+  });
+
+  it("interleaved compute/invalidate cycles never return stale data from previous input", () => {
+    const inputOriginal = { property: PROPERTY, globalAssumptions: GLOBAL, projectionYears: 10 };
+    const inputModified = { property: { ...PROPERTY, startAdr: 200 }, globalAssumptions: GLOBAL, projectionYears: 10 };
+
+    const r1 = computeSingleProperty(inputOriginal);
+    invalidateComputeCache();
+    const r2 = computeSingleProperty(inputModified);
+
+    expect(r2.yearly[0].revenueTotal).not.toBe(r1.yearly[0].revenueTotal);
+
+    invalidateComputeCache();
+    const r3 = computeSingleProperty(inputOriginal);
+    expect(r3.yearly[0].revenueTotal).toBe(r1.yearly[0].revenueTotal);
+    expect(r3.cached).toBeFalsy();
+  });
+});

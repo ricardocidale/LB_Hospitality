@@ -162,3 +162,127 @@ describe("Data Flow Integrity Trace", () => {
     expect(/^[a-f0-9]{64}$/.test(h1)).toBe(true);
   });
 });
+
+describe("Engine Chain Identity Verification", () => {
+  it("agop = gop − feeBase − feeIncentive at monthly level", () => {
+    const months = 120;
+    const monthly = generatePropertyProForma(SAMPLE_PROPERTY, SAMPLE_GLOBAL, months);
+
+    for (let m = 0; m < months; m++) {
+      if (monthly[m].revenueTotal === 0) continue;
+      const expected = monthly[m].gop - monthly[m].feeBase - monthly[m].feeIncentive;
+      expect(Math.abs(monthly[m].agop - expected)).toBeLessThan(0.01);
+    }
+  });
+
+  it("noi = agop − expenseTaxes at yearly level", () => {
+    const result = computeSingleProperty({
+      property: SAMPLE_PROPERTY,
+      globalAssumptions: SAMPLE_GLOBAL,
+      projectionYears: 10,
+    });
+
+    for (const year of result.yearly) {
+      if (year.revenueTotal === 0) continue;
+      const expected = year.agop - year.expenseTaxes;
+      expect(Math.abs(year.noi - expected)).toBeLessThan(0.01);
+    }
+  });
+
+  it("service result includes all required output fields", () => {
+    const result = computeSingleProperty({
+      property: SAMPLE_PROPERTY,
+      globalAssumptions: SAMPLE_GLOBAL,
+      projectionYears: 10,
+    });
+
+    expect(result).toHaveProperty("yearly");
+    expect(result).toHaveProperty("monthly");
+    expect(result).toHaveProperty("outputHash");
+    expect(result).toHaveProperty("engineVersion");
+    expect(result).toHaveProperty("validationSummary");
+    expect(result.yearly.length).toBe(10);
+    expect(result.monthly.length).toBe(120);
+    expect(typeof result.outputHash).toBe("string");
+    expect(typeof result.engineVersion).toBe("string");
+  });
+
+  it("portfolio result includes all required output fields", () => {
+    const result = computePortfolioProjection({
+      properties: [SAMPLE_PROPERTY],
+      globalAssumptions: SAMPLE_GLOBAL,
+      projectionYears: 10,
+    });
+
+    expect(result).toHaveProperty("consolidatedYearly");
+    expect(result).toHaveProperty("perPropertyYearly");
+    expect(result).toHaveProperty("outputHash");
+    expect(result).toHaveProperty("engineVersion");
+    expect(result).toHaveProperty("validationSummary");
+    expect(result).toHaveProperty("propertyCount");
+    expect(result.propertyCount).toBe(1);
+    expect(result.consolidatedYearly.length).toBe(10);
+  });
+
+  it("monthly revenue values are non-negative for operational months", () => {
+    const months = 120;
+    const monthly = generatePropertyProForma(SAMPLE_PROPERTY, SAMPLE_GLOBAL, months);
+    for (let m = 0; m < months; m++) {
+      expect(monthly[m].revenueTotal).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("yearly values are sums of monthly values (revenue)", () => {
+    const months = 120;
+    const monthly = generatePropertyProForma(SAMPLE_PROPERTY, SAMPLE_GLOBAL, months);
+    const yearly = aggregatePropertyByYear(monthly, 10);
+
+    for (let y = 0; y < 10; y++) {
+      const monthlySlice = monthly.slice(y * 12, (y + 1) * 12);
+      const monthlySum = monthlySlice.reduce((acc, m) => acc + m.revenueTotal, 0);
+      expect(Math.abs(yearly[y].revenueTotal - monthlySum)).toBeLessThan(0.01);
+    }
+  });
+});
+
+describe("Data Flow Pipeline Structure Audit", () => {
+  function grepServer(pattern: string, path = "server/"): string[] {
+    try {
+      const { execSync } = require("child_process");
+      const out = execSync(
+        `rg -n '${pattern}' ${path} --glob '*.ts' -g '!*.test.*' 2>/dev/null`,
+        { encoding: "utf-8", timeout: 10_000 }
+      );
+      return out.trim().split("\n").filter(Boolean);
+    } catch {
+      return [];
+    }
+  }
+
+  it("finance compute endpoint imports computePortfolioProjection", () => {
+    const lines = grepServer("computePortfolioProjection", "server/routes/finance.ts");
+    expect(lines.length).toBeGreaterThan(0);
+  });
+
+  it("finance compute endpoint returns outputHash and engineVersion", () => {
+    const hash = grepServer("outputHash", "server/routes/finance.ts");
+    const version = grepServer("engineVersion", "server/routes/finance.ts");
+    expect(hash.length).toBeGreaterThan(0);
+    expect(version.length).toBeGreaterThan(0);
+  });
+
+  it("service.ts imports from @engine/ (single source of truth)", () => {
+    const lines = grepServer("from.*@engine", "server/finance/service.ts");
+    expect(lines.length).toBeGreaterThan(0);
+  });
+
+  it("client useServerFinancials hook exists for fetching server results", () => {
+    const lines = grepServer("useServerFinancials|usePortfolioFinancials", "client/src/hooks/");
+    expect(lines.length).toBeGreaterThan(0);
+  });
+
+  it("export pipeline uses computePortfolioProjection for server-authoritative data", () => {
+    const lines = grepServer("computePortfolioProjection", "server/report/server-export-data.ts");
+    expect(lines.length).toBeGreaterThan(0);
+  });
+});

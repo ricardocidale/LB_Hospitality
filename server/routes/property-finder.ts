@@ -14,6 +14,10 @@ import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceA
 const realtyService = new RealtyService();
 const usRealEstateService = new USRealEstateService();
 
+const MIN_COMP_HOTEL_RATING = 3.5;
+const MAX_COMP_RATE_HOTELS = 3;
+const MAX_SNAPSHOT_HOTELS = 5;
+
 const XOTELO_LOCATION_KEYS: Record<string, string> = {
   "miami, fl": "g34438",
   "miami beach, fl": "g34439",
@@ -286,8 +290,8 @@ export function register(app: Express) {
 
         const xotelo = getMarketIntelligenceAggregator().getXoteloService();
         const top3 = hotelSnapshot.hotels
-          .filter((h) => h.rating && h.rating >= 3.5)
-          .slice(0, 3);
+          .filter((h) => h.rating && h.rating >= MIN_COMP_HOTEL_RATING)
+          .slice(0, MAX_COMP_RATE_HOTELS);
 
         const rateResults = await Promise.allSettled(
           top3.map((h) => xotelo.getHotelRates(h.key, checkIn, checkOut))
@@ -314,7 +318,7 @@ export function register(app: Express) {
           sampleSize: hotelSnapshot.sampleSize,
           avgPriceMin: hotelSnapshot.avgPriceMin,
           avgPriceMax: hotelSnapshot.avgPriceMax,
-          topHotels: hotelSnapshot.hotels.slice(0, 5).map((h) => ({
+          topHotels: hotelSnapshot.hotels.slice(0, MAX_SNAPSHOT_HOTELS).map((h) => ({
             name: h.name,
             type: h.type,
             rating: h.rating,

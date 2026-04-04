@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 
 type Tab = "listing" | "value" | "comps";
 
+const MAX_ESTIMATES_SHOWN = 12;
+const MAX_OTA_CHANNELS_SHOWN = 6;
+
 interface Props {
   property: PropertyFinderResult;
   onClose: () => void;
@@ -181,7 +184,7 @@ function ValuePane({ propertyId }: { propertyId: string }) {
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Recent Estimates</p>
           <div className="space-y-1 max-h-48 overflow-y-auto">
-            {history.estimates.slice(0, 12).map((est, i) => (
+            {history.estimates.slice(0, MAX_ESTIMATES_SHOWN).map((est, i) => (
               <div key={i} className="flex items-center justify-between text-xs bg-muted/30 rounded px-3 py-1.5" data-testid={`detail-estimate-${i}`}>
                 <span className="text-muted-foreground">{new Date(est.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
                 <div className="flex items-center gap-2">
@@ -285,7 +288,7 @@ function CompsPane({ city, state }: { city: string | null; state?: string }) {
                 <span className="text-sm font-bold text-primary">{hotel.avgRate != null ? formatMoney(hotel.avgRate) : "—"} avg</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {hotel.rates.slice(0, 6).map((r, j) => (
+                {hotel.rates.slice(0, MAX_OTA_CHANNELS_SHOWN).map((r, j) => (
                   <span key={j} className="px-2 py-0.5 rounded-md text-xs bg-primary/8 border border-primary/15 text-foreground">
                     {r.name}: ${r.rate}
                   </span>

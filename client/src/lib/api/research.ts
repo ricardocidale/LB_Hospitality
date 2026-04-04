@@ -177,6 +177,15 @@ export function useDeleteSavedSearch() {
   });
 }
 
+const MARKET_CONTEXT_STALE_MS = 4 * 60 * 60 * 1000;
+
+function normalizeMarketLocation(location: string, state?: string): { city: string; state?: string } {
+  const parts = location.split(",").map((s) => s.trim());
+  const city = parts[0];
+  const parsed = state || parts[1] || undefined;
+  return { city, state: parsed };
+}
+
 async function fetchMarketContext(location: string, state?: string): Promise<MarketContextResponse> {
   const params = new URLSearchParams({ location });
   if (state) params.set("state", state);
@@ -186,11 +195,12 @@ async function fetchMarketContext(location: string, state?: string): Promise<Mar
 }
 
 export function useMarketContext(location: string | null, state?: string) {
+  const norm = location ? normalizeMarketLocation(location, state) : null;
   return useQuery({
-    queryKey: ["marketContext", location, state],
-    queryFn: () => fetchMarketContext(location!, state),
-    enabled: !!location,
-    staleTime: 15 * 60 * 1000,
+    queryKey: ["marketContext", norm?.city ?? null, norm?.state ?? null],
+    queryFn: () => fetchMarketContext(norm!.city, norm!.state),
+    enabled: !!norm,
+    staleTime: MARKET_CONTEXT_STALE_MS,
     retry: false,
   });
 }

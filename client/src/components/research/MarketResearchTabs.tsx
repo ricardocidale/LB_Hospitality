@@ -17,6 +17,8 @@ import {
   ChartTooltip, MetricCard, EmptySection, CapRateGauge, BenchmarkBanner,
 } from "./research-chart-shared";
 
+const MAX_OTA_CHANNELS_SHOWN = 6;
+
 function HotelCompSection({ location }: { location: string }) {
   const parts = location.split(",").map((s) => s.trim());
   const city = parts[0] || location;
@@ -122,7 +124,7 @@ function HotelCompSection({ location }: { location: string }) {
                 <span className="text-sm font-bold text-primary">{hotel.avgRate != null ? formatMoney(hotel.avgRate) : "—"} avg</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {hotel.rates.slice(0, 6).map((r, j) => (
+                {hotel.rates.slice(0, MAX_OTA_CHANNELS_SHOWN).map((r, j) => (
                   <span key={j} className="px-2 py-0.5 rounded-md text-xs bg-primary/8 border border-primary/15 text-foreground">
                     {r.name}: ${r.rate}
                   </span>

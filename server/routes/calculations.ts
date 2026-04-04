@@ -52,7 +52,7 @@ export function register(app: Express) {
         totalChecks: report.summary.totalChecks,
         auditOpinion: report.summary.auditOpinion,
         overallStatus: report.summary.overallStatus,
-        results: report as Record<string, unknown>,
+        results: { ...report },
       });
 
       logActivity(req, "run-verification", "verification", run.id, `Audit ${run.id}: ${run.auditOpinion}`);

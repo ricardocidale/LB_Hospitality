@@ -61,7 +61,7 @@ function buildIcpResearchPrompt(
   };
 
   const locations = (icpConfig._locations || []) as IcpLocation[];
-  const descriptive = icpConfig._descriptive || {};
+  const descriptive = (icpConfig._descriptive || {}) as Record<string, string>;
   const sources = icpConfig._sources as { urls?: any[]; files?: any[]; allowUnrestricted?: boolean } | undefined;
 
   let locationBlock = "";

@@ -4,6 +4,7 @@ import type { DataPoint } from "../../shared/market-intelligence";
 
 const BASE_URL = "https://data.xotelo.com/api";
 const CACHE_TTL_SECONDS = 4 * 60 * 60;
+const XOTELO_TIMEOUT_MS = 20_000;
 
 interface XoteloApiResponse {
   error?: string | Record<string, unknown>;
@@ -73,7 +74,7 @@ export interface XoteloMarketSnapshot {
 
 export class XoteloService extends BaseIntegrationService {
   constructor() {
-    super("Xotelo", 20_000);
+    super("Xotelo", XOTELO_TIMEOUT_MS);
   }
 
   isAvailable(): boolean {

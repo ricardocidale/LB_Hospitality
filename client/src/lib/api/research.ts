@@ -212,12 +212,14 @@ async function fetchPropertyValue(propertyId: string): Promise<PropertyValueHist
   return data.history ?? null;
 }
 
+const PROPERTY_VALUE_STALE_MS = 60 * 60 * 1000;
+
 export function usePropertyValue(propertyId: string | null) {
   return useQuery({
     queryKey: ["propertyValue", propertyId],
     queryFn: () => fetchPropertyValue(propertyId!),
     enabled: !!propertyId,
-    staleTime: 60 * 60 * 1000,
+    staleTime: PROPERTY_VALUE_STALE_MS,
     retry: false,
   });
 }

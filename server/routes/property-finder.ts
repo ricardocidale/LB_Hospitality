@@ -138,11 +138,26 @@ function findXoteloKey(location: string): { key: string; label: string } | null 
   const direct = XOTELO_LOCATION_KEYS[lower];
   if (direct) return { key: direct, label: location };
 
+  const parts = lower.split(",").map((s) => s.trim());
+  const inputCity = parts[0];
+  const inputState = parts[1] || null;
+
+  if (inputState) {
+    for (const [loc, key] of Object.entries(XOTELO_LOCATION_KEYS)) {
+      const [locCity, locState] = loc.split(",").map((s) => s.trim());
+      if (locCity === inputCity && locState === inputState) return { key, label: loc };
+    }
+  }
+
+  let fallback: { key: string; label: string } | null = null;
   for (const [loc, key] of Object.entries(XOTELO_LOCATION_KEYS)) {
     const city = loc.split(",")[0].trim();
-    if (lower.includes(city)) return { key, label: loc };
+    if (lower.includes(city)) {
+      fallback = { key, label: loc };
+      break;
+    }
   }
-  return null;
+  return fallback;
 }
 
 const searchQuerySchema = z.object({

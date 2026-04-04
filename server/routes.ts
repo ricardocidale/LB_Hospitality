@@ -32,6 +32,7 @@ import * as icpResearchRoutes from "./routes/icp-research";
 import * as googleDriveRoutes from "./routes/google-drive";
 import * as financingRoutes from "./routes/financing";
 import { registerFinanceRoutes } from "./routes/finance";
+import healthRouter from "./routes/health";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -39,6 +40,8 @@ export async function registerRoutes(
 ): Promise<Server> {
   registerObjectStorageRoutes(app);
   registerChatRoutes(app);
+
+  app.use(healthRouter);
 
   authRoutes.register(app);
   propertyRoutes.register(app);

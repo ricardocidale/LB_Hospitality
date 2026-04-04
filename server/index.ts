@@ -95,6 +95,9 @@ const PUBLIC_API_PATHS = new Set([
   "/api/twilio/voice/status",
   "/api/twilio/sms/incoming",
   "/api/finance/health",
+  "/api/health/live",
+  "/api/health/ready",
+  "/api/health/deep",
 ]);
 
 const PUBLIC_API_PREFIXES = [
@@ -170,7 +173,7 @@ app.use((req, res, next) => {
       ? "Internal Server Error"
       : err.message || "Internal Server Error";
 
-    console.error("Internal Server Error:", err);
+    serverLog(`Internal Server Error: ${err instanceof Error ? err.message : err}`, "server", "error");
 
     if (res.headersSent) {
       return next(err);
@@ -205,7 +208,7 @@ app.use((req, res, next) => {
 
       // ── Phase 2: Migrations + seeds (runs after port is open) ────────
       runMigrationsAndSeeds().catch(err => {
-        console.error("[ERROR] [startup] Migrations/seeds failed after retries:", err);
+        serverLog(`Migrations/seeds failed after retries: ${err instanceof Error ? err.message : err}`, "startup", "error");
       });
 
       // Refresh stale market rates periodically
@@ -236,7 +239,7 @@ app.use((req, res, next) => {
           const oldLogs = await storage.deleteOldLoginLogs(180);
           if (oldLogs > 0) log(`Cleaned ${oldLogs} login logs older than 180 days`);
         } catch (err) {
-          console.error("Periodic cleanup error:", err);
+          serverLog(`Periodic cleanup error: ${err instanceof Error ? err.message : err}`, "cleanup", "error");
         }
       }, SESSION_CLEANUP_INTERVAL_MS);
 
@@ -247,7 +250,7 @@ app.use((req, res, next) => {
           const invalidated = await cache.invalidate("mi:property:*");
           if (invalidated > 0) log(`Invalidated ${invalidated} stale MI cache entries`);
         } catch (err) {
-          console.error("MI cache invalidation error:", err);
+          serverLog(`MI cache invalidation error: ${err instanceof Error ? err.message : err}`, "cache", "error");
         }
       }, MI_CACHE_INVALIDATION_INTERVAL_MS);
     },

@@ -5,6 +5,7 @@ import { storage } from "../../storage";
 import { requireAdmin, isApiRateLimited , getAuthUser } from "../../auth";
 import { type InsertGlobalAssumptions, type ResearchConfig, type ContextLlmConfig, type AiModelEntry } from "@shared/schema";
 import { logAndSendError, logActivity } from "../helpers";
+import { logger } from "../../logger";
 
 const researchSourceEntrySchema = z.object({
   id: z.string(),
@@ -146,7 +147,7 @@ async function fetchOpenAIModels(): Promise<AiModelEntry[]> {
     }
     return models.sort((a, b) => a.id.localeCompare(b.id));
   } catch (e) {
-    console.error("[research] Failed to fetch OpenAI models:", (e as Error).message);
+    logger.error(`Failed to fetch OpenAI models: ${(e as Error).message}`, "research");
     return [];
   }
 }
@@ -163,7 +164,7 @@ async function fetchAnthropicModels(): Promise<AiModelEntry[]> {
     }
     return models.sort((a, b) => a.id.localeCompare(b.id));
   } catch (e) {
-    console.error("[research] Failed to fetch Anthropic models:", (e as Error).message);
+    logger.error(`Failed to fetch Anthropic models: ${(e as Error).message}`, "research");
     return [];
   }
 }
@@ -181,7 +182,7 @@ async function fetchGeminiModels(): Promise<AiModelEntry[]> {
     }
     return models.sort((a, b) => a.id.localeCompare(b.id));
   } catch (e) {
-    console.error("[research] Failed to fetch Gemini models:", (e as Error).message);
+    logger.error(`Failed to fetch Gemini models: ${(e as Error).message}`, "research");
     return [];
   }
 }
@@ -203,7 +204,7 @@ async function fetchXaiModels(): Promise<AiModelEntry[]> {
     }
     return models.sort((a, b) => a.id.localeCompare(b.id));
   } catch (e) {
-    console.error("[research] Failed to fetch xAI models:", (e as Error).message);
+    logger.error(`Failed to fetch xAI models: ${(e as Error).message}`, "research");
     return [];
   }
 }
@@ -225,7 +226,7 @@ async function fetchDeepSeekModels(): Promise<AiModelEntry[]> {
     }
     return models.sort((a, b) => a.id.localeCompare(b.id));
   } catch (e) {
-    console.error("[research] Failed to fetch DeepSeek models:", (e as Error).message);
+    logger.error(`Failed to fetch DeepSeek models: ${(e as Error).message}`, "research");
     return [];
   }
 }
@@ -247,7 +248,7 @@ async function fetchMetaModels(): Promise<AiModelEntry[]> {
     }
     return models.sort((a, b) => a.id.localeCompare(b.id));
   } catch (e) {
-    console.error("[research] Failed to fetch Meta models:", (e as Error).message);
+    logger.error(`Failed to fetch Meta models: ${(e as Error).message}`, "research");
     return [];
   }
 }

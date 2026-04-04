@@ -6,6 +6,7 @@ import { z } from "zod";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 import { storage } from "../storage";
 import { resolveLlm, getVendorService } from "../ai/resolve-llm";
+import { logger } from "../logger";
 import type { ResearchConfig } from "@shared/schema";
 
 const rewriteSchema = z.object({
@@ -56,11 +57,11 @@ Rewritten description:`;
       const svc = getVendorService(resolved.vendor);
       const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
       const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round((rewritten?.length ?? 0) / 4);
-      try { logApiCost({ timestamp: new Date().toISOString(), service: svc, model: resolved.model, operation: "rewrite-description", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc, resolved.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/rewrite-description" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
+      try { logApiCost({ timestamp: new Date().toISOString(), service: svc, model: resolved.model, operation: "rewrite-description", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc, resolved.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/rewrite-description" }); } catch (e) { logger.warn(`Failed to log API cost: ${(e as Error).message}`, "cost-logger"); }
 
       res.json({ rewritten });
     } catch (error: any) {
-      console.error("[ai/rewrite] Error:", error?.message || error);
+      logger.error(`AI rewrite error: ${error?.message || error}`, "ai");
       if (error?.message === "Gemini API key not configured") {
         return res.status(503).json({ error: "AI service is not available" });
       }
@@ -120,11 +121,11 @@ ${prompt}`,
       const svc2 = getVendorService(resolved2.vendor);
       const inTok = response.usage?.input_tokens ?? Math.round(prompt.length / 4);
       const outTok = response.usage?.output_tokens ?? Math.round(optimized.length / 4);
-      try { logApiCost({ timestamp: new Date().toISOString(), service: svc2, model: resolved2.model, operation: "optimize-prompt", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc2, resolved2.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/optimize-prompt" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
+      try { logApiCost({ timestamp: new Date().toISOString(), service: svc2, model: resolved2.model, operation: "optimize-prompt", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc2, resolved2.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/optimize-prompt" }); } catch (e) { logger.warn(`Failed to log API cost: ${(e as Error).message}`, "cost-logger"); }
 
       res.json({ optimized });
     } catch (error: any) {
-      console.error("[ai/optimize-prompt] Error:", error?.message || error);
+      logger.error(`AI optimize-prompt error: ${error?.message || error}`, "ai");
       res.status(500).json({ error: "Failed to optimize prompt" });
     }
   });

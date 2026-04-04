@@ -6,6 +6,7 @@ import { db } from "../db";
 import { alertRules, notificationLogs, notificationSettings } from "@shared/schema";
 import { eq, and, isNull, or } from "drizzle-orm";
 import { APP_BRAND_NAME } from "@shared/constants";
+import { logger } from "../logger";
 
 async function getNotificationSetting(key: string): Promise<string | null> {
   const [row] = await db.select().from(notificationSettings).where(eq(notificationSettings.settingKey, key)).limit(1);
@@ -49,7 +50,7 @@ export async function processNotificationEvent(event: NotificationEvent): Promis
         subject: getEventLabel(event.type),
       });
     } catch (error: any) {
-      console.error("Resend email failed:", error.message);
+      logger.error(`Resend email failed: ${error.message}`, "notifications");
       await logNotification(event, "email", "failed", {
         recipient: event.metadata.recipientEmail,
         errorMessage: error.message,

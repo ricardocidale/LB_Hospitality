@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { storage } from "../storage";
 import { VALID_USER_ROLES } from "@shared/schema";
 import { z } from "zod";
+import { logger } from "../logger";
 
 /** Send a JSON error response. */
 export function sendError(res: Response, status: number, message: string) {
@@ -10,9 +11,9 @@ export function sendError(res: Response, status: number, message: string) {
 
 /** Log an error to console and send a 500 JSON response. */
 export function logAndSendError(res: Response, message: string, error: unknown, domain?: string) {
-  const prefix = domain ? `[ERROR] [${domain}] ` : "";
-  const errMsg = error instanceof Error ? error.message : error;
-  console.error(`${prefix}${message}`, errMsg);
+  const source = domain || "routes";
+  const errMsg = error instanceof Error ? error.message : String(error);
+  logger.error(`${message}: ${errMsg}`, source);
   return sendError(res, 500, message);
 }
 
@@ -66,7 +67,7 @@ export function logActivity(
     entityName: entityName ?? undefined,
     metadata: metadata ?? undefined,
     ipAddress,
-  }).catch(err => console.error("[ERROR] [activity] Activity log error:", err?.message || err));
+  }).catch(err => logger.error(`Activity log error: ${err?.message || err}`, "activity"));
 }
 
 export const loginSchema = z.object({

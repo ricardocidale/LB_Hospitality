@@ -2,6 +2,7 @@ import { type Express, type Request, type Response } from "express";
 import { requireAuth } from "../auth";
 import { z } from "zod";
 import { logger } from "../logger";
+import { logActivity } from "./helpers";
 import { storage } from "../storage";
 import { buildExportData, buildPropertyExportData, buildCompanyExportData } from "../report/server-export-data";
 import { compileReport } from "../report/compiler";
@@ -162,6 +163,14 @@ export function register(app: Express) {
       res.setHeader("X-Finance-Engine-Version", exportData.engineVersion);
 
       logger.info(`[server-export] Generated ${format} (${buffer.length} bytes) for ${entityType}`, "server-export");
+
+      logActivity(req, "export_generated", entityType, entityId ?? null, entityName, {
+        format,
+        reportScope,
+        version,
+        sizeBytes: buffer.length,
+      });
+
       res.send(buffer);
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);

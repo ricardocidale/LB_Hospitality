@@ -136,7 +136,7 @@ export function register(app: Express) {
 
       res.json({ logoUrl, themeName, themeColors, groupCompanyName, companyName, selectedThemeId: u.selectedThemeId ?? null, iconSet });
     } catch (error) {
-      console.error("Error fetching my-branding:", error);
+      logger.error(`Error fetching my-branding: ${error instanceof Error ? error.message : error}`, "branding");
       res.json({ logoUrl: null, themeName: null, themeColors: null, groupCompanyName: null, companyName: null, selectedThemeId: null, iconSet: "lucide" });
     }
   });

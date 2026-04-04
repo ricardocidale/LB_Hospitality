@@ -14,6 +14,7 @@ import type { ResearchConfig, ResearchEventConfig, LlmVendor } from "@shared/sch
 import { DEFAULT_RESEARCH_EVENT_CONFIG, DEFAULT_RESEARCH_REFRESH_INTERVAL_DAYS, DEFAULT_ROOM_COUNT, DEFAULT_START_ADR, DEFAULT_MAX_OCCUPANCY } from "../../shared/constants";
 import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
+import { logger } from "../logger";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -183,7 +184,7 @@ export function register(app: Express) {
           propertyId: propertyId || undefined,
         });
       } catch (err) {
-        console.warn("Market intelligence fetch failed (non-blocking):", err);
+        logger.warn(`Market intelligence fetch failed (non-blocking): ${err instanceof Error ? err.message : err}`, "research");
       }
 
       const params = {
@@ -228,7 +229,7 @@ export function register(app: Express) {
                 // Attach validation audit trail to research content
                 parsed._validation = validated.summary;
                 if (validated.summary.warned > 0 || validated.summary.failed > 0) {
-                  console.warn(`Research validation for property ${propertyId}: ${validated.summary.warned} warnings, ${validated.summary.failed} failures`);
+                  logger.warn(`Research validation for property ${propertyId}: ${validated.summary.warned} warnings, ${validated.summary.failed} failures`, "research");
                 }
               } else {
                 await storage.updateProperty(propertyId, { researchValues });
@@ -261,18 +262,18 @@ export function register(app: Express) {
           const svcName = vendorKey === "google" ? "gemini" : vendorKey === "openai" ? "openai" : "anthropic";
           const inTok = Math.round(JSON.stringify(params).length / 4);
           const outTok = Math.round(fullContent.length / 4);
-          try { logApiCost({ timestamp: new Date().toISOString(), service: svcName as any, model, operation: "research", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svcName, model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/research/generate" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
+          try { logApiCost({ timestamp: new Date().toISOString(), service: svcName as any, model, operation: "research", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svcName, model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/research/generate" }); } catch (e) { logger.warn(`Failed to log API cost: ${(e as Error).message}`, "cost-logger"); }
 
           processNotificationEvent(createEvent("RESEARCH_COMPLETE", {
             propertyId,
             message: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} research generation complete`,
             link: propertyId ? `/property/${propertyId}/research` : undefined,
-          })).catch((err) => console.error("[ERROR] [research] Notification error:", err?.message || err));
+          })).catch((err) => logger.error(`Notification error: ${err?.message || err}`, "research"));
         }
       }
       res.end();
     } catch (error) {
-      console.error("[ERROR] [research] Research generation error:", error instanceof Error ? error.message : error);
+      logger.error(`Research generation error: ${error instanceof Error ? error.message : error}`, "research");
       res.write(`data: ${JSON.stringify({ type: "error", message: "Generation failed" })}\n\n`);
       res.end();
     }

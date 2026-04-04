@@ -9,6 +9,7 @@ import {
   DB_CONNECTION_MAX_USES,
   DB_POOL_ALLOW_EXIT_ON_IDLE,
 } from "./constants";
+import { logger } from "./logger";
 
 const { Pool } = pg;
 
@@ -29,7 +30,7 @@ export const pool = new Pool({
 });
 
 pool.on("error", (err) => {
-  console.error("[db] Unexpected pool error — connection will be replaced", err.message);
+  logger.error(`Unexpected pool error — connection will be replaced: ${err.message}`, "db");
 });
 
 export const db = drizzle(pool, { schema });
@@ -55,7 +56,7 @@ export async function withRetry<T>(
         message.includes("connection will be replaced");
       if (!isTransient || attempt === retries) break;
       const delay = baseDelayMs * Math.pow(2, attempt - 1);
-      console.warn(`[${label}] Attempt ${attempt}/${retries} failed (${message}), retrying in ${delay}ms…`);
+      logger.warn(`Attempt ${attempt}/${retries} failed (${message}), retrying in ${delay}ms…`, label);
       await new Promise((r) => setTimeout(r, delay));
     }
   }

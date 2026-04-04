@@ -7,6 +7,7 @@ import {
   marcelaPromptSchema, marcelaLlmSchema, marcelaVoiceSchema,
   marcelaWidgetSchema, marcelaVoiceSettingsSchema, sendNotificationSchema,
 } from "../helpers";
+import { logger } from "../../logger";
 import { fromZodError } from "zod-validation-error";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
 import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation, updateConvaiAgent, createKBDocumentFromFile, getConversationAudio } from "../../integrations/elevenlabs";
@@ -98,7 +99,7 @@ export function registerMarcelaRoutes(app: Express) {
       const status = await getTwilioStatus();
       res.json(status);
     } catch (error) {
-      console.error("Error fetching Twilio status:", error);
+      logger.error(`Error fetching Twilio status: ${error instanceof Error ? error.message : error}`, "marcela");
       res.json({ connected: false, phoneNumber: null, error: "Failed to check Twilio status" });
     }
   });
@@ -152,7 +153,7 @@ export function registerMarcelaRoutes(app: Express) {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) {
-        console.warn("[Marcela] Signed URL requested but no agent ID configured");
+        logger.warn("Signed URL requested but no agent ID configured", "marcela");
         return res.status(404).json({ error: "Agent ID not configured. Set the ElevenLabs Agent ID in Admin → AI Agents." });
       }
       if (!ga.marcelaEnabled) {
@@ -160,13 +161,13 @@ export function registerMarcelaRoutes(app: Express) {
       }
       const signedUrl = await getElevenLabsSignedUrl(ga.marcelaAgentId);
       if (!signedUrl) {
-        console.error("[Marcela] ElevenLabs returned empty signed URL for agent:", ga.marcelaAgentId);
+        logger.error(`ElevenLabs returned empty signed URL for agent: ${ga.marcelaAgentId}`, "marcela");
         return res.status(502).json({ error: "ElevenLabs returned an empty signed URL. Check the agent ID." });
       }
       res.json({ signedUrl });
     } catch (error: any) {
       const msg = error.message || "Failed to get signed URL";
-      console.error("[Marcela] Signed URL generation failed:", msg);
+      logger.error(`Signed URL generation failed: ${msg}`, "marcela");
       const isAuthError = msg.includes("not connected") || msg.includes("api_key") || msg.includes("401");
       if (isAuthError) {
         return res.status(503).json({ error: "ElevenLabs API key not set. Add ELEVENLABS_API_KEY to your environment secrets." });

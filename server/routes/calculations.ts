@@ -3,6 +3,7 @@ import { storage } from "../storage";
 import { requireChecker, requireAuth , getAuthUser } from "../auth";
 import { runVerificationWithEngine } from "../calculationChecker";
 import { logActivity, logAndSendError } from "./helpers";
+import { logger } from "../logger";
 import * as calcSchemas from "../../calc/shared/schemas";
 import { computeDCF } from "../../calc/returns/dcf-npv";
 import { buildIRRVector } from "../../calc/returns/irr-vector";
@@ -162,7 +163,7 @@ export function register(app: Express) {
 
       const inTok = Math.round(summaryText.length / 4);
       const outTok = Math.round(fullReviewContent.length / 4);
-      try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: llmModel, operation: "ai-verification-review", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("openai", llmModel, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/verification/ai-review" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: llmModel, operation: "ai-verification-review", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("openai", llmModel, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/verification/ai-review" }); } catch (e) { logger.warn(`Failed to log API cost: ${(e as Error).message}`, "cost-logger"); }
 
       res.write("data: [DONE]\n\n");
       res.end();
@@ -170,7 +171,7 @@ export function register(app: Express) {
       if (!res.headersSent) {
         logAndSendError(res, "AI review failed", error);
       } else {
-        console.error("[ERROR] [calculations] AI verification review error:", error?.message || error);
+        logger.error(`AI verification review error: ${error?.message || error}`, "calculations");
         res.end();
       }
     }

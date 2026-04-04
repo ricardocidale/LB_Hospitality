@@ -1,6 +1,7 @@
 import sharp from "sharp";
 import { IMAGE_VARIANTS, buildVariantPath, buildOriginalPath, type ImageVariants, type VariantSpec } from "./variants";
 import { objectStorageClient, ObjectStorageService } from "../replit_integrations/object_storage";
+import { logger } from "../logger";
 
 // Singleton — avoid creating a new instance per image operation
 const sharedObjectStorageService = new ObjectStorageService();
@@ -179,7 +180,7 @@ export async function processExistingPhoto(
 
     return await processImage(buffer, { propertyId, photoId }, contentType);
   } catch (error) {
-    console.error(`Failed to process existing photo ${photoId}:`, error);
+    logger.error(`Failed to process existing photo ${photoId}: ${error instanceof Error ? error.message : error}`, "image-pipeline");
     return null;
   }
 }

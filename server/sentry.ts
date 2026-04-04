@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/node";
 import type { Express, Request, Response, NextFunction } from "express";
 import { FinancialCalculationError } from "@shared/errors";
+import { log } from "./logger";
 
 const DSN = process.env.SENTRY_DSN;
 const isProduction = process.env.REPLIT_DEPLOYMENT === "1";
@@ -48,7 +49,8 @@ export function setupSentryExpressErrorHandler(app: Express) {
 
 export function captureException(error: unknown, extra?: Record<string, unknown>) {
   if (!DSN) {
-    console.error("[Sentry disabled]", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    log(msg, "sentry", "error");
     return;
   }
 

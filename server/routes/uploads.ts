@@ -7,6 +7,7 @@ import { processImage, type CropRegion } from "../image/pipeline";
 import { storage } from "../storage";
 import { UserRole } from "@shared/constants";
 import { MAX_UPLOAD_BYTES } from "../constants";
+import { logger } from "../logger";
 
 const sharedObjectStorageService = new ObjectStorageService();
 const ALLOWED_CONTENT_TYPES = [
@@ -223,7 +224,7 @@ export function register(app: Express) {
 
           processed++;
         } catch (err) {
-          console.error(`[ERROR] [uploads] Failed to process photo ${photo.id}:`, err instanceof Error ? err.message : err);
+          logger.error(`Failed to process photo ${photo.id}: ${err instanceof Error ? err.message : err}`, "uploads");
           failed++;
         }
       }

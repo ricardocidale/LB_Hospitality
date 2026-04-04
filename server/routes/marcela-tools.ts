@@ -3,7 +3,7 @@ import { logger } from "../logger";
 
 const MARCELA_TOOLS_SECRET = process.env.MARCELA_TOOLS_SECRET;
 if (!MARCELA_TOOLS_SECRET) {
-  console.warn("[marcela-tools] MARCELA_TOOLS_SECRET env var not set — tools endpoint will reject all requests");
+  logger.warn("MARCELA_TOOLS_SECRET env var not set — tools endpoint will reject all requests", "marcela-tools");
 }
 
 function verifyToolsAuth(req: Request, res: Response, next: NextFunction) {

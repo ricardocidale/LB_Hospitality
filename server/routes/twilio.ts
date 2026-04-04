@@ -3,6 +3,7 @@ import type { Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "../storage";
 import { chatStorage } from "../replit_integrations/chat/storage";
+import { logger } from "../logger";
 import {
   transcribeAudio,
   createElevenLabsStreamingTTS,
@@ -24,7 +25,6 @@ import type OpenAI from "openai";
 import { getOpenAIClient } from "../ai/clients";
 import { DEFAULT_OPENAI_MODEL } from "../ai/resolve-llm";
 import { retrieveRelevantChunks, buildRAGContext } from "../ai/knowledge-base";
-import { logger } from "../logger";
 import twilio from "twilio";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 import { UserRole } from "@shared/constants";
@@ -134,7 +134,7 @@ export function register(app: Express) {
   </Connect>
 </Response>`);
     } catch (error) {
-      console.error("Twilio voice incoming error:", error);
+      logger.error(`Twilio voice incoming error: ${error instanceof Error ? error.message : error}`, "twilio");
       res.type("text/xml");
       res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Say>An error occurred. Please try again later.</Say><Hangup/></Response>`);
     }
@@ -194,7 +194,7 @@ export function register(app: Express) {
 
       const inTok = response.usage?.prompt_tokens ?? Math.round(body.length / 4);
       const outTok = response.usage?.completion_tokens ?? Math.round(reply.length / 4);
-      try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: llmModel, operation: "sms-reply", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("openai", llmModel, inTok, outTok), durationMs: Date.now() - startTime, route: "/api/twilio/sms/incoming" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: llmModel, operation: "sms-reply", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("openai", llmModel, inTok, outTok), durationMs: Date.now() - startTime, route: "/api/twilio/sms/incoming" }); } catch (e) { logger.warn(`Failed to log API cost: ${(e as Error).message}`, "cost-logger"); }
 
       await chatStorage.createMessage(conversation.id, "assistant", reply);
 

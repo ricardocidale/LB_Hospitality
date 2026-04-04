@@ -43,30 +43,42 @@ describe("sendError", () => {
 // ---------------------------------------------------------------------------
 describe("logAndSendError", () => {
   beforeEach(() => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
-  it("logs to console.error and sends a 500 response", () => {
+  it("logs via structured logger and sends a 500 response", () => {
     const res = mockRes();
     const err = new Error("boom");
     logAndSendError(res, "Failed", err);
-    expect(console.error).toHaveBeenCalledWith("Failed", "boom");
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining("[ERROR]"),
+    );
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining("Failed: boom"),
+    );
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ error: "Failed" });
   });
 
-  it("logs with domain prefix when provided", () => {
+  it("logs with domain source when provided", () => {
     const res = mockRes();
     const err = new Error("timeout");
     logAndSendError(res, "Request failed", err, "api");
-    expect(console.error).toHaveBeenCalledWith("[ERROR] [api] Request failed", "timeout");
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining("[api]"),
+    );
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining("Request failed: timeout"),
+    );
     expect(res.status).toHaveBeenCalledWith(500);
   });
 
   it("handles non-Error objects as the error argument", () => {
     const res = mockRes();
     logAndSendError(res, "Something broke", "string error");
-    expect(console.error).toHaveBeenCalledWith("Something broke", "string error");
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining("Something broke: string error"),
+    );
     expect(res.status).toHaveBeenCalledWith(500);
   });
 });

@@ -6,6 +6,7 @@ import { fromZodError } from "zod-validation-error";
 import { logAndSendError } from "./helpers";
 import { z } from "zod";
 import { processExistingPhoto } from "../image/pipeline";
+import { logger } from "../logger";
 
 export function register(app: Express) {
   // GET /api/properties/:id/photos — list all photos for a property
@@ -51,7 +52,7 @@ export function register(app: Express) {
             }
           })
           .catch((err) => {
-            console.error(`Background image processing failed for photo ${photo.id}:`, err);
+            logger.error(`Background image processing failed for photo ${photo.id}: ${err instanceof Error ? err.message : err}`, "property-photos");
           });
       }
 

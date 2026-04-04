@@ -4,6 +4,7 @@ import superjson from "superjson";
 import { computePortfolioProjection, computeSingleProperty, computeCompanyProjection } from "../finance/service";
 import { getCacheStatus, invalidateComputeCache, resetCacheStats } from "../finance/cache";
 import { requireAuth, requireAdmin } from "../auth";
+import { logger } from "../logger";
 import type { PropertyInput, GlobalInput } from "@engine/types";
 
 const propertyInputSchema = z.object({
@@ -136,7 +137,7 @@ export function registerFinanceRoutes(router: Router): void {
       return sendSuperjson(res, result);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Server computation failed";
-      console.error("[finance/compute] Error:", message);
+      logger.error(`Compute error: ${message}`, "finance");
       return res.status(500).json({ error: message });
     }
   });
@@ -178,7 +179,7 @@ export function registerFinanceRoutes(router: Router): void {
       return sendSuperjson(res, result);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Property computation failed";
-      console.error("[finance/property] Error:", message);
+      logger.error(`Property compute error: ${message}`, "finance");
       return res.status(500).json({ error: message });
     }
   });
@@ -211,7 +212,7 @@ export function registerFinanceRoutes(router: Router): void {
       return sendSuperjson(res, result);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Company computation failed";
-      console.error("[finance/company] Error:", message);
+      logger.error(`Company compute error: ${message}`, "finance");
       return res.status(500).json({ error: message });
     }
   });

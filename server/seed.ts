@@ -1,4 +1,5 @@
 import { seed } from "./seeds/index";
+import { logger } from "./logger";
 export * from "./seeds/index";
 export * from "./seeds/users";
 export * from "./seeds/properties";
@@ -11,7 +12,7 @@ if (isMain) {
   seed()
     .then(() => process.exit(0))
     .catch((error) => {
-      console.error("Seed failed:", error);
+      logger.error(`Seed failed: ${error instanceof Error ? error.message : error}`, "seed");
       process.exit(1);
     });
 }

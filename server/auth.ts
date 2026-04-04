@@ -447,7 +447,7 @@ export async function seedAdminUser() {
   for (const seed of userSeeds) {
     const password = process.env[seed.envVar] || defaultPassword;
     if (!password) {
-      console.warn(`${seed.envVar} not set and no PASSWORD_DEFAULT. Skipping ${seed.email}.`);
+      logger.warn(`${seed.envVar} not set and no PASSWORD_DEFAULT. Skipping ${seed.email}.`, "auth");
       continue;
     }
 

@@ -17,6 +17,9 @@ const routesSrc = fs.readFileSync(
 const scenariosSrc = fs.readFileSync(
   path.resolve(__dirname, "../../server/routes/scenarios.ts"),
   "utf-8"
+) + fs.readFileSync(
+  path.resolve(__dirname, "../../server/routes/scenario-helpers.ts"),
+  "utf-8"
 );
 
 describe("Property Photos Routes — endpoint structure", () => {

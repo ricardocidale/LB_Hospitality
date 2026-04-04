@@ -238,6 +238,9 @@ describe("Scenario Save/Load Code Path Verification", () => {
   const routesSrc = fs.readFileSync(
     path.resolve(__dirname, "../../server/routes/scenarios.ts"),
     "utf-8"
+  ) + fs.readFileSync(
+    path.resolve(__dirname, "../../server/routes/scenario-helpers.ts"),
+    "utf-8"
   );
   const financialSrc = fs.readFileSync(
     path.resolve(__dirname, "../../server/storage/financial.ts"),
@@ -255,7 +258,7 @@ describe("Scenario Save/Load Code Path Verification", () => {
   });
 
   it("scenario load route validates property access for non-owner users", () => {
-    expect(routesSrc).toContain("getAllProperties(user.id)");
+    expect(routesSrc).toMatch(/getAllProperties\(user\.id\)|getAllProperties\(userId\)/);
     expect(routesSrc).toContain("requesterPropertyIds");
     expect(routesSrc).toContain("unauthorizedIds");
     expect(routesSrc).toContain('"Scenario contains properties you do not have access to"');

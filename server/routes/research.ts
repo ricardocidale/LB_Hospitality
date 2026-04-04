@@ -226,6 +226,11 @@ export function register(app: Express) {
                   cleanValues[k] = { display: v.display, mid: v.mid, source: v.source };
                 }
                 await storage.updateProperty(propertyId, { researchValues: cleanValues });
+                logActivity(req, "apply-research-values", "property", propertyId, property.name, {
+                  fieldsApplied: Object.keys(cleanValues).length,
+                  warnings: validated.summary.warned,
+                  failures: validated.summary.failed,
+                });
                 // Attach validation audit trail to research content
                 parsed._validation = validated.summary;
                 if (validated.summary.warned > 0 || validated.summary.failed > 0) {

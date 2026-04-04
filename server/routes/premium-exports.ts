@@ -1,5 +1,5 @@
 import { type Express, type Request, type Response } from "express";
-import { requireAuth } from "../auth";
+import { requireAuth, getAuthUser } from "../auth";
 import { z } from "zod";
 import { logger } from "../logger";
 import { storage } from "../storage";
@@ -9,6 +9,7 @@ import { generateExcelFromReport } from "./format-generators/excel-generator";
 import { generatePptxFromReport } from "./format-generators/pptx-generator";
 import { generateDocxFromReport } from "./format-generators/docx-generator";
 import { buildExportData } from "../report/server-export-data";
+import { logActivity } from "./helpers";
 
 const exportRowSchema = z.object({
   category: z.string(),
@@ -20,7 +21,7 @@ const exportRowSchema = z.object({
   format: z.enum(["currency", "percentage", "number", "ratio", "multiplier"]).optional(),
 });
 
-const premiumExportSchema = z.object({
+export const premiumExportSchema = z.object({
   format: z.enum(["xlsx", "pptx", "pdf", "docx"]),
   orientation: z.enum(["landscape", "portrait"]).optional().default("landscape"),
   version: z.enum(["short", "extended"]).optional().default("short"),
@@ -175,6 +176,15 @@ export function register(app: Express) {
         return res.status(413).json({ error: "Export exceeds maximum size limit. Try reducing the number of properties or projection years." });
       }
       logger.info(`Premium ${data.format} generated (${buffer.length} bytes)`, "premium-export");
+
+      logActivity(req, "export", "premium-export", undefined, data.entityName, {
+        format: data.format,
+        orientation: data.orientation,
+        version: data.version,
+        statementType: data.statementType,
+        bytes: buffer.length,
+        serverRecomputed: !!data.computeRef,
+      });
 
       res.setHeader("Content-Type", contentType);
       res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);

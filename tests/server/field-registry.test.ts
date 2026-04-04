@@ -150,4 +150,65 @@ describe("buildPropertyDefaultsFromRegistry", () => {
       ).toBe(true);
     }
   });
+
+  it("every rate-type field has fallback between 0 and 1 inclusive", () => {
+    const rateFields = FIELD_REGISTRY.filter((f) => f.type === "rate");
+    expect(rateFields.length).toBeGreaterThan(0);
+    for (const field of rateFields) {
+      expect(
+        field.fallback >= 0 && field.fallback <= 1,
+        `${field.propertyField} fallback (${field.fallback}) is not in [0, 1]`,
+      ).toBe(true);
+    }
+  });
+
+  it("every integer-type field has a whole-number fallback", () => {
+    const intFields = FIELD_REGISTRY.filter((f) => f.type === "integer");
+    expect(intFields.length).toBeGreaterThan(0);
+    for (const field of intFields) {
+      expect(
+        Number.isInteger(field.fallback),
+        `${field.propertyField} fallback (${field.fallback}) is not an integer`,
+      ).toBe(true);
+    }
+  });
+
+  it("every field with validationMin has fallback >= validationMin", () => {
+    for (const field of FIELD_REGISTRY) {
+      if (field.validationMin != null) {
+        expect(
+          field.fallback >= field.validationMin,
+          `${field.propertyField} fallback (${field.fallback}) < validationMin (${field.validationMin})`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("every field with validationMax has fallback <= validationMax", () => {
+    for (const field of FIELD_REGISTRY) {
+      if (field.validationMax != null) {
+        expect(
+          field.fallback <= field.validationMax,
+          `${field.propertyField} fallback (${field.fallback}) > validationMax (${field.validationMax})`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("every field has engineImpact set to true", () => {
+    for (const field of FIELD_REGISTRY) {
+      expect(
+        field.engineImpact,
+        `${field.propertyField} should have engineImpact=true`,
+      ).toBe(true);
+    }
+  });
+
+  it("registry has at least one field per category", () => {
+    const categories = new Set(FIELD_REGISTRY.map((f) => f.category));
+    const expected = ["exit", "revenue", "cost-rate", "management-fee", "operating", "debt-acquisition", "debt-refinance"];
+    for (const cat of expected) {
+      expect(categories.has(cat as any), `Missing category: ${cat}`).toBe(true);
+    }
+  });
 });

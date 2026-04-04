@@ -8,6 +8,8 @@ import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { useServiceTemplates } from "@/lib/api/services";
 import { useMarketRates } from "@/lib/api/market-rates";
 import { generateCompanyProForma } from "@/lib/financialEngine";
+import { useServerCompanyFinancials } from "@/hooks/useServerFinancials";
+import { USE_SERVER_COMPUTE } from "@shared/constants";
 import { analyzeFundingNeeds } from "@/lib/financial/funding-predictor";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { Loader2 } from "@/components/icons/themed-icons";
@@ -29,7 +31,13 @@ export default function FundingPredictor({ embedded }: { embedded?: boolean }) {
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
-  const financials = useMemo(() => {
+  const serverCompany = useServerCompanyFinancials(
+    USE_SERVER_COMPUTE ? properties : undefined,
+    USE_SERVER_COMPUTE ? global : undefined,
+  );
+
+  const clientFinancials = useMemo(() => {
+    if (USE_SERVER_COMPUTE) return [];
     if (!properties?.length || !global) return [];
     const templates = serviceTemplates?.map(t => ({
       ...t,
@@ -38,12 +46,14 @@ export default function FundingPredictor({ embedded }: { embedded?: boolean }) {
     return generateCompanyProForma(properties, global, projectionMonths, templates);
   }, [properties, global, projectionMonths, serviceTemplates]);
 
+  const financials = USE_SERVER_COMPUTE ? serverCompany.companyMonthly : clientFinancials;
+
   const analysis = useMemo(() => {
     if (!financials.length || !global) return null;
     return analyzeFundingNeeds(financials, global, marketRates ?? undefined);
   }, [financials, global, marketRates]);
 
-  if (propsLoading || globalLoading) {
+  if (propsLoading || globalLoading || serverCompany.isLoading) {
     return (
       <div className="flex items-center justify-center h-[40vh]">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

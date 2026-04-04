@@ -28,11 +28,12 @@ import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/c
 import { loadExportConfig } from "@/lib/exportConfig";
 import { useQuery } from "@tanstack/react-query";
 import { useExportSave } from "@/hooks/useExportSave";
-import { UserRole, APP_BRAND_NAME } from "@shared/constants";
+import { UserRole, APP_BRAND_NAME, USE_SERVER_COMPUTE } from "@shared/constants";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { useServiceTemplates } from "@/lib/api/services";
+import { useServerCompanyFinancials } from "@/hooks/useServerFinancials";
 import { useAuth } from "@/lib/auth";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -106,8 +107,14 @@ export default function Company() {
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
-  const financials = useMemo(
+  const serverCompany = useServerCompanyFinancials(
+    USE_SERVER_COMPUTE ? properties : undefined,
+    USE_SERVER_COMPUTE ? global : undefined,
+  );
+
+  const clientFinancials = useMemo(
     () => {
+      if (USE_SERVER_COMPUTE) return [];
       if (!properties?.length || !global) return [];
       const templates = serviceTemplates?.map(t => ({
         ...t,
@@ -118,17 +125,16 @@ export default function Company() {
     [properties, global, projectionMonths, serviceTemplates]
   );
 
-  // Detect whether the management company will run out of cash before reaching
-  // profitability. This triggers a warning banner at the top of the page.
+  const financials = USE_SERVER_COMPUTE ? serverCompany.companyMonthly : clientFinancials;
+
   const cashAnalysis = useMemo(
     () => analyzeCompanyCashPosition(financials),
     [financials]
   );
 
-  // Per-property proformas are needed for the fee drill-down: the company IS
-  // shows each property's contribution to service fees and incentive fees.
-  const propertyFinancials = useMemo(
+  const clientPropertyFinancials = useMemo(
     () => {
+      if (USE_SERVER_COMPUTE) return [];
       if (!properties?.length || !global) return [];
       return properties.map(p => ({
         property: p,
@@ -137,6 +143,8 @@ export default function Company() {
     },
     [properties, global, projectionMonths]
   );
+
+  const propertyFinancials = USE_SERVER_COMPUTE ? serverCompany.perPropertyFinancials : clientPropertyFinancials;
   
   const fiscalYearStartMonth = global?.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => global ? getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex) : yearIndex + 1;
@@ -174,7 +182,7 @@ export default function Company() {
     return data;
   }, [financials, projectionYears, global]);
 
-  if (propertiesLoading || globalLoading) {
+  if (propertiesLoading || globalLoading || serverCompany.isLoading) {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
@@ -184,12 +192,14 @@ export default function Company() {
     );
   }
 
-  if (propertiesError || globalError) {
+  if (propertiesError || globalError || serverCompany.isError) {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
           <IconAlertTriangle className="w-8 h-8 text-destructive" />
-          <p className="text-muted-foreground">Failed to load company data. Please try refreshing the page.</p>
+          <p className="text-muted-foreground">
+            {serverCompany.error?.message || "Failed to load company data. Please try refreshing the page."}
+          </p>
         </div>
       </Layout>
     );

@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import superjson from "superjson";
 import type { Property } from "@shared/schema";
 import type { GlobalResponse } from "@/lib/api";
 import type { DashboardFinancials } from "@/components/dashboard/types";
 import type { MonthlyFinancials } from "@/lib/financialEngine";
+import type { CompanyMonthlyFinancials } from "@engine/types";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
 import type { YearlyCashFlowResult, LoanParams, GlobalLoanParams } from "@/lib/financial/loanCalculations";
 import { aggregateUnifiedByYear } from "@/lib/financial/yearlyAggregator";
@@ -217,6 +218,7 @@ export function useServerFinancials(
     enabled,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
   });
 
   const mapped = (data && global)
@@ -276,4 +278,102 @@ export async function fetchSinglePropertyCompute(
   const raw = await res.json();
   const isSuperjson = res.headers.get("X-Superjson") === "true";
   return isSuperjson ? (superjson.deserialize(raw) as ServerSinglePropertyResult) : raw;
+}
+
+export interface ServerCompanyResult {
+  engineVersion: string;
+  computedAt: string;
+  companyMonthly: CompanyMonthlyFinancials[];
+  companyYearly: unknown[];
+  outputHash: string;
+  projectionYears: number;
+  cached?: boolean;
+}
+
+async function fetchCompanyCompute(
+  properties: Property[],
+  global: GlobalResponse,
+): Promise<ServerCompanyResult> {
+  const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
+
+  const body = {
+    properties: properties.filter(p => p.isActive !== false),
+    globalAssumptions: global,
+    projectionYears,
+  };
+
+  const res = await fetch("/api/finance/company", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || `Company compute failed (${res.status})`);
+  }
+
+  const raw = await res.json();
+  const isSuperjson = res.headers.get("X-Superjson") === "true";
+  return isSuperjson ? (superjson.deserialize(raw) as ServerCompanyResult) : raw;
+}
+
+function buildCompanyQueryKey(properties: Property[] | undefined, global: GlobalResponse | undefined): unknown[] {
+  if (!properties || !global) return ["server-company-financials"];
+  const propKeys = properties
+    .filter(p => p.isActive !== false)
+    .map(p => `${p.id}:${p.updatedAt ?? 0}`)
+    .sort();
+  return ["server-company-financials", propKeys.join(","), stableGlobalHash(global)];
+}
+
+export interface ServerCompanyFinancialsResult {
+  companyMonthly: CompanyMonthlyFinancials[];
+  perPropertyFinancials: { property: Property; financials: MonthlyFinancials[] }[];
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+}
+
+export function useServerCompanyFinancials(
+  properties: Property[] | undefined,
+  global: GlobalResponse | undefined,
+): ServerCompanyFinancialsResult {
+  const activeProperties = properties?.filter(p => p.isActive !== false) ?? [];
+  const enabled = !!properties && properties.length > 0 && !!global && activeProperties.length > 0;
+
+  const companyQuery = useQuery({
+    queryKey: buildCompanyQueryKey(properties, global),
+    queryFn: () => fetchCompanyCompute(activeProperties, global!),
+    enabled,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
+  });
+
+  const portfolioQuery = useQuery({
+    queryKey: buildQueryKey(properties, global),
+    queryFn: () => fetchPortfolioCompute(activeProperties, global!),
+    enabled,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
+  });
+
+  const companyMonthly = companyQuery.data?.companyMonthly ?? [];
+
+  const perPropertyFinancials = (portfolioQuery.data && properties)
+    ? activeProperties.map(prop => ({
+        property: prop,
+        financials: portfolioQuery.data!.perPropertyMonthly[String(prop.id)] ?? [],
+      }))
+    : [];
+
+  return {
+    companyMonthly,
+    perPropertyFinancials,
+    isLoading: (enabled && companyQuery.isLoading) || (enabled && portfolioQuery.isLoading),
+    isError: companyQuery.isError || portfolioQuery.isError,
+    error: (companyQuery.error ?? portfolioQuery.error) as Error | null,
+  };
 }

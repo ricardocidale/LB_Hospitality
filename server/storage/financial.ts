@@ -199,8 +199,9 @@ export class FinancialStorage {
     computedResults?: any;
     computeHash?: string | null;
   }): Promise<Scenario | undefined> {
+    const { globalAssumptions, properties: props, feeCategories, propertyPhotos: photos, computedResults, computeHash } = data;
     const [updated] = await db.update(scenarios)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ globalAssumptions, properties: props, feeCategories, propertyPhotos: photos, computedResults, computeHash, updatedAt: new Date() })
       .where(eq(scenarios.id, scenarioId))
       .returning();
     return updated || undefined;

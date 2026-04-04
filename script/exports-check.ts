@@ -25,7 +25,7 @@ function run(cmd: string): string {
 }
 
 const exportDirs = ["calc/", "client/src/lib/"];
-const usageDirs = ["client/src/", "server/", "calc/", "shared/", "tests/"];
+const usageDirs = ["client/src/", "server/", "calc/", "shared/", "tests/", "engine/"];
 
 const unused: UnusedExport[] = [];
 const used: number[] = [0];

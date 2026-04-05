@@ -218,8 +218,12 @@ export function validateLoadSnapshot(
     return { error: { status: 422, message: `Scenario snapshot contains ${invalidProps.length} property(ies) without a valid name` }, snapshotProps, snapshotPropNames, orphanedFeeCategories: [], orphanedPhotos: [] };
   }
 
+  const validFeeKeys = new Set<string>([
+    ...snapshotPropNames,
+    ...snapshotProps.map(p => (p as Record<string, unknown>).stableKey as string).filter(Boolean),
+  ]);
   const orphanedFeeCategories = snapshotFeeCats
-    ? Object.keys(snapshotFeeCats).filter(name => !snapshotPropNames.includes(name))
+    ? Object.keys(snapshotFeeCats).filter(key => !validFeeKeys.has(key))
     : [];
 
   return { snapshotProps, snapshotPropNames, orphanedFeeCategories, orphanedPhotos: [] };

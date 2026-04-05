@@ -254,8 +254,82 @@ describe("Non-Destructive Load — validateLoadSnapshot", () => {
     expect(validateBody).toContain("orphanedFeeCategories");
   });
 
+  it("builds validFeeKeys from both property names and stableKeys", () => {
+    expect(validateBody).toContain("validFeeKeys");
+    expect(validateBody).toContain("snapshotPropNames");
+    expect(validateBody).toContain("stableKey");
+  });
+
+  it("orphan detection uses Set.has for both name and stableKey keys", () => {
+    expect(validateBody).toContain("!validFeeKeys.has(key)");
+  });
+
   it("returns empty orphanedPhotos (photos are decoupled)", () => {
     expect(validateBody).toContain("orphanedPhotos: []");
+  });
+});
+
+describe("Non-Destructive Load — behavioral: validateLoadSnapshot with stableKey fee keys", () => {
+  it("does not report stableKey-keyed fee categories as orphans", async () => {
+    const { validateLoadSnapshot } = await import("../../server/routes/scenario-helpers");
+    const result = validateLoadSnapshot({
+      properties: [
+        { name: "Hotel A", stableKey: "sk-001" },
+        { name: "Hotel B", stableKey: "sk-002" },
+      ],
+      feeCategories: {
+        "sk-001": [{ name: "Management Fee", percentage: 5 }],
+        "sk-002": [{ name: "FF&E Reserve", percentage: 3 }],
+      },
+      propertyPhotos: {},
+    });
+    expect(result.orphanedFeeCategories).toEqual([]);
+  });
+
+  it("does not report name-keyed fee categories as orphans (backward compat)", async () => {
+    const { validateLoadSnapshot } = await import("../../server/routes/scenario-helpers");
+    const result = validateLoadSnapshot({
+      properties: [
+        { name: "Hotel A", stableKey: "sk-001" },
+      ],
+      feeCategories: {
+        "Hotel A": [{ name: "Management Fee", percentage: 5 }],
+      },
+      propertyPhotos: {},
+    });
+    expect(result.orphanedFeeCategories).toEqual([]);
+  });
+
+  it("correctly identifies truly orphaned fee category keys", async () => {
+    const { validateLoadSnapshot } = await import("../../server/routes/scenario-helpers");
+    const result = validateLoadSnapshot({
+      properties: [
+        { name: "Hotel A", stableKey: "sk-001" },
+      ],
+      feeCategories: {
+        "sk-001": [{ name: "Management Fee", percentage: 5 }],
+        "nonexistent-key": [{ name: "Orphan Fee", percentage: 2 }],
+      },
+      propertyPhotos: {},
+    });
+    expect(result.orphanedFeeCategories).toEqual(["nonexistent-key"]);
+  });
+
+  it("handles mixed stableKey and name keys correctly", async () => {
+    const { validateLoadSnapshot } = await import("../../server/routes/scenario-helpers");
+    const result = validateLoadSnapshot({
+      properties: [
+        { name: "Hotel A", stableKey: "sk-001" },
+        { name: "Hotel B", stableKey: "sk-002" },
+      ],
+      feeCategories: {
+        "sk-001": [{ name: "Mgmt Fee", percentage: 5 }],
+        "Hotel B": [{ name: "Reserve", percentage: 3 }],
+        "unknown": [{ name: "Bad", percentage: 1 }],
+      },
+      propertyPhotos: {},
+    });
+    expect(result.orphanedFeeCategories).toEqual(["unknown"]);
   });
 });
 

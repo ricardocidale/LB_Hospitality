@@ -6,10 +6,12 @@ import { SPGlobalService } from "./SPGlobalService";
 import { CoStarService } from "./CoStarService";
 import { XoteloService } from "./XoteloService";
 import { ApifyService } from "./ApifyService";
+import { RapidApiHospitalityService } from "./RapidApiHospitalityService";
+import { WeatherService } from "./WeatherService";
 import { OpenExchangeRatesService } from "./OpenExchangeRatesService";
 import { WorldBankService } from "./WorldBankService";
 import { cache } from "../cache";
-import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData, ApifyMarketData, FxRates, WorldBankCountryData } from "../../shared/market-intelligence";
+import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData, ApifyMarketData, RapidApiCompSetData, WeatherData, FxRates, WorldBankCountryData } from "../../shared/market-intelligence";
 
 interface AggregatorQuery {
   location?: string;
@@ -32,6 +34,8 @@ export class MarketIntelligenceAggregator {
   private costar: CoStarService;
   private xotelo: XoteloService;
   private apify: ApifyService;
+  private rapidApiHospitality: RapidApiHospitalityService;
+  private weather: WeatherService;
   private fx: OpenExchangeRatesService;
   private worldBank: WorldBankService;
 
@@ -44,6 +48,8 @@ export class MarketIntelligenceAggregator {
     this.costar = new CoStarService();
     this.xotelo = new XoteloService();
     this.apify = new ApifyService();
+    this.rapidApiHospitality = new RapidApiHospitalityService();
+    this.weather = new WeatherService();
     this.fx = new OpenExchangeRatesService();
     this.worldBank = new WorldBankService();
   }
@@ -71,7 +77,7 @@ export class MarketIntelligenceAggregator {
   private async gatherFresh(query: AggregatorQuery): Promise<MarketIntelligence> {
     const errors: string[] = [];
 
-    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult, apifyResult, fxResult, worldBankResult] = await Promise.allSettled([
+    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult, apifyResult, fxResult, worldBankResult, rapidApiCompsResult, weatherResult] = await Promise.allSettled([
       this.fetchRates(),
       query.location
         ? this.hospitality.fetchBenchmarks({
@@ -121,6 +127,12 @@ export class MarketIntelligenceAggregator {
         : Promise.resolve(null),
       query.country
         ? this.worldBank.fetchCountryData(query.country)
+        : Promise.resolve(null),
+      query.location && this.rapidApiHospitality.isAvailable()
+        ? this.rapidApiHospitality.fetchCompSetData(query.location)
+        : Promise.resolve(undefined),
+      query.location && this.weather.isAvailable()
+        ? this.weather.fetchWeatherData(query.location)
         : Promise.resolve(null),
     ]);
 
@@ -194,6 +206,20 @@ export class MarketIntelligenceAggregator {
       errors.push(`World Bank: ${worldBankResult.reason?.message || "Unknown error"}`);
     }
 
+    let rapidApiComps: RapidApiCompSetData | undefined;
+    if (rapidApiCompsResult.status === "fulfilled" && rapidApiCompsResult.value) {
+      rapidApiComps = rapidApiCompsResult.value;
+    } else if (rapidApiCompsResult.status === "rejected") {
+      errors.push(`RapidAPI comps: ${rapidApiCompsResult.reason?.message || "Unknown error"}`);
+    }
+
+    let weather: WeatherData | undefined;
+    if (weatherResult.status === "fulfilled" && weatherResult.value) {
+      weather = weatherResult.value;
+    } else if (weatherResult.status === "rejected") {
+      errors.push(`Weather: ${weatherResult.reason?.message || "Unknown error"}`);
+    }
+
     return {
       rates: {
         sofr: rates.sofr,
@@ -209,6 +235,8 @@ export class MarketIntelligenceAggregator {
       costar,
       xotelo,
       apify,
+      rapidApiComps,
+      weather,
       fx,
       worldBank,
       groundedResearch,
@@ -227,7 +255,7 @@ export class MarketIntelligenceAggregator {
     return this.fred.fetchRate(seriesKey as any);
   }
 
-  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean; apify: boolean; fx: boolean; worldBank: boolean } {
+  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean; apify: boolean; rapidApiComps: boolean; weather: boolean; fx: boolean; worldBank: boolean } {
     return {
       fred: this.fred.isAvailable(),
       hospitality: this.hospitality.isAvailable(),
@@ -237,6 +265,8 @@ export class MarketIntelligenceAggregator {
       costar: this.costar.isAvailable(),
       xotelo: this.xotelo.isAvailable(),
       apify: this.apify.isAvailable(),
+      rapidApiComps: this.rapidApiHospitality.isAvailable(),
+      weather: this.weather.isAvailable(),
       fx: this.fx.isAvailable(),
       worldBank: this.worldBank.isAvailable(),
     };

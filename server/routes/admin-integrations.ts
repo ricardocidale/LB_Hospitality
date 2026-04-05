@@ -106,6 +106,22 @@ export function register(app: Express) {
         circuitState: "closed" as CircuitState,
       });
 
+      results.push({
+        name: "RapidAPI Comps (Airbnb / Booking / Hotels.com / TripAdvisor)",
+        healthy: miStatus.rapidApiComps,
+        latencyMs: 0,
+        lastError: miStatus.rapidApiComps ? undefined : "Key not configured (RAPIDAPI_KEY_2)",
+        circuitState: "closed" as CircuitState,
+      });
+
+      results.push({
+        name: "WeatherAPI.com",
+        healthy: miStatus.weather,
+        latencyMs: 0,
+        lastError: miStatus.weather ? undefined : "Key not configured (RAPIDAPI_KEY_3)",
+        circuitState: "closed" as CircuitState,
+      });
+
       // World Bank is always available (no key required)
       results.push({ name: "World Bank (Economic Indicators)", healthy: true, latencyMs: 0, circuitState: "closed" as CircuitState });
 

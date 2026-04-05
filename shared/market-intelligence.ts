@@ -133,6 +133,77 @@ export interface WalkScoreData {
   fetchedAt:    string;
 }
 
+// ─── RapidAPI STR Comp-Set Data ──────────────────────────────────────────────
+// Runs alongside ApifyMarketData for parallel comparison.
+
+export interface StrListingSnapshot {
+  name: string;
+  pricePerNight?: number;
+  rating?: number;
+  reviewCount?: number;
+  bedrooms?: number;
+  maxGuests?: number;
+  url?: string;
+}
+
+export interface RapidApiCompSetData {
+  airbnb?: {
+    avgNightlyRate?: DataPoint;
+    priceRange?: { min: number; max: number };
+    listingCount: number;
+    avgRating?: number;
+    sampleListings: StrListingSnapshot[];
+    fetchedAt: string;
+  };
+  booking?: {
+    avgNightlyRate?: DataPoint;
+    priceRange?: { min: number; max: number };
+    hotelCount: number;
+    sampleHotels: StrListingSnapshot[];
+    fetchedAt: string;
+  };
+  hotels?: {
+    avgNightlyRate?: DataPoint;
+    priceRange?: { min: number; max: number };
+    hotelCount: number;
+    sampleHotels: StrListingSnapshot[];
+    fetchedAt: string;
+  };
+  tripadvisor?: {
+    avgRating?: DataPoint;
+    topHotels: StrListingSnapshot[];
+    fetchedAt: string;
+  };
+}
+
+// ─── Weather Data ─────────────────────────────────────────────────────────────
+
+export interface WeatherData {
+  location: string;
+  country?: string;
+  current: {
+    tempC: number;
+    tempF: number;
+    condition: string;
+    humidity: number;
+    precipMm: number;
+    uvIndex: number;
+    windKph: number;
+    feelsLikeC: number;
+  };
+  forecast: {
+    date: string;
+    maxTempC: number;
+    minTempC: number;
+    avgTempC: number;
+    totalPrecipMm: number;
+    condition: string;
+    uvIndex: number;
+    chanceOfRain: number;
+  }[];
+  fetchedAt: string;
+}
+
 // ─── Apify STR Comp-Set Data ─────────────────────────────────────────────────
 
 export interface ApifyListingSnapshot {
@@ -190,6 +261,8 @@ export interface MarketIntelligence {
   costar?: CoStarMarketData;
   xotelo?: XoteloMarketData;
   apify?: ApifyMarketData;
+  rapidApiComps?: RapidApiCompSetData;
+  weather?: WeatherData;
   fx?: FxRates;
   worldBank?: WorldBankCountryData;
   groundedResearch: GroundedSearchResult[];

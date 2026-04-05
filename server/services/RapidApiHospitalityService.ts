@@ -16,6 +16,7 @@
 
 import { BaseIntegrationService } from "./BaseIntegrationService";
 import { cache } from "../cache";
+import { storage } from "../storage";
 import { rapidApiHeaders, isRapidApiAvailable, type RapidApiSlot } from "./rapidApiKeyRouter";
 import type { RapidApiCompSetData, StrListingSnapshot, DataPoint } from "../../shared/market-intelligence";
 
@@ -51,11 +52,19 @@ export class RapidApiHospitalityService extends BaseIntegrationService {
     const checkIn  = this.dateOffset(14);
     const checkOut = this.dateOffset(17);
 
+    let enabledMap: Record<string, boolean> = {};
+    try {
+      enabledMap = await storage.getIntegrationEnabledMap();
+    } catch {
+      // table may not exist yet — treat all as enabled
+    }
+    const isOn = (key: string) => enabledMap[key] !== false;
+
     const [airbnbRes, bookingRes, hotelsRes, tripRes] = await Promise.allSettled([
-      this.scrapeAirbnb(location, checkIn, checkOut, roomCount),
-      this.scrapeBooking(location, checkIn, checkOut),
-      this.scrapeHotelsCom(location, checkIn, checkOut),
-      this.scrapeTripAdvisor(location),
+      isOn("rapidapi-airbnb") ? this.scrapeAirbnb(location, checkIn, checkOut, roomCount) : Promise.resolve(undefined),
+      isOn("rapidapi-booking") ? this.scrapeBooking(location, checkIn, checkOut) : Promise.resolve(undefined),
+      isOn("rapidapi-hotels") ? this.scrapeHotelsCom(location, checkIn, checkOut) : Promise.resolve(undefined),
+      isOn("rapidapi-tripadvisor") ? this.scrapeTripAdvisor(location) : Promise.resolve(undefined),
     ]);
 
     return {

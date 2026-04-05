@@ -12,6 +12,7 @@ import { OpenExchangeRatesService } from "./OpenExchangeRatesService";
 import { WorldBankService } from "./WorldBankService";
 import { FinancialNewsService } from "./FinancialNewsService";
 import { cache } from "../cache";
+import { storage } from "../storage";
 import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData, ApifyMarketData, RapidApiCompSetData, WeatherData, FxRates, WorldBankCountryData, FinancialNewsData } from "../../shared/market-intelligence";
 
 interface AggregatorQuery {
@@ -80,9 +81,17 @@ export class MarketIntelligenceAggregator {
   private async gatherFresh(query: AggregatorQuery): Promise<MarketIntelligence> {
     const errors: string[] = [];
 
+    let enabledMap: Record<string, boolean> = {};
+    try {
+      enabledMap = await storage.getIntegrationEnabledMap();
+    } catch {
+      // table may not exist yet during early boot — treat all as enabled
+    }
+    const isOn = (key: string) => enabledMap[key] !== false;
+
     const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult, apifyResult, fxResult, worldBankResult, rapidApiCompsResult, weatherResult, financialNewsResult] = await Promise.allSettled([
-      this.fetchRates(),
-      query.location
+      isOn("fred") ? this.fetchRates() : Promise.resolve({}),
+      query.location && isOn("hospitality-benchmarks")
         ? this.hospitality.fetchBenchmarks({
             city: query.location,
             state: query.state,
@@ -90,7 +99,7 @@ export class MarketIntelligenceAggregator {
             chainScale: query.chainScale,
           })
         : Promise.resolve(null),
-      query.location && this.grounded.isAvailable()
+      query.location && this.grounded.isAvailable() && isOn("grounded-research")
         ? this.grounded.search(
             this.grounded.buildHospitalityQueries(
               `${query.location}${query.state ? `, ${query.state}` : ""}`,
@@ -98,46 +107,46 @@ export class MarketIntelligenceAggregator {
             )
           )
         : Promise.resolve([]),
-      query.location && this.moodys.isAvailable()
+      query.location && this.moodys.isAvailable() && isOn("moodys")
         ? this.moodys.fetchRiskData({
             location: query.location,
             propertyType: query.propertyType,
             propertyClass: query.propertyClass,
           })
         : Promise.resolve(null),
-      query.location && this.spGlobal.isAvailable()
+      query.location && this.spGlobal.isAvailable() && isOn("sp-global")
         ? this.spGlobal.fetchMarketData({
             location: query.location,
             state: query.state,
             propertyType: query.propertyType,
           })
         : Promise.resolve(null),
-      query.location && this.costar.isAvailable()
+      query.location && this.costar.isAvailable() && isOn("costar")
         ? this.costar.fetchMarketData({
             location: query.location,
             state: query.state,
             propertyType: query.propertyType,
           })
         : Promise.resolve(null),
-      query.location
+      query.location && isOn("xotelo")
         ? this.fetchXoteloData(query.location)
         : Promise.resolve(null),
-      query.location && this.apify.isAvailable()
+      query.location && this.apify.isAvailable() && isOn("apify")
         ? this.apify.fetchCompSetData(query.location)
         : Promise.resolve(undefined),
-      this.fx.isAvailable()
+      this.fx.isAvailable() && isOn("open-exchange-rates")
         ? this.fx.fetchRates()
         : Promise.resolve(null),
-      query.country
+      query.country && isOn("world-bank")
         ? this.worldBank.fetchCountryData(query.country)
         : Promise.resolve(null),
-      query.location && this.rapidApiHospitality.isAvailable()
+      query.location && this.rapidApiHospitality.isAvailable() && isOn("rapidapi-airbnb")
         ? this.rapidApiHospitality.fetchCompSetData(query.location)
         : Promise.resolve(undefined),
-      query.location && this.weather.isAvailable()
+      query.location && this.weather.isAvailable() && isOn("weather-api")
         ? this.weather.fetchWeatherData(query.location)
         : Promise.resolve(null),
-      query.location && this.financialNews.isAvailable()
+      query.location && this.financialNews.isAvailable() && isOn("cnbc-news")
         ? this.financialNews.fetchHospitalityNews(query.location)
         : Promise.resolve(null),
     ]);

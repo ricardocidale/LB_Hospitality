@@ -378,7 +378,6 @@ export async function* orchestrateResearch(
   if (isPineconeAvailable() && fullContent.length > 100) {
     const summary = fullContent.slice(0, 1_500);
     indexResearchResult({
-      propertyId:   params.propertyContext ? undefined : undefined,
       location,
       propertyType: propType,
       type:         params.type,

@@ -32,9 +32,11 @@ const EQUITY_ACCOUNTS = new Set([
 /**
  * Compute FCFF and FCFE from posted entries and statement data.
  *
- * FCFF = Net Income + Non-Cash Charges + Interest Expense - CapEx ± Working Capital
+ * FCFF = Net Income + Non-Cash Charges + Interest Expense - CapEx - ΔWC
  * FCFE = FCFF - Interest Expense + Net Borrowing
- *      = Net Income + Non-Cash Charges - CapEx ± Working Capital + Net Borrowing
+ *      = Net Income + Non-Cash Charges - CapEx - ΔWC + Net Borrowing
+ *
+ * ΔWC = working_capital_changes[period] (positive = cash consumed by growing receivables)
  */
 export function computeFCF(
   input: FCFInput,
@@ -95,16 +97,16 @@ export function computeFCF(
     }
     capex = r(capex);
 
-    // Working capital change: 0 for now (no WC accounts in our model)
-    const working_capital_change = 0;
+    const working_capital_change = input.working_capital_changes?.[period] ?? 0;
 
-    // FCFF = NI + Depreciation + Other Non-Cash + Interest - CapEx ± WC
+    // FCFF = NI + Depreciation + Other Non-Cash + Interest - CapEx - ΔWC
+    // working_capital_change > 0 means cash consumed (AR grew), reduces FCF
     const fcff = r(
       net_income +
         depreciation +
         other_non_cash +
         interest_expense -
-        capex +
+        capex -
         working_capital_change,
     );
 

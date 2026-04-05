@@ -33,6 +33,7 @@ export interface FCFInput {
   cash_flows: PeriodCashFlow[];
   posted_entries: PostedEntry[];
   entity_filter?: string;
+  working_capital_changes?: Record<string, number>;
 }
 
 /** Complete FCF output. */

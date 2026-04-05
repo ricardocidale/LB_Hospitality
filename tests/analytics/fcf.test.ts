@@ -164,3 +164,113 @@ describe("computeFCF — empty input", () => {
     expect(result.consolidated.total_fcfe).toBe(0);
   });
 });
+
+describe("computeFCF — working capital integration", () => {
+  it("positive WC change (growing revenue) reduces FCFF and FCFE", () => {
+    const entries: PostedEntry[] = [
+      makeEntry({ period: "2026-06", account: "DEPRECIATION_EXPENSE", debit: 10000, classification: "IS_EXPENSE", cash_flow_bucket: "OPERATING" }),
+      makeEntry({ period: "2026-06", account: "CASH", debit: 0, credit: 10000, cash_flow_bucket: "OPERATING" }),
+    ];
+    const is: PeriodIncomeStatement[] = [{
+      period: "2026-06",
+      revenue_accounts: [{ account: "ROOM_REVENUE", amount: 50000 }],
+      expense_accounts: [{ account: "DEPRECIATION_EXPENSE", amount: 10000 }],
+      total_revenue: 50000,
+      total_expenses: 10000,
+      net_income: 40000,
+    }];
+    const cf: PeriodCashFlow[] = [{
+      period: "2026-06",
+      operating: 40000,
+      investing: 0,
+      financing: 0,
+      net_cash_change: 40000,
+    }];
+
+    const withoutWC = computeFCF({ income_statements: is, cash_flows: cf, posted_entries: entries }, rounding);
+    const withWC = computeFCF({
+      income_statements: is,
+      cash_flows: cf,
+      posted_entries: entries,
+      working_capital_changes: { "2026-06": 5000 },
+    }, rounding);
+
+    expect(withWC.consolidated.entries[0].working_capital_change).toBe(5000);
+    expect(withWC.consolidated.entries[0].fcff).toBe(withoutWC.consolidated.entries[0].fcff - 5000);
+    expect(withWC.consolidated.entries[0].fcfe).toBe(withoutWC.consolidated.entries[0].fcfe - 5000);
+  });
+
+  it("negative WC change (declining revenue) increases FCFF and FCFE", () => {
+    const entries: PostedEntry[] = [
+      makeEntry({ period: "2026-09", account: "DEPRECIATION_EXPENSE", debit: 8000, classification: "IS_EXPENSE", cash_flow_bucket: "OPERATING" }),
+      makeEntry({ period: "2026-09", account: "CASH", debit: 0, credit: 8000, cash_flow_bucket: "OPERATING" }),
+    ];
+    const is: PeriodIncomeStatement[] = [{
+      period: "2026-09",
+      revenue_accounts: [{ account: "ROOM_REVENUE", amount: 30000 }],
+      expense_accounts: [{ account: "DEPRECIATION_EXPENSE", amount: 8000 }],
+      total_revenue: 30000,
+      total_expenses: 8000,
+      net_income: 22000,
+    }];
+    const cf: PeriodCashFlow[] = [{
+      period: "2026-09",
+      operating: 22000,
+      investing: 0,
+      financing: 0,
+      net_cash_change: 22000,
+    }];
+
+    const withoutWC = computeFCF({ income_statements: is, cash_flows: cf, posted_entries: entries }, rounding);
+    const withWC = computeFCF({
+      income_statements: is,
+      cash_flows: cf,
+      posted_entries: entries,
+      working_capital_changes: { "2026-09": -3000 },
+    }, rounding);
+
+    expect(withWC.consolidated.entries[0].working_capital_change).toBe(-3000);
+    expect(withWC.consolidated.entries[0].fcff).toBe(withoutWC.consolidated.entries[0].fcff + 3000);
+    expect(withWC.consolidated.entries[0].fcfe).toBe(withoutWC.consolidated.entries[0].fcfe + 3000);
+  });
+
+  it("WC change defaults to 0 when not provided", () => {
+    const is: PeriodIncomeStatement[] = [{
+      period: "2026-06",
+      revenue_accounts: [],
+      expense_accounts: [],
+      total_revenue: 0,
+      total_expenses: 0,
+      net_income: 0,
+    }];
+    const result = computeFCF({
+      income_statements: is,
+      cash_flows: [{ period: "2026-06", operating: 0, investing: 0, financing: 0, net_cash_change: 0 }],
+      posted_entries: [],
+    }, rounding);
+    expect(result.consolidated.entries[0].working_capital_change).toBe(0);
+  });
+
+  it("multi-period WC changes accumulate in totals", () => {
+    const entries: PostedEntry[] = [];
+    const is: PeriodIncomeStatement[] = [
+      { period: "2026-06", revenue_accounts: [], expense_accounts: [], total_revenue: 10000, total_expenses: 0, net_income: 10000 },
+      { period: "2026-07", revenue_accounts: [], expense_accounts: [], total_revenue: 8000, total_expenses: 0, net_income: 8000 },
+    ];
+    const cf: PeriodCashFlow[] = [
+      { period: "2026-06", operating: 10000, investing: 0, financing: 0, net_cash_change: 10000 },
+      { period: "2026-07", operating: 8000, investing: 0, financing: 0, net_cash_change: 8000 },
+    ];
+
+    const result = computeFCF({
+      income_statements: is,
+      cash_flows: cf,
+      posted_entries: entries,
+      working_capital_changes: { "2026-06": 2000, "2026-07": -1000 },
+    }, rounding);
+
+    expect(result.consolidated.entries[0].fcff).toBe(10000 - 2000);
+    expect(result.consolidated.entries[1].fcff).toBe(8000 + 1000);
+    expect(result.consolidated.total_fcff).toBe(8000 + 9000);
+  });
+});

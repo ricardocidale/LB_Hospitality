@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeFCF } from "../../analytics/fcf/compute-fcf.js";
+import { computeFCF, extractWorkingCapitalChanges } from "../../analytics/fcf/compute-fcf.js";
 import type { PostedEntry } from "../../domain/ledger/types.js";
 import type { PeriodIncomeStatement, PeriodCashFlow } from "../../statements/types.js";
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
@@ -272,5 +272,66 @@ describe("computeFCF — working capital integration", () => {
     expect(result.consolidated.entries[0].fcff).toBe(10000 - 2000);
     expect(result.consolidated.entries[1].fcff).toBe(8000 + 1000);
     expect(result.consolidated.total_fcff).toBe(8000 + 9000);
+  });
+});
+
+describe("extractWorkingCapitalChanges — engine-to-FCF bridge", () => {
+  it("extracts per-period WC changes from engine monthly data", () => {
+    const monthlyData = [
+      { period: "2026-06", workingCapitalChange: 1500 },
+      { period: "2026-07", workingCapitalChange: -800 },
+      { period: "2026-08", workingCapitalChange: 200 },
+    ];
+    const wc = extractWorkingCapitalChanges(monthlyData);
+    expect(wc).toEqual({ "2026-06": 1500, "2026-07": -800, "2026-08": 200 });
+  });
+
+  it("aggregates multiple entries for the same period", () => {
+    const monthlyData = [
+      { period: "2026-06", workingCapitalChange: 500 },
+      { period: "2026-06", workingCapitalChange: 300 },
+    ];
+    const wc = extractWorkingCapitalChanges(monthlyData);
+    expect(wc["2026-06"]).toBe(800);
+  });
+
+  it("skips entries without a period", () => {
+    const monthlyData = [
+      { workingCapitalChange: 1000 },
+      { period: "2026-06", workingCapitalChange: 500 },
+    ];
+    const wc = extractWorkingCapitalChanges(monthlyData as any);
+    expect(wc).toEqual({ "2026-06": 500 });
+  });
+
+  it("end-to-end: engine monthly WC → extractWorkingCapitalChanges → computeFCF", () => {
+    const engineMonthly = [
+      { period: "2026-06", workingCapitalChange: 3000 },
+      { period: "2026-07", workingCapitalChange: -1500 },
+    ];
+    const wcChanges = extractWorkingCapitalChanges(engineMonthly);
+
+    const is: PeriodIncomeStatement[] = [
+      { period: "2026-06", revenue_accounts: [], expense_accounts: [], total_revenue: 20000, total_expenses: 5000, net_income: 15000 },
+      { period: "2026-07", revenue_accounts: [], expense_accounts: [], total_revenue: 18000, total_expenses: 4000, net_income: 14000 },
+    ];
+    const cf: PeriodCashFlow[] = [
+      { period: "2026-06", operating: 15000, investing: 0, financing: 0, net_cash_change: 15000 },
+      { period: "2026-07", operating: 14000, investing: 0, financing: 0, net_cash_change: 14000 },
+    ];
+
+    const result = computeFCF({
+      income_statements: is,
+      cash_flows: cf,
+      posted_entries: [],
+      working_capital_changes: wcChanges,
+    }, rounding);
+
+    expect(result.consolidated.entries[0].working_capital_change).toBe(3000);
+    expect(result.consolidated.entries[0].fcff).toBe(15000 - 3000);
+    expect(result.consolidated.entries[1].working_capital_change).toBe(-1500);
+    expect(result.consolidated.entries[1].fcff).toBe(14000 + 1500);
+
+    expect(result.consolidated.total_fcff).toBe(12000 + 15500);
   });
 });

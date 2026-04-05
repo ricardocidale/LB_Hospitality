@@ -8,6 +8,18 @@ import type {
 } from "../../statements/types.js";
 import type { FCFEntry, FCFInput, FCFOutput, FCFTimeline } from "./types.js";
 
+export function extractWorkingCapitalChanges(
+  monthlyData: ReadonlyArray<{ period?: string; workingCapitalChange: number }>,
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  for (const m of monthlyData) {
+    if (m.period) {
+      result[m.period] = (result[m.period] ?? 0) + m.workingCapitalChange;
+    }
+  }
+  return result;
+}
+
 const TOLERANCE = 0.01;
 
 /** Non-cash expense accounts that get added back to derive FCF. */

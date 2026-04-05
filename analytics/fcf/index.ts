@@ -1,4 +1,4 @@
-export { computeFCF } from "./compute-fcf.js";
+export { computeFCF, extractWorkingCapitalChanges } from "./compute-fcf.js";
 export type {
   FCFEntry,
   FCFTimeline,

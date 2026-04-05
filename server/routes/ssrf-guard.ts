@@ -55,24 +55,36 @@ export function isBlockedHost(hostname: string): boolean {
   return isBlockedIP(hostname);
 }
 
+async function safeResolve4(hostname: string): Promise<string[]> {
+  try {
+    return await resolve4(hostname);
+  } catch {
+    return [];
+  }
+}
+
+async function safeResolve6(hostname: string): Promise<string[]> {
+  try {
+    return await resolve6(hostname);
+  } catch {
+    return [];
+  }
+}
+
 export async function isBlockedHostResolved(hostname: string): Promise<boolean> {
   if (isBlockedHost(hostname)) return true;
 
   if (isIP(hostname) !== 0) return false;
 
-  try {
-    const v4Addrs = await resolve4(hostname).catch(() => [] as string[]);
-    for (const addr of v4Addrs) {
-      if (isPrivateIPv4(addr)) return true;
-    }
-  } catch {}
+  const v4Addrs = await safeResolve4(hostname);
+  for (const addr of v4Addrs) {
+    if (isPrivateIPv4(addr)) return true;
+  }
 
-  try {
-    const v6Addrs = await resolve6(hostname).catch(() => [] as string[]);
-    for (const addr of v6Addrs) {
-      if (isBlockedIPv6(addr)) return true;
-    }
-  } catch {}
+  const v6Addrs = await safeResolve6(hostname);
+  for (const addr of v6Addrs) {
+    if (isBlockedIPv6(addr)) return true;
+  }
 
   return false;
 }

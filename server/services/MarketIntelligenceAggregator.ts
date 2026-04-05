@@ -5,8 +5,9 @@ import { MoodysService } from "./MoodysService";
 import { SPGlobalService } from "./SPGlobalService";
 import { CoStarService } from "./CoStarService";
 import { XoteloService } from "./XoteloService";
+import { ApifyService } from "./ApifyService";
 import { cache } from "../cache";
-import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData } from "../../shared/market-intelligence";
+import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData, ApifyMarketData } from "../../shared/market-intelligence";
 
 interface AggregatorQuery {
   location?: string;

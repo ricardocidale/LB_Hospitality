@@ -96,6 +96,48 @@ export interface XoteloMarketData {
   location?: string;
 }
 
+// ─── Apify STR Comp-Set Data ─────────────────────────────────────────────────
+
+export interface ApifyListingSnapshot {
+  name: string;
+  pricePerNight?: number;
+  rating?: number;
+  reviewCount?: number;
+  bedrooms?: number;
+  maxGuests?: number;
+  url?: string;
+}
+
+export interface ApifyMarketData {
+  airbnb?: {
+    avgNightlyRate?: DataPoint;
+    priceRange?: { min: number; max: number };
+    listingCount: number;
+    avgRating?: number;
+    sampleListings: ApifyListingSnapshot[];
+    fetchedAt: string;
+  };
+  vrbo?: {
+    avgNightlyRate?: DataPoint;
+    priceRange?: { min: number; max: number };
+    listingCount: number;
+    sampleListings: ApifyListingSnapshot[];
+    fetchedAt: string;
+  };
+  booking?: {
+    avgNightlyRate?: DataPoint;
+    priceRange?: { min: number; max: number };
+    hotelCount: number;
+    sampleHotels: ApifyListingSnapshot[];
+    fetchedAt: string;
+  };
+  tripadvisor?: {
+    avgRating?: DataPoint;
+    topHotels: ApifyListingSnapshot[];
+    fetchedAt: string;
+  };
+}
+
 export interface MarketIntelligence {
   rates: {
     sofr?: FREDRateData;
@@ -110,6 +152,7 @@ export interface MarketIntelligence {
   spGlobal?: SPGlobalMarketData;
   costar?: CoStarMarketData;
   xotelo?: XoteloMarketData;
+  apify?: ApifyMarketData;
   groundedResearch: GroundedSearchResult[];
   fetchedAt: string;
   errors: string[];

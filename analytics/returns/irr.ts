@@ -1,4 +1,5 @@
 import type { IRRResult } from "./types.js";
+import { dPow } from "../../calc/shared/decimal.js";
 
 const DEFAULT_MAX_ITERATIONS = 100;
 const DEFAULT_TOLERANCE = 1e-8;
@@ -10,7 +11,7 @@ const DEFAULT_TOLERANCE = 1e-8;
 function npv(cashFlows: number[], rate: number): number {
   let result = 0;
   for (let t = 0; t < cashFlows.length; t++) {
-    result += cashFlows[t] / Math.pow(1 + rate, t);
+    result += cashFlows[t] / dPow(1 + rate, t);
   }
   return result;
 }
@@ -22,7 +23,7 @@ function npv(cashFlows: number[], rate: number): number {
 function npvDerivative(cashFlows: number[], rate: number): number {
   let result = 0;
   for (let t = 1; t < cashFlows.length; t++) {
-    result += (-t * cashFlows[t]) / Math.pow(1 + rate, t + 1);
+    result += (-t * cashFlows[t]) / dPow(1 + rate, t + 1);
   }
   return result;
 }
@@ -61,7 +62,7 @@ export function computeIRR(
   const totalNegative = Math.abs(
     cashFlows.filter((cf) => cf < 0).reduce((sum, cf) => sum + cf, 0),
   );
-  let rate = Math.pow(totalPositive / totalNegative, 1 / cashFlows.length) - 1;
+  let rate = dPow(totalPositive / totalNegative, 1 / cashFlows.length) - 1;
 
   // Clamp initial guess to reasonable range
   rate = Math.max(-0.5, Math.min(rate, 10));
@@ -75,7 +76,7 @@ export function computeIRR(
       const annualized =
         periodsPerYear === 1
           ? rate
-          : Math.pow(1 + rate, periodsPerYear) - 1;
+          : dPow(1 + rate, periodsPerYear) - 1;
       return {
         irr_periodic: rate,
         irr_annualized: annualized,
@@ -107,7 +108,7 @@ export function computeIRR(
   const finalNpv = npv(cashFlows, rate);
   if (Math.abs(finalNpv) < 1) {
     const annualized =
-      periodsPerYear === 1 ? rate : Math.pow(1 + rate, periodsPerYear) - 1;
+      periodsPerYear === 1 ? rate : dPow(1 + rate, periodsPerYear) - 1;
     return {
       irr_periodic: rate,
       irr_annualized: annualized,

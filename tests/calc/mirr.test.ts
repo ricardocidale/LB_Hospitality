@@ -21,7 +21,7 @@ describe("computeMIRR", () => {
       reinvestment_rate: 0.12,
     });
     expect(result.is_valid).toBe(false);
-    expect(result.mirr).toBe(0);
+    expect(result.mirr).toBeNull();
     expect(result.warnings[0]).toContain("at least 2 periods");
   });
 

@@ -8,7 +8,7 @@ export interface MIRRInput {
 }
 
 export interface MIRROutput {
-  mirr: number;
+  mirr: number | null;
   is_valid: boolean;
   warnings: string[];
 }
@@ -19,7 +19,7 @@ export function computeMIRR(input: MIRRInput): MIRROutput {
   const n = cash_flow_vector.length;
 
   if (n < 2) {
-    return { mirr: 0, is_valid: false, warnings: ["Need at least 2 periods for MIRR"] };
+    return { mirr: null, is_valid: false, warnings: ["Need at least 2 periods for MIRR"] };
   }
 
   const pvNegParts: number[] = [];
@@ -39,17 +39,16 @@ export function computeMIRR(input: MIRRInput): MIRROutput {
   const fvPositive = dSum(fvPosParts);
 
   if (pvNegative >= 0) {
-    return { mirr: 0, is_valid: false, warnings: ["No negative cash flows — MIRR requires an initial investment"] };
+    return { mirr: null, is_valid: false, warnings: ["No negative cash flows — MIRR requires an initial investment"] };
   }
   if (fvPositive <= 0) {
-    return { mirr: 0, is_valid: false, warnings: ["No positive cash flows — MIRR requires returns"] };
+    return { mirr: null, is_valid: false, warnings: ["No positive cash flows — MIRR requires returns"] };
   }
 
   const mirr = dPow(dDiv(fvPositive, Math.abs(pvNegative)), 1 / periods) - 1;
 
-  return {
-    mirr: Number.isFinite(mirr) ? mirr : NaN,
-    is_valid: Number.isFinite(mirr),
-    warnings,
-  };
+  if (!Number.isFinite(mirr)) {
+    return { mirr: null, is_valid: false, warnings: ["MIRR computation produced non-finite result"] };
+  }
+  return { mirr, is_valid: true, warnings };
 }

@@ -2,6 +2,44 @@ import type { PostedEntry, TrialBalanceEntry } from "../../domain/ledger/types.j
 import { getAccount } from "../../domain/ledger/accounts.js";
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
+import { dSum } from "../../calc/shared/decimal.js";
+
+function aggregateEntries(
+  filteredEntries: PostedEntry[],
+  rounding: RoundingPolicy,
+): TrialBalanceEntry[] {
+  const r = (v: number) => roundTo(v, rounding);
+
+  const byAccount = new Map<string, { debits: number[]; credits: number[] }>();
+  for (const entry of filteredEntries) {
+    const existing = byAccount.get(entry.account) ?? { debits: [], credits: [] };
+    if (entry.debit !== 0) existing.debits.push(entry.debit);
+    if (entry.credit !== 0) existing.credits.push(entry.credit);
+    byAccount.set(entry.account, existing);
+  }
+
+  const result: TrialBalanceEntry[] = [];
+  for (const [account, parts] of Array.from(byAccount.entries())) {
+    const debitTotal = dSum(parts.debits);
+    const creditTotal = dSum(parts.credits);
+    const acctDef = getAccount(account);
+    const normalSide = acctDef?.normal_side ?? "DEBIT";
+    const balance =
+      normalSide === "DEBIT"
+        ? r(debitTotal - creditTotal)
+        : r(creditTotal - debitTotal);
+
+    result.push({
+      account,
+      debit_total: r(debitTotal),
+      credit_total: r(creditTotal),
+      balance,
+    });
+  }
+
+  result.sort((a, b) => a.account.localeCompare(b.account));
+  return result;
+}
 
 /**
  * Build a trial balance for a specific period.
@@ -13,40 +51,10 @@ export function buildTrialBalance(
   period: string,
   rounding: RoundingPolicy,
 ): TrialBalanceEntry[] {
-  const r = (v: number) => roundTo(v, rounding);
-
-  // Filter to the requested period
-  const periodEntries = entries.filter((e) => e.period === period);
-
-  // Group by account
-  const byAccount = new Map<string, { debit: number; credit: number }>();
-  for (const entry of periodEntries) {
-    const existing = byAccount.get(entry.account) ?? { debit: 0, credit: 0 };
-    existing.debit += entry.debit;
-    existing.credit += entry.credit;
-    byAccount.set(entry.account, existing);
-  }
-
-  const result: TrialBalanceEntry[] = [];
-  for (const [account, totals] of Array.from(byAccount.entries())) {
-    const acctDef = getAccount(account);
-    const normalSide = acctDef?.normal_side ?? "DEBIT";
-    const balance =
-      normalSide === "DEBIT"
-        ? r(totals.debit - totals.credit)
-        : r(totals.credit - totals.debit);
-
-    result.push({
-      account,
-      debit_total: r(totals.debit),
-      credit_total: r(totals.credit),
-      balance,
-    });
-  }
-
-  // Sort by account name for deterministic output
-  result.sort((a, b) => a.account.localeCompare(b.account));
-  return result;
+  return aggregateEntries(
+    entries.filter((e) => e.period === period),
+    rounding,
+  );
 }
 
 /**
@@ -58,37 +66,8 @@ export function buildCumulativeTrialBalance(
   throughPeriod: string,
   rounding: RoundingPolicy,
 ): TrialBalanceEntry[] {
-  const r = (v: number) => roundTo(v, rounding);
-
-  // Filter to entries up to and including the target period
-  const cumulativeEntries = entries.filter((e) => e.period <= throughPeriod);
-
-  // Group by account
-  const byAccount = new Map<string, { debit: number; credit: number }>();
-  for (const entry of cumulativeEntries) {
-    const existing = byAccount.get(entry.account) ?? { debit: 0, credit: 0 };
-    existing.debit += entry.debit;
-    existing.credit += entry.credit;
-    byAccount.set(entry.account, existing);
-  }
-
-  const result: TrialBalanceEntry[] = [];
-  for (const [account, totals] of Array.from(byAccount.entries())) {
-    const acctDef = getAccount(account);
-    const normalSide = acctDef?.normal_side ?? "DEBIT";
-    const balance =
-      normalSide === "DEBIT"
-        ? r(totals.debit - totals.credit)
-        : r(totals.credit - totals.debit);
-
-    result.push({
-      account,
-      debit_total: r(totals.debit),
-      credit_total: r(totals.credit),
-      balance,
-    });
-  }
-
-  result.sort((a, b) => a.account.localeCompare(b.account));
-  return result;
+  return aggregateEntries(
+    entries.filter((e) => e.period <= throughPeriod),
+    rounding,
+  );
 }

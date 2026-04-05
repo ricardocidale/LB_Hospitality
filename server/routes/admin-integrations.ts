@@ -8,6 +8,8 @@ import { getDocumentAIHealthCheck } from "../integrations/document-ai";
 import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
 import { logActivity, cachePatternSchema } from "./helpers";
 import { fromZodError } from "zod-validation-error";
+import { insertExternalIntegrationSchema, updateExternalIntegrationSchema } from "@shared/schema";
+import { storage } from "../storage";
 
 interface IntegrationStatusResponse {
   name: string;
@@ -183,6 +185,72 @@ export function register(app: Express) {
       const projections = await cache.invalidate(`projections:${propertyId}:*`);
       const research = await cache.invalidate(`research:${propertyId}:*`);
       res.json({ deleted: projections + research, propertyId });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/admin/ext-integrations", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const kind = typeof req.query.kind === "string" ? req.query.kind : undefined;
+      const rows = await storage.getExternalIntegrations(kind);
+      res.json(rows);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/admin/ext-integrations", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const parsed = insertExternalIntegrationSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
+      const row = await storage.createExternalIntegration(parsed.data);
+      logActivity(req, "create-integration", "integration", row.id, row.name);
+      res.status(201).json(row);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.patch("/api/admin/ext-integrations/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(String(req.params.id), 10);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const parsed = updateExternalIntegrationSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
+      const row = await storage.updateExternalIntegration(id, parsed.data);
+      if (!row) return res.status(404).json({ error: "Integration not found" });
+      logActivity(req, "update-integration", "integration", row.id, row.name);
+      res.json(row);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.patch("/api/admin/ext-integrations/:id/toggle", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(String(req.params.id), 10);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const { isEnabled } = req.body;
+      if (typeof isEnabled !== "boolean") return res.status(400).json({ error: "isEnabled must be a boolean" });
+      const row = await storage.toggleExternalIntegration(id, isEnabled);
+      if (!row) return res.status(404).json({ error: "Integration not found" });
+      logActivity(req, isEnabled ? "enable-integration" : "disable-integration", "integration", row.id, row.name);
+      res.json(row);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.delete("/api/admin/ext-integrations/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(String(req.params.id), 10);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const existing = await storage.getExternalIntegration(id);
+      if (!existing) return res.status(404).json({ error: "Integration not found" });
+      await storage.deleteExternalIntegration(id);
+      logActivity(req, "delete-integration", "integration", id, existing.name);
+      res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

@@ -18,6 +18,7 @@ import AIAgentsTab from "@/components/admin/AIAgentsTab";
 import LLMsTab from "@/components/admin/LLMsTab";
 import SourcesTab from "@/components/admin/SourcesTab";
 import IntegrationHealthTab from "@/components/admin/IntegrationHealthTab";
+import IntegrationsTab from "@/components/admin/IntegrationsTab";
 import NotificationsTab from "@/components/admin/NotificationsTab";
 import ModelDefaultsTab from "@/components/admin/ModelDefaultsTab";
 import ExportsTab from "@/components/admin/ExportsTab";
@@ -52,6 +53,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   verification:     { title: "Verification",         subtitle: "Independent GAAP financial audit and compliance" },
   database:         { title: "Database",             subtitle: "Entity monitoring, seed data, and canonical sync" },
   "cache-services": { title: "Cache & Services",     subtitle: "Service health, circuit breakers, and cache management" },
+  integrations:     { title: "Integrations",          subtitle: "External APIs and scrapers — toggle, configure, and monitor data sources" },
 };
 
 function SectionContent({ section, onNavigate, onSaveStateChange }: { section: AdminSection; onNavigate: (s: AdminSection) => void; onSaveStateChange: (state: AdminSaveState | null) => void }) {
@@ -92,6 +94,7 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
     case "verification":     return <VerificationTab />;
     case "database":         return <DatabaseTab />;
     case "cache-services":   return <IntegrationHealthTab />;
+    case "integrations":     return <IntegrationsTab />;
     default:                 return null;
   }
 }

@@ -37,6 +37,7 @@ import { PhotoStorage } from "./photos";
 import { DocumentStorage } from "./documents";
 import { ServiceStorage } from "./services";
 import { NotificationStorage } from "./notifications";
+import { IntegrationStorage } from "./integrations";
 
 export interface IStorage extends
   UserStorage,
@@ -48,7 +49,8 @@ export interface IStorage extends
   PhotoStorage,
   DocumentStorage,
   ServiceStorage,
-  NotificationStorage {
+  NotificationStorage,
+  IntegrationStorage {
   deleteUser(id: number): Promise<void>;
 }
 
@@ -63,6 +65,7 @@ export class DatabaseStorage implements IStorage {
   private documents = new DocumentStorage();
   private services = new ServiceStorage();
   private notifications = new NotificationStorage();
+  private integrationStore = new IntegrationStorage();
 
   // Users
   getUserById = this.users.getUserById.bind(this.users);
@@ -253,6 +256,15 @@ export class DatabaseStorage implements IStorage {
   getNotificationSetting = this.notifications.getNotificationSetting.bind(this.notifications);
   setNotificationSetting = this.notifications.setNotificationSetting.bind(this.notifications);
   getAllNotificationSettings = this.notifications.getAllNotificationSettings.bind(this.notifications);
+
+  // External Integrations
+  getExternalIntegrations = this.integrationStore.getExternalIntegrations.bind(this.integrationStore);
+  getExternalIntegration = this.integrationStore.getExternalIntegration.bind(this.integrationStore);
+  createExternalIntegration = this.integrationStore.createExternalIntegration.bind(this.integrationStore);
+  updateExternalIntegration = this.integrationStore.updateExternalIntegration.bind(this.integrationStore);
+  deleteExternalIntegration = this.integrationStore.deleteExternalIntegration.bind(this.integrationStore);
+  toggleExternalIntegration = this.integrationStore.toggleExternalIntegration.bind(this.integrationStore);
+  getIntegrationEnabledMap = this.integrationStore.getIntegrationEnabledMap.bind(this.integrationStore);
 
   /**
    * Delete a user and ALL related data in a single transaction.

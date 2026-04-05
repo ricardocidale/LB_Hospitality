@@ -4,6 +4,7 @@ import { requireAuth, requireAdmin, isApiRateLimited, checkPropertyAccess , getA
 import { researchGenerateSchema, researchQuestionCreateSchema, researchQuestionPatchSchema, logActivity, logAndSendError } from "./helpers";
 import { fromZodError } from "zod-validation-error";
 import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../ai/aiResearch";
+import { orchestrateResearch, isOrchestratorAvailable } from "../ai/research-orchestrator";
 import { validateResearchValues } from "../../calc/research/validate-research";
 import { processNotificationEvent } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
@@ -198,7 +199,13 @@ export function register(app: Express) {
       };
 
       const startTime = Date.now();
-      const stream = generateResearchWithToolsStream(params, researchClient, model, secondaryModel);
+
+      // N+1 orchestrator for property research when Anthropic (Opus) is available.
+      // Company/global research continues on the single-model path.
+      const useOrchestrator = type === "property" && isOrchestratorAvailable();
+      const stream = useOrchestrator
+        ? orchestrateResearch(params)
+        : generateResearchWithToolsStream(params, researchClient, model, secondaryModel);
 
       let fullContent = "";
       for await (const chunk of stream) {

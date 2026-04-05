@@ -18,7 +18,7 @@ export type AdminSection =
   | "logos" | "themes" | "exports"
   | "ai-agents" | "llms" | "sources"
   | "research" | "navigation" | "notifications" | "verification" | "database"
-  | "cache-services";
+  | "cache-services" | "integrations";
 
 interface SectionItem {
   value: AdminSection;
@@ -91,6 +91,7 @@ const navGroups: NavGroup[] = [
       { value: "verification", label: "Verification", icon: IconFileCheck },
       { value: "database", label: "Database", icon: IconDatabase },
       { value: "cache-services", label: "Cache & Services", icon: IconActivity },
+      { value: "integrations", label: "Integrations", icon: IconTrending },
     ],
   },
 ];

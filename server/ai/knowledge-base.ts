@@ -12,6 +12,7 @@ import {
   KB_MIN_CONFIDENCE,
 } from "../constants";
 import { extractMethodologyContent, extractCheckerManualContent, extractPlatformGuide } from "./kb-content";
+import { isPineconeAvailable, upsertChunks, queryChunks, vectorCount } from "./pinecone-service";
 
 const EMBEDDING_MODEL = "text-embedding-3-small";
 const CHUNK_SIZE = 800;
@@ -126,6 +127,19 @@ export async function indexKnowledgeBase(): Promise<{ chunksIndexed: number; tim
 
   indexingPromise = (async () => {
     const start = Date.now();
+
+    // If Pinecone is available and already indexed, skip re-embedding this session.
+    // Load the in-memory cache from Pinecone metadata instead.
+    if (isPineconeAvailable()) {
+      const existing = await vectorCount("knowledge-base").catch(() => 0);
+      if (existing > 0) {
+        logger.info(`Pinecone knowledge-base has ${existing} vectors — skipping re-index`, "knowledge-base");
+        // Mark as indexed with a placeholder so retrieveRelevantChunks uses Pinecone path
+        indexedAt = new Date();
+        return { chunksIndexed: existing, timeMs: Date.now() - start };
+      }
+    }
+
     logger.info("Starting indexing...", "knowledge-base");
 
     const allChunks: { title: string; content: string; source: string; category: string }[] = [];
@@ -147,6 +161,23 @@ export async function indexKnowledgeBase(): Promise<{ chunksIndexed: number; tim
       embedding: embeddings[i],
     }));
 
+    // Persist to Pinecone so future restarts skip re-embedding
+    if (isPineconeAvailable()) {
+      const pineconeChunks = allChunks.map((chunk, i) => ({
+        id: `kb:${chunk.source}:${i}`,
+        text: `${chunk.title}\n\n${chunk.content}`,
+        metadata: {
+          title:    chunk.title,
+          content:  chunk.content.slice(0, 3_000),
+          source:   chunk.source,
+          category: chunk.category,
+        },
+      }));
+      upsertChunks("knowledge-base", pineconeChunks)
+        .then(() => logger.info(`Pinecone: uploaded ${pineconeChunks.length} KB chunks`, "knowledge-base"))
+        .catch(err => logger.warn(`Pinecone KB upload failed: ${err}`, "knowledge-base"));
+    }
+
     indexedAt = new Date();
     const timeMs = Date.now() - start;
     logger.info(`Indexed ${knowledgeCache.length} chunks in ${timeMs}ms`, "knowledge-base");
@@ -160,6 +191,25 @@ export async function indexKnowledgeBase(): Promise<{ chunksIndexed: number; tim
 }
 
 export async function retrieveRelevantChunks(query: string, topK: number = TOP_K): Promise<{ title: string; content: string; source: string; category: string; score: number }[]> {
+  // Pinecone path: persistent, no in-memory dependency
+  if (isPineconeAvailable()) {
+    try {
+      const matches = await queryChunks("knowledge-base", query, topK);
+      return matches
+        .filter(m => m.score > KB_MIN_CONFIDENCE)
+        .map(m => ({
+          title:    String(m.metadata.title ?? ""),
+          content:  String(m.metadata.content ?? ""),
+          source:   String(m.metadata.source ?? ""),
+          category: String(m.metadata.category ?? "reference"),
+          score:    m.score,
+        }));
+    } catch (err) {
+      logger.warn(`Pinecone KB query failed, falling back to in-memory: ${err}`, "knowledge-base");
+    }
+  }
+
+  // In-memory fallback
   if (knowledgeCache.length === 0) {
     if (indexingPromise) {
       await indexingPromise;

@@ -332,6 +332,12 @@ async function runSchemaMigrations() {
     await runScenarioSystemUnique001();
     await markMigrationApplied("scenario_system_unique_001");
   }
+
+  if (!(await isMigrationApplied("drop_marcela_columns_001"))) {
+    const { runDropMarcelaColumns } = await import("./migrations/drop-marcela-columns");
+    await runDropMarcelaColumns();
+    await markMigrationApplied("drop_marcela_columns_001");
+  }
 }
 
 async function runSeeds() {

@@ -23,7 +23,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Separator } from "@/components/ui/separator";
 
 import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
-import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
 import { RebeccaChatbot } from "@/components/RebeccaChatbot";
 
 import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
@@ -65,22 +64,6 @@ function ScenarioIndicator() {
       )}
     </div>
   );
-}
-
-function MarcelaWidgetGated() {
-  // MARCELA ISOLATED: Widget always disabled.
-  // To restore: remove the early return below.
-  // See .claude/plans/MARCELA-ISOLATION.md for full restoration guide.
-  return null;
-
-  // Original logic preserved for restoration:
-  // const { data: global } = useGlobalAssumptions();
-  // const { tourActive, promptVisible } = useWalkthroughStore();
-  // const [location] = useLocation();
-  // const onAdminPage = location.startsWith("/admin");
-  // const rebeccaActive = !!(global as any)?.rebeccaEnabled;
-  // const enabled = !!(global as any)?.showAiAssistant && !!(global as any)?.marcelaEnabled && !rebeccaActive && !tourActive && !promptVisible && !onAdminPage;
-  // return <ElevenLabsWidget enabled={enabled} />;
 }
 
 interface NavGroupDef {
@@ -417,7 +400,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
             {!!(global as any)?.rebeccaEnabled && (
               <RebeccaChatbot displayName={(global as any)?.rebeccaDisplayName || "Rebecca"} />
             )}
-            <ErrorBoundary><MarcelaWidgetGated /></ErrorBoundary>
           </div>
         </header>
 

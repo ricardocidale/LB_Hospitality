@@ -34,7 +34,6 @@ export default function Section16Admin({ expanded, onToggle, sectionRef }: Secti
             ["Branding", "Configure colors, fonts, and visual identity for different user groups"],
             ["Themes", "Manage the design themes available in the system"],
             ["Navigation", "Control which sidebar items are visible to different user roles"],
-            ["Marcela", "Configure the AI assistant — voice settings, LLM model, telephony, and knowledge base"],
             ["Verification", "Run the financial verification engine and review audit results"],
             ["Activity", "View system activity logs and user actions"],
             ["Database", "Database management tools for administrators"],

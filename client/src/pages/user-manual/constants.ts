@@ -22,7 +22,6 @@ export const USER_MANUAL_SECTIONS: UserManualSection[] = [
   { id: "analysis", title: "10. Analysis Tools", icon: IconAnalysis, access: "management" },
   { id: "property-finder", title: "11. Property Finder", icon: IconPropertyFinder, access: "management" },
   { id: "exports", title: "12. Exports & Reports", icon: IconExport, access: "all" },
-  { id: "marcela", title: "13. Marcela AI Assistant", icon: IconBot, access: "all" },
   { id: "profile", title: "14. My Profile", icon: IconProfile, access: "all" },
   { id: "branding", title: "15. Branding & Themes", icon: IconSwatchBook, access: "admin" },
   { id: "admin", title: "16. Admin Settings", icon: IconShield, access: "admin" },

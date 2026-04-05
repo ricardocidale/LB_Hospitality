@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { buildRAGContext } from "../../server/ai/knowledge-base";
-import { getKnowledgeDocumentPreview } from "../../server/ai/marcela-knowledge-base";
 
 describe("Knowledge Base — RAG Context Builder", () => {
   it("returns empty string for empty chunks", () => {
@@ -27,9 +26,7 @@ describe("Knowledge Base — RAG Context Builder", () => {
       { title: "B", content: longContent, source: "S", score: 0.8 },
     ];
     const result = buildRAGContext(chunks);
-    // Should include first chunk but truncate before second would exceed 4000 chars
     expect(result).toContain("### A (S)");
-    // Total should be under ~4200 chars (header + one section)
     expect(result.length).toBeLessThan(4500);
   });
 
@@ -39,20 +36,5 @@ describe("Knowledge Base — RAG Context Builder", () => {
     ];
     const result = buildRAGContext(chunks);
     expect(result).toContain("### DSCR (Checker Manual)");
-  });
-});
-
-describe("Knowledge Base — Document Preview", () => {
-  it("returns sections count, character count, and preview", async () => {
-    const preview = await getKnowledgeDocumentPreview();
-    expect(preview.sections).toBeGreaterThan(10);
-    expect(preview.characters).toBeGreaterThan(1000);
-    expect(preview.preview.length).toBeLessThanOrEqual(504); // 500 + "..."
-    expect(preview.preview.endsWith("...")).toBe(true);
-  });
-
-  it("preview starts with company description", async () => {
-    const preview = await getKnowledgeDocumentPreview();
-    expect(preview.preview).toContain("Hospitality Business Group");
   });
 });

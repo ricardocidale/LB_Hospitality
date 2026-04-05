@@ -4,7 +4,7 @@ export const PRESET_THEMES: ThemePreset[] = [
   {
     name: "Studio Noir",
     description:
-      "Crisp black and white with precise gray layers. Inspired by ElevenLabs — minimal, authoritative, and razor-sharp. Green accent cuts through the monochrome with surgical clarity.",
+      "Crisp black and white with precise gray layers. Minimal, authoritative, and razor-sharp. Green accent cuts through the monochrome with surgical clarity.",
     isDefault: false,
     colors: [
       { rank: 1, name: "Carbon",          hexCode: "#18181B", description: "PALETTE: Primary brand color. Near-black for buttons, active nav, focus rings." },

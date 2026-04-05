@@ -104,7 +104,7 @@ export default function IntegrationHealthTab() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {(integrations || []).filter((i) => !["Twilio", "ElevenLabs"].includes(i.name)).map((integration) => (
+        {(integrations || []).map((integration) => (
           <Card key={integration.name} data-testid={`card-integration-${integration.name}`}>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">

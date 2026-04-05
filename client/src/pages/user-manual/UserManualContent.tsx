@@ -14,7 +14,6 @@ const sectionMap: Record<string, React.LazyExoticComponent<React.ComponentType<a
   "analysis": lazy(() => import("./sections/Section10Analysis")),
   "property-finder": lazy(() => import("./sections/Section11PropertyFinder")),
   "exports": lazy(() => import("./sections/Section12Exports")),
-  "marcela": lazy(() => import("./sections/Section13Marcela")),
   "profile": lazy(() => import("./sections/Section14Profile")),
   "branding": lazy(() => import("./sections/Section15Branding")),
   "admin": lazy(() => import("./sections/Section16Admin")),

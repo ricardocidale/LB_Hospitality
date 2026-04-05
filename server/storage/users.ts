@@ -17,7 +17,7 @@ export class UserStorage {
     return user || undefined;
   }
 
-  /** Look up a user by phone number. Used for Twilio caller identification. */
+  /** Look up a user by phone number. */
   async getUserByPhoneNumber(phoneNumber: string): Promise<User | undefined> {
     const normalized = phoneNumber.replace(/[^\d+]/g, '');
     const [user] = await db.select().from(users).where(eq(users.phoneNumber, normalized));

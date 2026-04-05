@@ -92,7 +92,7 @@ export function register(app: Express) {
       }
 
       const globalAssumptions = await storage.getGlobalAssumptions(getAuthUser(req).id);
-      const llmModel = globalAssumptions?.marcelaLlmModel || DEFAULT_OPENAI_MODEL;
+      const llmModel = DEFAULT_OPENAI_MODEL;
 
       const openai = getOpenAIClient();
 
@@ -141,7 +141,7 @@ export function register(app: Express) {
         messages: [
           {
             role: "system",
-            content: "You are Marcela, a GAAP financial auditor for Hospitality Business Group. Write a concise narrative review of the verification results below. Use professional audit language. Highlight any failures, their severity, and recommend next steps. If the opinion is UNQUALIFIED, confirm the financials are fairly stated. Keep the review under 500 words.",
+            content: "You are Rebecca, a GAAP financial auditor for Hospitality Business Group. Write a concise narrative review of the verification results below. Use professional audit language. Highlight any failures, their severity, and recommend next steps. If the opinion is UNQUALIFIED, confirm the financials are fairly stated. Keep the review under 500 words.",
           },
           {
             role: "user",

@@ -49,10 +49,8 @@ describe("Admin config literals (no-hardcoded-admin-config)", () => {
     if (rel.includes("__test__") || rel.includes("__tests__")) return true;
     // Markdown files
     if (rel.endsWith(".md")) return true;
-    // Knowledge base and agent config (Marcela AI system prompts)
+    // Knowledge base content
     if (rel.includes("knowledge-base") || rel.includes("kb-content")) return true;
-    if (rel.includes("marcela-agent-config")) return true;
-    if (rel.includes("elevenlabs-audio")) return true;
     // .claude directory
     if (rel.startsWith(".claude/")) return true;
     // Seeds directory
@@ -61,10 +59,8 @@ describe("Admin config literals (no-hardcoded-admin-config)", () => {
     if (rel.includes("syncHelpers")) return true;
     // Auth file contains seedAdminUser() which is a seed mechanism (database-seeding.md)
     if (rel.includes("server/auth")) return true;
-    // AI/Marcela system prompts and tool context — same role as marcela-agent-config
+    // AI system prompts and tool context
     if (rel.includes("replit_integrations/chat")) return true;
-    if (rel.includes("routes/marcela")) return true;
-    if (rel.includes("routes/twilio")) return true;
     if (rel.includes("routes/calculations")) return true;
     // Branding route (fallback company name resolved from DB, literal is last-resort default)
     if (rel.includes("routes/branding")) return true;
@@ -111,7 +107,7 @@ describe("Admin config literals (no-hardcoded-admin-config)", () => {
         `Found ${violations.length} hardcoded admin-config string(s) outside allowed files:\n` +
         `${violations.join("\n")}\n\n` +
         `These values are managed through the Administration page and must come from the database.\n` +
-        `Allowed locations: seed files, test files, knowledge-base.ts, marcela-agent-config.ts, .claude/ files.`
+        `Allowed locations: seed files, test files, knowledge-base.ts, .claude/ files.`
       );
     }
   });

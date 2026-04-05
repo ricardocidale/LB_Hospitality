@@ -40,16 +40,6 @@ import {
   DEFAULT_FIXED_COST_ESCALATION_RATE,
   DEFAULT_COMPANY_TAX_RATE,
   DEFAULT_PROJECTION_YEARS,
-  DEFAULT_MARCELA_STABILITY,
-  DEFAULT_MARCELA_SIMILARITY_BOOST,
-  DEFAULT_MARCELA_MAX_TOKENS,
-  DEFAULT_MARCELA_MAX_TOKENS_VOICE,
-  DEFAULT_MARCELA_TURN_TIMEOUT,
-  DEFAULT_MARCELA_SPEED,
-  DEFAULT_MARCELA_STREAMING_LATENCY,
-  DEFAULT_MARCELA_SILENCE_END_CALL_TIMEOUT,
-  DEFAULT_MARCELA_MAX_DURATION,
-  DEFAULT_MARCELA_CASCADE_TIMEOUT,
   DEFAULT_MAX_STALENESS_HOURS,
   DEFAULT_PROPERTY_INFLATION_RATE,
   DEFAULT_AR_DAYS,
@@ -59,7 +49,6 @@ import {
   DEFAULT_COST_SEG_7YR_PCT,
   DEFAULT_COST_SEG_15YR_PCT,
   DEFAULT_ALERT_COOLDOWN_MINUTES,
-  DEFAULT_AI_AGENT_VOICE_ID,
   DEFAULT_STAFF_TIER1_MAX_PROPERTIES,
   DEFAULT_STAFF_TIER2_MAX_PROPERTIES,
 } from "../constants";
@@ -248,46 +237,6 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // Feature Toggles
   showAiAssistant: boolean("show_ai_assistant").notNull().default(false),
   
-  // AI Agent Configuration
-  aiAgentName: text("ai_agent_name").notNull().default("Marcela"),
-  
-  // ElevenLabs Conversational AI Agent
-  marcelaAgentId: text("marcela_agent_id").notNull().default(""),
-  
-  // Marcela Voice Configuration (ElevenLabs)
-  marcelaVoiceId: text("marcela_voice_id").notNull().default(DEFAULT_AI_AGENT_VOICE_ID),
-  marcelaTtsModel: text("marcela_tts_model").notNull().default("eleven_flash_v2_5"),
-  marcelaSttModel: text("marcela_stt_model").notNull().default("scribe_v1"),
-  marcelaOutputFormat: text("marcela_output_format").notNull().default("pcm_16000"),
-  marcelaStability: real("marcela_stability").notNull().default(DEFAULT_MARCELA_STABILITY),
-  marcelaSimilarityBoost: real("marcela_similarity_boost").notNull().default(DEFAULT_MARCELA_SIMILARITY_BOOST),
-  marcelaSpeakerBoost: boolean("marcela_speaker_boost").notNull().default(false),
-  marcelaChunkSchedule: text("marcela_chunk_schedule").notNull().default("120,160,250,290"),
-  marcelaLlmModel: text("marcela_llm_model").notNull().default("gemini-2.0-flash-lite"),
-  marcelaMaxTokens: integer("marcela_max_tokens").notNull().default(DEFAULT_MARCELA_MAX_TOKENS),
-  marcelaMaxTokensVoice: integer("marcela_max_tokens_voice").notNull().default(DEFAULT_MARCELA_MAX_TOKENS_VOICE),
-  marcelaEnabled: boolean("marcela_enabled").notNull().default(true),
-
-  marcelaTwilioEnabled: boolean("marcela_twilio_enabled").notNull().default(false),
-  marcelaSmsEnabled: boolean("marcela_sms_enabled").notNull().default(false),
-  marcelaPhoneGreeting: text("marcela_phone_greeting").notNull().default("Hello, this is Marcela from Hospitality Business Group. How can I help you today?"),
-  marcelaLanguage: text("marcela_language").notNull().default("en"),
-  marcelaTurnTimeout: integer("marcela_turn_timeout").notNull().default(DEFAULT_MARCELA_TURN_TIMEOUT),
-  marcelaAvatarUrl: text("marcela_avatar_url").notNull().default(""),
-  marcelaWidgetVariant: text("marcela_widget_variant").notNull().default("elevenlabs"),
-  marcelaSpeed: real("marcela_speed").notNull().default(DEFAULT_MARCELA_SPEED),
-  marcelaStreamingLatency: integer("marcela_streaming_latency").notNull().default(DEFAULT_MARCELA_STREAMING_LATENCY),
-  marcelaTextNormalisation: text("marcela_text_normalisation").notNull().default("auto"),
-  marcelaAsrProvider: text("marcela_asr_provider").notNull().default("scribe_realtime"),
-  marcelaInputAudioFormat: text("marcela_input_audio_format").notNull().default("pcm_16000"),
-  marcelaBackgroundVoiceDetection: boolean("marcela_background_voice_detection").notNull().default(true),
-  marcelaTurnEagerness: text("marcela_turn_eagerness").notNull().default("auto"),
-  marcelaSpellingPatience: text("marcela_spelling_patience").notNull().default("auto"),
-  marcelaSpeculativeTurn: boolean("marcela_speculative_turn").notNull().default(true),
-  marcelaSilenceEndCallTimeout: integer("marcela_silence_end_call_timeout").notNull().default(DEFAULT_MARCELA_SILENCE_END_CALL_TIMEOUT),
-  marcelaMaxDuration: integer("marcela_max_duration").notNull().default(DEFAULT_MARCELA_MAX_DURATION),
-  marcelaCascadeTimeout: integer("marcela_cascade_timeout").notNull().default(DEFAULT_MARCELA_CASCADE_TIMEOUT),
-
   // Rebecca — AI text chatbot (Gemini or Perplexity engine)
   rebeccaEnabled: boolean("rebecca_enabled").notNull().default(false),
   rebeccaDisplayName: text("rebecca_display_name").notNull().default("Rebecca"),

@@ -51,7 +51,6 @@ export const SEED_COMPANY_IDENTITY = {
   companyStateProvince: "VA",
   companyCountry: "United States",
   companyZipPostalCode: "23510",
-  marcelaPhoneGreeting: "Hello, this is Marcela from The Norfolk AI Group. How can I help you today?",
 } as const;
 
 export const SEED_PROPERTY_DEFAULTS = {

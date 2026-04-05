@@ -85,7 +85,6 @@ const Analysis = lazy(() => import("@/pages/Analysis"));
 const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
 const Help = lazy(() => import("@/pages/Help"));
 const MapView = lazy(() => import("@/pages/MapView"));
-const VoiceLab = lazy(() => import("@/pages/VoiceLab"));
 const IcpStudio = lazy(() => import("@/pages/IcpStudio"));
 const Icp = lazy(() => import("@/pages/Icp"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
@@ -567,11 +566,6 @@ function Router() {
         </Route>
         <Route path="/drive">
           <ProtectedRoute component={GoogleDrive} />
-        </Route>
-        <Route path="/voice">
-          <ErrorBoundary fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">Voice Lab failed to load. Please reload the page.</p></div>}>
-            <ProtectedRoute component={VoiceLab} />
-          </ErrorBoundary>
         </Route>
         <Route path="/checker-manual">
           <Redirect to="/help" />

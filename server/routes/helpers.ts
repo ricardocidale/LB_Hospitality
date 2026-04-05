@@ -151,18 +151,6 @@ export const driveUploadBodySchema = z.object({
   parentId: z.string().max(200).optional(),
 });
 
-export const twilioVoiceIncomingSchema = z.object({
-  From: z.string().max(50).optional().default(""),
-  To: z.string().max(50).optional(),
-  CallSid: z.string().max(100).optional(),
-});
-
-export const twilioSmsIncomingSchema = z.object({
-  From: z.string().max(50).optional().default(""),
-  Body: z.string().max(1600).optional().default(""),
-  MessageSid: z.string().max(100).optional(),
-});
-
 export const bulkProcessPhotosSchema = z.object({
   propertyId: z.coerce.number().optional(),
 });
@@ -216,109 +204,6 @@ export function parseParamId(param: string | string[] | undefined, res: Response
   return id;
 }
 
-// ────────────────────────────────────────────────────────────
-// MARCELA / AI AGENT VALIDATION SCHEMAS
-// ────────────────────────────────────────────────────────────
-
-export const marcelaPromptSchema = z.object({
-  prompt: z.string().max(50_000).optional(),
-  first_message: z.string().max(2_000).optional(),
-  language: z.string().max(10).optional(),
-}).strict();
-
-export const marcelaLlmSchema = z.object({
-  llm: z.string().max(100).optional(),
-  max_tokens: z.number().int().min(1).max(100_000).optional(),
-}).strict();
-
-export const marcelaVoiceSchema = z.object({
-  voice_id: z.string().max(100).optional(),
-  stability: z.number().min(0).max(1).optional(),
-  similarity_boost: z.number().min(0).max(1).optional(),
-  use_speaker_boost: z.boolean().optional(),
-  speed: z.number().min(0.1).max(5).optional(),
-  agent_output_audio_format: z.string().max(50).optional(),
-  optimize_streaming_latency: z.number().int().min(0).max(4).optional(),
-  text_normalisation_type: z.string().max(50).optional(),
-  model_id: z.string().max(100).optional(),
-  expressive_mode: z.boolean().optional(),
-  suggested_audio_tags: z.array(z.string().max(50)).optional(),
-  asr_provider: z.string().max(50).optional(),
-  user_input_audio_format: z.string().max(50).optional(),
-  background_voice_detection: z.boolean().optional(),
-  turn_eagerness: z.number().min(0).max(1).optional(),
-  spelling_patience: z.number().min(0).max(10).optional(),
-  speculative_turn: z.boolean().optional(),
-  turn_timeout: z.number().min(0).max(300).optional(),
-  silence_end_call_timeout: z.number().min(0).max(600).optional(),
-  max_duration_seconds: z.number().int().min(0).max(7200).optional(),
-  cascade_timeout_seconds: z.number().min(0).max(60).optional(),
-}).strict();
-
-export const marcelaWidgetSchema = z.object({
-  turn_timeout: z.number().min(0).max(300).optional(),
-  avatar_url: z.string().max(2000).optional().nullable(),
-  variant: z.string().max(50).optional(),
-  placement: z.string().max(50).optional(),
-  dismissible: z.boolean().optional(),
-  default_expanded: z.boolean().optional(),
-  avatar_orb_color_1: z.string().max(20).optional(),
-  avatar_orb_color_2: z.string().max(20).optional(),
-  text_input_enabled: z.boolean().optional(),
-  mic_muting_enabled: z.boolean().optional(),
-  transcript_enabled: z.boolean().optional(),
-  conversation_mode_toggle_enabled: z.boolean().optional(),
-  language_selector: z.boolean().optional(),
-  feedback_mode: z.enum(["none", "end", "during"]).optional(),
-  bg_color: z.string().max(20).optional(),
-  text_color: z.string().max(20).optional(),
-  btn_color: z.string().max(20).optional(),
-  btn_text_color: z.string().max(20).optional(),
-  border_color: z.string().max(20).optional(),
-  focus_color: z.string().max(20).optional(),
-}).strict();
-
-export const marcelaVoiceSettingsSchema = z.object({
-  aiAgentName: z.string().max(100).optional(),
-  marcelaAgentId: z.string().max(200).optional(),
-  marcelaVoiceId: z.string().max(200).optional(),
-  marcelaTtsModel: z.string().max(100).optional(),
-  marcelaSttModel: z.string().max(100).optional(),
-  marcelaOutputFormat: z.string().max(50).optional(),
-  marcelaStability: z.number().min(0).max(1).optional(),
-  marcelaSimilarityBoost: z.number().min(0).max(1).optional(),
-  marcelaSpeakerBoost: z.boolean().optional(),
-  marcelaChunkSchedule: z.string().max(100).optional(),
-  marcelaLlmModel: z.string().max(100).optional(),
-  marcelaMaxTokens: z.number().int().min(1).max(100_000).optional(),
-  marcelaMaxTokensVoice: z.number().int().min(1).max(100_000).optional(),
-  marcelaEnabled: z.boolean().optional(),
-  showAiAssistant: z.boolean().optional(),
-  marcelaTwilioEnabled: z.boolean().optional(),
-  marcelaSmsEnabled: z.boolean().optional(),
-  marcelaPhoneGreeting: z.string().max(2000).optional(),
-  marcelaLanguage: z.string().max(10).optional(),
-  marcelaTurnTimeout: z.number().min(0).max(300).optional(),
-  marcelaAvatarUrl: z.string().max(2000).optional().nullable(),
-  marcelaWidgetVariant: z.string().max(50).optional(),
-  marcelaSpeed: z.number().min(0.1).max(5).optional(),
-  marcelaStreamingLatency: z.number().int().min(0).max(4).optional(),
-  marcelaTextNormalisation: z.string().max(50).optional(),
-  marcelaAsrProvider: z.string().max(50).optional(),
-  marcelaInputAudioFormat: z.string().max(50).optional(),
-  marcelaBackgroundVoiceDetection: z.boolean().optional(),
-  marcelaTurnEagerness: z.number().min(0).max(1).optional(),
-  marcelaSpellingPatience: z.number().min(0).max(10).optional(),
-  marcelaSpeculativeTurn: z.boolean().optional(),
-  marcelaSilenceEndCallTimeout: z.number().min(0).max(600).optional(),
-  marcelaMaxDuration: z.number().int().min(0).max(7200).optional(),
-  marcelaCascadeTimeout: z.number().min(0).max(60).optional(),
-}).strict();
-
-export const sendNotificationSchema = z.object({
-  to: z.string().min(1).max(20),
-  message: z.string().min(1).max(1600),
-}).strict();
 
 export const cachePatternSchema = z.object({
   pattern: z.string().max(200).regex(/^[a-zA-Z0-9:*_-]+$/, "Pattern must contain only alphanumeric, colon, asterisk, underscore, hyphen").optional(),

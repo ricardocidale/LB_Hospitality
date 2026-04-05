@@ -62,7 +62,7 @@ app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "camera=(), microphone=(self), geolocation=()");
-  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.elevenlabs.io wss://api.elevenlabs.io https://*.ingest.sentry.io https://*.sentry.io https://us.i.posthog.com https://app.posthog.com; media-src 'self' blob:; frame-ancestors 'self' https://*.replit.dev https://*.replit.app https://*.repl.co");
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.ingest.sentry.io https://*.sentry.io https://us.i.posthog.com https://app.posthog.com; media-src 'self' blob:; frame-ancestors 'self' https://*.replit.dev https://*.replit.app https://*.repl.co");
   if (process.env.NODE_ENV === "production") {
     res.setHeader("Strict-Transport-Security", `max-age=${HSTS_MAX_AGE_SECONDS}; includeSubDomains`);
   }
@@ -92,9 +92,6 @@ const PUBLIC_API_PATHS = new Set([
   "/api/auth/google/callback",
   "/api/auth/google/drive",
   "/api/auth/google/drive/callback",
-  "/api/twilio/voice/incoming",
-  "/api/twilio/voice/status",
-  "/api/twilio/sms/incoming",
   "/api/finance/health",
   "/api/health/live",
   "/api/health/ready",
@@ -103,7 +100,6 @@ const PUBLIC_API_PATHS = new Set([
 
 const PUBLIC_API_PREFIXES = [
   "/api/public/",
-  "/api/marcela-tools/",
   "/api/letter-logo/",
 ];
 

@@ -21,10 +21,8 @@ export interface CostEntry {
     | "anthropic"
     | "openai"
     | "gemini"
-    | "elevenlabs"
     | "replicate"
     | "resend"
-    | "twilio"
     | "document-ai"
     | "google-maps"
     | "perplexity";

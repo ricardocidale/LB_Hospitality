@@ -309,28 +309,9 @@ export const DEFAULT_FUNDING_INTEREST_PAYMENT_FREQUENCY = "accrues_only";
 
 // ──────────────────────────────────────────────────────────
 // AI AGENT DEFAULTS
-// Default configuration for the AI voice assistant (ElevenLabs).
-// The agent display name is configurable via globalAssumptions.aiAgentName.
 // ──────────────────────────────────────────────────────────
 
-export const DEFAULT_AI_AGENT_NAME = "Marcela";
-export const DEFAULT_AI_AGENT_VOICE_ID = "cgSgspJ2msm6clMCkdW9";
-export const DEFAULT_AI_AGENT_STABILITY = 0.5;
-export const DEFAULT_AI_AGENT_SIMILARITY_BOOST = 0.75;
-export const DEFAULT_AI_AGENT_MAX_TOKENS = 2048;
-export const DEFAULT_AI_AGENT_MAX_TOKENS_VOICE = 1024;
-
-export const DEFAULT_MARCELA_STABILITY = DEFAULT_AI_AGENT_STABILITY;
-export const DEFAULT_MARCELA_SIMILARITY_BOOST = DEFAULT_AI_AGENT_SIMILARITY_BOOST;
-export const DEFAULT_MARCELA_MAX_TOKENS = DEFAULT_AI_AGENT_MAX_TOKENS;
-export const DEFAULT_MARCELA_MAX_TOKENS_VOICE = DEFAULT_AI_AGENT_MAX_TOKENS_VOICE;
-export const DEFAULT_AI_AGENT_TURN_TIMEOUT = 7; // seconds of silence before agent takes its turn
-export const DEFAULT_MARCELA_TURN_TIMEOUT = DEFAULT_AI_AGENT_TURN_TIMEOUT;
-export const DEFAULT_MARCELA_SPEED = 1.0;
-export const DEFAULT_MARCELA_STREAMING_LATENCY = 0;
-export const DEFAULT_MARCELA_SILENCE_END_CALL_TIMEOUT = 30;
-export const DEFAULT_MARCELA_MAX_DURATION = 600;
-export const DEFAULT_MARCELA_CASCADE_TIMEOUT = 5;
+export const DEFAULT_AI_AGENT_NAME = "Rebecca";
 
 export const DEFAULT_MAX_STALENESS_HOURS = 24;
 

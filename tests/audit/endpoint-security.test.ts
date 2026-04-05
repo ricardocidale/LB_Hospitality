@@ -52,7 +52,7 @@ describe("Endpoint Security Audit — Auth Middleware", () => {
     "auth/logout",
     "auth/google",
     "// public",
-    "validateTwilioSignature",
+    "// public webhook",
   ];
 
   function isExempt(line: string): boolean {

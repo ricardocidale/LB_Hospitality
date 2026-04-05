@@ -98,10 +98,10 @@ function L1TwoEntity() {
 function L1Integrations() {
   const categories: { title: string; items: { name: string; desc: string }[] }[] = [
     { title: "AI & LLM", items: [{ name: "Anthropic Claude", desc: "Research & exports" }, { name: "OpenAI", desc: "Embeddings & chat" }, { name: "Google Gemini", desc: "Rebecca advisor" }] },
-    { title: "Voice AI", items: [{ name: "ElevenLabs / Convai", desc: "Marcela voice agent" }] },
+    { title: "AI Assistants", items: [{ name: "Rebecca", desc: "AI financial advisor" }] },
     { title: "Geospatial", items: [{ name: "Google Maps / Places", desc: "Geocoding & POI" }, { name: "MapLibre GL", desc: "3D globe rendering" }] },
     { title: "Document Intelligence", items: [{ name: "Google Cloud Doc AI", desc: "OCR & extraction" }] },
-    { title: "Communication", items: [{ name: "Twilio", desc: "SMS alerts" }, { name: "Resend", desc: "Transactional email" }] },
+    { title: "Communication", items: [{ name: "Resend", desc: "Transactional email" }] },
     { title: "Image Generation", items: [{ name: "Replicate", desc: "AI architectural renders" }] },
     { title: "Observability", items: [{ name: "Sentry", desc: "Error tracking" }, { name: "PostHog", desc: "Product analytics" }] },
     { title: "Storage", items: [{ name: "Object Storage", desc: "File & asset storage" }, { name: "Upstash Redis", desc: "Cache & sessions" }, { name: "PostgreSQL", desc: "Primary database" }] },
@@ -305,7 +305,7 @@ function L2AI() {
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <NodeBox node={{ id: "marcela", label: "Marcela Voice Agent", sublabel: "ElevenLabs Convai", color: "purple" }} />
+        <NodeBox node={{ id: "rebecca", label: "Rebecca AI Advisor", sublabel: "Chat-based assistant", color: "purple" }} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FlowSection title="Client-Side Tools (browser)">
@@ -331,7 +331,7 @@ function L2AI() {
           </div>
         </FlowSection>
         <FlowSection title="Integrity Rule">
-          <NodeBox node={{ id: "rule", label: "Marcela NEVER calculates", sublabel: "All numbers from deterministic engine", color: "red" }} />
+          <NodeBox node={{ id: "rule", label: "Rebecca NEVER calculates", sublabel: "All numbers from deterministic engine", color: "red" }} />
         </FlowSection>
       </div>
     </div>
@@ -536,9 +536,9 @@ export default function DiagramsTab() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="ai">
-              <AccordionTrigger className="text-sm font-semibold">Marcela Voice Agent Architecture</AccordionTrigger>
+              <AccordionTrigger className="text-sm font-semibold">Rebecca AI Advisor Architecture</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard title="Marcela Dual-Channel Tool System" description="Client tools + server webhooks + RAG knowledge base">
+                <DiagramCard title="Rebecca Chat Tool System" description="Server tools + RAG knowledge base">
                   <L2AI />
                 </DiagramCard>
               </AccordionContent>

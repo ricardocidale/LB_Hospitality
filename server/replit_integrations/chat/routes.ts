@@ -1,4 +1,4 @@
-import express, { type Express, type Request, type Response } from "express";
+import { type Express, type Request, type Response } from "express";
 import OpenAI from "openai";
 import { chatStorage } from "./storage";
 import { requireAuth, getAuthUser } from "../../auth";
@@ -6,15 +6,6 @@ import { storage } from "../../storage";
 import { UserRole } from "@shared/constants";
 import { DEFAULT_OPENAI_MODEL } from "../../ai/resolve-llm";
 import { logger } from "../../logger";
-import {
-  transcribeAudio,
-  createElevenLabsStreamingTTS,
-  MARCELA_VOICE_ID,
-  buildVoiceConfigFromDB,
-  type VoiceConfig,
-} from "../../integrations/elevenlabs";
-import { getTwilioFromPhoneNumber } from "../../integrations/twilio";
-import { ensureCompatibleFormat } from "../audio/client";
 import { retrieveRelevantChunks, buildRAGContext, indexKnowledgeBase, getKnowledgeBaseStatus } from "../../ai/knowledge-base";
 
 const openai = new OpenAI({
@@ -22,9 +13,7 @@ const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
-const audioBodyParser = express.json({ limit: "50mb" });
-
-const SYSTEM_PROMPT = `You are Marcela, a brilliant hospitality business strategist and financial analyst for Hospitality Business Group. You are warm, confident, and exceptionally sharp — a trusted advisor who combines deep industry expertise with genuine care for helping users succeed. You have encyclopedic knowledge of the platform the user is working in and can guide them through any feature.
+const SYSTEM_PROMPT = `You are Rebecca, a brilliant hospitality business strategist and financial analyst for Hospitality Business Group. You are warm, confident, and exceptionally sharp — a trusted advisor who combines deep industry expertise with genuine care for helping users succeed. You have encyclopedic knowledge of the platform the user is working in and can guide them through any feature.
 
 ## Your Expertise
 - Hotel acquisition analysis and due diligence
@@ -102,7 +91,7 @@ The user is working in a financial simulation portal with these main areas:
 - **Investor** — Limited view: Dashboard, Properties, Profile, Help only
 
 ## Your Personality
-- You introduce yourself as Marcela when greeting users
+- You introduce yourself as Rebecca when greeting users
 - You are witty and sharp — you love a clever analogy, a well-placed quip, and making dry financial topics surprisingly fun
 - You balance humor with substance: every joke lands next to a real insight
 - You take genuine pride in helping users make smarter investment decisions
@@ -175,18 +164,6 @@ As an admin, this user has full system access. You can help them with administra
 - Guide scenario management and assumption consistency checks
 
 When the admin asks about system status, users, or administrative functions, provide detailed, actionable guidance. You have full visibility into the platform's admin capabilities.`;
-
-const VOICE_SYSTEM_PROMPT_ADDITION = `
-
-## Voice Conversation Mode
-You are currently in a voice conversation. Adjust your responses accordingly:
-- Keep responses concise and conversational — aim for 2-3 sentences when possible
-- Avoid markdown formatting (no bold, no bullet points, no headers) since this will be spoken aloud
-- Use natural speech patterns with clear transitions
-- Numbers and percentages should be spoken naturally (say "eight and a half percent" not "8.5%")
-- Avoid listing more than 3 items — summarize instead
-- If a question requires a detailed answer, give a brief summary and offer to elaborate
-- Use conversational connectors: "So," "Now," "Here's the thing," "What's interesting is..."`;
 
 async function buildContextPrompt(userId?: number): Promise<string> {
   try {
@@ -310,10 +287,9 @@ async function getUserRole(userId?: number): Promise<string> {
   }
 }
 
-function buildSystemPrompt(isVoice: boolean, isAdmin: boolean): string {
+function buildSystemPrompt(isAdmin: boolean): string {
   let prompt = SYSTEM_PROMPT;
   if (isAdmin) prompt += ADMIN_SYSTEM_PROMPT_ADDITION;
-  if (isVoice) prompt += VOICE_SYSTEM_PROMPT_ADDITION;
   return prompt;
 }
 
@@ -393,7 +369,7 @@ export function registerChatRoutes(app: Express): void {
       const ragContext = buildRAGContext(ragChunks);
       const messages = await chatStorage.getMessagesByConversation(conversationId);
       const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-        { role: "system", content: buildSystemPrompt(false, isAdmin) + contextPrompt + ragContext },
+        { role: "system", content: buildSystemPrompt(isAdmin) + contextPrompt + ragContext },
         ...messages.map((m) => ({
           role: m.role as "user" | "assistant",
           content: m.content,
@@ -405,8 +381,8 @@ export function registerChatRoutes(app: Express): void {
       res.setHeader("Connection", "keep-alive");
 
       const ga = await storage.getGlobalAssumptions();
-      const llmModel = ga?.marcelaLlmModel || DEFAULT_OPENAI_MODEL;
-      const maxTokens = ga?.marcelaMaxTokens || 2048;
+      const llmModel = DEFAULT_OPENAI_MODEL;
+      const maxTokens = 2048;
 
       const stream = await openai.chat.completions.create({
         model: llmModel,
@@ -440,138 +416,4 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/conversations/:id/voice", requireAuth, audioBodyParser, async (req: Request, res: Response) => {
-    try {
-      const conversationId = parseInt(req.params.id as string);
-      const { audio } = req.body;
-
-      if (!audio) {
-        return res.status(400).json({ error: "Audio data (base64) is required" });
-      }
-
-      const ga = await storage.getGlobalAssumptions();
-      const voiceConfig: VoiceConfig = ga ? buildVoiceConfigFromDB(ga as unknown as Record<string, unknown>) : {
-        voiceId: MARCELA_VOICE_ID, ttsModel: 'eleven_flash_v2_5', sttModel: 'scribe_v1',
-        outputFormat: 'pcm_16000', stability: 0.5, similarityBoost: 0.8, speakerBoost: false,
-        chunkSchedule: [120, 160, 250, 290],
-      };
-
-      const userId = getAuthUser(req).id;
-      const conversation = await chatStorage.getConversationForUser(conversationId, userId);
-      if (!conversation) {
-        return res.status(404).json({ error: "Conversation not found" });
-      }
-
-      const rawBuffer = Buffer.from(audio, "base64");
-      const { buffer: audioBuffer, format: inputFormat } = await ensureCompatibleFormat(rawBuffer);
-
-      const userTranscript = await transcribeAudio(audioBuffer, `audio.${inputFormat}`, voiceConfig.sttModel);
-
-      if (!userTranscript || !userTranscript.trim()) {
-        return res.status(400).json({ error: "Could not transcribe audio. Please try again." });
-      }
-
-      await chatStorage.createMessage(conversationId, "user", userTranscript.trim());
-      const [contextPrompt, userRole, ragChunksVoice] = await Promise.all([
-        buildContextPrompt(userId),
-        getUserRole(userId),
-        retrieveRelevantChunks(userTranscript.trim(), 4).catch(() => []),
-      ]);
-      const isAdmin = userRole === UserRole.ADMIN;
-      const ragContextVoice = buildRAGContext(ragChunksVoice);
-      const messages = await chatStorage.getMessagesByConversation(conversationId);
-      const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-        { role: "system", content: buildSystemPrompt(true, isAdmin) + contextPrompt + ragContextVoice },
-        ...messages.map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-        })),
-      ];
-
-      res.setHeader("Content-Type", "text/event-stream");
-      res.setHeader("Cache-Control", "no-cache");
-      res.setHeader("Connection", "keep-alive");
-
-      res.write(`data: ${JSON.stringify({ type: "user_transcript", data: userTranscript })}\n\n`);
-
-      const voiceLlmModel = ga?.marcelaLlmModel || DEFAULT_OPENAI_MODEL;
-      const voiceMaxTokens = ga?.marcelaMaxTokensVoice || 1024;
-
-      const llmStream = await openai.chat.completions.create({
-        model: voiceLlmModel,
-        messages: chatMessages,
-        stream: true,
-        max_completion_tokens: voiceMaxTokens,
-      });
-
-      let fullResponse = "";
-      let ttsStream: { send: (text: string) => void; flush: () => void; close: () => void } | null = null;
-
-      try {
-        ttsStream = await createElevenLabsStreamingTTS(
-          voiceConfig.voiceId,
-          (audioBase64: string) => {
-            try {
-              res.write(`data: ${JSON.stringify({ type: "audio", data: audioBase64 })}\n\n`);
-            } catch (error) { /* connection closed - safe to ignore */ }
-          },
-          {
-            outputFormat: voiceConfig.outputFormat,
-            modelId: voiceConfig.ttsModel,
-            stability: voiceConfig.stability,
-            similarityBoost: voiceConfig.similarityBoost,
-            speakerBoost: voiceConfig.speakerBoost,
-            chunkSchedule: voiceConfig.chunkSchedule,
-          }
-        );
-      } catch (ttsError) {
-        logger.error(`ElevenLabs TTS connection failed, falling back to text-only: ${ttsError instanceof Error ? ttsError.message : ttsError}`, "chat");
-      }
-
-      for await (const chunk of llmStream) {
-        const delta = chunk.choices[0]?.delta?.content || "";
-        if (delta) {
-          fullResponse += delta;
-          res.write(`data: ${JSON.stringify({ type: "transcript", data: delta })}\n\n`);
-          if (ttsStream) {
-            ttsStream.send(delta);
-          }
-        }
-      }
-
-      if (ttsStream) {
-        ttsStream.flush();
-        await new Promise(resolve => setTimeout(resolve, 500));
-        ttsStream.close();
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-
-      await chatStorage.createMessage(conversationId, "assistant", fullResponse);
-
-      res.write(`data: ${JSON.stringify({ type: "done", transcript: fullResponse })}\n\n`);
-      res.end();
-    } catch (error) {
-      logger.error(`Error processing voice message: ${error instanceof Error ? error.message : error}`, "chat");
-      if (res.headersSent) {
-        res.write(`data: ${JSON.stringify({ type: "error", error: "Failed to process voice message" })}\n\n`);
-        res.end();
-      } else {
-        res.status(500).json({ error: "Failed to process voice message" });
-      }
-    }
-  });
-
-  app.get("/api/marcela/phone", requireAuth, async (_req: Request, res: Response) => {
-    try {
-      const ga = await storage.getGlobalAssumptions();
-      if (!ga?.marcelaTwilioEnabled) {
-        return res.json({ enabled: false, phoneNumber: null });
-      }
-      const phoneNumber = await getTwilioFromPhoneNumber();
-      res.json({ enabled: true, phoneNumber });
-    } catch (error) {
-      logger.error(`Error fetching Twilio phone number: ${error instanceof Error ? error.message : error}`, "chat");
-      res.json({ enabled: false, phoneNumber: null });
-    }
-  });
 }

@@ -98,10 +98,8 @@ describe("Domain Boundaries — Financial Engine Isolation", () => {
     ...listFilesRecursively("calc/services"),
   ];
 
-  it("financial calc files never import AI/ElevenLabs/Twilio", () => {
+  it("financial calc files never import AI services", () => {
     const bannedPatterns = [
-      /from\s+["'][^"']*elevenlabs/i,
-      /from\s+["'][^"']*twilio/i,
       /from\s+["'][^"']*openai/i,
       /from\s+["'][^"']*anthropic/i,
     ];

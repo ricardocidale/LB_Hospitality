@@ -80,8 +80,6 @@ function PrivacyContent() {
               <p className="text-muted-foreground leading-relaxed">We integrate with third-party services to provide functionality. These services may process your data under their own privacy policies:</p>
               <ul className="list-disc pl-5 text-muted-foreground space-y-1">
                 <li><strong className="text-foreground">AI Providers</strong> (Anthropic, Google, OpenAI) — for research generation and conversational AI</li>
-                <li><strong className="text-foreground">ElevenLabs</strong> — for voice synthesis in the AI assistant</li>
-                <li><strong className="text-foreground">Twilio</strong> — for telephony and SMS features</li>
                 <li><strong className="text-foreground">Sentry</strong> — for error tracking and performance monitoring</li>
                 <li><strong className="text-foreground">PostHog</strong> — for product analytics</li>
               </ul>

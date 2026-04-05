@@ -68,7 +68,6 @@ router.get("/api/health/deep", async (_req: Request, res: Response) => {
   try {
     const extChecks: Record<string, string> = {};
     if (process.env.RESEND_API_KEY) extChecks.resend = "configured";
-    if (process.env.ELEVENLABS_API_KEY || process.env.ELEVENLABS_CONNECTION_ID) extChecks.elevenlabs = "configured";
     if (process.env.GOOGLE_MAPS_API_KEY) extChecks.googleMaps = "configured";
     checks.externalServices = {
       status: Object.keys(extChecks).length > 0 ? "ok" : "degraded",

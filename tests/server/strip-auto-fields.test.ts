@@ -37,12 +37,12 @@ describe("stripAutoFields — unit tests", () => {
       id: 9,
       createdAt: new Date("2026-01-01"),
       updatedAt: new Date("2026-03-06"),
-      name: "Marcela",
-      marcelaEnabled: true,
-      marcelaAgentId: "agent_abc123",
+      name: "Config",
+      enabledFlag: true,
+      agentId: "agent_abc123",
     };
     const result = stripAutoFields(data);
-    expect(Object.keys(result)).toEqual(["name", "marcelaEnabled", "marcelaAgentId"]);
+    expect(Object.keys(result)).toEqual(["name", "enabledFlag", "agentId"]);
   });
 
   it("returns all fields when no auto fields present", () => {
@@ -268,22 +268,6 @@ describe("Storage Layer — Save routes use allowlisted fields or Zod validation
   function readRouteFile(...parts: string[]): string {
     return fs.readFileSync(path.join(routesDir, ...parts), "utf-8");
   }
-
-  it("voice-settings route validates with Zod schema", () => {
-    const src = readRouteFile("admin", "marcela.ts");
-    const postRoute = src.indexOf('app.post("/api/admin/voice-settings"');
-    const nextRoute = src.indexOf("app.", postRoute + 10);
-    const body = src.slice(postRoute, nextRoute > postRoute ? nextRoute : undefined);
-    expect(body).toContain("marcelaVoiceSettingsSchema.safeParse");
-  });
-
-  it("voice-settings route does NOT spread full GA record into upsert", () => {
-    const src = readRouteFile("admin", "marcela.ts");
-    const postRoute = src.indexOf('app.post("/api/admin/voice-settings"');
-    const routeEnd = src.indexOf("});", postRoute + 1);
-    const body = src.slice(postRoute, routeEnd);
-    expect(body).not.toContain("{ ...ga,");
-  });
 
   it("properties PATCH route validates with Zod schema", () => {
     const src = readRouteFile("properties.ts");

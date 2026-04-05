@@ -436,7 +436,7 @@ Scenarios: Save, load, and compare different assumption sets. Useful for stress 
 
 Help: User Manual (17 chapters — role-filtered so users only see sections relevant to their access level), Checker Manual (21 sections, visible to checkers and admins), and Interactive Guided Tour.
 
-Administration (Admin only): Users, Companies, Activity, Verification, User Groups, Logos, Themes, Navigation, Database, Marcela (AI assistant settings), ICP Management Co, Research Center, Integrations.
+Administration (Admin only): Users, Companies, Activity, Verification, User Groups, Logos, Themes, Navigation, Database, AI Assistant Settings, ICP Management Co, Research Center, Integrations.
 
 Role-based access: Investors see read-only dashboards and property details. Management users can edit properties, assumptions, scenarios, and run analysis. Checkers can access verification tools. Admins have full system access including user management and AI configuration.`,
     source: "Platform Guide",
@@ -521,7 +521,7 @@ Company-Level Research:
 1. Go to Management Company > Research tab
 2. AI benchmarks your management fee structure, staffing costs, and operational efficiency against industry standards
 
-All research reports are saved and available to Marcela for context in future conversations.`,
+All research reports are saved and available to Rebecca for context in future conversations.`,
     source: "Platform Guide",
     category: "guide",
   });

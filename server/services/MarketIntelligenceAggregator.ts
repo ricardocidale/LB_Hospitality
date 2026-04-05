@@ -11,9 +11,10 @@ import { WeatherService } from "./WeatherService";
 import { OpenExchangeRatesService } from "./OpenExchangeRatesService";
 import { WorldBankService } from "./WorldBankService";
 import { FinancialNewsService } from "./FinancialNewsService";
+import { AlphaVantageService } from "./AlphaVantageService";
 import { cache } from "../cache";
 import { storage } from "../storage";
-import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData, ApifyMarketData, RapidApiCompSetData, WeatherData, FxRates, WorldBankCountryData, FinancialNewsData } from "../../shared/market-intelligence";
+import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData, ApifyMarketData, RapidApiCompSetData, WeatherData, FxRates, WorldBankCountryData, FinancialNewsData, AlphaVantageData } from "../../shared/market-intelligence";
 
 interface AggregatorQuery {
   location?: string;
@@ -41,6 +42,7 @@ export class MarketIntelligenceAggregator {
   private fx: OpenExchangeRatesService;
   private worldBank: WorldBankService;
   private financialNews: FinancialNewsService;
+  private alphaVantage: AlphaVantageService;
 
   constructor() {
     this.fred = new FREDService();
@@ -56,6 +58,7 @@ export class MarketIntelligenceAggregator {
     this.fx = new OpenExchangeRatesService();
     this.worldBank = new WorldBankService();
     this.financialNews = new FinancialNewsService();
+    this.alphaVantage  = new AlphaVantageService();
   }
 
   async gather(query: AggregatorQuery): Promise<MarketIntelligence> {
@@ -89,7 +92,7 @@ export class MarketIntelligenceAggregator {
     }
     const isOn = (key: string) => enabledMap[key] !== false;
 
-    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult, apifyResult, fxResult, worldBankResult, rapidApiCompsResult, weatherResult, financialNewsResult] = await Promise.allSettled([
+    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult, apifyResult, fxResult, worldBankResult, rapidApiCompsResult, weatherResult, financialNewsResult, alphaVantageResult] = await Promise.allSettled([
       isOn("fred") ? this.fetchRates() : Promise.resolve({}),
       query.location && isOn("hospitality-benchmarks")
         ? this.hospitality.fetchBenchmarks({
@@ -140,14 +143,18 @@ export class MarketIntelligenceAggregator {
       query.country && isOn("world-bank")
         ? this.worldBank.fetchCountryData(query.country)
         : Promise.resolve(null),
-      query.location && this.rapidApiHospitality.isAvailable() && isOn("rapidapi-airbnb")
+      query.location && this.rapidApiHospitality.isAvailable()
+        && (isOn("rapidapi-airbnb") || isOn("rapidapi-booking") || isOn("rapidapi-hotels") || isOn("rapidapi-tripadvisor"))
         ? this.rapidApiHospitality.fetchCompSetData(query.location)
         : Promise.resolve(undefined),
       query.location && this.weather.isAvailable() && isOn("weather-api")
         ? this.weather.fetchWeatherData(query.location)
         : Promise.resolve(null),
-      query.location && this.financialNews.isAvailable() && isOn("cnbc-news")
+      query.location && this.financialNews.isAvailable() && (isOn("cnbc-news") || isOn("bloomberg-finance"))
         ? this.financialNews.fetchHospitalityNews(query.location)
+        : Promise.resolve(null),
+      this.alphaVantage.isAvailable() && isOn("alpha-vantage")
+        ? this.alphaVantage.fetchMarketData()
         : Promise.resolve(null),
     ]);
 
@@ -242,6 +249,13 @@ export class MarketIntelligenceAggregator {
       errors.push(`Financial news: ${financialNewsResult.reason?.message || "Unknown error"}`);
     }
 
+    let alphaVantage: AlphaVantageData | undefined;
+    if (alphaVantageResult.status === "fulfilled" && alphaVantageResult.value) {
+      alphaVantage = alphaVantageResult.value;
+    } else if (alphaVantageResult.status === "rejected") {
+      errors.push(`Alpha Vantage: ${alphaVantageResult.reason?.message || "Unknown error"}`);
+    }
+
     return {
       rates: {
         sofr: rates.sofr,
@@ -263,6 +277,7 @@ export class MarketIntelligenceAggregator {
       worldBank,
       groundedResearch,
       financialNews,
+      alphaVantage,
       fetchedAt: new Date().toISOString(),
       errors,
     };
@@ -278,7 +293,7 @@ export class MarketIntelligenceAggregator {
     return this.fred.fetchRate(seriesKey as any);
   }
 
-  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean; apify: boolean; rapidApiComps: boolean; weather: boolean; fx: boolean; worldBank: boolean; financialNews: boolean } {
+  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean; apify: boolean; rapidApiComps: boolean; weather: boolean; fx: boolean; worldBank: boolean; financialNews: boolean; alphaVantage: boolean } {
     return {
       fred: this.fred.isAvailable(),
       hospitality: this.hospitality.isAvailable(),
@@ -293,6 +308,7 @@ export class MarketIntelligenceAggregator {
       fx: this.fx.isAvailable(),
       worldBank: this.worldBank.isAvailable(),
       financialNews: this.financialNews.isAvailable(),
+      alphaVantage:  this.alphaVantage.isAvailable(),
     };
   }
   

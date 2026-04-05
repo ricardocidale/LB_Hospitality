@@ -46,6 +46,57 @@ The application features a React 18 frontend with TypeScript, Wouter, TanStack Q
 - **Observability:** Structured logging via `server/logger.ts`, client-side error boundaries (Sentry.ErrorBoundary, ErrorBoundary, FinancialErrorBoundary), activity logging for financial mutations, Sentry for error tracking, PostHog for analytics, Upstash Redis for caching, and circuit breakers. Health endpoints (`/api/health/live`, `/api/health/ready`, `/api/health/deep`) monitor system status.
 - **Image Processing:** Server-side Sharp pipeline for responsive WebP/AVIF image variants.
 
+## Tech Stack
+
+React 18 + TypeScript frontend, Express 5 + Drizzle ORM + PostgreSQL backend. Shared financial engine in `engine/`. Key libraries: Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, framer-motion, jsPDF, @react-pdf/renderer, Sharp, MapLibre GL, Sentry, PostHog, Upstash Redis.
+
+## Skill Router
+
+| Domain | Skill Path | What It Covers |
+|--------|-----------|---------------|
+| Context Loading | `.claude/skills/context-loading/SKILL.md` | Task-to-skill map, loading tiers |
+| Architecture | `.claude/skills/architecture/SKILL.md` | Tech stack, two-entity model, file organization |
+| Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,911 tests across 167 files, verification commands |
+| Admin (16 sections) | `.claude/skills/admin/SKILL.md` | 16-section shell pattern, extraction guide, API routes |
+| Finance (22 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF |
+| Research (23 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, ICP profile |
+| UI (45 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, navigation |
+
+## Key Rules
+
+- **Calculations always highest priority** — never compromise financial accuracy for visuals
+- **No raw hex in components** — use CSS variable tokens
+- **No mock data** in production paths
+- **Balance Sheet Identity**: A = L + E must hold within $1
+- **DEPRECIATION_YEARS = 39** — immutable
+- **Button labels always "Save"** — never "Update"
+- **LLM dual-model config** — primary + fallback, 7 domains, no hardcoded models
+- **Doc Harmony Rule:** `replit.md` and `.claude/claude.md` must stay in sync
+
+## User Roles
+
+| Role | Access |
+|------|--------|
+| `admin` | Full — all pages + Admin Settings |
+| `user` | Management-level — no Admin panel |
+| `checker` | User + verification tools |
+| `investor` | Limited — Dashboard, Properties, Profile, Help |
+
+## Quick Commands
+
+```bash
+npm run dev            # Start dev server (port 5000)
+npm run health         # tsc + tests + verify + doc harmony (~60s)
+npm run test:summary   # All 3,911 tests, 167 files (~35s)
+npm run verify:summary # 8-phase financial verification (~20s)
+npm run lint:summary   # TypeScript check only (<10s)
+npm run stats          # File/line/test counts (<5s)
+npm run audit:quick    # Code quality checks (<3s)
+npm run exports:check  # Unused export detection (<5s)
+npm run diff:summary   # Git status + diff stats (<1s)
+```
+
 ## External Dependencies
 
 - **Database:** PostgreSQL (managed by Drizzle ORM)

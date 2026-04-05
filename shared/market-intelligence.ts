@@ -204,6 +204,26 @@ export interface WeatherData {
   fetchedAt: string;
 }
 
+// ─── Alpha Vantage — Hospitality REIT & Macro ────────────────────────────────
+
+export interface ReitSnapshot {
+  symbol: string;
+  name: string;
+  latestClose: number;
+  weekAgo: number;
+  monthAgo: number;
+  weekChangePct: number;
+  monthChangePct: number;
+  fetchedAt: string;
+}
+
+export interface AlphaVantageData {
+  reits: ReitSnapshot[];
+  gdpGrowthQoQ?: number;
+  inflationYoY?: number;
+  fetchedAt: string;
+}
+
 // ─── Financial News Headlines ────────────────────────────────────────────────
 
 export interface NewsHeadline {
@@ -283,6 +303,7 @@ export interface MarketIntelligence {
   worldBank?: WorldBankCountryData;
   groundedResearch: GroundedSearchResult[];
   financialNews?: FinancialNewsData;
+  alphaVantage?: AlphaVantageData;
   fetchedAt: string;
   errors: string[];
 }

@@ -296,11 +296,11 @@ describe("extractWorkingCapitalChanges — engine-to-FCF bridge", () => {
   });
 
   it("skips entries without a period", () => {
-    const monthlyData = [
-      { workingCapitalChange: 1000 },
+    const monthlyData: Array<{ period?: string; workingCapitalChange: number }> = [
+      { period: undefined, workingCapitalChange: 1000 },
       { period: "2026-06", workingCapitalChange: 500 },
     ];
-    const wc = extractWorkingCapitalChanges(monthlyData as any);
+    const wc = extractWorkingCapitalChanges(monthlyData);
     expect(wc).toEqual({ "2026-06": 500 });
   });
 

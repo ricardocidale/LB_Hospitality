@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { applyEvents } from "../../statements/event-applier.js";
-import { computeFCF } from "../../analytics/fcf/compute-fcf.js";
+import { computeFCF, extractWorkingCapitalChanges } from "../../analytics/fcf/compute-fcf.js";
 import { computeReturnMetrics } from "../../analytics/returns/metrics.js";
 import { computeIRR } from "../../analytics/returns/irr.js";
 import type { StatementEvent } from "../../domain/ledger/types.js";
@@ -206,5 +206,44 @@ describe("golden — events → statements → FCF → returns", () => {
     expect(typeof metrics.total_invested).toBe("number");
     expect(typeof metrics.total_distributions).toBe("number");
     expect(typeof metrics.net_profit).toBe("number");
+  });
+
+  it("FCF: engine WC deltas flow through extractWorkingCapitalChanges → computeFCF", () => {
+    const stmts = applyEvents(events, rounding);
+
+    const engineMonthly = [
+      { period: "2026-07", workingCapitalChange: 5000 },
+      { period: "2026-08", workingCapitalChange: -2000 },
+    ];
+    const wcChanges = extractWorkingCapitalChanges(engineMonthly);
+
+    const withWC = computeFCF(
+      {
+        income_statements: stmts.income_statements,
+        cash_flows: stmts.cash_flows,
+        posted_entries: stmts.posted_entries,
+        working_capital_changes: wcChanges,
+      },
+      rounding,
+    );
+
+    const withoutWC = computeFCF(
+      {
+        income_statements: stmts.income_statements,
+        cash_flows: stmts.cash_flows,
+        posted_entries: stmts.posted_entries,
+      },
+      rounding,
+    );
+
+    const julyWith = withWC.consolidated.entries.find((e) => e.period === "2026-07")!;
+    const julyWithout = withoutWC.consolidated.entries.find((e) => e.period === "2026-07")!;
+    expect(julyWith.working_capital_change).toBe(5000);
+    expect(julyWith.fcff).toBe(julyWithout.fcff - 5000);
+
+    const augWith = withWC.consolidated.entries.find((e) => e.period === "2026-08")!;
+    const augWithout = withoutWC.consolidated.entries.find((e) => e.period === "2026-08")!;
+    expect(augWith.working_capital_change).toBe(-2000);
+    expect(augWith.fcff).toBe(augWithout.fcff + 2000);
   });
 });

@@ -28,7 +28,7 @@ This project is a business simulation portal for Hospitality Business Group, mod
 The application features a React 18 frontend with TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, and framer-motion. The backend is an Express 5 application utilizing Drizzle ORM and PostgreSQL.
 
 **Core Design Principles & Features:**
-- **Financial Accuracy & Compliance:** Highest priority, enforced by a comprehensive proof system (3,911 tests), GAAP verification, and USALI 12th Edition compliance. The Balance Sheet Identity (A = L + E) must hold within $1. Precision is hardened using `decimal.js`-backed arithmetic to eliminate floating-point drift.
+- **Financial Accuracy & Compliance:** Highest priority, enforced by a comprehensive proof system (3,911 tests across 167 files), GAAP verification, and USALI 12th Edition compliance. The Balance Sheet Identity (A = L + E) must hold within $1. Precision is hardened using `decimal.js`-backed arithmetic to eliminate floating-point drift.
 - **Modular Skill-Based Architecture:** Domain knowledge and context are managed through a skill-based system in `.claude/skills/`.
 - **Theming & UI/UX:** A robust theme engine provides consistent UI with 5 presets. All UI components are theme-compliant, and specific UI patterns are enforced. Every financial line item includes an `InfoTooltip`.
 - **Shared Financial Engine (`engine/`):** Pure financial calculation logic is extracted into a shared `engine/` package for property, company, aggregation, debt, and funding calculations. Both client and server import from `@engine/*`.

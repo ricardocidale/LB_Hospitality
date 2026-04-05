@@ -10,7 +10,7 @@ import { IconSave, IconFolderOpen, IconPencil, IconTrash, IconClock, IconFileSta
 import { PageHeader } from "@/components/ui/page-header";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { formatDateTime } from "@/lib/formatters";
@@ -26,6 +26,11 @@ export default function Scenarios() {
   const deleteScenario = useDeleteScenario();
   const { toast } = useToast();
   const { canManageScenarios } = useAuth();
+
+  const manualScenarios = useMemo(
+    () => scenarios?.filter((s) => !s.kind || s.kind === "manual") ?? [],
+    [scenarios]
+  );
 
   const [newScenarioName, setNewScenarioName] = useState("");
   const [newScenarioDescription, setNewScenarioDescription] = useState("");
@@ -220,8 +225,8 @@ export default function Scenarios() {
         <KPIGrid
           data-testid="kpi-scenarios"
           items={[
-            { label: "Total Scenarios", value: scenarios?.length ?? 0, sublabel: "saved snapshots" },
-            { label: "Latest Saved", value: scenarios?.length ?? 0, format: () => scenarios?.length ? new Date(scenarios[0].updatedAt || scenarios[0].createdAt).toLocaleDateString() : "—", sublabel: "most recent" },
+            { label: "Total Scenarios", value: manualScenarios.length, sublabel: "saved snapshots" },
+            { label: "Latest Saved", value: manualScenarios.length, format: () => manualScenarios.length ? new Date(manualScenarios[0].updatedAt || manualScenarios[0].createdAt).toLocaleDateString() : "—", sublabel: "most recent" },
           ]}
           columns={2}
           variant="light"
@@ -241,9 +246,9 @@ export default function Scenarios() {
               <div>
                 <CardTitle className="text-xl font-display text-foreground">Saved Scenarios</CardTitle>
                 <CardDescription className="label-text text-muted-foreground">
-                  {scenarios?.length === 0 
+                  {manualScenarios.length === 0 
                     ? "No scenarios saved yet. Save your current configuration to get started."
-                    : `${scenarios?.length} scenario${scenarios?.length === 1 ? '' : 's'} saved`
+                    : `${manualScenarios.length} scenario${manualScenarios.length === 1 ? '' : 's'} saved`
                   }
                 </CardDescription>
               </div>
@@ -272,7 +277,7 @@ export default function Scenarios() {
                   onChange={handleImport}
                   className="hidden"
                 />
-                {(scenarios?.length ?? 0) >= 2 && (
+                {manualScenarios.length >= 2 && (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -336,7 +341,7 @@ export default function Scenarios() {
               </div>
             )}
 
-            {scenarios?.length === 0 ? (
+            {manualScenarios.length === 0 ? (
               <div className="text-center py-12">
                 <IconFileStack className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                 <p className="label-text text-muted-foreground font-medium">No scenarios saved yet</p>
@@ -348,7 +353,7 @@ export default function Scenarios() {
               <ScrollReveal>
               <AnimatedGrid className="grid gap-4">
                 <TooltipProvider>
-                {scenarios?.map((scenario) => {
+                {manualScenarios.map((scenario) => {
                   const shared = isShared(scenario);
                   return (
                   <AnimatedGridItem key={scenario.id}>

@@ -19,7 +19,7 @@
  *   • Several legacy routes (e.g. /sensitivity, /financing, /map) redirect to their
  *     new consolidated locations.
  */
-import { Switch, Route, Redirect } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -199,6 +199,52 @@ function GlobalBeforeUnloadGuard() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
   return null;
+}
+
+function NavigationGuard() {
+  const [location] = useLocation();
+  const [, setLocation] = useLocation();
+  const { isDirty } = useScenarioDirtyState();
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
+  const prevLocationRef = useRef(location);
+  const suppressGuardRef = useRef(false);
+
+  useEffect(() => {
+    if (suppressGuardRef.current) {
+      suppressGuardRef.current = false;
+      prevLocationRef.current = location;
+      return;
+    }
+    if (location !== prevLocationRef.current && isDirty) {
+      const newPath = location;
+      setLocation(prevLocationRef.current);
+      setPendingPath(newPath);
+    } else {
+      prevLocationRef.current = location;
+    }
+  }, [location, isDirty, setLocation]);
+
+  const handleDiscard = () => {
+    if (pendingPath) {
+      suppressGuardRef.current = true;
+      setPendingPath(null);
+      setLocation(pendingPath);
+    }
+  };
+
+  const handleStay = () => {
+    setPendingPath(null);
+  };
+
+  return (
+    <UnsavedChangesDialog
+      open={!!pendingPath}
+      onOpenChange={(v) => { if (!v) handleStay(); }}
+      onDiscard={handleDiscard}
+      onStay={handleStay}
+      context="navigate"
+    />
+  );
 }
 
 function IdleAutoSave() {
@@ -401,6 +447,7 @@ function Router() {
   return (
     <>
       <GlobalBeforeUnloadGuard />
+      <NavigationGuard />
       <IdleAutoSave />
       <AutoSaveRestorePrompt />
       <LogoutProtectionDialog />

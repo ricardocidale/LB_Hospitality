@@ -78,7 +78,7 @@ export class XoteloService extends BaseIntegrationService {
   }
 
   isAvailable(): boolean {
-    return true;
+    return !!process.env.RAPIDAPI_KEY_2;
   }
 
   async searchHotels(query: string): Promise<XoteloSearchResult[]> {

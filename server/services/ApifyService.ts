@@ -273,7 +273,7 @@ export class ApifyService extends BaseIntegrationService {
   // ─── Helpers ──────────────────────────────────────────────────────────────
 
   private avg(nums: number[]): number {
-    return nums.reduce((a, b) => a + b, 0) / nums.length;
+    return Math.round(nums.reduce((a, b) => a + b, 0) / nums.length * 100) / 100;
   }
 
   private avgOptional(nums: (number | undefined)[]): number | undefined {

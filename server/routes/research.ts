@@ -272,7 +272,7 @@ export function register(app: Express) {
             xotelo: marketIntelligence.xotelo || null,
             groundedResearch: marketIntelligence.groundedResearch || [],
             errors: marketIntelligence.errors || [],
-            fetchedAt: marketIntelligence.fetchedAt,
+            fetchedAt: marketIntelligence.fetchedAt || null,
           };
         }
 

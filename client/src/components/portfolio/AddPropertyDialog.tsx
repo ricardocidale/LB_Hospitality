@@ -263,6 +263,9 @@ export function AddPropertyDialog({
                 {formData.inflationRate !== undefined && (
                   <span>Inflation: {(formData.inflationRate * 100).toFixed(1)}%</span>
                 )}
+                {formData.costRateTaxes !== undefined && (
+                  <span>Property tax: {(formData.costRateTaxes * 100).toFixed(2)}%</span>
+                )}
                 {formData.countryRiskPremium !== undefined && formData.countryRiskPremium > 0 && (
                   <span>Country risk: {(formData.countryRiskPremium * 100).toFixed(2)}%</span>
                 )}

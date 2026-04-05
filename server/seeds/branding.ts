@@ -19,14 +19,14 @@ export async function seedDefaultLogos() {
     logger.info("Added H+ Analytics logo to portfolio and set as default", "seed");
   }
 
-  const hasEnhanced = existingLogos.some(l => l.url === "/logos/h-plus-enhanced-transparent.png");
-  if (!hasEnhanced && existingLogos.length > 0) {
-    const enhancedVariants = [
-      { name: "H+ Analytics - Enhanced", companyName: "H+ Analytics", url: "/logos/h-plus-enhanced-transparent.png", isDefault: false },
-      { name: "H+ Analytics - Dark", companyName: "H+ Analytics", url: "/logos/h-plus-enhanced-dark.png", isDefault: false },
-    ];
-    await db.insert(logos).values(enhancedVariants);
-    logger.info("Added H+ Analytics enhanced logo variants (transparent + dark)", "seed");
+  const hPlusVariants = [
+    { name: "H+ Analytics - Enhanced", companyName: "H+ Analytics", url: "/logos/h-plus-enhanced-transparent.png", isDefault: false },
+    { name: "H+ Analytics - Dark", companyName: "H+ Analytics", url: "/logos/h-plus-enhanced-dark.png", isDefault: false },
+  ];
+  const missingVariants = hPlusVariants.filter(v => !existingLogos.some(l => l.url === v.url));
+  if (missingVariants.length > 0 && existingLogos.length > 0) {
+    await db.insert(logos).values(missingVariants);
+    logger.info(`Added ${missingVariants.length} missing H+ Analytics logo variant(s)`, "seed");
   }
 
   if (existingLogos.length > 0) return;

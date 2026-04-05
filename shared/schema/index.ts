@@ -10,4 +10,5 @@ export * from "./audit";
 export * from "./intelligence";
 export * from "./engagement";
 export * from "./notifications";
+export * from "./integrations";
 export * from "./types/jsonb-shapes";

@@ -4,8 +4,8 @@
  * Provides recent market news and hospitality/real estate headlines to give the
  * research AI current market sentiment and macro context.
  *
- * CNBC host: cnbc.p.rapidapi.com (RAPIDAPI_KEY_3)
- * Bloomberg host: bloomberg-finance.p.rapidapi.com (RAPIDAPI_KEY_3)
+ * CNBC host: cnbc.p.rapidapi.com (RAPIDAPI_KEY_3 — requires subscription)
+ * Bloomberg host: bloomberg-finance.p.rapidapi.com (RAPIDAPI_KEY_3 — requires subscription)
  *
  * Cache TTL: 2 hours — news is time-sensitive but not real-time
  */

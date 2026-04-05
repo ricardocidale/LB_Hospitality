@@ -5,7 +5,7 @@
  * provides current conditions, 7-day forecast, and historical monthly averages
  * to give the research AI seasonal demand context.
  *
- * Host: weatherapi-com.p.rapidapi.com (RAPIDAPI_KEY_3)
+ * Host: weatherapi-com.p.rapidapi.com (RAPIDAPI_KEY)
  * Docs: https://www.weatherapi.com/docs/
  *
  * Endpoints used:
@@ -33,7 +33,7 @@ export class WeatherService extends BaseIntegrationService {
   }
 
   isAvailable(): boolean {
-    return isRapidApiAvailable("tertiary");
+    return isRapidApiAvailable("primary");
   }
 
   async fetchWeatherData(location: string): Promise<WeatherData | null> {
@@ -57,7 +57,7 @@ export class WeatherService extends BaseIntegrationService {
       });
 
       const response = await this.fetchWithTimeout(url, {
-        headers: rapidApiHeaders(HOST, "tertiary"),
+        headers: rapidApiHeaders(HOST, "primary"),
       });
       const data = await response.json();
 
@@ -110,7 +110,7 @@ export class WeatherService extends BaseIntegrationService {
         const url = `${BASE_URL}/history.json?` + new URLSearchParams({ q: location, dt: date });
 
         const response = await this.fetchWithTimeout(url, {
-          headers: rapidApiHeaders(HOST, "tertiary"),
+          headers: rapidApiHeaders(HOST, "primary"),
         });
         const data = await response.json();
         const day = data?.forecast?.forecastday?.[0]?.day;

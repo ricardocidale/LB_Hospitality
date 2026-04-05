@@ -338,6 +338,12 @@ async function runSchemaMigrations() {
     await runDropMarcelaColumns();
     await markMigrationApplied("drop_marcela_columns_001");
   }
+
+  if (!(await isMigrationApplied("seed_external_integrations_001"))) {
+    const { seedExternalIntegrations } = await import("./migrations/seed-external-integrations");
+    await seedExternalIntegrations();
+    await markMigrationApplied("seed_external_integrations_001");
+  }
 }
 
 async function runSeeds() {

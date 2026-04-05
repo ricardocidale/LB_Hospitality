@@ -87,9 +87,9 @@ export class XoteloService extends BaseIntegrationService {
       cacheKey,
       CACHE_TTL_SECONDS,
       async () => {
-        const rapidApiKey = process.env.RAPIDAPI_KEY;
+        const rapidApiKey = process.env.RAPIDAPI_KEY_2;
         if (!rapidApiKey) {
-          this.warn("Xotelo /search requires RapidAPI subscription — skipping");
+          this.warn("Xotelo /search requires RAPIDAPI_KEY_2 subscription — skipping");
           return [];
         }
         const url = `https://xotelo-hotel-prices.p.rapidapi.com/api/search?query=${encodeURIComponent(query)}`;

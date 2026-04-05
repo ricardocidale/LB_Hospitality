@@ -5,18 +5,18 @@
  * the research AI until RapidAPI quality is verified superior, at which point
  * Apify actors can be phased out per source.
  *
- * Sources (all via RAPIDAPI_KEY_2):
- *   Airbnb    — InsideBnB Team     (airbnb13.p.rapidapi.com)
- *   Booking   — Api Dojo           (booking-com.p.rapidapi.com)
- *   Hotels.com — Things4u          (hotels-com-provider.p.rapidapi.com)
- *   TripAdvisor — apiheya          (tripadvisor16.p.rapidapi.com)
+ * Sources:
+ *   Airbnb    — InsideBnB Team     (airbnb13.p.rapidapi.com)       → RAPIDAPI_KEY_3
+ *   Booking   — Api Dojo           (booking-com.p.rapidapi.com)    → RAPIDAPI_KEY_2
+ *   Hotels.com — Things4u          (hotels-com-provider.p.rapidapi.com) → RAPIDAPI_KEY_3
+ *   TripAdvisor — apiheya          (tripadvisor16.p.rapidapi.com)  → NOT SUBSCRIBED (404 on all keys)
  *
  * Cache TTL: 12h — same as ApifyService for fair comparison.
  */
 
 import { BaseIntegrationService } from "./BaseIntegrationService";
 import { cache } from "../cache";
-import { rapidApiHeaders, isRapidApiAvailable } from "./rapidApiKeyRouter";
+import { rapidApiHeaders, isRapidApiAvailable, type RapidApiSlot } from "./rapidApiKeyRouter";
 import type { RapidApiCompSetData, StrListingSnapshot, DataPoint } from "../../shared/market-intelligence";
 
 const CACHE_TTL_SECONDS = 12 * 60 * 60;
@@ -35,7 +35,7 @@ export class RapidApiHospitalityService extends BaseIntegrationService {
   }
 
   isAvailable(): boolean {
-    return isRapidApiAvailable("secondary");
+    return isRapidApiAvailable("tertiary");
   }
 
   async fetchCompSetData(location: string, roomCount = 1): Promise<RapidApiCompSetData> {
@@ -83,7 +83,7 @@ export class RapidApiHospitalityService extends BaseIntegrationService {
       offset:   "0",
     });
 
-    const data = await this.get(url, "airbnb", "secondary");
+    const data = await this.get(url, "airbnb", "tertiary");
     if (!data) return undefined;
 
     const items: any[] = data?.results ?? data?.data ?? [];
@@ -188,7 +188,7 @@ export class RapidApiHospitalityService extends BaseIntegrationService {
       currency_code:  "USD",
     });
 
-    const data = await this.get(url, "hotels-com", "secondary");
+    const data = await this.get(url, "hotels-com", "tertiary");
     if (!data) return undefined;
 
     const items: any[] = data?.data?.body?.searchResults?.results ?? data?.results ?? [];
@@ -220,7 +220,7 @@ export class RapidApiHospitalityService extends BaseIntegrationService {
     const searchUrl = `https://${HOSTS.tripadvisor}/api/v1/hotels/searchLocation?` + new URLSearchParams({
       query: location,
     });
-    const searchData = await this.get(searchUrl, "tripadvisor-search", "secondary");
+    const searchData = await this.get(searchUrl, "tripadvisor-search", "tertiary");
     const geoId = searchData?.data?.[0]?.geoId ?? searchData?.[0]?.geoId;
     if (!geoId) return undefined;
 
@@ -236,7 +236,7 @@ export class RapidApiHospitalityService extends BaseIntegrationService {
       sort:           "POPULARITY",
     });
 
-    const data = await this.get(url, "tripadvisor-hotels", "secondary");
+    const data = await this.get(url, "tripadvisor-hotels", "tertiary");
     if (!data) return undefined;
 
     const items: any[] = data?.data?.data ?? data?.results ?? [];
@@ -260,7 +260,7 @@ export class RapidApiHospitalityService extends BaseIntegrationService {
 
   // ─── Shared helpers ───────────────────────────────────────────────────────
 
-  private async get(url: string, label: string, slot: "secondary"): Promise<any> {
+  private async get(url: string, label: string, slot: RapidApiSlot): Promise<any> {
     try {
       const host = new URL(url).hostname;
       const response = await this.fetchWithTimeout(url, {

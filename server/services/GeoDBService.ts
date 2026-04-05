@@ -5,7 +5,7 @@
  * population, country code, region) for use across services that need
  * precise location metadata.
  *
- * Host: wft-geo-db.p.rapidapi.com (RAPIDAPI_KEY_3)
+ * Host: wft-geo-db.p.rapidapi.com (RAPIDAPI_KEY)
  * Docs: http://geodb-free-service.wirefreethought.com/docs/api
  *
  * Cache TTL: 7 days — city data is stable.
@@ -38,7 +38,7 @@ export class GeoDBService extends BaseIntegrationService {
   }
 
   isAvailable(): boolean {
-    return isRapidApiAvailable("tertiary");
+    return isRapidApiAvailable("primary");
   }
 
   async searchCity(query: string, countryCode?: string): Promise<GeoCity | null> {
@@ -64,7 +64,7 @@ export class GeoDBService extends BaseIntegrationService {
 
       const url = `${BASE_URL}/cities?${params}`;
       const response = await this.fetchWithTimeout(url, {
-        headers: rapidApiHeaders(HOST, "tertiary"),
+        headers: rapidApiHeaders(HOST, "primary"),
       });
       const data = await response.json();
       const cities: any[] = data?.data ?? [];
@@ -105,7 +105,7 @@ export class GeoDBService extends BaseIntegrationService {
 
         const url = `${BASE_URL}/cities?${params}`;
         const response = await this.fetchWithTimeout(url, {
-          headers: rapidApiHeaders(HOST, "tertiary"),
+          headers: rapidApiHeaders(HOST, "primary"),
         });
         const data = await response.json();
         const cities: any[] = data?.data ?? [];

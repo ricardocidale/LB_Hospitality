@@ -190,6 +190,7 @@ export function register(app: Express) {
 
       const params = {
         type,
+        propertyId: propertyId || undefined,
         propertyContext: propertyContext as any,
         assetDefinition: adWithGlobal,
         researchVariables,

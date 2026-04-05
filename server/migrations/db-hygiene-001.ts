@@ -72,6 +72,7 @@ export async function cleanOrphanedLogos() {
     const result = await db.execute(sql`
       DELETE FROM logos
       WHERE is_default = false
+        AND url NOT LIKE '/logos/h-plus-%'
         AND id NOT IN (
           SELECT logo_id FROM companies WHERE logo_id IS NOT NULL
           UNION

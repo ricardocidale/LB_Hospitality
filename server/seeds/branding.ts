@@ -19,6 +19,16 @@ export async function seedDefaultLogos() {
     logger.info("Added H+ Analytics logo to portfolio and set as default", "seed");
   }
 
+  const hasEnhanced = existingLogos.some(l => l.url === "/logos/h-plus-enhanced-transparent.png");
+  if (!hasEnhanced && existingLogos.length > 0) {
+    const enhancedVariants = [
+      { name: "H+ Analytics - Enhanced", companyName: "H+ Analytics", url: "/logos/h-plus-enhanced-transparent.png", isDefault: false },
+      { name: "H+ Analytics - Dark", companyName: "H+ Analytics", url: "/logos/h-plus-enhanced-dark.png", isDefault: false },
+    ];
+    await db.insert(logos).values(enhancedVariants);
+    logger.info("Added H+ Analytics enhanced logo variants (transparent + dark)", "seed");
+  }
+
   if (existingLogos.length > 0) return;
 
   await db.insert(logos).values([
@@ -27,6 +37,18 @@ export async function seedDefaultLogos() {
       companyName: "H+ Analytics",
       url: "/logos/h-plus-glass.png",
       isDefault: true,
+    },
+    {
+      name: "H+ Analytics - Enhanced",
+      companyName: "H+ Analytics",
+      url: "/logos/h-plus-enhanced-transparent.png",
+      isDefault: false,
+    },
+    {
+      name: "H+ Analytics - Dark",
+      companyName: "H+ Analytics",
+      url: "/logos/h-plus-enhanced-dark.png",
+      isDefault: false,
     },
     {
       name: "Hospitality Business Group",
@@ -53,7 +75,7 @@ export async function seedDefaultLogos() {
       isDefault: false,
     },
   ]);
-  logger.info("Seeded default logos: H+ Analytics (default) + HBG + 3 Norfolk AI variants", "seed");
+  logger.info("Seeded default logos: H+ Analytics (3 variants, Glass=default) + HBG + 3 Norfolk AI", "seed");
 }
 
 export async function seedCompanies() {

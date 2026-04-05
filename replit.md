@@ -108,8 +108,27 @@ npm run diff:summary   # Git status + diff stats (<1s)
 - **Monitoring & Analytics:** Sentry, PostHog
 - **Caching:** Upstash Redis
 - **AI/LLM Providers:** `@anthropic-ai/sdk`, Gemini
+- **Vector DB:** Pinecone (serverless, `lb-hospitality` index, 1536-dim cosine, `text-embedding-3-small`)
 - **Icons:** @phosphor-icons/react, Lucide
 - **Email:** Resend
 - **AI Assistant:** Rebecca (chat-based financial advisor)
 - **Research/Data APIs:** RapidAPI (RealtyService, USRealEstateService, XoteloService), FREDService, HospitalityBenchmarkService, MoodysService, SPGlobalService, Perplexity SDK, Tavily
 - **Spreadsheet/Presentation:** xlsx, pptxgenjs (client-side)
+
+## Storage Architecture (SQL vs Pinecone)
+
+| Layer | Store | What | Why |
+|-------|-------|------|-----|
+| Structured data | PostgreSQL | Properties, scenarios, users, market_research, market_rates, global_assumptions, logos, companies, integrations | Relational integrity, ACID transactions, joins, indexing |
+| Semantic retrieval | Pinecone `knowledge-base` | Document chunks from methodology, platform guide, checker manual, attached_assets | RAG for AI chat (Rebecca) and research prompts |
+| Prior knowledge | Pinecone `research-history` | Research result summaries (≤1,500 chars), key metrics, propertyId, location | Enables "what did we learn about similar properties?" context for N+1 orchestrator |
+
+**Design rule:** SQL is the system of record; Pinecone is the semantic index. Research results live in `market_research` (full content, JSONB) and are *additionally* indexed in Pinecone (summary only) for retrieval.
+
+## H+ Analytics Logo Variants
+
+| Variant | Path | Best Use |
+|---------|------|----------|
+| Glass (default) | `/logos/h-plus-glass.png` | Sidebar, favicon, small contexts |
+| Enhanced Transparent | `/logos/h-plus-enhanced-transparent.png` | Login page, reports, light backgrounds |
+| Enhanced Dark | `/logos/h-plus-enhanced-dark.png` | PDF headers, dark mode, presentation slides |

@@ -2,6 +2,7 @@ import type { MarketIntelligence } from "../../shared/market-intelligence";
 
 export interface ResearchParams {
   type: "property" | "company" | "global";
+  propertyId?: number;
   propertyLabel?: string;
   propertyContext?: {
     name: string;

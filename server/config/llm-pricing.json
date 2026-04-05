@@ -15,11 +15,9 @@
     "sonar-pro":                   { "input": 3.00,   "output": 15.00 }
   },
   "unitPricing": {
-    "elevenlabs-tts":   0.30,
     "replicate-image":  0.01,
     "gpt-image-1":      0.04,
     "resend-email":     0.001,
-    "twilio-sms":       0.0079,
     "document-ai-page": 0.01,
     "google-maps":      0.005
   },

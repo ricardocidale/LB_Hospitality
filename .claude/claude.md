@@ -61,11 +61,9 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Multi-Tenancy | `.claude/skills/multi-tenancy/SKILL.md` | Users, groups, logos, themes, branding resolution |
 | Exports | `.claude/skills/exports/SKILL.md` | PDF, Excel, PPTX, PNG, CSV export system |
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
-| Codebase Arch | `.claude/skills/codebase-architecture/SKILL.md` | Client folder structure, UI component catalog (80+), ElevenLabs architecture |
+| Codebase Arch | `.claude/skills/codebase-architecture/SKILL.md` | Client folder structure, UI component catalog (80+) |
 | Admin Components | `.claude/skills/admin-components/SKILL.md` | Admin panel hooks, styles, tooltip patterns |
 | Admin (16 sections) | `.claude/skills/admin/SKILL.md` | 16-section shell pattern, extraction guide, API routes |
-| Marcela AI | `.claude/skills/marcela-ai/SKILL.md` | Multi-channel assistant, audio pipeline, ElevenLabs |
-| Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
 | Finance (22 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, fee categories, funding interest, diagnostic decision tree, etc. |
 | Funding Strategy | `.claude/skills/funding-strategy/SKILL.md` | SAFE tranche modeling, cash runway, investor thesis, FRED rates |
 | Research (23 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, ICP profile, research center, etc. |
@@ -77,7 +75,6 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Verification | `.claude/skills/proof-system/verification-system.md` | GAAP verification pipeline detail |
 | Release Checklist | `.claude/skills/proof-system/release-audit-checklist.md` | Pre-release audit (load for releases) |
 | Coding Conventions | `.claude/skills/coding-conventions/SKILL.md` | Naming, formatting, context reduction, skill organization |
-| ElevenLabs | `.claude/skills/elevenlabs/SKILL.md` | ElevenLabs SDK reference, speech-to-text, text-to-speech, conversational AI |
 | Help Page | `.claude/skills/help-page/SKILL.md` | Help page with User Manual, Checker Manual, Guided Tour tabs |
 | Property Finder | `.claude/skills/property-finder/SKILL.md` | RealtyService (Realtor.com listings), USRealEstateService (property values), XoteloService (hotel market comps), MarketContextPanel |
 | Tool Schemas | `.claude/skills/tool-schemas/SKILL.md` | Tool schema organization for calc/ deterministic tools |
@@ -99,7 +96,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Save Buttons | `.claude/skills/ui/save-button-placement.md` | SaveButton component, three placement patterns, dirty-tracking |
 | Server Finance Engine | `server/finance/` | Server-authoritative portfolio pipeline: `service.ts` orchestrator, `core/` re-exports client pure functions, `POST /api/finance/compute` endpoint |
 | Deterministic Hashing | `server/scenarios/stable-json.ts` | `json-stable-stringify` + 64-char SHA-256, `fast-deep-equal` for diff engine, tenant-scoped DB writes |
-| Business Domain Pointers (13) | `.agents/skills/` | Slim pointers to `.claude/skills/` — business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision, export system, design export, card widths, save buttons, settings architecture |
+| Business Domain Pointers (13) | `.agents/skills/` | Slim pointers to `.claude/skills/` — business model, financial engine, verification, design philosophy, integrations, API contract, product vision, export system, design export, card widths, save buttons, settings architecture |
 
 ---
 
@@ -197,7 +194,7 @@ Full reference: `.claude/skills/exports/SKILL.md`. SDD: `.claude/skills/exports/
 - **No mock data** in production paths
 - **Finance changes must state Active Skill** and pass verification (UNQUALIFIED)
 - **ANOI terminology**: After-fee NOI = "Adjusted NOI (ANOI)". Internal field stays `noi`.
-- **Marcela must NEVER compute financial values** — all data from the calculation engine
+- **Rebecca must NEVER compute financial values** — all data from the calculation engine
 - **Engine chain**: `gop = revenue − opex`, `agop = gop − feeBase − feeIncentive`, `noi = agop − expenseTaxes`, `anoi = noi − expenseFFE`
 - **Balance Sheet Identity**: A = L + E must hold within $1. Cash derivation uses `m.anoi` (never `m.noi`). See `rules/balance-sheet-identity.md`.
 - **Brand colors**: SAGE=#9FBCA4, DARK_GREEN=#257D41, NAVY=#1A2332, SECTION_BG=#EFF5F0, ALT_ROW=#F8FAF9

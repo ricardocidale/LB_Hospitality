@@ -23,7 +23,6 @@ client/src/
 │   ├── settings/        # User settings tabs
 │   └── *.tsx            # Top-level shared components (Layout, Breadcrumbs, etc.)
 ├── features/            # Self-contained feature modules
-│   ├── ai-agent/        # Marcela AI (ElevenLabs, voice, chat)
 │   └── design-themes/   # Theme management (ThemeManager, ThemePreview)
 ├── hooks/               # Shared React hooks
 ├── lib/                 # Utilities, API clients, engine
@@ -153,9 +152,6 @@ Barrel files aggregate exports from a directory into a single import path.
 | `components/property-research/` | `index.ts` | Research sub-components |
 | `components/property-finder/` | `index.ts` | Finder sub-components |
 | `components/` | `IndustryResearchTab.tsx` | Industry research settings tab |
-| `features/ai-agent/` | `index.ts` | ElevenLabsWidget, VoiceChat*, Speaker, Transcriber |
-| `features/ai-agent/components/` | `index.ts` | 16+ AI agent UI components |
-| `features/ai-agent/hooks/` | `index.ts` | AI agent hooks + query keys |
 | `lib/api/` | `index.ts` | API client modules |
 | `lib/financial/` | `index.ts` | Financial engine (types, utils, calculators) |
 | `lib/exports/` | `index.ts` | Export utilities |
@@ -167,9 +163,6 @@ These files re-export from a canonical source to provide backward-compatible or 
 
 | Wrapper | Source of Truth | Purpose |
 |---------|----------------|---------|
-| `components/admin/MarcelaTab.tsx` | `./marcela/MarcelaTab` | Barrel convenience |
-| `components/admin/marcela/hooks.ts` | `@/features/ai-agent/hooks` | Bridge admin→feature |
-| `components/admin/marcela/types.ts` | `features/ai-agent/types` | Bridge admin→feature |
 | `components/financial-table-rows.tsx` | `./financial-table/index` | Legacy path |
 | `components/ConsolidatedBalanceSheet.tsx` | `./statements/ConsolidatedBalanceSheet` | Legacy path |
 | `lib/api.ts` | `./api/index` | Shorthand `@/lib/api` |
@@ -182,190 +175,6 @@ These files re-export from a canonical source to provide backward-compatible or 
 2. New code should import from the canonical source, not wrappers
 3. Never create new wrappers — use barrel files instead
 4. Orphan wrappers (zero importers) should be deleted during cleanup
-
-## ElevenLabs / AI Agent Architecture ("Marcela")
-
-### NPM Packages
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `elevenlabs` | ^1.56.1 | Server-side SDK — TTS, STT, Convai API |
-| `@elevenlabs/react` | ^0.14.1 | Client React hooks — `useConversation` (WebRTC voice sessions) |
-| `@elevenlabs/convai-widget-core` | ^0.10.0 | Native `<elevenlabs-convai>` web component core |
-| `@elevenlabs/elevenlabs-js` | ^2.38.1 | Client JS SDK — voice types, `Scribe` realtime transcription |
-
-### Type Declarations
-`client/src/elevenlabs-convai.d.ts` — JSX intrinsic element types for `<elevenlabs-convai>` web component (agent-id, signed-url, variant, avatar, dynamic-variables, etc.)
-
-### Feature Module: `features/ai-agent/`
-
-Self-contained feature module. DO NOT touch `Speaker.tsx` or modify ElevenLabs internal files except for error boundaries.
-
-```
-features/ai-agent/
-├── index.ts                     # Barrel: ElevenLabsWidget, VoiceChatOrb/Full/Bar, Speaker, RealtimeTranscriber01
-├── types.ts                     # VoiceSettings, TwilioStatus, TTS_MODELS, STT_MODELS, OUTPUT_FORMATS, LLM_MODELS
-├── query-keys.ts                # AI_AGENT_KEYS for TanStack Query
-├── ElevenLabsWidget.tsx         # Main floating widget — lazy-loads variant (Orb/Bars/Matrix/ConversationBar)
-├── VoiceChatOrb.tsx             # Voice-only orb interface using @elevenlabs/react useConversation
-├── VoiceChatFull.tsx            # Full chat + voice hybrid using @elevenlabs/react useConversation
-├── VoiceChatBar.tsx             # Compact bar chat interface
-├── Speaker.tsx                  # Standalone TTS audio player (DO NOT MODIFY)
-├── RealtimeTranscriber.tsx      # Live speech-to-text using @elevenlabs/client Scribe
-├── RealtimeTranscriberLanguageSelector.tsx  # Language dropdown for Scribe
-├── components/                  # 18 sub-components (see below)
-│   ├── index.ts                 # Barrel (AgentState collision note: orb exported separately)
-│   ├── orb.tsx                  # 3D WebGL orb + CSSFallbackOrb + WebGLBoundary error boundary
-│   ├── bar-visualizer.tsx       # Audio volume bars, useAudioVolume hook
-│   ├── matrix.tsx               # LED matrix visualizer (default/vu modes)
-│   ├── conversation-bar.tsx     # ConversationBar — main voice+text widget using @elevenlabs/react
-│   ├── conversation.tsx         # Conversation, ConversationContent, ConversationEmptyState containers
-│   ├── waveform.tsx             # Waveform, ScrollingWaveform, AudioScrubber (Canvas, NOT WebGL)
-│   ├── live-waveform.tsx        # LiveWaveform for realtime audio (Canvas, NOT WebGL)
-│   ├── audio-player.tsx         # AudioPlayer context + useAudioPlayer hook
-│   ├── voice-button.tsx         # VoiceButton with states (idle/connecting/connected/error)
-│   ├── voice-picker.tsx         # Voice selection dropdown (ElevenLabs voice library)
-│   ├── mic-selector.tsx         # MicSelector + useAudioDevices hook
-│   ├── speech-input.tsx         # Speech input bar with recording state
-│   ├── scrub-bar.tsx            # Audio scrub/seek bar
-│   ├── shimmering-text.tsx      # Animated text effect for agent responses
-│   ├── message.tsx              # Message bubble (user/agent variants)
-│   ├── response.tsx             # Streaming response renderer (uses Streamdown)
-│   └── transcript-viewer.tsx    # Transcript display with word-level alignment
-└── hooks/
-    ├── index.ts                 # Barrel + AI_AGENT_KEYS re-export
-    ├── use-agent-settings.ts    # useMarcelaSettings — fetch/update voice settings
-    ├── use-convai-api.ts        # useConvaiAgent — fetch Convai agent config
-    ├── use-conversations.ts     # useConvaiConversations — list/fetch/delete conversations
-    ├── use-knowledge-base.ts    # useKnowledgeBase — KB document management
-    └── use-signed-url.ts        # useSignedUrl — fetch signed URL for WebRTC sessions
-```
-
-### Related Client Hooks (outside feature module)
-| Hook | Path | Purpose |
-|------|------|---------|
-| `use-scribe.ts` | `hooks/` | ElevenLabs `@elevenlabs/client` Scribe realtime connection, exports AudioFormat, CommitStrategy, RealtimeEvents |
-| `use-transcript-viewer.ts` | `hooks/` | Transcript playback with CharacterAlignmentResponseModel |
-
-### Widget Variants (configured via Admin > AI Agent > Voice tab)
-| Variant Key | Component | Visual |
-|-------------|-----------|--------|
-| `compact` | `ConversationBar` | Text + voice bar (default) |
-| `orb` | `Orb` + `ConversationBar` | 3D/CSS animated orb + expandable bar |
-| `bars` | `BarVisualizer` + `ConversationBar` | Audio level bars + expandable bar |
-| `matrix` | `Matrix` + `ConversationBar` | LED grid + expandable bar |
-| `full` | Standalone page only | Full chat + voice (VoiceLab page) |
-| `tiny` | Native `<elevenlabs-convai>` | ElevenLabs default widget |
-| `voice-bar` | `VoiceChatBar` | Custom SDK voice bar |
-
-### VoiceLab Page (`pages/VoiceLab.tsx`)
-Showcase page exposing all voice interface variants in tabs: Voice Orb, Full Chat, Bar, Realtime Transcriber, and Speaker demo.
-
-### Server-Side Architecture
-
-#### `server/integrations/elevenlabs.ts` — Core ElevenLabs Client
-| Export | Description |
-|--------|-------------|
-| `getUncachableElevenLabsClient()` | Create `ElevenLabsClient` with Replit connector credentials |
-| `getElevenLabsApiKey()` | Get raw API key for direct REST calls |
-| `MARCELA_VOICE_ID` | Default voice: `cgSgspJ2msm6clMCkdW9` |
-| `buildVoiceConfigFromDB(ga)` | Build VoiceConfig from globalAssumptions DB row |
-| `createElevenLabsStreamingTTS(voiceId, onAudioChunk, opts)` | WebSocket streaming TTS (used by Twilio phone) |
-| `getConvaiAgent(agentId)` | GET Convai agent config |
-| `updateConvaiAgent(agentId, config)` | PATCH Convai agent (prompt, tools, voice, LLM) |
-| `listConvaiConversations(agentId)` | List agent conversations |
-| `getConvaiConversation(id)` / `deleteConvaiConversation(id)` | Single conversation CRUD |
-| `getSignedUrl(agentId)` | Get signed URL for client WebRTC sessions |
-| `createKBDocumentFromText(name, text)` / `createKBDocumentFromFile(name, buf, filename)` | Upload knowledge base docs |
-| `getKBDocument(id)` / `deleteKBDocument(id)` | KB document CRUD |
-| `getConversationAudio(id)` | Download conversation audio recording |
-| `transcribeAudio(buffer, filename, sttModel?)` | STT transcription |
-
-#### `server/integrations/elevenlabs-audio.ts` — Telephony Audio Utilities
-| Export | Description |
-|--------|-------------|
-| `mulaw2linear(byte)` / `linear2mulaw(sample)` | μ-law ↔ PCM conversion |
-| `mulawBufferToWav(mulawData)` | Convert μ-law buffer to WAV |
-| `pcm16ToMulaw(pcmBase64)` | Convert PCM16 base64 to μ-law |
-| `downsample(pcmBase64, fromRate, toRate)` | Audio resampling |
-| `escapeXml(str)` | XML-safe string escaping (for TwiML) |
-| `buildSystemPrompt(channel, isAdmin)` | Build Marcela system prompt for phone/SMS |
-
-#### `server/ai/marcela-agent-config.ts` — Convai Agent Configuration
-| Export | Description |
-|--------|-------------|
-| `getBaseUrl()` | Resolve app URL (REPLIT_DEV_DOMAIN → REPL_SLUG → localhost) |
-| `buildClientTools()` | 12 client-side tools (navigateToPage, showPropertyDetails, openPropertyEditor, showPortfolio, showAnalysis, showDashboard, startGuidedTour, openHelp, showScenarios, openPropertyFinder, showCompanyPage, getCurrentContext) |
-| `buildServerTools(baseUrl)` | 6 webhook tools (getProperties, getPropertyDetails, getPortfolioSummary, getScenarios, getGlobalAssumptions, getNavigation) |
-| `configureMarcelaAgent()` | Register all 18 tools + LLM model on the Convai agent |
-
-#### `server/ai/marcela-knowledge-base.ts` — Knowledge Base Builder
-| Export | Description |
-|--------|-------------|
-| `uploadKnowledgeBase()` | Build KB document from live data → upload to Convai → attach to agent |
-| `getKnowledgeDocumentPreview()` | Preview KB document (sections, chars, text) |
-
-#### `server/ai/knowledge-base.ts` — RAG Engine (OpenAI embeddings)
-| Export | Description |
-|--------|-------------|
-| `splitIntoChunks(text, title, source, category)` | Text chunking (800 chars, 100 overlap) |
-| `indexKnowledgeBase()` | Build embedding index from local knowledge files |
-| `retrieveRelevantChunks(query, topK?)` | Semantic search (top-8, cosine similarity) |
-| `buildRAGContext(chunks)` | Format retrieved chunks for LLM context (max 4000 chars) |
-| `getKnowledgeBaseStatus()` | Index status (indexed, chunkCount, indexedAt) |
-
-#### `server/routes/twilio.ts` — Twilio Phone + SMS Integration
-Handles inbound phone calls and SMS via Twilio. Uses `createElevenLabsStreamingTTS` for real-time voice over WebSocket, `transcribeAudio` for STT, and OpenAI for LLM reasoning. Audio conversion via `elevenlabs-audio.ts` (μ-law ↔ PCM for telephony codec).
-
-#### `server/routes/admin/marcela.ts` — Admin API Routes (22 endpoints)
-All admin routes require `requireAdmin` middleware. Key endpoints:
-| Route | Method | Description |
-|-------|--------|-------------|
-| `/api/admin/voice-settings` | GET/POST | Read/update all Marcela DB settings |
-| `/api/admin/twilio-status` | GET | Twilio connection status |
-| `/api/admin/knowledge-base-status` | GET | RAG index status |
-| `/api/admin/knowledge-base-reindex` | POST | Re-index RAG embeddings |
-| `/api/marcela/signed-url` | GET | Get signed URL (requireAuth, not admin) |
-| `/api/marcela/scribe-token` | POST | Get single-use Scribe token |
-| `/api/admin/convai/agent` | GET | Fetch Convai agent config |
-| `/api/admin/convai/agent/prompt` | PATCH | Update prompt, first_message, language |
-| `/api/admin/convai/agent/voice` | PATCH | Update voice_id, model_id, stability |
-| `/api/admin/convai/agent/llm` | PATCH | Update LLM model + max_tokens |
-| `/api/admin/convai/agent/widget-settings` | PATCH | Update turn_timeout, avatar, variant |
-| `/api/admin/convai/configure-tools` | POST | Register all 18 tools on agent |
-| `/api/admin/convai/tools-status` | GET | Check which tools are registered |
-| `/api/admin/convai/conversations` | GET | List conversations |
-| `/api/admin/convai/conversations/:id` | GET/DELETE | Single conversation |
-| `/api/admin/convai/conversations/:id/audio` | GET | Download conversation audio |
-| `/api/admin/convai/knowledge-base/preview` | GET | Preview KB document |
-| `/api/admin/convai/knowledge-base/upload` | POST | Upload auto-generated KB |
-| `/api/admin/convai/knowledge-base/upload-file` | POST | Upload custom file to KB |
-| `/api/admin/convai/agent/knowledge-base/:docId` | DELETE | Remove KB document |
-| `/api/admin/send-notification` | POST | Send SMS via Twilio |
-
-### Admin Panel Tabs (`components/admin/marcela/`)
-| File | Tab | Controls |
-|------|-----|----------|
-| `MarcelaTab.tsx` | Container | Sub-tab router (Voice, Prompt, LLM, KB, Conversations, Tools, Telephony) |
-| `VoiceSettings.tsx` | Voice | Voice ID, TTS model, stability, similarity, chunk schedule, widget variant selector (7 variants) |
-| `PromptEditor.tsx` | Prompt | System prompt, first message, language |
-| `LLMSettings.tsx` | LLM | Model selector (11 models: Gemini, GPT-4, Claude, ElevenLabs), max tokens |
-| `KnowledgeBase.tsx` | Knowledge | Upload KB, preview, attach/detach documents |
-| `ConversationHistory.tsx` | History | List, view transcripts, play audio, delete conversations |
-| `ToolsStatus.tsx` | Tools | View registered tools status, re-configure tools |
-| `TelephonySettings.tsx` | Telephony | Twilio status, phone/SMS toggle, phone greeting, send test SMS |
-| `hooks.ts` | — | Re-export wrapper → `@/features/ai-agent/hooks` |
-| `types.ts` | — | Re-export wrapper → `features/ai-agent/types` |
-
-### Connection Flow
-1. **Web (Convai):** Admin configures agent → `signed-url` endpoint → client `useConversation` (WebRTC) → ElevenLabs cloud handles voice/LLM → client/server tools execute locally
-2. **Phone (Twilio):** Inbound call → TwiML WebSocket → `transcribeAudio` (STT) → OpenAI (LLM) → `createElevenLabsStreamingTTS` (WebSocket TTS) → μ-law audio back to Twilio
-3. **SMS (Twilio):** Inbound SMS → OpenAI (LLM with RAG context) → `sendSMS` response
-
-### ElevenLabs Models Reference
-**TTS:** eleven_flash_v2_5 (lowest latency), eleven_flash_v2, eleven_multilingual_v2 (29 languages), eleven_turbo_v2_5, eleven_turbo_v2, eleven_monolingual_v1
-**STT:** scribe_v1
-**Output Formats:** pcm_16000 (default), pcm_22050, pcm_24000, pcm_44100, mp3_44100_128, ulaw_8000 (telephony)
-**LLM:** gemini-2.5-flash, gemini-2.0-flash-001, gemini-1.5-flash, gpt-4.1, gpt-4.1-mini, gpt-4.1-nano, gpt-4o, gpt-4o-mini, claude-3-5-sonnet, claude-3-haiku, custom-llm/elevenlabs
 
 ## Animation Modules
 
@@ -427,8 +236,6 @@ Core calculation engines. Never use LLM to compute financial values.
 | `seed-production.sql` | Manual | Production data sync |
 | `manual-sync/` | Manual | 00-06 SQL sync scripts |
 | `admin-structure.ts` | Manual | Analyze admin page |
-| `marcela-check.ts` | Manual | Check Marcela AI endpoints |
-| `marcela-conversations.ts` | Manual | Manage Marcela conversations |
 | `create-boutique-logos.ts` | Manual | Seed boutique hotel logos |
 | `list-tables.ts` | Manual | List DB tables |
 

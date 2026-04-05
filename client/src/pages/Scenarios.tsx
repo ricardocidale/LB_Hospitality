@@ -341,6 +341,17 @@ export default function Scenarios() {
               </div>
             )}
 
+            <div className="p-3 rounded-lg border border-primary/30 bg-primary/5 mb-4" data-testid="baseline-indicator">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary" />
+                <span className="text-sm font-medium text-foreground">Current Baseline</span>
+                <Badge variant="outline" className="text-xs">Active Working State</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 ml-4">
+                Your current assumptions and properties. Save as a scenario to preserve this state.
+              </p>
+            </div>
+
             {manualScenarios.length === 0 ? (
               <div className="text-center py-12">
                 <IconFileStack className="w-16 h-16 mx-auto text-muted-foreground mb-4" />

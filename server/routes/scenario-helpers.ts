@@ -145,7 +145,8 @@ export async function buildCreateSnapshotData(userId: number) {
   const propertyFeeCategories: Record<string, ScenarioFeeCategorySnapshot[]> = {};
   const propertyPhotos: Record<string, ScenarioPhotoSnapshot[]> = {};
   for (const p of properties) {
-    propertyFeeCategories[p.name] = (feeCatsByPropId[p.id] || []) as ScenarioFeeCategorySnapshot[];
+    const feeKey = p.stableKey || p.name;
+    propertyFeeCategories[feeKey] = (feeCatsByPropId[p.id] || []) as ScenarioFeeCategorySnapshot[];
   }
 
   const liveAssumptions = await storage.getGlobalAssumptions(userId);

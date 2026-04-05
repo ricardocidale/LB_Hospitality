@@ -15,7 +15,13 @@ interface LiveProperty {
   [k: string]: unknown;
 }
 
-async function stableLoadProperties(tx: DbOrTx, userId: number, savedProperties: Array<Record<string, unknown>>): Promise<Array<{ id: number; name: string }>> {
+interface ResolvedProperty {
+  id: number;
+  name: string;
+  stableKey: string | null;
+}
+
+async function stableLoadProperties(tx: DbOrTx, userId: number, savedProperties: Array<Record<string, unknown>>): Promise<ResolvedProperty[]> {
   const liveProps = await tx.select().from(properties).where(eq(properties.userId, userId)) as LiveProperty[];
   const liveByStableKey = new Map<string, LiveProperty>();
   for (const p of liveProps) {
@@ -23,18 +29,18 @@ async function stableLoadProperties(tx: DbOrTx, userId: number, savedProperties:
   }
 
   const snapshotStableKeys = new Set<string>();
-  const resolvedProperties: Array<{ id: number; name: string }> = [];
+  const resolvedProperties: ResolvedProperty[] = [];
 
   for (const prop of savedProperties) {
     const propData = stripAutoFields(prop);
-    const stableKey = prop.stableKey as string | undefined;
+    const stableKey = (prop.stableKey as string) || null;
 
     if (stableKey && liveByStableKey.has(stableKey)) {
       const liveProp = liveByStableKey.get(stableKey)!;
       snapshotStableKeys.add(stableKey);
       await tx.update(properties).set({ ...propData, userId, isActive: true, updatedAt: new Date() } as typeof properties.$inferInsert)
         .where(eq(properties.id, liveProp.id));
-      resolvedProperties.push({ id: liveProp.id, name: prop.name as string });
+      resolvedProperties.push({ id: liveProp.id, name: prop.name as string, stableKey });
     } else {
       const insertData: typeof properties.$inferInsert = { ...propData, userId, isActive: true } as typeof properties.$inferInsert;
       if (stableKey) {
@@ -42,7 +48,7 @@ async function stableLoadProperties(tx: DbOrTx, userId: number, savedProperties:
         snapshotStableKeys.add(stableKey);
       }
       const [inserted] = await tx.insert(properties).values(insertData).returning();
-      resolvedProperties.push({ id: inserted.id, name: prop.name as string });
+      resolvedProperties.push({ id: inserted.id, name: prop.name as string, stableKey: stableKey || (inserted as { stableKey?: string }).stableKey || null });
     }
   }
 
@@ -56,15 +62,15 @@ async function stableLoadProperties(tx: DbOrTx, userId: number, savedProperties:
   return resolvedProperties;
 }
 
-async function destructiveLoadProperties(tx: DbOrTx, userId: number, savedProperties: Array<Record<string, unknown>>): Promise<Array<{ id: number; name: string }>> {
+async function destructiveLoadProperties(tx: DbOrTx, userId: number, savedProperties: Array<Record<string, unknown>>): Promise<ResolvedProperty[]> {
   await tx.delete(properties).where(eq(properties.userId, userId));
 
-  const resolvedProperties: Array<{ id: number; name: string }> = [];
+  const resolvedProperties: ResolvedProperty[] = [];
   for (const prop of savedProperties) {
     const propData = stripAutoFields(prop);
     const insertData: typeof properties.$inferInsert = { ...propData, userId } as typeof properties.$inferInsert;
     const [inserted] = await tx.insert(properties).values(insertData).returning();
-    resolvedProperties.push({ id: inserted.id, name: prop.name as string });
+    resolvedProperties.push({ id: inserted.id, name: prop.name as string, stableKey: (prop.stableKey as string) || null });
   }
 
   return resolvedProperties;
@@ -72,11 +78,12 @@ async function destructiveLoadProperties(tx: DbOrTx, userId: number, savedProper
 
 async function syncFeeCategories(
   tx: DbOrTx,
-  resolvedProperties: Array<{ id: number; name: string }>,
+  resolvedProperties: ResolvedProperty[],
   savedFeeCategories: Record<string, Array<Record<string, unknown>>>,
 ): Promise<void> {
   for (const prop of resolvedProperties) {
-    const snapshotCats = savedFeeCategories[prop.name] ?? [];
+    const feeKey = prop.stableKey || prop.name;
+    const snapshotCats = savedFeeCategories[feeKey] ?? savedFeeCategories[prop.name] ?? [];
 
     const liveCats = await tx.select().from(propertyFeeCategories)
       .where(eq(propertyFeeCategories.propertyId, prop.id));
@@ -471,7 +478,7 @@ export class FinancialStorage {
         await tx.insert(globalAssumptions).values({ ...gaData, userId } as typeof globalAssumptions.$inferInsert);
       }
 
-      let resolvedProperties: Array<{ id: number; name: string }>;
+      let resolvedProperties: ResolvedProperty[];
 
       if (USE_STABLE_SCENARIO_LOAD) {
         resolvedProperties = await stableLoadProperties(tx, userId, savedProperties);

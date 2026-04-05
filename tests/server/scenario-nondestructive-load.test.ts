@@ -144,7 +144,7 @@ describe("Non-Destructive Load — photo decoupling across both paths", () => {
   });
 });
 
-describe("Non-Destructive Load — fee category sync (name-based upsert)", () => {
+describe("Non-Destructive Load — fee category sync (stableKey-based upsert)", () => {
   const src = readFile("server/storage/financial.ts");
   const syncStart = src.indexOf("async function syncFeeCategories(");
   const classStart = src.indexOf("export class FinancialStorage");
@@ -152,6 +152,18 @@ describe("Non-Destructive Load — fee category sync (name-based upsert)", () =>
 
   it("syncFeeCategories is a standalone function", () => {
     expect(syncBody).toContain("async function syncFeeCategories(");
+  });
+
+  it("accepts ResolvedProperty[] (with stableKey) not plain { id, name }", () => {
+    expect(syncBody).toContain("resolvedProperties: ResolvedProperty[]");
+  });
+
+  it("derives fee lookup key from stableKey with name fallback", () => {
+    expect(syncBody).toContain("const feeKey = prop.stableKey || prop.name");
+  });
+
+  it("tries stableKey-keyed snapshot first, falls back to name-keyed snapshot", () => {
+    expect(syncBody).toContain("savedFeeCategories[feeKey] ?? savedFeeCategories[prop.name]");
   });
 
   it("queries live fee categories per resolved property", () => {
@@ -212,6 +224,14 @@ describe("Non-Destructive Load — snapshot includes stableKey", () => {
     const schema = readFile("shared/schema/properties.ts");
     expect(schema).toContain("stableKey");
     expect(schema).toContain("defaultRandom");
+  });
+
+  it("buildCreateSnapshotData keys fee categories by stableKey (not name)", () => {
+    const buildStart = src.indexOf("async function buildCreateSnapshotData(");
+    const buildEnd = src.indexOf("export function tryComputeResults(");
+    const buildBody = src.slice(buildStart, buildEnd);
+    expect(buildBody).toContain("p.stableKey || p.name");
+    expect(buildBody).toContain("propertyFeeCategories[feeKey]");
   });
 });
 
@@ -377,5 +397,98 @@ describe("Non-Destructive Load — route integration", () => {
   it("load route returns warnings for orphaned fee categories and photos", () => {
     expect(loadRoute).toContain("orphanedFeeCategories");
     expect(loadRoute).toContain("orphanedPhotos");
+  });
+});
+
+describe("Non-Destructive Load — ResolvedProperty carries stableKey", () => {
+  const src = readFile("server/storage/financial.ts");
+
+  it("ResolvedProperty interface includes stableKey: string | null", () => {
+    expect(src).toContain("interface ResolvedProperty");
+    const ifaceStart = src.indexOf("interface ResolvedProperty");
+    const ifaceEnd = src.indexOf("}", ifaceStart);
+    const iface = src.slice(ifaceStart, ifaceEnd + 1);
+    expect(iface).toContain("stableKey: string | null");
+    expect(iface).toContain("id: number");
+    expect(iface).toContain("name: string");
+  });
+
+  it("stableLoadProperties returns ResolvedProperty[] with stableKey", () => {
+    const fnStart = src.indexOf("async function stableLoadProperties(");
+    const fnSig = src.slice(fnStart, src.indexOf("{", fnStart));
+    expect(fnSig).toContain("Promise<ResolvedProperty[]>");
+  });
+
+  it("destructiveLoadProperties returns ResolvedProperty[] with stableKey", () => {
+    const fnStart = src.indexOf("async function destructiveLoadProperties(");
+    const fnSig = src.slice(fnStart, src.indexOf("{", fnStart));
+    expect(fnSig).toContain("Promise<ResolvedProperty[]>");
+  });
+
+  it("stableLoadProperties populates stableKey on matched properties", () => {
+    const fnStart = src.indexOf("async function stableLoadProperties(");
+    const fnEnd = src.indexOf("async function destructiveLoadProperties(");
+    const fnBody = src.slice(fnStart, fnEnd);
+    const pushLines = fnBody.split("\n").filter(l => l.includes("resolvedProperties.push"));
+    expect(pushLines.length).toBeGreaterThanOrEqual(2);
+    for (const line of pushLines) {
+      expect(line).toContain("stableKey");
+    }
+  });
+
+  it("destructiveLoadProperties populates stableKey on inserted properties", () => {
+    const fnStart = src.indexOf("async function destructiveLoadProperties(");
+    const fnEnd = src.indexOf("async function syncFeeCategories(");
+    const fnBody = src.slice(fnStart, fnEnd);
+    const pushLines = fnBody.split("\n").filter(l => l.includes("resolvedProperties.push"));
+    expect(pushLines.length).toBeGreaterThanOrEqual(1);
+    for (const line of pushLines) {
+      expect(line).toContain("stableKey");
+    }
+  });
+
+  it("loadScenario caller uses ResolvedProperty[] type", () => {
+    const loadStart = src.indexOf("async loadScenario(");
+    const loadEnd = src.indexOf("/** Fetch all fee categories");
+    const loadBody = src.slice(loadStart, loadEnd);
+    expect(loadBody).toContain("let resolvedProperties: ResolvedProperty[]");
+  });
+});
+
+describe("Non-Destructive Load — stableKey-based fee mapping correctness", () => {
+  const src = readFile("server/storage/financial.ts");
+  const syncStart = src.indexOf("async function syncFeeCategories(");
+  const classStart = src.indexOf("export class FinancialStorage");
+  const syncBody = src.slice(syncStart, classStart);
+
+  it("fee lookup uses stableKey as primary key, not property name", () => {
+    expect(syncBody).toContain("const feeKey = prop.stableKey || prop.name");
+    expect(syncBody).toContain("savedFeeCategories[feeKey]");
+  });
+
+  it("backward-compat: falls back to prop.name if stableKey key not found in snapshot", () => {
+    expect(syncBody).toContain("savedFeeCategories[feeKey] ?? savedFeeCategories[prop.name]");
+  });
+
+  it("handles null stableKey gracefully (falls back to name)", () => {
+    expect(syncBody).toContain("prop.stableKey || prop.name");
+  });
+
+  it("snapshot builder keys fee categories by stableKey (or name fallback)", () => {
+    const helperSrc = readFile("server/routes/scenario-helpers.ts");
+    const buildStart = helperSrc.indexOf("async function buildCreateSnapshotData(");
+    const buildEnd = helperSrc.indexOf("export function tryComputeResults(");
+    const buildBody = helperSrc.slice(buildStart, buildEnd);
+    expect(buildBody).toContain("const feeKey = p.stableKey || p.name");
+    expect(buildBody).toContain("propertyFeeCategories[feeKey]");
+    expect(buildBody).not.toContain("propertyFeeCategories[p.name]");
+  });
+
+  it("resolvedProperties carries stableKey end-to-end from load to fee sync", () => {
+    const loadStart = src.indexOf("async loadScenario(");
+    const loadEnd = src.indexOf("/** Fetch all fee categories");
+    const loadBody = src.slice(loadStart, loadEnd);
+    expect(loadBody).toContain("resolvedProperties: ResolvedProperty[]");
+    expect(loadBody).toContain("syncFeeCategories(tx, resolvedProperties, savedFeeCategories)");
   });
 });

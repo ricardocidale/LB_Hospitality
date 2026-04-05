@@ -110,9 +110,10 @@ const NON_FINANCIAL_MUTATIONS = [
   // Property photos (caption/reorder don't affect financial data)
   "useUpdatePropertyPhoto",
   "useReorderPhotos",
-  // Scenario auto-save and admin restore — do not affect live financial calculations
+  // Scenario auto-save and admin restore/purge — do not affect live financial calculations
   "useAutoSave",
   "useRestoreScenario",
+  "usePurgeScenario",
 ];
 
 describe("Recalculation Enforcement", () => {

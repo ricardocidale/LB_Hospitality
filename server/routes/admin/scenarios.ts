@@ -45,6 +45,7 @@ export function registerAdminScenarioRoutes(app: Express) {
         userId: s.userId,
         name: s.name,
         description: s.description,
+        kind: s.kind,
         ownerEmail: s.ownerEmail,
         ownerName: s.ownerName,
         propertyCount: Array.isArray(s.properties) ? (s.properties as unknown[]).length : 0,

@@ -13,13 +13,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useAdminUsers, useAdminUserGroups, useAdminCompanies, adminFetch } from "./hooks";
 import { formatDateTime } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
-import { useDeletedScenarios, useRestoreScenario } from "@/lib/api/scenarios";
+import { useDeletedScenarios, useRestoreScenario, usePurgeScenario } from "@/lib/api/scenarios";
 
 interface AdminScenario {
   id: number;
   userId: number;
   name: string;
   description: string | null;
+  kind: string | null;
   ownerEmail: string;
   ownerName: string | null;
   propertyCount: number;
@@ -37,8 +38,10 @@ interface AdminScenario {
 function DeletedScenariosSection() {
   const { data: deleted, isLoading } = useDeletedScenarios(true);
   const restoreScenario = useRestoreScenario();
+  const purgeScenario = usePurgeScenario();
   const { toast } = useToast();
   const [expanded, setExpanded] = useState(false);
+  const [purgeConfirmId, setPurgeConfirmId] = useState<number | null>(null);
 
   const handleRestore = async (id: number, name: string) => {
     try {
@@ -49,9 +52,20 @@ function DeletedScenariosSection() {
     }
   };
 
+  const handlePurge = async (id: number, name: string) => {
+    try {
+      await purgeScenario.mutateAsync(id);
+      toast({ title: "Purged", description: `Scenario "${name}" has been permanently deleted.` });
+      setPurgeConfirmId(null);
+    } catch {
+      toast({ title: "Error", description: "Failed to purge scenario.", variant: "destructive" });
+    }
+  };
+
   if (!deleted?.length && !isLoading) return null;
 
   return (
+    <>
     <Card className="mt-6" data-testid="card-deleted-scenarios">
       <CardHeader className="pb-3 cursor-pointer" onClick={() => setExpanded(!expanded)}>
         <div className="flex items-center justify-between">
@@ -87,24 +101,166 @@ function DeletedScenariosSection() {
                       {s.ownerName || s.ownerEmail} · Deleted {formatDateTime(s.deletedAt)}
                     </p>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleRestore(s.id, s.name)}
-                    disabled={restoreScenario.isPending}
-                    data-testid={`button-restore-scenario-${s.id}`}
-                  >
-                    {restoreScenario.isPending ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <IconFolderOpen className="w-3.5 h-3.5" />
-                    )}
-                    Restore
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRestore(s.id, s.name)}
+                      disabled={restoreScenario.isPending}
+                      data-testid={`button-restore-scenario-${s.id}`}
+                    >
+                      {restoreScenario.isPending ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <IconFolderOpen className="w-3.5 h-3.5" />
+                      )}
+                      Restore
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setPurgeConfirmId(s.id)}
+                      disabled={purgeScenario.isPending}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      data-testid={`button-purge-scenario-${s.id}`}
+                    >
+                      <IconTrash className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
+        </CardContent>
+      )}
+    </Card>
+
+    <AlertDialog open={purgeConfirmId !== null} onOpenChange={(v) => { if (!v) setPurgeConfirmId(null); }}>
+      <AlertDialogContent data-testid="dialog-purge-scenario">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Permanently Delete Scenario</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently remove this scenario and all its data. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              const s = deleted?.find(d => d.id === purgeConfirmId);
+              if (s) handlePurge(s.id, s.name);
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            data-testid="button-confirm-purge-scenario"
+          >
+            Permanently Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
+  );
+}
+
+function DefaultScenariosSection({ scenarios, users }: { scenarios: AdminScenario[] | undefined; users: Array<{ id: number; email: string; name: string | null }> | undefined }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [expanded, setExpanded] = useState(false);
+
+  const createDefaultMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const res = await fetch("/api/admin/scenarios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ userId, name: "Default Scenario", kind: "default" }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to create default scenario");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "scenarios"] });
+      toast({ title: "Default Created", description: "Default scenario created for user." });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const defaultScenarios = useMemo(() => {
+    if (!scenarios) return [];
+    return scenarios.filter(s => s.kind === "default");
+  }, [scenarios]);
+
+  const usersWithDefaults = useMemo(() => {
+    const defaultByUser = new Map<number, AdminScenario>();
+    for (const s of defaultScenarios) {
+      defaultByUser.set(s.userId, s);
+    }
+    return (users ?? []).map(u => ({
+      ...u,
+      defaultScenario: defaultByUser.get(u.id) ?? null,
+    }));
+  }, [users, defaultScenarios]);
+
+  const missingCount = usersWithDefaults.filter(u => !u.defaultScenario).length;
+
+  return (
+    <Card className="mt-6" data-testid="card-default-scenarios">
+      <CardHeader className="pb-3 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base flex items-center gap-2">
+            <IconScenarios className="w-4 h-4 text-muted-foreground" />
+            Default Scenarios
+            <Badge variant="secondary" className="text-xs">{defaultScenarios.length} / {usersWithDefaults.length} users</Badge>
+            {missingCount > 0 && (
+              <Badge variant="outline" className="text-xs text-accent-pop border-accent-pop/30">{missingCount} missing</Badge>
+            )}
+          </CardTitle>
+          <span className="text-xs text-muted-foreground">{expanded ? "Hide" : "Show"}</span>
+        </div>
+      </CardHeader>
+      {expanded && (
+        <CardContent className="pt-0">
+          <div className="space-y-2">
+            {usersWithDefaults.map(u => (
+              <div
+                key={u.id}
+                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border"
+                data-testid={`default-scenario-user-${u.id}`}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground truncate">{u.name || u.email}</p>
+                  {u.defaultScenario ? (
+                    <p className="text-xs text-muted-foreground">
+                      "{u.defaultScenario.name}" · {u.defaultScenario.propertyCount} properties · Updated {formatDateTime(u.defaultScenario.updatedAt)}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-accent-pop">No default scenario</p>
+                  )}
+                </div>
+                {!u.defaultScenario && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => createDefaultMutation.mutate(u.id)}
+                    disabled={createDefaultMutation.isPending}
+                    data-testid={`button-create-default-${u.id}`}
+                  >
+                    {createDefaultMutation.isPending ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <IconPlus className="w-3.5 h-3.5" />
+                    )}
+                    Create Default
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
         </CardContent>
       )}
     </Card>
@@ -591,6 +747,7 @@ export default function ScenariosTab() {
         </AlertDialogContent>
       </AlertDialog>
 
+      <DefaultScenariosSection scenarios={scenarios} users={users} />
       <DeletedScenariosSection />
 
       <Dialog open={accessOpen} onOpenChange={setAccessOpen}>

@@ -212,3 +212,23 @@ export function useRestoreScenario() {
     },
   });
 }
+
+async function purgeScenario(id: number): Promise<void> {
+  const res = await fetch(`/api/admin/scenarios/${id}/purge`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to purge scenario");
+}
+
+export function usePurgeScenario() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: purgeScenario,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "scenarios"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "scenarios", "deleted"] });
+    },
+  });
+}

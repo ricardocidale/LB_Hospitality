@@ -6,14 +6,33 @@ import { SEED_COMPANY_IDENTITY } from "./properties";
 
 export async function seedDefaultLogos() {
   const existingLogos = await db.select().from(logos);
+
+  const hasHPlus = existingLogos.some(l => l.url === "/logos/h-plus-glass.png");
+  if (!hasHPlus && existingLogos.length > 0) {
+    await db.update(logos).set({ isDefault: false }).where(eq(logos.isDefault, true));
+    await db.insert(logos).values({
+      name: "H+ Analytics - Glass",
+      companyName: "H+ Analytics",
+      url: "/logos/h-plus-glass.png",
+      isDefault: true,
+    });
+    logger.info("Added H+ Analytics logo to portfolio and set as default", "seed");
+  }
+
   if (existingLogos.length > 0) return;
 
   await db.insert(logos).values([
     {
+      name: "H+ Analytics - Glass",
+      companyName: "H+ Analytics",
+      url: "/logos/h-plus-glass.png",
+      isDefault: true,
+    },
+    {
       name: "Hospitality Business Group",
       companyName: "Hospitality Business Group",
       url: "/logos/default-hbg.png",
-      isDefault: true,
+      isDefault: false,
     },
     {
       name: "Norfolk AI - Blue",
@@ -34,7 +53,7 @@ export async function seedDefaultLogos() {
       isDefault: false,
     },
   ]);
-  logger.info("Seeded default logos: HBG (default) + 3 Norfolk AI variants", "seed");
+  logger.info("Seeded default logos: H+ Analytics (default) + HBG + 3 Norfolk AI variants", "seed");
 }
 
 export async function seedCompanies() {

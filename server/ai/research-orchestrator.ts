@@ -313,7 +313,8 @@ export async function* orchestrateResearch(
 
   const bothFailed = !!panelA.error && !!panelB.error;
   if (bothFailed) {
-    yield { type: "error", data: "Both analyst panels failed. Falling back to single-model research." };
+    // Both panels failed — signal the route to fall back to single-model research
+    yield { type: "error", data: "ORCHESTRATOR_BOTH_FAILED: Both analyst panels failed — falling back to single-model research." };
     return;
   }
 

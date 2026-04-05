@@ -207,90 +207,103 @@ export function register(app: Express) {
         ? orchestrateResearch(params)
         : generateResearchWithToolsStream(params, researchClient, model, secondaryModel);
 
+      // ── Stream loop — accumulate content, forward events to client ──
       let fullContent = "";
+
       for await (const chunk of stream) {
+        // Orchestrator hard failure — fall back to single-model
+        if (chunk.type === "error" && chunk.data.startsWith("ORCHESTRATOR_BOTH_FAILED")) {
+          res.write(`data: ${JSON.stringify({ type: "phase", data: "Falling back to single-model research…" })}\n\n`);
+          const fallback = generateResearchWithToolsStream(params, researchClient, model, secondaryModel);
+          for await (const fb of fallback) {
+            res.write(`data: ${JSON.stringify(fb)}\n\n`);
+            if (fb.type === "content") fullContent += fb.data;
+          }
+          break;
+        }
         res.write(`data: ${JSON.stringify(chunk)}\n\n`);
         if (chunk.type === "content") fullContent += chunk.data;
-        if (chunk.type === "done") {
-          const parsed = parseResearchJSON(fullContent);
+      }
 
-          // Validate and extract research values for property research
-          if (type === "property" && propertyId && !parsed.rawResponse) {
-            const researchValues = extractResearchValues(parsed);
-            if (researchValues) {
-              const property = await storage.getProperty(propertyId);
-              if (property) {
-                const validated = validateResearchValues(researchValues, {
-                  roomCount: property.roomCount ?? DEFAULT_ROOM_COUNT,
-                  startAdr: property.startAdr ?? DEFAULT_START_ADR,
-                  maxOccupancy: property.maxOccupancy ?? DEFAULT_MAX_OCCUPANCY,
-                  purchasePrice: property.purchasePrice ?? undefined,
-                  costRateRooms: property.costRateRooms ?? undefined,
-                  costRateFB: property.costRateFB ?? undefined,
-                });
-                const cleanValues: Record<string, { display: string; mid: number; source: "ai" }> = {};
-                for (const [k, v] of Object.entries(validated.values)) {
-                  cleanValues[k] = { display: v.display, mid: v.mid, source: v.source };
-                }
-                await storage.updateProperty(propertyId, { researchValues: cleanValues });
-                logActivity(req, "apply-research-values", "property", propertyId, property.name, {
-                  fieldsApplied: Object.keys(cleanValues).length,
-                  warnings: validated.summary.warned,
-                  failures: validated.summary.failed,
-                });
-                // Attach validation audit trail to research content
-                parsed._validation = validated.summary;
-                if (validated.summary.warned > 0 || validated.summary.failed > 0) {
-                  logger.warn(`Research validation for property ${propertyId}: ${validated.summary.warned} warnings, ${validated.summary.failed} failures`, "research");
-                }
-              } else {
-                logger.warn(`Skipping unvalidated researchValues storage for property ${propertyId} — property not found`, "research");
+      // ── Post-processing — runs after both orchestrator and fallback paths ──
+      if (fullContent) {
+        const parsed = parseResearchJSON(fullContent);
+
+        // Validate and extract research values for property research
+        if (type === "property" && propertyId && !parsed.rawResponse) {
+          const researchValues = extractResearchValues(parsed);
+          if (researchValues) {
+            const property = await storage.getProperty(propertyId);
+            if (property) {
+              const validated = validateResearchValues(researchValues, {
+                roomCount: property.roomCount ?? DEFAULT_ROOM_COUNT,
+                startAdr: property.startAdr ?? DEFAULT_START_ADR,
+                maxOccupancy: property.maxOccupancy ?? DEFAULT_MAX_OCCUPANCY,
+                purchasePrice: property.purchasePrice ?? undefined,
+                costRateRooms: property.costRateRooms ?? undefined,
+                costRateFB: property.costRateFB ?? undefined,
+              });
+              const cleanValues: Record<string, { display: string; mid: number; source: "ai" }> = {};
+              for (const [k, v] of Object.entries(validated.values)) {
+                cleanValues[k] = { display: v.display, mid: v.mid, source: v.source };
               }
+              await storage.updateProperty(propertyId, { researchValues: cleanValues });
+              logActivity(req, "apply-research-values", "property", propertyId, property.name, {
+                fieldsApplied: Object.keys(cleanValues).length,
+                warnings: validated.summary.warned,
+                failures: validated.summary.failed,
+              });
+              parsed._validation = validated.summary;
+              if (validated.summary.warned > 0 || validated.summary.failed > 0) {
+                logger.warn(`Research validation for property ${propertyId}: ${validated.summary.warned} warnings, ${validated.summary.failed} failures`, "research");
+              }
+            } else {
+              logger.warn(`Skipping researchValues storage for property ${propertyId} — property not found`, "research");
             }
           }
-
-          if (marketIntelligence) {
-            parsed._marketIntelligence = {
-              benchmarks: marketIntelligence.benchmarks || null,
-              moodys: marketIntelligence.moodys || null,
-              spGlobal: marketIntelligence.spGlobal || null,
-              costar: marketIntelligence.costar || null,
-              xotelo: marketIntelligence.xotelo || null,
-              groundedResearch: marketIntelligence.groundedResearch || [],
-              errors: marketIntelligence.errors || [],
-              fetchedAt: marketIntelligence.fetchedAt,
-            };
-          }
-
-          if (parsed.rawResponse && type === "property") {
-            // Property-only: unparseable AI output is skipped because it could lead to
-            // invalid researchValues on property records. Company/global raw responses
-            // are still stored — they have no property value application path.
-            logger.warn(`Skipping market_research storage for property ${propertyId} — AI returned unparseable response`, "research");
-          } else {
-            await storage.upsertMarketResearch({
-              userId: getAuthUser(req).id,
-              propertyId,
-              type,
-              title: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} Research`,
-              content: parsed,
-            });
-          }
-
-          logActivity(req, "generate", "market_research", propertyId, type);
-
-          const svcName = vendorKey === "google" ? "gemini" : vendorKey === "openai" ? "openai" : "anthropic";
-          const inTok = Math.round(JSON.stringify(params).length / 4);
-          const outTok = Math.round(fullContent.length / 4);
-          try { logApiCost({ timestamp: new Date().toISOString(), service: svcName as any, model, operation: "research", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svcName, model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/research/generate" }); } catch (e) { logger.warn(`Failed to log API cost: ${(e as Error).message}`, "cost-logger"); }
-
-          processNotificationEvent(createEvent("RESEARCH_COMPLETE", {
-            propertyId,
-            message: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} research generation complete`,
-            link: propertyId ? `/property/${propertyId}/research` : undefined,
-          })).catch((err) => logger.error(`Notification error: ${err?.message || err}`, "research"));
         }
+
+        if (marketIntelligence) {
+          parsed._marketIntelligence = {
+            benchmarks: marketIntelligence.benchmarks || null,
+            moodys: marketIntelligence.moodys || null,
+            spGlobal: marketIntelligence.spGlobal || null,
+            costar: marketIntelligence.costar || null,
+            xotelo: marketIntelligence.xotelo || null,
+            groundedResearch: marketIntelligence.groundedResearch || [],
+            errors: marketIntelligence.errors || [],
+            fetchedAt: marketIntelligence.fetchedAt,
+          };
+        }
+
+        if (parsed.rawResponse && type === "property") {
+          logger.warn(`Skipping market_research storage for property ${propertyId} — AI returned unparseable response`, "research");
+        } else {
+          await storage.upsertMarketResearch({
+            userId: getAuthUser(req).id,
+            propertyId,
+            type,
+            title: `${type === "property" ? "Property" : type === "company" ? "Company" : "Global"} Research`,
+            content: parsed,
+          });
+        }
+
+        logActivity(req, "generate", "market_research", propertyId, type);
+
+        const svcName = vendorKey === "google" ? "gemini" : vendorKey === "openai" ? "openai" : "anthropic";
+        const inTok  = Math.round(JSON.stringify(params).length / 4);
+        const outTok = Math.round(fullContent.length / 4);
+        try {
+          logApiCost({ timestamp: new Date().toISOString(), service: svcName as any, model, operation: "research", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svcName, model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/research/generate" });
+        } catch (e) { logger.warn(`Failed to log API cost: ${(e as Error).message}`, "cost-logger"); }
+
+        processNotificationEvent(createEvent("RESEARCH_COMPLETE", {
+          propertyId,
+          message: `${type === "property" ? "Property" : type === "company" ? "Company" : "Global"} research generation complete`,
+          link: propertyId ? `/property/${propertyId}/research` : undefined,
+        })).catch((err) => logger.error(`Notification error: ${err?.message || err}`, "research"));
       }
+
       res.end();
     } catch (error) {
       logger.error(`Research generation error: ${error instanceof Error ? error.message : error}`, "research");

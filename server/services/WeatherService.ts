@@ -92,7 +92,8 @@ export class WeatherService extends BaseIntegrationService {
         fetchedAt: new Date().toISOString(),
       };
     } catch (err) {
-      this.warn(`Failed to fetch weather for ${location}`, err);
+      const detail = err instanceof Error ? err.message : String(err);
+      this.warn(`Failed to fetch weather for "${location}": ${detail}`);
       return null;
     }
   }

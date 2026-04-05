@@ -66,9 +66,9 @@ export class OpenExchangeRatesService extends BaseIntegrationService {
         rates: data.rates as Record<string, number>,
         // Convenience: USD equivalent of 1 local unit
         usdPer: Object.fromEntries(
-          Object.entries(data.rates as Record<string, number>).map(
-            ([symbol, rate]) => [symbol, rate > 0 ? 1 / rate : 0]
-          )
+          Object.entries(data.rates as Record<string, number>)
+            .filter(([, rate]) => typeof rate === "number" && rate > 0)
+            .map(([symbol, rate]) => [symbol, 1 / rate])
         ),
       };
     } catch (err) {

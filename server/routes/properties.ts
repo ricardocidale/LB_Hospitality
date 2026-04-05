@@ -132,6 +132,7 @@ export function register(app: Express) {
         ...validation.data,
         ...mergedData,
         userId: null,
+        researchValues: (validation.data as any).researchValues ?? {},
       });
 
       // Seed default fee categories for the new property

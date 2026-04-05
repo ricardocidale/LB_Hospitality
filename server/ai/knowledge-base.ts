@@ -173,9 +173,12 @@ export async function indexKnowledgeBase(): Promise<{ chunksIndexed: number; tim
           category: chunk.category,
         },
       }));
-      upsertChunks("knowledge-base", pineconeChunks)
-        .then(() => logger.info(`Pinecone: uploaded ${pineconeChunks.length} KB chunks`, "knowledge-base"))
-        .catch(err => logger.warn(`Pinecone KB upload failed: ${err}`, "knowledge-base"));
+      try {
+        await upsertChunks("knowledge-base", pineconeChunks);
+        logger.info(`Pinecone: uploaded ${pineconeChunks.length} KB chunks`, "knowledge-base");
+      } catch (err) {
+        logger.warn(`Pinecone KB upload failed (in-memory cache still valid): ${err}`, "knowledge-base");
+      }
     }
 
     indexedAt = new Date();

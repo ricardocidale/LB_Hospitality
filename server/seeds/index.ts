@@ -44,7 +44,7 @@ export async function seed() {
     propertyMap[p.name] = p.id;
   }
 
-  const marketResearchEntries = [
+  const allResearchEntries = [
     {
       userId: null,
       type: "property",
@@ -85,11 +85,17 @@ export async function seed() {
       llmModel: "seed-data",
       content: getBlueRidgeResearch()
     }
-  ].filter(e => e.propertyId != null);
+  ];
 
-  if (marketResearchEntries.length > 0) {
-    await db.insert(marketResearch).values(marketResearchEntries);
-    logger.info(`Seeded market research for ${marketResearchEntries.length} properties`, "seed");
+  const validResearch = allResearchEntries.filter(e => e.propertyId != null);
+  const skipped = allResearchEntries.length - validResearch.length;
+  if (skipped > 0) {
+    logger.warn(`Skipped ${skipped} research seed entries — property not found in DB`, "seed");
+  }
+
+  if (validResearch.length > 0) {
+    await db.insert(marketResearch).values(validResearch);
+    logger.info(`Seeded market research for ${validResearch.length} properties`, "seed");
   }
 
   await seedDefaultLogos();

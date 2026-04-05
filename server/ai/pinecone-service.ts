@@ -53,27 +53,37 @@ export function isPineconeAvailable(): boolean {
 
 // ── Index lifecycle ───────────────────────────────────────────────────────────
 
+// Mutex — prevents concurrent index creation during startup
+let _ensureIndexPromise: Promise<void> | null = null;
+
 async function ensureIndex(): Promise<void> {
   if (_indexReady) return;
+  if (_ensureIndexPromise) return _ensureIndexPromise;
 
-  const pc = getPC();
-  const list = await pc.listIndexes();
-  const names = list.indexes?.map(i => i.name) ?? [];
+  _ensureIndexPromise = (async () => {
+    if (_indexReady) return; // re-check after acquiring
 
-  if (!names.includes(INDEX_NAME)) {
-    logger.info(`Creating Pinecone index "${INDEX_NAME}"`, "pinecone");
-    await pc.createIndex({
-      name: INDEX_NAME,
-      dimension: EMBED_DIMS,
-      metric: "cosine",
-      spec: { serverless: { cloud: "aws", region: "us-east-1" } },
-    });
-    // Wait for index to initialise
-    await new Promise(r => setTimeout(r, 8_000));
-    logger.info(`Pinecone index "${INDEX_NAME}" ready`, "pinecone");
-  }
+    const pc = getPC();
+    const list = await pc.listIndexes();
+    const names = list.indexes?.map(i => i.name) ?? [];
 
-  _indexReady = true;
+    if (!names.includes(INDEX_NAME)) {
+      logger.info(`Creating Pinecone index "${INDEX_NAME}"`, "pinecone");
+      await pc.createIndex({
+        name: INDEX_NAME,
+        dimension: EMBED_DIMS,
+        metric: "cosine",
+        spec: { serverless: { cloud: "aws", region: "us-east-1" } },
+      });
+      // Wait for index to initialise
+      await new Promise(r => setTimeout(r, 8_000));
+      logger.info(`Pinecone index "${INDEX_NAME}" ready`, "pinecone");
+    }
+
+    _indexReady = true;
+  })().finally(() => { _ensureIndexPromise = null; });
+
+  return _ensureIndexPromise;
 }
 
 // ── Embedding helpers ─────────────────────────────────────────────────────────

@@ -97,9 +97,10 @@ export class GeoDBService extends BaseIntegrationService {
     return cache.staleWhileRevalidate<GeoCity[]>(cacheKey, CACHE_TTL_SECONDS, async () => {
       try {
         const params = new URLSearchParams({
-          countryIds:  countryCode.toUpperCase(),
-          limit:       String(limit),
-          sort:        "-population",
+          countryIds:   countryCode.toUpperCase(),
+          regionCode:   regionCode.toUpperCase(),
+          limit:        String(limit),
+          sort:         "-population",
           languageCode: "en",
         });
 

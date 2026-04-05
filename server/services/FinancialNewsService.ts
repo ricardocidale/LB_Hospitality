@@ -64,7 +64,9 @@ export class FinancialNewsService extends BaseIntegrationService {
     if (cnbc.status === "fulfilled" && cnbc.value) headlines.push(...cnbc.value);
     if (bloomberg.status === "fulfilled" && bloomberg.value) headlines.push(...bloomberg.value);
 
-    if (!headlines.length) return null;
+    // Return empty data with fetchedAt rather than null — lets aggregator distinguish
+    // "no headlines available" from a hard failure, and avoids losing context slot
+    if (!headlines.length) return { headlines: [], fetchedAt: new Date().toISOString() };
 
     // Sort by publishedAt descending if available
     headlines.sort((a, b) => {

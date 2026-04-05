@@ -92,6 +92,23 @@ export function register(app: Express) {
         });
       }
 
+      if (miStatus.apify) {
+        results.push({
+          name: "Apify (Airbnb / VRBO / Booking / TripAdvisor)",
+          healthy: true,
+          latencyMs: 0,
+          circuitState: "closed" as CircuitState,
+        });
+      } else {
+        results.push({
+          name: "Apify (Airbnb / VRBO / Booking / TripAdvisor)",
+          healthy: false,
+          latencyMs: 0,
+          lastError: "API token not configured (APIFY_API_TOKEN)",
+          circuitState: "closed" as CircuitState,
+        });
+      }
+
       res.json(results);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

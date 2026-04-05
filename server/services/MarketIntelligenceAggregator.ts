@@ -28,6 +28,7 @@ export class MarketIntelligenceAggregator {
   private spGlobal: SPGlobalService;
   private costar: CoStarService;
   private xotelo: XoteloService;
+  private apify: ApifyService;
 
   constructor() {
     this.fred = new FREDService();
@@ -37,6 +38,7 @@ export class MarketIntelligenceAggregator {
     this.spGlobal = new SPGlobalService();
     this.costar = new CoStarService();
     this.xotelo = new XoteloService();
+    this.apify = new ApifyService();
   }
 
   async gather(query: AggregatorQuery): Promise<MarketIntelligence> {
@@ -62,7 +64,7 @@ export class MarketIntelligenceAggregator {
   private async gatherFresh(query: AggregatorQuery): Promise<MarketIntelligence> {
     const errors: string[] = [];
 
-    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult] = await Promise.allSettled([
+    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult, apifyResult] = await Promise.allSettled([
       this.fetchRates(),
       query.location
         ? this.hospitality.fetchBenchmarks({
@@ -104,6 +106,9 @@ export class MarketIntelligenceAggregator {
       query.location
         ? this.fetchXoteloData(query.location)
         : Promise.resolve(null),
+      query.location && this.apify.isAvailable()
+        ? this.apify.fetchCompSetData(query.location)
+        : Promise.resolve(undefined),
     ]);
 
     let rates: Record<string, FREDRateData> = {};
@@ -155,6 +160,13 @@ export class MarketIntelligenceAggregator {
       errors.push(`Xotelo: ${xoteloResult.reason?.message || "Unknown error"}`);
     }
 
+    let apify: ApifyMarketData | undefined;
+    if (apifyResult.status === "fulfilled" && apifyResult.value) {
+      apify = apifyResult.value;
+    } else if (apifyResult.status === "rejected") {
+      errors.push(`Apify: ${apifyResult.reason?.message || "Unknown error"}`);
+    }
+
     return {
       rates: {
         sofr: rates.sofr,
@@ -169,6 +181,7 @@ export class MarketIntelligenceAggregator {
       spGlobal,
       costar,
       xotelo,
+      apify,
       groundedResearch,
       fetchedAt: new Date().toISOString(),
       errors,
@@ -185,7 +198,7 @@ export class MarketIntelligenceAggregator {
     return this.fred.fetchRate(seriesKey as any);
   }
 
-  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean } {
+  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean; apify: boolean } {
     return {
       fred: this.fred.isAvailable(),
       hospitality: this.hospitality.isAvailable(),
@@ -194,6 +207,7 @@ export class MarketIntelligenceAggregator {
       spGlobal: this.spGlobal.isAvailable(),
       costar: this.costar.isAvailable(),
       xotelo: this.xotelo.isAvailable(),
+      apify: this.apify.isAvailable(),
     };
   }
   

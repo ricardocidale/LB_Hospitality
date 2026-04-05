@@ -204,6 +204,22 @@ export interface WeatherData {
   fetchedAt: string;
 }
 
+// ─── Financial News Headlines ────────────────────────────────────────────────
+
+export interface NewsHeadline {
+  title: string;
+  description?: string;
+  url?: string;
+  publishedAt?: string;
+  source: "cnbc" | "bloomberg";
+  category?: string;
+}
+
+export interface FinancialNewsData {
+  headlines: NewsHeadline[];
+  fetchedAt: string;
+}
+
 // ─── Apify STR Comp-Set Data ─────────────────────────────────────────────────
 
 export interface ApifyListingSnapshot {
@@ -266,6 +282,7 @@ export interface MarketIntelligence {
   fx?: FxRates;
   worldBank?: WorldBankCountryData;
   groundedResearch: GroundedSearchResult[];
+  financialNews?: FinancialNewsData;
   fetchedAt: string;
   errors: string[];
 }

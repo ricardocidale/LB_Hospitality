@@ -133,6 +133,14 @@ export function register(app: Express) {
         circuitState: "closed" as CircuitState,
       });
 
+      results.push({
+        name: "CNBC + Bloomberg Finance (Financial News)",
+        healthy: miStatus.financialNews,
+        latencyMs: 0,
+        lastError: miStatus.financialNews ? undefined : "Key not configured (RAPIDAPI_KEY_3)",
+        circuitState: "closed" as CircuitState,
+      });
+
       res.json(results);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

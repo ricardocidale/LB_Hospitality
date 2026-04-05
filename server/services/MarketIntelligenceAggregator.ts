@@ -10,8 +10,9 @@ import { RapidApiHospitalityService } from "./RapidApiHospitalityService";
 import { WeatherService } from "./WeatherService";
 import { OpenExchangeRatesService } from "./OpenExchangeRatesService";
 import { WorldBankService } from "./WorldBankService";
+import { FinancialNewsService } from "./FinancialNewsService";
 import { cache } from "../cache";
-import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData, ApifyMarketData, RapidApiCompSetData, WeatherData, FxRates, WorldBankCountryData } from "../../shared/market-intelligence";
+import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData, ApifyMarketData, RapidApiCompSetData, WeatherData, FxRates, WorldBankCountryData, FinancialNewsData } from "../../shared/market-intelligence";
 
 interface AggregatorQuery {
   location?: string;
@@ -38,6 +39,7 @@ export class MarketIntelligenceAggregator {
   private weather: WeatherService;
   private fx: OpenExchangeRatesService;
   private worldBank: WorldBankService;
+  private financialNews: FinancialNewsService;
 
   constructor() {
     this.fred = new FREDService();
@@ -52,6 +54,7 @@ export class MarketIntelligenceAggregator {
     this.weather = new WeatherService();
     this.fx = new OpenExchangeRatesService();
     this.worldBank = new WorldBankService();
+    this.financialNews = new FinancialNewsService();
   }
 
   async gather(query: AggregatorQuery): Promise<MarketIntelligence> {
@@ -77,7 +80,7 @@ export class MarketIntelligenceAggregator {
   private async gatherFresh(query: AggregatorQuery): Promise<MarketIntelligence> {
     const errors: string[] = [];
 
-    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult, apifyResult, fxResult, worldBankResult, rapidApiCompsResult, weatherResult] = await Promise.allSettled([
+    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult, apifyResult, fxResult, worldBankResult, rapidApiCompsResult, weatherResult, financialNewsResult] = await Promise.allSettled([
       this.fetchRates(),
       query.location
         ? this.hospitality.fetchBenchmarks({
@@ -133,6 +136,9 @@ export class MarketIntelligenceAggregator {
         : Promise.resolve(undefined),
       query.location && this.weather.isAvailable()
         ? this.weather.fetchWeatherData(query.location)
+        : Promise.resolve(null),
+      query.location && this.financialNews.isAvailable()
+        ? this.financialNews.fetchHospitalityNews(query.location)
         : Promise.resolve(null),
     ]);
 
@@ -220,6 +226,13 @@ export class MarketIntelligenceAggregator {
       errors.push(`Weather: ${weatherResult.reason?.message || "Unknown error"}`);
     }
 
+    let financialNews: FinancialNewsData | undefined;
+    if (financialNewsResult.status === "fulfilled" && financialNewsResult.value) {
+      financialNews = financialNewsResult.value;
+    } else if (financialNewsResult.status === "rejected") {
+      errors.push(`Financial news: ${financialNewsResult.reason?.message || "Unknown error"}`);
+    }
+
     return {
       rates: {
         sofr: rates.sofr,
@@ -240,6 +253,7 @@ export class MarketIntelligenceAggregator {
       fx,
       worldBank,
       groundedResearch,
+      financialNews,
       fetchedAt: new Date().toISOString(),
       errors,
     };
@@ -255,7 +269,7 @@ export class MarketIntelligenceAggregator {
     return this.fred.fetchRate(seriesKey as any);
   }
 
-  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean; apify: boolean; rapidApiComps: boolean; weather: boolean; fx: boolean; worldBank: boolean } {
+  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean; apify: boolean; rapidApiComps: boolean; weather: boolean; fx: boolean; worldBank: boolean; financialNews: boolean } {
     return {
       fred: this.fred.isAvailable(),
       hospitality: this.hospitality.isAvailable(),
@@ -269,6 +283,7 @@ export class MarketIntelligenceAggregator {
       weather: this.weather.isAvailable(),
       fx: this.fx.isAvailable(),
       worldBank: this.worldBank.isAvailable(),
+      financialNews: this.financialNews.isAvailable(),
     };
   }
   

@@ -118,7 +118,6 @@ INSERT INTO global_assumptions (
   show_ai_assistant,
   company_phone, company_email, company_website, company_ein, company_founding_year,
   company_street_address, company_city, company_state_province, company_country, company_zip_postal_code,
-  marcela_phone_greeting,
   icp_config, research_config
 ) OVERRIDING SYSTEM VALUE VALUES (
   7, 1, '2026-04-01', 0.03, 0.085, 0.12,
@@ -143,7 +142,6 @@ INSERT INTO global_assumptions (
   FALSE,
   '+1 (757) 555-0142', 'info@norfolk.ai', 'https://norfolk.ai', '92-1847356', 2024,
   '150 West Main Street, Suite 400', 'Norfolk', 'VA', 'United States', '23510',
-  'Hello, this is Marcela from The Norfolk AI Group. How can I help you today?',
   '{"guestSegments": [{"name": "Corporate Retreats", "weight": 0.30, "avgGroupSize": 25, "avgStayNights": 3, "seasonality": "year-round"}, {"name": "Luxury Leisure", "weight": 0.25, "avgGroupSize": 2, "avgStayNights": 4, "seasonality": "peak"}, {"name": "Weddings & Social Events", "weight": 0.20, "avgGroupSize": 80, "avgStayNights": 2, "seasonality": "spring-fall"}, {"name": "Wellness Retreats", "weight": 0.15, "avgGroupSize": 12, "avgStayNights": 5, "seasonality": "year-round"}, {"name": "Adventure & Experiential", "weight": 0.10, "avgGroupSize": 6, "avgStayNights": 3, "seasonality": "seasonal"}], "demographics": {"ageRange": "35-65", "incomeLevel": "HHI $250K+", "geography": "US East Coast, Latin America, International", "travelStyle": "Experiential luxury, privacy-focused"}, "bookingBehavior": {"leadTimeDays": 90, "directBookingPct": 0.60, "repeatGuestPct": 0.35, "avgRevenuePerGuest": 1200}}',
   '{"property": {"enabled": true, "focusAreas": ["boutique hospitality", "luxury lodging", "event venues", "F&B operations", "wellness tourism"], "regions": ["US Northeast", "US Mountain West", "Colombia", "Latin America"], "timeHorizon": "10-year", "customInstructions": "Focus on boutique hotels with 10-80 rooms, event-driven revenue models, and properties on 10+ acre estates. Emphasize AI-driven operations and technology integration.", "customQuestions": "", "enabledTools": []}, "company": {"enabled": true, "focusAreas": ["hospitality management companies", "hotel investment", "PropTech", "AI in hospitality"], "regions": ["United States", "Latin America"], "timeHorizon": "5-year", "customInstructions": "Research AI-powered hospitality management trends, boutique hotel acquisition strategies, and technology-driven operational efficiencies.", "customQuestions": "", "enabledTools": []}}'
 )
@@ -194,7 +192,6 @@ ON CONFLICT (id) DO UPDATE SET
   company_street_address = EXCLUDED.company_street_address, company_city = EXCLUDED.company_city,
   company_state_province = EXCLUDED.company_state_province, company_country = EXCLUDED.company_country,
   company_zip_postal_code = EXCLUDED.company_zip_postal_code,
-  marcela_phone_greeting = EXCLUDED.marcela_phone_greeting,
   icp_config = EXCLUDED.icp_config, research_config = EXCLUDED.research_config;
 
 -- =============================================================================

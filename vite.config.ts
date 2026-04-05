@@ -36,7 +36,7 @@ export default defineConfig({
     dedupe: ["react", "react-dom"],
   },
   optimizeDeps: {
-    include: ["@elevenlabs/react", "react", "react-dom"],
+    include: ["react", "react-dom"],
   },
   css: {
     postcss: {

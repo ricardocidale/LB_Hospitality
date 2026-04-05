@@ -111,20 +111,7 @@ logApiCost({
 });
 ```
 
-### 7. `server/routes/twilio.ts` — SMS
-After SMS send:
-```typescript
-logApiCost({
-  timestamp: new Date().toISOString(),
-  service: "twilio",
-  operation: "sms",
-  estimatedCostUsd: 0.0079,  // per SMS segment
-  userId: req.user?.id,
-  route: "/api/twilio",
-});
-```
-
-### 8. `server/integrations/resend.ts` — Email
+### 7. `server/integrations/resend.ts` — Email
 After email send:
 ```typescript
 logApiCost({

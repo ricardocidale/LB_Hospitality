@@ -1,4 +1,4 @@
-Hospitality Business Group — Knowledge Base for Marcela
+Hospitality Business Group — Knowledge Base for Rebecca
 
 About the Company
 

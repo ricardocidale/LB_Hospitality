@@ -28,7 +28,6 @@ INSERT INTO global_assumptions (
   user_id,
   company_phone, company_email, company_website, company_ein, company_founding_year,
   company_street_address, company_city, company_state_province, company_country, company_zip_postal_code,
-  marcela_phone_greeting,
   icp_config, research_config
 ) OVERRIDING SYSTEM VALUE VALUES (
   7, '2026-04-01', 0.03, 0.085, 0.12,
@@ -54,7 +53,6 @@ INSERT INTO global_assumptions (
   1,
   '+1(757)555-0142', 'info@norfolk.ai', 'https://norfolk.ai', '92-1847356', 2024,
   '150 West Main Street Suite 400', 'Norfolk', 'VA', 'US', '23510',
-  'Hello! This is Marcela, your AI concierge from The Norfolk AI Group. How can I help you today?',
   '{"targetMarkets": ["luxury travelers", "corporate retreats", "destination weddings", "wellness seekers"], "propertyTypes": ["boutique hotels", "luxury estates", "mountain lodges", "lakefront retreats"], "priceRange": {"min": 150, "max": 600}, "geographicFocus": ["Colombia", "New York Catskills", "Utah", "Caribbean"]}',
   '{"sources": ["STR Global", "CoStar", "AirDNA", "Booking.com", "local tourism boards"], "updateFrequency": "quarterly", "metrics": ["ADR", "RevPAR", "occupancy rate", "comp set performance"]}'
 )
@@ -105,5 +103,4 @@ ON CONFLICT (id) DO UPDATE SET
   company_street_address = EXCLUDED.company_street_address, company_city = EXCLUDED.company_city,
   company_state_province = EXCLUDED.company_state_province, company_country = EXCLUDED.company_country,
   company_zip_postal_code = EXCLUDED.company_zip_postal_code,
-  marcela_phone_greeting = EXCLUDED.marcela_phone_greeting,
   icp_config = EXCLUDED.icp_config, research_config = EXCLUDED.research_config;

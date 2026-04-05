@@ -133,7 +133,6 @@ npm run test:file -- <path>  # Single test file
 -   **AI/LLM Providers:** `@anthropic-ai/sdk`, Gemini
 -   **Icons:** @phosphor-icons/react, Lucide
 -   **Email:** Resend
--   **Voice AI:** ElevenLabs (for Marcela AI functionality)
--   **Telephony:** Twilio (for voice webhooks, SMS, Media Streams)
+-   **AI Assistant:** Rebecca (chat-based financial advisor)
 -   **Research/Data APIs:** RapidAPI — RealtyService (Realtor.com property listings via `realty-in-us.p.rapidapi.com`, POST v3 with circuit breaker + 15-min cache), USRealEstateService (property value estimates + historical Cotality data via `us-real-estate.p.rapidapi.com`), XoteloService (hotel market comps — free `/list` + `/rates` endpoints from `data.xotelo.com` with live rates from Booking.com, Agoda, Trip.com, Vio.com). Also: FREDService (economic data), HospitalityBenchmarkService (CoStar/STR/AirDNA adapter), MoodysService (credit risk analytics — requires MOODYS_API_KEY), SPGlobalService (Case-Shiller indices — requires SPGLOBAL_API_KEY), Perplexity SDK, Tavily (for GroundedResearchService)
 -   **Spreadsheet/Presentation:** xlsx, pptxgenjs (client-side)

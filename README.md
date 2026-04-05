@@ -193,7 +193,7 @@ The project has access to these Replit-managed integrations:
 | Stripe | Payment processing infrastructure |
 | Google Sheets / Docs / Drive / Calendar | Google Workspace connectivity |
 | Google Mail | Email notifications |
-| Twilio | SMS/communication capabilities |
+| Resend | Transactional email |
 
 ---
 

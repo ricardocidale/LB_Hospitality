@@ -167,8 +167,8 @@ for (let i = 0; i < args.length; i++) {
     tsx cost-monitor.ts --add --service replit --cost 0.25 --project myapp --operation "agent"
     tsx cost-monitor.ts --add --service openai --model gpt-4o --cost 0.03
 
-  Services: anthropic, openai, gemini, replit, elevenlabs, replicate,
-            resend, twilio, perplexity, cursor, github-copilot, vercel, other
+  Services: anthropic, openai, gemini, replit, replicate,
+            resend, perplexity, cursor, github-copilot, vercel, other
 
   Log file: ${DEFAULT_LOG_FILE}
   Format: one JSON object per line (JSONL)
@@ -304,10 +304,8 @@ const SERVICE_LABELS: Record<string, string> = {
   anthropic: "Anthropic (Claude)",
   openai: "OpenAI",
   gemini: "Google Gemini",
-  elevenlabs: "ElevenLabs",
   replicate: "Replicate",
   resend: "Resend",
-  twilio: "Twilio",
   "document-ai": "Document AI",
   "google-maps": "Google Maps",
   perplexity: "Perplexity",
@@ -322,10 +320,8 @@ const SERVICE_COLORS: Record<string, string> = {
   anthropic: MAGENTA,
   openai: GREEN,
   gemini: CYAN,
-  elevenlabs: YELLOW,
   replicate: RED,
   resend: WHITE,
-  twilio: RED,
   "document-ai": CYAN,
   perplexity: CYAN,
   replit: BLUE,

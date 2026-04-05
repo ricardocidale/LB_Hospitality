@@ -30,85 +30,101 @@ export async function seed() {
     }
   }
 
-  await seedUsers();
+  // Note: a full DB transaction is not used here because each seedX() function
+  // imports `db` directly and would need to accept a `tx` parameter — a significant
+  // refactor. Instead, we catch partial failures and clean up inserted rows so the
+  // seed can safely be re-run with `--force`.
+  try {
+    await seedUsers();
 
-  await seedGlobalAssumptions();
+    await seedGlobalAssumptions();
 
-  await seedProperties();
+    await seedProperties();
 
-  await seedFeeCategories();
+    await seedFeeCategories();
 
-  const seededProperties = await db.select().from(properties);
-  const propertyMap: Record<string, number> = {};
-  for (const p of seededProperties) {
-    propertyMap[p.name] = p.id;
-  }
-
-  const allResearchEntries = [
-    {
-      userId: null,
-      type: "property",
-      propertyId: propertyMap["Jano Grande Ranch"],
-      title: "Market Research: Jano Grande Ranch",
-      llmModel: "seed-data",
-      content: getCasaMedellinResearch()
-    },
-    {
-      userId: null,
-      type: "property",
-      propertyId: propertyMap["Loch Sheldrake"],
-      title: "Market Research: Loch Sheldrake",
-      llmModel: "seed-data",
-      content: getEdenSummitResearch()
-    },
-    {
-      userId: null,
-      type: "property",
-      propertyId: propertyMap["Belleayre Mountain"],
-      title: "Market Research: Belleayre Mountain",
-      llmModel: "seed-data",
-      content: getHudsonEstateResearch()
-    },
-    {
-      userId: null,
-      type: "property",
-      propertyId: propertyMap["Scott's House"],
-      title: "Market Research: Scott's House",
-      llmModel: "seed-data",
-      content: getAustinHillsideResearch()
-    },
-    {
-      userId: null,
-      type: "property",
-      propertyId: propertyMap["Lakeview Haven Lodge"],
-      title: "Market Research: Lakeview Haven Lodge",
-      llmModel: "seed-data",
-      content: getBlueRidgeResearch()
+    const seededProperties = await db.select().from(properties);
+    const propertyMap: Record<string, number> = {};
+    for (const p of seededProperties) {
+      propertyMap[p.name] = p.id;
     }
-  ];
 
-  const validResearch = allResearchEntries.filter(e => e.propertyId != null);
-  const skipped = allResearchEntries.length - validResearch.length;
-  if (skipped > 0) {
-    logger.warn(`Skipped ${skipped} research seed entries — property not found in DB`, "seed");
+    const allResearchEntries = [
+      {
+        userId: null,
+        type: "property",
+        propertyId: propertyMap["Jano Grande Ranch"],
+        title: "Market Research: Jano Grande Ranch",
+        llmModel: "seed-data",
+        content: getCasaMedellinResearch()
+      },
+      {
+        userId: null,
+        type: "property",
+        propertyId: propertyMap["Loch Sheldrake"],
+        title: "Market Research: Loch Sheldrake",
+        llmModel: "seed-data",
+        content: getEdenSummitResearch()
+      },
+      {
+        userId: null,
+        type: "property",
+        propertyId: propertyMap["Belleayre Mountain"],
+        title: "Market Research: Belleayre Mountain",
+        llmModel: "seed-data",
+        content: getHudsonEstateResearch()
+      },
+      {
+        userId: null,
+        type: "property",
+        propertyId: propertyMap["Scott's House"],
+        title: "Market Research: Scott's House",
+        llmModel: "seed-data",
+        content: getAustinHillsideResearch()
+      },
+      {
+        userId: null,
+        type: "property",
+        propertyId: propertyMap["Lakeview Haven Lodge"],
+        title: "Market Research: Lakeview Haven Lodge",
+        llmModel: "seed-data",
+        content: getBlueRidgeResearch()
+      }
+    ];
+
+    const validResearch = allResearchEntries.filter(e => e.propertyId != null);
+    const skipped = allResearchEntries.length - validResearch.length;
+    if (skipped > 0) {
+      logger.warn(`Skipped ${skipped} research seed entries — property not found in DB`, "seed");
+    }
+
+    if (validResearch.length > 0) {
+      await db.insert(marketResearch).values(validResearch);
+      logger.info(`Seeded market research for ${validResearch.length} properties`, "seed");
+    }
+
+    await seedDefaultLogos();
+    await seedUserGroups();
+    await seedCompanies();
+
+    await seedUserGroupProperties();
+
+    await seedServiceTemplates();
+
+    await seedPropertyPhotos();
+
+    logger.info("Database seed completed successfully!", "seed");
+  } catch (err) {
+    logger.error(`Seed failed — rolling back inserted data so --force re-run is safe: ${err instanceof Error ? err.message : String(err)}`, "seed");
+    try {
+      await db.delete(marketResearch);
+      await db.delete(properties);
+      await db.delete(globalAssumptions);
+    } catch (cleanupErr) {
+      logger.warn(`Seed cleanup also failed: ${cleanupErr instanceof Error ? cleanupErr.message : String(cleanupErr)}`, "seed");
+    }
+    throw err;
   }
-
-  if (validResearch.length > 0) {
-    await db.insert(marketResearch).values(validResearch);
-    logger.info(`Seeded market research for ${validResearch.length} properties`, "seed");
-  }
-
-  await seedDefaultLogos();
-  await seedUserGroups();
-  await seedCompanies();
-
-  await seedUserGroupProperties();
-
-  await seedServiceTemplates();
-
-  await seedPropertyPhotos();
-
-  logger.info("Database seed completed successfully!", "seed");
 }
 
 export {

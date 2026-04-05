@@ -36,7 +36,9 @@ export class RapidApiHospitalityService extends BaseIntegrationService {
   }
 
   isAvailable(): boolean {
-    return isRapidApiAvailable("tertiary");
+    // Airbnb + Hotels.com use KEY_3 (tertiary); Booking.com uses KEY_2 (secondary).
+    // The service is useful if either slot is available.
+    return isRapidApiAvailable("tertiary") || isRapidApiAvailable("secondary");
   }
 
   async fetchCompSetData(location: string, roomCount = 1): Promise<RapidApiCompSetData> {

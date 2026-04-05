@@ -162,6 +162,7 @@ export interface ScenarioResponse {
   userId: number;
   name: string;
   description: string | null;
+  kind?: "default" | "manual" | "autosave";
   globalAssumptions: GlobalResponse;
   properties: PropertyResponse[];
   createdAt: string;

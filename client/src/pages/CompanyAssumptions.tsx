@@ -58,6 +58,7 @@ import { GovernedFieldWrapper } from "@/components/ui/governed-field";
 import { UserRole, GOVERNED_FIELDS, DEPRECIATION_YEARS, DAYS_PER_MONTH } from "@shared/constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useScenarioDirtyState } from "@/lib/scenario-dirty-state";
 
 export default function CompanyAssumptions() {
   const [, setLocation] = useLocation();
@@ -74,6 +75,7 @@ export default function CompanyAssumptions() {
   const [formData, setFormData] = useState<Partial<GlobalResponse>>({});
   const [isDirty, setIsDirty] = useState(false);
   const [dirtyFields, setDirtyFields] = useState<Set<keyof GlobalResponse>>(new Set());
+  const { markDirty: markGlobalDirty, clearDirty: clearGlobalDirty } = useScenarioDirtyState();
   const { data: research } = useMarketResearch("company");
   const companyResearchUpdatedAt = research?.updatedAt ?? null;
 
@@ -187,6 +189,7 @@ export default function CompanyAssumptions() {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setDirtyFields((prev) => new Set(prev).add(field));
     setIsDirty(true);
+    markGlobalDirty();
   };
 
 
@@ -195,6 +198,7 @@ export default function CompanyAssumptions() {
       await updateMutation.mutateAsync(formData);
       setIsDirty(false);
       setDirtyFields(new Set());
+      clearGlobalDirty();
 
       const propertyDefaultKeys: Array<keyof GlobalResponse> = [
         "eventExpenseRate",

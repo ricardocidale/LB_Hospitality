@@ -16,6 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { formatDateTime } from "@/lib/formatters";
 import { SaveScenarioDialog, EditScenarioDialog, CompareResultDialog, ShareScenarioDialog, LoadSharedWarningDialog, type ScenarioCompareResult } from "@/components/scenarios";
 import { useAuth } from "@/lib/auth";
+import { useScenarioDirtyState } from "@/lib/scenario-dirty-state";
 
 export default function Scenarios() {
   const { data: scenarios, isLoading, isError } = useScenarios();
@@ -45,6 +46,8 @@ export default function Scenarios() {
         name: newScenarioName.trim(), 
         description: newScenarioDescription.trim() || undefined 
       });
+      useScenarioDirtyState.getState().setActiveScenario(newScenarioName.trim(), "manual");
+      useScenarioDirtyState.getState().clearDirty();
       toast({ title: "Success", description: "Scenario saved successfully" });
       setNewScenarioName("");
       setNewScenarioDescription("");
@@ -57,6 +60,8 @@ export default function Scenarios() {
   const handleLoad = async (id: number, name: string) => {
     try {
       await loadScenario.mutateAsync(id);
+      useScenarioDirtyState.getState().setActiveScenario(name, "manual");
+      useScenarioDirtyState.getState().clearDirty();
       toast({ title: "Success", description: `Scenario "${name}" loaded successfully` });
       setLoadSharedWarning(null);
     } catch (error) {

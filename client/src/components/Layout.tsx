@@ -35,8 +35,37 @@ import type { IconSetType } from "@/features/design-themes/types";
 import { useAdminSection } from "@/lib/admin-nav";
 import { navGroups as adminNavGroups } from "@/components/admin/AdminSidebar";
 import type { AdminSection } from "@/components/admin/AdminSidebar";
+import { useScenarioDirtyState } from "@/lib/scenario-dirty-state";
 
 type NavLink = { href: string; label: string; icon: any; onClick?: () => void };
+
+function ScenarioIndicator() {
+  const { isDirty, activeScenarioName } = useScenarioDirtyState();
+  const { user } = useAuth();
+
+  if (!user) return null;
+
+  const initials = [user.firstName, user.lastName]
+    .filter(Boolean)
+    .map(n => n![0])
+    .join("")
+    .toUpperCase() || user.email[0].toUpperCase();
+
+  const displayName = activeScenarioName || `${initials} Default`;
+
+  return (
+    <div
+      className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/50 text-xs text-muted-foreground max-w-[200px]"
+      data-testid="indicator-active-scenario"
+    >
+      <IconScenarios className="w-3.5 h-3.5 shrink-0" />
+      <span className="truncate">{displayName}</span>
+      {isDirty && (
+        <span className="w-2 h-2 rounded-full bg-accent-pop shrink-0" data-testid="indicator-dirty-dot" />
+      )}
+    </div>
+  );
+}
 
 function MarcelaWidgetGated() {
   // MARCELA ISOLATED: Widget always disabled.
@@ -118,7 +147,7 @@ function SidebarNav({ groups, isActiveLink, onNavigate }: { groups: NavGroupDef[
 
 export default function Layout({ children, darkMode }: { children: React.ReactNode; darkMode?: boolean }) {
   const [location] = useLocation();
-  const { user, isAdmin, isInvestor, hasManagementAccess, logout } = useAuth();
+  const { user, isAdmin, isInvestor, hasManagementAccess, requestLogout } = useAuth();
   const { data: global } = useGlobalAssumptions();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -314,7 +343,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       <Separator className="my-2" />
       <Button
         variant="ghost"
-        onClick={() => { logout(); setMobileOpen(false); }}
+        onClick={() => { requestLogout(); setMobileOpen(false); }}
         className="flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors justify-start"
         data-testid="button-logout"
       >
@@ -369,6 +398,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
             </Button>
             <Breadcrumbs />
           </div>
+          <ScenarioIndicator />
           <div className="flex items-center gap-2">
             <Button
               variant="outline"

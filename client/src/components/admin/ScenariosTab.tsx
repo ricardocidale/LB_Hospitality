@@ -8,11 +8,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Loader2 } from "@/components/icons/themed-icons";
-import { IconPlus, IconTrash, IconPencil, IconPeople, IconScenarios, IconProperties, IconBuilding2 } from "@/components/icons";
+import { IconPlus, IconTrash, IconPencil, IconPeople, IconScenarios, IconProperties, IconBuilding2, IconFolderOpen } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminUsers, useAdminUserGroups, useAdminCompanies, adminFetch } from "./hooks";
 import { formatDateTime } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
+import { useDeletedScenarios, useRestoreScenario } from "@/lib/api/scenarios";
 
 interface AdminScenario {
   id: number;
@@ -31,6 +32,83 @@ interface AdminScenario {
     grantedBy: number;
     createdAt: string;
   }>;
+}
+
+function DeletedScenariosSection() {
+  const { data: deleted, isLoading } = useDeletedScenarios(true);
+  const restoreScenario = useRestoreScenario();
+  const { toast } = useToast();
+  const [expanded, setExpanded] = useState(false);
+
+  const handleRestore = async (id: number, name: string) => {
+    try {
+      await restoreScenario.mutateAsync(id);
+      toast({ title: "Restored", description: `Scenario "${name}" has been restored.` });
+    } catch {
+      toast({ title: "Error", description: "Failed to restore scenario.", variant: "destructive" });
+    }
+  };
+
+  if (!deleted?.length && !isLoading) return null;
+
+  return (
+    <Card className="mt-6" data-testid="card-deleted-scenarios">
+      <CardHeader className="pb-3 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base flex items-center gap-2">
+            <IconTrash className="w-4 h-4 text-muted-foreground" />
+            Deleted Scenarios
+            {deleted?.length ? (
+              <Badge variant="secondary" className="text-xs">{deleted.length}</Badge>
+            ) : null}
+          </CardTitle>
+          <span className="text-xs text-muted-foreground">{expanded ? "Hide" : "Show"}</span>
+        </div>
+      </CardHeader>
+      {expanded && (
+        <CardContent className="pt-0">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : deleted?.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">No deleted scenarios.</p>
+          ) : (
+            <div className="space-y-2">
+              {deleted?.map((s) => (
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border"
+                  data-testid={`deleted-scenario-${s.id}`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground truncate">{s.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {s.ownerName || s.ownerEmail} · Deleted {formatDateTime(s.deletedAt)}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleRestore(s.id, s.name)}
+                    disabled={restoreScenario.isPending}
+                    data-testid={`button-restore-scenario-${s.id}`}
+                  >
+                    {restoreScenario.isPending ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <IconFolderOpen className="w-3.5 h-3.5" />
+                    )}
+                    Restore
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      )}
+    </Card>
+  );
 }
 
 export default function ScenariosTab() {
@@ -512,6 +590,8 @@ export default function ScenariosTab() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <DeletedScenariosSection />
 
       <Dialog open={accessOpen} onOpenChange={setAccessOpen}>
         <DialogContent className="max-w-lg" data-testid="dialog-manage-access">

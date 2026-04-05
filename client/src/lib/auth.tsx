@@ -24,9 +24,10 @@
  * The auth state is cached for 5 minutes (staleTime) to avoid redundant network
  * calls on every page navigation.
  */
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { UserRole } from "@shared/constants";
+import { useScenarioDirtyState } from "@/lib/scenario-dirty-state";
 
 interface User {
   id: number;
@@ -57,6 +58,10 @@ interface AuthContextType {
   canManageScenarios: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  requestLogout: () => void;
+  logoutPending: boolean;
+  confirmLogout: () => Promise<void>;
+  cancelLogout: () => void;
   refetch: () => void;
 }
 
@@ -113,6 +118,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const [logoutPending, setLogoutPending] = useState(false);
+
   const login = async (email: string, password: string) => {
     await loginMutation.mutateAsync({ email, password });
   };
@@ -120,6 +127,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await logoutMutation.mutateAsync();
   };
+
+  const requestLogout = useCallback(() => {
+    const { isDirty } = useScenarioDirtyState.getState();
+    if (isDirty) {
+      setLogoutPending(true);
+    } else {
+      logoutMutation.mutate();
+    }
+  }, []);
+
+  const confirmLogout = useCallback(async () => {
+    setLogoutPending(false);
+    await logoutMutation.mutateAsync();
+  }, []);
+
+  const cancelLogout = useCallback(() => {
+    setLogoutPending(false);
+  }, []);
 
   const user = data ?? null;
   const isAdmin = user?.role === UserRole.ADMIN;
@@ -134,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAdmin, isChecker, isUser, isInvestor, hasManagementAccess, canManageScenarios, login, logout, refetch }}>
+    <AuthContext.Provider value={{ user, isLoading, isAdmin, isChecker, isUser, isInvestor, hasManagementAccess, canManageScenarios, login, logout, requestLogout, logoutPending, confirmLogout, cancelLogout, refetch }}>
       {children}
     </AuthContext.Provider>
   );

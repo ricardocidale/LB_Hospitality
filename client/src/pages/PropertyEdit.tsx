@@ -38,6 +38,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { useResearchStream } from "@/components/property-research/useResearchStream";
+import { useScenarioDirtyState } from "@/lib/scenario-dirty-state";
 import {
   PROJECTION_YEARS,
   DEFAULT_MODEL_START_DATE,
@@ -70,6 +71,7 @@ export default function PropertyEdit() {
   const [draft, setDraft] = useState<any>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [feeDraft, setFeeDraft] = useState<FeeCategoryResponse[] | null>(null);
+  const { markDirty: markGlobalDirty, clearDirty: clearGlobalDirty } = useScenarioDirtyState();
   const [showApplyDialog, setShowApplyDialog] = useState(false);
   const { data: marketRates } = useMarketRates();
 
@@ -337,6 +339,7 @@ export default function PropertyEdit() {
   const handleChange = (key: string, value: string | number | null) => {
     setDraft({ ...draft, [key]: value });
     setIsDirty(true);
+    markGlobalDirty();
   };
 
   const handleNumberChange = (key: string, value: string) => {
@@ -344,6 +347,7 @@ export default function PropertyEdit() {
     if (!isNaN(numValue)) {
       setDraft({ ...draft, [key]: numValue });
       setIsDirty(true);
+      markGlobalDirty();
     }
   };
 
@@ -353,6 +357,7 @@ export default function PropertyEdit() {
     updated[index] = { ...updated[index], [field]: value };
     setFeeDraft(updated);
     setIsDirty(true);
+    markGlobalDirty();
   };
 
   const totalServiceFeeRate = feeDraft?.filter(c => c.isActive).reduce((sum, c) => sum + c.rate, 0) ?? 0;
@@ -364,6 +369,7 @@ export default function PropertyEdit() {
           updateFeeCategories.mutate({ propertyId, categories: feeDraft }, {
             onSuccess: () => {
               setIsDirty(false);
+              clearGlobalDirty();
               toast({ title: "Saved", description: "Property assumptions updated successfully." });
               setLocation(`/property/${propertyId}`);
             },
@@ -373,6 +379,7 @@ export default function PropertyEdit() {
           });
         } else {
           setIsDirty(false);
+          clearGlobalDirty();
           toast({ title: "Saved", description: "Property assumptions updated successfully." });
           setLocation(`/property/${propertyId}`);
         }

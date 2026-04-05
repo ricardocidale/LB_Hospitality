@@ -74,6 +74,8 @@ const INITIAL_FORM_DATA: AddPropertyFormData = {
   occupancyGrowthStep: DEFAULT_OCCUPANCY_GROWTH_STEP,
   type: "Full Equity",
   cateringBoostPercent: DEFAULT_CATERING_BOOST_PCT,
+  country: "",
+  stateProvince: "",
 };
 
 type PortfolioTab = "properties" | "map";

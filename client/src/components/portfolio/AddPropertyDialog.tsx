@@ -4,6 +4,7 @@
  * Presents a multi-field form collecting the minimum inputs needed to
  * bootstrap a property's financial model:
  *   • Property name and street address / market
+ *   • Country + optional US state (auto-fills financial defaults)
  *   • Room count (drives all per-room revenue calculations)
  *   • ADR (Average Daily Rate — the nightly rack rate)
  *   • Purchase price and optional renovation budget
@@ -17,6 +18,12 @@
  * Exports AddPropertyFormData — the shape of the form's validated output.
  */
 import { PropertyStatus, PROPERTY_STATUS_VALUES } from "@shared/constants";
+import {
+  getCountryDefaults,
+  getUsStateDefaults,
+  SUPPORTED_COUNTRIES,
+  SUPPORTED_US_STATES,
+} from "@shared/countryDefaults";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -51,6 +58,15 @@ export interface AddPropertyFormData {
   cateringBoostPercent: number;
   latitude?: number | null;
   longitude?: number | null;
+  // Country / state — drives financial default auto-fill
+  country?: string;
+  stateProvince?: string;
+  // Financial defaults auto-filled from country/state selection
+  taxRate?: number;
+  costRateTaxes?: number;
+  countryRiskPremium?: number;
+  exitCapRate?: number;
+  inflationRate?: number;
 }
 
 interface AddPropertyDialogProps {
@@ -76,6 +92,45 @@ export function AddPropertyDialog({
   onAcquisitionDateChange,
   trigger,
 }: AddPropertyDialogProps) {
+
+  const handleCountryChange = (country: string) => {
+    const defaults = getCountryDefaults(country);
+    if (defaults) {
+      setFormData(prev => ({
+        ...prev,
+        country,
+        stateProvince: country !== "United States" ? prev.stateProvince : "",
+        taxRate: defaults.taxRate,
+        costRateTaxes: defaults.costRateTaxes,
+        countryRiskPremium: defaults.countryRiskPremium,
+        exitCapRate: defaults.exitCapRate,
+        adrGrowthRate: defaults.adrGrowthRate,
+        inflationRate: defaults.inflationRate,
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, country, stateProvince: "" }));
+    }
+  };
+
+  const handleStateChange = (state: string) => {
+    const defaults = getUsStateDefaults(state);
+    if (defaults) {
+      setFormData(prev => ({
+        ...prev,
+        stateProvince: state,
+        taxRate: defaults.taxRate,
+        costRateTaxes: defaults.costRateTaxes,
+        exitCapRate: defaults.exitCapRate,
+        adrGrowthRate: defaults.adrGrowthRate,
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, stateProvince: state }));
+    }
+  };
+
+  const countryDefaultsApplied = !!formData.country;
+  const stateDefaultsApplied = formData.country === "United States" && !!formData.stateProvince;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -156,6 +211,65 @@ export function AddPropertyDialog({
               </Select>
             </div>
           </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="font-display text-lg border-b pb-2">Country & Financial Defaults</h3>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="country">Country</Label>
+              <Select value={formData.country ?? ""} onValueChange={handleCountryChange}>
+                <SelectTrigger data-testid="select-country">
+                  <SelectValue placeholder="Select country..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUPPORTED_COUNTRIES.map(c => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {formData.country === "United States" && (
+              <div className="space-y-2">
+                <Label htmlFor="stateProvince">State</Label>
+                <Select value={formData.stateProvince ?? ""} onValueChange={handleStateChange}>
+                  <SelectTrigger data-testid="select-us-state">
+                    <SelectValue placeholder="Select state..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_US_STATES.map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+          {(countryDefaultsApplied) && (
+            <div className="rounded-md bg-primary/5 border border-primary/20 px-4 py-3 text-sm text-muted-foreground space-y-1">
+              <p className="font-medium text-foreground">
+                Financial defaults applied for {stateDefaultsApplied ? `${formData.stateProvince}, ${formData.country}` : formData.country}
+              </p>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 text-xs mt-1">
+                {formData.taxRate !== undefined && (
+                  <span>Income tax: {(formData.taxRate * 100).toFixed(1)}%</span>
+                )}
+                {formData.exitCapRate !== undefined && (
+                  <span>Exit cap rate: {(formData.exitCapRate * 100).toFixed(1)}%</span>
+                )}
+                {formData.adrGrowthRate !== undefined && (
+                  <span>ADR growth: {(formData.adrGrowthRate * 100).toFixed(1)}%</span>
+                )}
+                {formData.inflationRate !== undefined && (
+                  <span>Inflation: {(formData.inflationRate * 100).toFixed(1)}%</span>
+                )}
+                {formData.countryRiskPremium !== undefined && formData.countryRiskPremium > 0 && (
+                  <span>Country risk: {(formData.countryRiskPremium * 100).toFixed(2)}%</span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground/70 mt-1">All values can be refined on the Property Edit page.</p>
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -354,10 +468,10 @@ export function AddPropertyDialog({
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button 
+        <Button
           variant="outline"
           data-testid="button-submit-property"
-          onClick={onSubmit} 
+          onClick={onSubmit}
           disabled={isPending}
           className="flex items-center gap-2"
         >

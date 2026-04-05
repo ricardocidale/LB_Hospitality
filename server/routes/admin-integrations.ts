@@ -93,21 +93,29 @@ export function register(app: Express) {
       }
 
       if (miStatus.apify) {
-        results.push({
-          name: "Apify (Airbnb / VRBO / Booking / TripAdvisor)",
-          healthy: true,
-          latencyMs: 0,
-          circuitState: "closed" as CircuitState,
-        });
+        results.push({ name: "Apify (Airbnb / VRBO / Booking / TripAdvisor)", healthy: true, latencyMs: 0, circuitState: "closed" as CircuitState });
       } else {
-        results.push({
-          name: "Apify (Airbnb / VRBO / Booking / TripAdvisor)",
-          healthy: false,
-          latencyMs: 0,
-          lastError: "API token not configured (APIFY_API_TOKEN)",
-          circuitState: "closed" as CircuitState,
-        });
+        results.push({ name: "Apify (Airbnb / VRBO / Booking / TripAdvisor)", healthy: false, latencyMs: 0, lastError: "API token not configured (APIFY_API_TOKEN)", circuitState: "closed" as CircuitState });
       }
+
+      results.push({
+        name: "Open Exchange Rates (FX)",
+        healthy: miStatus.fx,
+        latencyMs: 0,
+        lastError: miStatus.fx ? undefined : "App ID not configured (OPEN_EXCHANGE_RATES_APP_ID)",
+        circuitState: "closed" as CircuitState,
+      });
+
+      // World Bank is always available (no key required)
+      results.push({ name: "World Bank (Economic Indicators)", healthy: true, latencyMs: 0, circuitState: "closed" as CircuitState });
+
+      results.push({
+        name: "Walk Score",
+        healthy: !!process.env.WALK_SCORE_API_KEY,
+        latencyMs: 0,
+        lastError: process.env.WALK_SCORE_API_KEY ? undefined : "API key not configured (WALK_SCORE_API_KEY)",
+        circuitState: "closed" as CircuitState,
+      });
 
       res.json(results);
     } catch (error: any) {

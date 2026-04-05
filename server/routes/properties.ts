@@ -12,6 +12,7 @@ import { UserRole } from "@shared/constants";
 import { invalidateComputeCache } from "../finance/cache";
 import { buildPropertyDefaultsFromRegistry } from "@shared/field-registry";
 import { logger } from "../logger";
+import { WalkScoreService } from "../services/WalkScoreService";
 
 export function buildPropertyDefaultsFromGlobal(ga?: GlobalAssumptions): Record<string, unknown> {
   return buildPropertyDefaultsFromRegistry(ga as unknown as Record<string, unknown>);
@@ -322,6 +323,39 @@ export function register(app: Express) {
       res.json(categories);
     } catch (error) {
       logAndSendError(res, "Failed to fetch fee categories", error);
+    }
+  });
+
+  // Walk Score — property-level walkability, transit, and bike scores
+  app.get("/api/properties/:id/walk-score", requireAuth, async (req, res) => {
+    try {
+      const propertyId = parseInt(String(req.params.id));
+      const property = await storage.getProperty(propertyId);
+      if (!property) return res.status(404).json({ error: "Property not found" });
+
+      if (!property.latitude || !property.longitude) {
+        return res.status(422).json({ error: "Property has no coordinates — cannot fetch Walk Score" });
+      }
+
+      const svc = new WalkScoreService();
+      if (!svc.isAvailable()) {
+        return res.status(503).json({ error: "Walk Score not configured (WALK_SCORE_API_KEY missing)" });
+      }
+
+      const address = [property.streetAddress, property.city, property.stateProvince, property.country]
+        .filter(Boolean).join(", ");
+
+      const scores = await svc.fetchScores({
+        address,
+        lat: property.latitude,
+        lng: property.longitude,
+        propertyId,
+      });
+
+      if (!scores) return res.status(502).json({ error: "Walk Score unavailable" });
+      return res.json(scores);
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch Walk Score", error);
     }
   });
 }

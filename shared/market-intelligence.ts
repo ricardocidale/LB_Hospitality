@@ -96,6 +96,43 @@ export interface XoteloMarketData {
   location?: string;
 }
 
+// ─── FX Rates ────────────────────────────────────────────────────────────────
+
+export interface FxRates {
+  base: "USD";
+  fetchedAt: string;
+  /** Local units per 1 USD (e.g. COP: 4100 means $1 = 4,100 COP) */
+  rates: Record<string, number>;
+  /** USD per 1 local unit (convenience inverse) */
+  usdPer: Record<string, number>;
+}
+
+// ─── World Bank Country Economics ────────────────────────────────────────────
+
+export interface WorldBankCountryData {
+  country: string;
+  iso2: string;
+  gdpGrowth?:       DataPoint;   // annual % growth
+  inflation?:       DataPoint;   // CPI annual %
+  tourismArrivals?: DataPoint;   // international arrivals (count)
+  unemployment?:    DataPoint;   // % of labor force
+  gniPerCapita?:    DataPoint;   // USD, Atlas method
+  fetchedAt: string;
+}
+
+// ─── Walk Score (property-level) ─────────────────────────────────────────────
+
+export interface WalkScoreData {
+  walkScore:    number | null;
+  walkDesc:     string | null;
+  transitScore: number | null;
+  transitDesc:  string | null;
+  bikeScore:    number | null;
+  bikeDesc:     string | null;
+  wsUrl:        string | null;
+  fetchedAt:    string;
+}
+
 // ─── Apify STR Comp-Set Data ─────────────────────────────────────────────────
 
 export interface ApifyListingSnapshot {
@@ -153,6 +190,8 @@ export interface MarketIntelligence {
   costar?: CoStarMarketData;
   xotelo?: XoteloMarketData;
   apify?: ApifyMarketData;
+  fx?: FxRates;
+  worldBank?: WorldBankCountryData;
   groundedResearch: GroundedSearchResult[];
   fetchedAt: string;
   errors: string[];

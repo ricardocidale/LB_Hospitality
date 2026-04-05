@@ -6,12 +6,15 @@ import { SPGlobalService } from "./SPGlobalService";
 import { CoStarService } from "./CoStarService";
 import { XoteloService } from "./XoteloService";
 import { ApifyService } from "./ApifyService";
+import { OpenExchangeRatesService } from "./OpenExchangeRatesService";
+import { WorldBankService } from "./WorldBankService";
 import { cache } from "../cache";
-import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData, ApifyMarketData } from "../../shared/market-intelligence";
+import type { MarketIntelligence, FREDRateData, HospitalityBenchmarks, GroundedSearchResult, MoodysRiskData, SPGlobalMarketData, CoStarMarketData, XoteloMarketData, ApifyMarketData, FxRates, WorldBankCountryData } from "../../shared/market-intelligence";
 
 interface AggregatorQuery {
   location?: string;
   state?: string;
+  country?: string;
   propertyType?: string;
   propertyClass?: string;
   chainScale?: string;
@@ -29,6 +32,8 @@ export class MarketIntelligenceAggregator {
   private costar: CoStarService;
   private xotelo: XoteloService;
   private apify: ApifyService;
+  private fx: OpenExchangeRatesService;
+  private worldBank: WorldBankService;
 
   constructor() {
     this.fred = new FREDService();
@@ -39,6 +44,8 @@ export class MarketIntelligenceAggregator {
     this.costar = new CoStarService();
     this.xotelo = new XoteloService();
     this.apify = new ApifyService();
+    this.fx = new OpenExchangeRatesService();
+    this.worldBank = new WorldBankService();
   }
 
   async gather(query: AggregatorQuery): Promise<MarketIntelligence> {
@@ -64,7 +71,7 @@ export class MarketIntelligenceAggregator {
   private async gatherFresh(query: AggregatorQuery): Promise<MarketIntelligence> {
     const errors: string[] = [];
 
-    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult, apifyResult] = await Promise.allSettled([
+    const [ratesResult, benchmarksResult, searchResult, moodysResult, spGlobalResult, costarResult, xoteloResult, apifyResult, fxResult, worldBankResult] = await Promise.allSettled([
       this.fetchRates(),
       query.location
         ? this.hospitality.fetchBenchmarks({
@@ -109,6 +116,12 @@ export class MarketIntelligenceAggregator {
       query.location && this.apify.isAvailable()
         ? this.apify.fetchCompSetData(query.location)
         : Promise.resolve(undefined),
+      this.fx.isAvailable()
+        ? this.fx.fetchRates()
+        : Promise.resolve(null),
+      query.country
+        ? this.worldBank.fetchCountryData(query.country)
+        : Promise.resolve(null),
     ]);
 
     let rates: Record<string, FREDRateData> = {};
@@ -167,6 +180,20 @@ export class MarketIntelligenceAggregator {
       errors.push(`Apify: ${apifyResult.reason?.message || "Unknown error"}`);
     }
 
+    let fx: FxRates | undefined;
+    if (fxResult.status === "fulfilled" && fxResult.value) {
+      fx = fxResult.value;
+    } else if (fxResult.status === "rejected") {
+      errors.push(`FX rates: ${fxResult.reason?.message || "Unknown error"}`);
+    }
+
+    let worldBank: WorldBankCountryData | undefined;
+    if (worldBankResult.status === "fulfilled" && worldBankResult.value) {
+      worldBank = worldBankResult.value;
+    } else if (worldBankResult.status === "rejected") {
+      errors.push(`World Bank: ${worldBankResult.reason?.message || "Unknown error"}`);
+    }
+
     return {
       rates: {
         sofr: rates.sofr,
@@ -182,6 +209,8 @@ export class MarketIntelligenceAggregator {
       costar,
       xotelo,
       apify,
+      fx,
+      worldBank,
       groundedResearch,
       fetchedAt: new Date().toISOString(),
       errors,
@@ -198,7 +227,7 @@ export class MarketIntelligenceAggregator {
     return this.fred.fetchRate(seriesKey as any);
   }
 
-  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean; apify: boolean } {
+  getServiceStatus(): { fred: boolean; hospitality: boolean; grounded: boolean; moodys: boolean; spGlobal: boolean; costar: boolean; xotelo: boolean; apify: boolean; fx: boolean; worldBank: boolean } {
     return {
       fred: this.fred.isAvailable(),
       hospitality: this.hospitality.isAvailable(),
@@ -208,6 +237,8 @@ export class MarketIntelligenceAggregator {
       costar: this.costar.isAvailable(),
       xotelo: this.xotelo.isAvailable(),
       apify: this.apify.isAvailable(),
+      fx: this.fx.isAvailable(),
+      worldBank: this.worldBank.isAvailable(),
     };
   }
   

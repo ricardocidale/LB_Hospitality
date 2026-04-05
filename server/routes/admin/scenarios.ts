@@ -73,6 +73,7 @@ export function registerAdminScenarioRoutes(app: Express) {
       const scenario = await storage.createScenarioForUser(validation.data.userId, {
         name: validation.data.name,
         description: validation.data.description ?? null,
+        kind: validation.data.kind,
       });
 
       logActivity(req, "admin-create-scenario", "scenario", scenario.id, scenario.name, { forUserId: validation.data.userId });

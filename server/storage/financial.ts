@@ -652,7 +652,7 @@ export class FinancialStorage {
     return result;
   }
 
-  async createScenarioForUser(userId: number, data: { name: string; description?: string | null }): Promise<Scenario> {
+  async createScenarioForUser(userId: number, data: { name: string; description?: string | null; kind?: string }): Promise<Scenario> {
     const assumptions = await this.getGlobalAssumptions(userId);
     const allProps = await db.select().from(properties)
       .where(or(eq(properties.userId, userId), isNull(properties.userId)))
@@ -681,6 +681,7 @@ export class FinancialStorage {
       properties: allProps || [],
       feeCategories: feeCatsByProp,
       propertyPhotos: photosByProp,
+      ...(data.kind ? { kind: data.kind } : {}),
     } as typeof scenarios.$inferInsert).returning();
     return scenario;
   }

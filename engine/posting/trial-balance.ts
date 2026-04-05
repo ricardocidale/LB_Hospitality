@@ -2,7 +2,7 @@ import type { PostedEntry, TrialBalanceEntry } from "../../domain/ledger/types.j
 import { getAccount } from "../../domain/ledger/accounts.js";
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
-import { dSum } from "../../calc/shared/decimal.js";
+import { dSum } from "@calc/shared/decimal.js";
 
 function aggregateEntries(
   filteredEntries: PostedEntry[],

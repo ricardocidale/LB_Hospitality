@@ -1,4 +1,5 @@
 import { isIP } from "net";
+import { resolve4, resolve6 } from "dns/promises";
 
 const BLOCKED_HOSTS = new Set([
   "metadata.google.internal",
@@ -25,32 +26,53 @@ const PRIVATE_CIDRS = [
   "0.0.0.0/8",
 ];
 
-function stripIPv6Prefix(hostname: string): string {
-  const bracket = hostname.replace(/^\[|\]$/g, "");
-  if (bracket.startsWith("::ffff:")) {
-    return bracket.slice(7);
+function isPrivateIPv4(ip: string): boolean {
+  return PRIVATE_CIDRS.some((cidr) => isInCIDR(ip, cidr));
+}
+
+function isBlockedIPv6(ip: string): boolean {
+  const clean = ip.replace(/^\[|\]$/g, "");
+  if (clean === "::1" || clean === "::") return true;
+  if (clean.startsWith("fe80:")) return true;
+  if (clean.startsWith("fc") || clean.startsWith("fd")) return true;
+  if (clean.startsWith("::ffff:")) {
+    const v4 = clean.slice(7);
+    if (isIP(v4) === 4) return isPrivateIPv4(v4);
   }
-  return bracket;
+  return false;
+}
+
+function isBlockedIP(ip: string): boolean {
+  const stripped = ip.replace(/^\[|\]$/g, "");
+  if (isIP(stripped) === 4) return isPrivateIPv4(stripped);
+  if (isIP(stripped) === 6) return isBlockedIPv6(stripped);
+  return false;
 }
 
 export function isBlockedHost(hostname: string): boolean {
   if (BLOCKED_HOSTS.has(hostname)) return true;
   if (hostname.endsWith(".internal")) return true;
+  return isBlockedIP(hostname);
+}
 
-  const stripped = stripIPv6Prefix(hostname);
+export async function isBlockedHostResolved(hostname: string): Promise<boolean> {
+  if (isBlockedHost(hostname)) return true;
 
-  if (stripped === "::1" || stripped === "::") return true;
+  if (isIP(hostname) !== 0) return false;
 
-  if (isIP(stripped) === 4) {
-    return PRIVATE_CIDRS.some((cidr) => isInCIDR(stripped, cidr));
-  }
-
-  if (isIP(hostname.replace(/^\[|\]$/g, "")) === 6) {
-    const clean = hostname.replace(/^\[|\]$/g, "");
-    if (clean === "::1" || clean === "::" || clean.startsWith("fe80:") || clean.startsWith("fc") || clean.startsWith("fd")) {
-      return true;
+  try {
+    const v4Addrs = await resolve4(hostname).catch(() => [] as string[]);
+    for (const addr of v4Addrs) {
+      if (isPrivateIPv4(addr)) return true;
     }
-  }
+  } catch {}
+
+  try {
+    const v6Addrs = await resolve6(hostname).catch(() => [] as string[]);
+    for (const addr of v6Addrs) {
+      if (isBlockedIPv6(addr)) return true;
+    }
+  } catch {}
 
   return false;
 }

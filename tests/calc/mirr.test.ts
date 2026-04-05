@@ -75,6 +75,16 @@ describe("computeMIRR", () => {
     expect(result.mirr).toBeGreaterThan(0);
   });
 
+  it("returns null for non-finite MIRR result", () => {
+    const result = computeMIRR({
+      cash_flow_vector: [-1e-300, 1e300, 1e300, 1e300, 1e300],
+      finance_rate: 0.10,
+      reinvestment_rate: 1e200,
+    });
+    expect(result.is_valid).toBe(false);
+    expect(result.mirr).toBeNull();
+  });
+
   it("golden: hand-calculated 3-period MIRR", () => {
     const result = computeMIRR({
       cash_flow_vector: [-1000, 600, 800],

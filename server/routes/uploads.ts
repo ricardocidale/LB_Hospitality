@@ -9,7 +9,7 @@ import { storage } from "../storage";
 import { UserRole } from "@shared/constants";
 import { MAX_UPLOAD_BYTES } from "../constants";
 import { logger } from "../logger";
-import { isBlockedHost } from "./ssrf-guard";
+import { isBlockedHostResolved } from "./ssrf-guard";
 
 const sharedObjectStorageService = new ObjectStorageService();
 const ALLOWED_CONTENT_TYPES = [
@@ -208,7 +208,7 @@ export function register(app: Express) {
             contentType = metadata.contentType || "image/jpeg";
           } else if (photo.imageUrl.startsWith("https://")) {
             const parsed = new URL(photo.imageUrl);
-            if (isBlockedHost(parsed.hostname)) {
+            if (await isBlockedHostResolved(parsed.hostname)) {
               failed++;
               continue;
             }
